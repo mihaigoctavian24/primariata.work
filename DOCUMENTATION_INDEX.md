@@ -182,8 +182,17 @@ git commit -m "docs(ro): actualizare cerințe funcționale"
 ## 📧 Contact & Questions
 
 **Întrebări despre structura documentației?**
+
 - 💬 Creează issue cu tag `documentation`
-- 📧 Email: [your-email@university.edu]
+
+- 📧 Email to: 
+
+To: **Bianca-Maria Abbasi Pazeyazd** - [abbasipazeyazd.h.biancamaria24@stud.rau.ro](mailto:abbasipazeyazd.h.biancamaria24@stud.rau.ro)
+
+Cc:**Octavian Mihai** - [mihai.g.octavian24@stud.rau.ro](mailto:mihai.g.octavian24@stud.rau.ro)
+
+Subject: **Q:Docs - Primaria ta ❤️**
+
 - 👥 Echipa: Bubu & Dudu Dev Team
 
 ---
