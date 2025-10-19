@@ -24,30 +24,24 @@ ALTER TABLE statistici_publice ENABLE ROW LEVEL SECURITY;
 -- =====================================================
 -- HELPER FUNCTIONS FOR RLS POLICIES
 -- =====================================================
-
--- Get current authenticated user ID from JWT
-CREATE OR REPLACE FUNCTION auth.current_user_id()
-RETURNS UUID AS $$
-  SELECT NULLIF(current_setting('request.jwt.claims', true)::json->>'sub', '')::uuid;
-$$ LANGUAGE SQL STABLE;
-
-COMMENT ON FUNCTION auth.current_user_id IS 'Extract user ID from Supabase JWT claims';
+-- Note: Supabase provides auth.uid() for getting current user ID
+-- We create helper functions in public schema for role/primarie checks
 
 -- Get current user role
-CREATE OR REPLACE FUNCTION auth.current_user_role()
+CREATE OR REPLACE FUNCTION public.current_user_role()
 RETURNS TEXT AS $$
-  SELECT rol FROM utilizatori WHERE id = auth.current_user_id();
-$$ LANGUAGE SQL STABLE;
+  SELECT rol FROM public.utilizatori WHERE id = auth.uid();
+$$ LANGUAGE SQL STABLE SECURITY DEFINER;
 
-COMMENT ON FUNCTION auth.current_user_role IS 'Get role of current authenticated user';
+COMMENT ON FUNCTION public.current_user_role IS 'Get role of current authenticated user';
 
 -- Get current user primarie_id
-CREATE OR REPLACE FUNCTION auth.current_user_primarie()
+CREATE OR REPLACE FUNCTION public.current_user_primarie()
 RETURNS UUID AS $$
-  SELECT primarie_id FROM utilizatori WHERE id = auth.current_user_id();
-$$ LANGUAGE SQL STABLE;
+  SELECT primarie_id FROM public.utilizatori WHERE id = auth.uid();
+$$ LANGUAGE SQL STABLE SECURITY DEFINER;
 
-COMMENT ON FUNCTION auth.current_user_primarie IS 'Get primarie_id of current authenticated user (NULL for cetățeni)';
+COMMENT ON FUNCTION public.current_user_primarie IS 'Get primarie_id of current authenticated user (NULL for cetățeni)';
 
 -- =====================================================
 -- RLS POLICIES: PRIMARII TABLE
@@ -59,7 +53,7 @@ CREATE POLICY primarii_super_admin ON primarii
   USING (
     EXISTS (
       SELECT 1 FROM utilizatori
-      WHERE id = auth.current_user_id()
+      WHERE id = auth.uid()
         AND rol = 'super_admin'
     )
   );
@@ -67,7 +61,7 @@ CREATE POLICY primarii_super_admin ON primarii
 -- Admin/funcționar can see their own primărie
 CREATE POLICY primarii_own ON primarii
   FOR SELECT
-  USING (id = auth.current_user_primarie());
+  USING (id = public.current_user_primarie());
 
 -- Cetățeni can see any active primărie (for primărie selection on registration)
 CREATE POLICY primarii_public ON primarii
@@ -85,14 +79,14 @@ COMMENT ON POLICY primarii_public ON primarii IS 'Public can view active primăr
 -- Users can see and modify their own profile
 CREATE POLICY utilizatori_self ON utilizatori
   FOR ALL
-  USING (id = auth.current_user_id());
+  USING (id = auth.uid());
 
 -- Funcționari/admins can see users in their primărie
 CREATE POLICY utilizatori_same_primarie ON utilizatori
   FOR SELECT
   USING (
-    primarie_id = auth.current_user_primarie()
-    AND auth.current_user_role() IN ('functionar', 'admin')
+    primarie_id = public.current_user_primarie()
+    AND public.current_user_role() IN ('functionar', 'admin')
   );
 
 COMMENT ON POLICY utilizatori_self ON utilizatori IS 'Users can manage their own profile';
@@ -106,8 +100,8 @@ COMMENT ON POLICY utilizatori_same_primarie ON utilizatori IS 'Funcționari can 
 CREATE POLICY tipuri_cereri_functionar ON tipuri_cereri
   FOR ALL
   USING (
-    primarie_id = auth.current_user_primarie()
-    AND auth.current_user_role() IN ('functionar', 'admin')
+    primarie_id = public.current_user_primarie()
+    AND public.current_user_role() IN ('functionar', 'admin')
   );
 
 -- Cetățeni can view active request types for any primărie
@@ -125,14 +119,14 @@ COMMENT ON POLICY tipuri_cereri_public ON tipuri_cereri IS 'Public can view acti
 -- Cetățeni can see and create their own cereri
 CREATE POLICY cereri_own ON cereri
   FOR ALL
-  USING (solicitant_id = auth.current_user_id());
+  USING (solicitant_id = auth.uid());
 
 -- Funcționari/admins can see all cereri in their primărie
 CREATE POLICY cereri_functionar ON cereri
   FOR ALL
   USING (
-    primarie_id = auth.current_user_primarie()
-    AND auth.current_user_role() IN ('functionar', 'admin')
+    primarie_id = public.current_user_primarie()
+    AND public.current_user_role() IN ('functionar', 'admin')
   );
 
 -- Prevent users from modifying finalized/cancelled cereri (unless admin)
@@ -140,7 +134,7 @@ CREATE POLICY cereri_no_modify_finalized ON cereri
   FOR UPDATE
   USING (
     status NOT IN ('finalizata', 'anulata')
-    OR auth.current_user_role() = 'admin'
+    OR public.current_user_role() = 'admin'
   );
 
 COMMENT ON POLICY cereri_own ON cereri IS 'Cetățeni can manage their own requests';
@@ -158,7 +152,7 @@ CREATE POLICY documente_own_cerere ON documente
     EXISTS (
       SELECT 1 FROM cereri
       WHERE cereri.id = documente.cerere_id
-        AND cereri.solicitant_id = auth.current_user_id()
+        AND cereri.solicitant_id = auth.uid()
     )
   );
 
@@ -169,17 +163,17 @@ CREATE POLICY documente_upload_own ON documente
     EXISTS (
       SELECT 1 FROM cereri
       WHERE cereri.id = documente.cerere_id
-        AND cereri.solicitant_id = auth.current_user_id()
+        AND cereri.solicitant_id = auth.uid()
     )
-    AND incarcat_de_id = auth.current_user_id()
+    AND incarcat_de_id = auth.uid()
   );
 
 -- Funcționari/admins can manage documents in their primărie
 CREATE POLICY documente_functionar ON documente
   FOR ALL
   USING (
-    primarie_id = auth.current_user_primarie()
-    AND auth.current_user_role() IN ('functionar', 'admin')
+    primarie_id = public.current_user_primarie()
+    AND public.current_user_role() IN ('functionar', 'admin')
   );
 
 COMMENT ON POLICY documente_own_cerere ON documente IS 'Users can view documents for their cereri';
@@ -194,19 +188,19 @@ COMMENT ON POLICY documente_functionar ON documente IS 'Funcționari can manage 
 CREATE POLICY mesaje_participant ON mesaje
   FOR SELECT
   USING (
-    expeditor_id = auth.current_user_id()
-    OR destinatar_id = auth.current_user_id()
+    expeditor_id = auth.uid()
+    OR destinatar_id = auth.uid()
   );
 
 -- Only sender can insert (must be expeditor)
 CREATE POLICY mesaje_send ON mesaje
   FOR INSERT
-  WITH CHECK (expeditor_id = auth.current_user_id());
+  WITH CHECK (expeditor_id = auth.uid());
 
 -- Users can update messages they sent (mark as deleted)
 CREATE POLICY mesaje_update_own ON mesaje
   FOR UPDATE
-  USING (expeditor_id = auth.current_user_id());
+  USING (expeditor_id = auth.uid());
 
 COMMENT ON POLICY mesaje_participant ON mesaje IS 'Users can view messages they sent or received';
 COMMENT ON POLICY mesaje_send ON mesaje IS 'Users can only send messages as themselves';
@@ -218,14 +212,14 @@ COMMENT ON POLICY mesaje_send ON mesaje IS 'Users can only send messages as them
 -- Users can see their own payments
 CREATE POLICY plati_own ON plati
   FOR SELECT
-  USING (utilizator_id = auth.current_user_id());
+  USING (utilizator_id = auth.uid());
 
 -- Funcționari/admins can see all payments in their primărie
 CREATE POLICY plati_functionar ON plati
   FOR ALL
   USING (
-    primarie_id = auth.current_user_primarie()
-    AND auth.current_user_role() IN ('functionar', 'admin')
+    primarie_id = public.current_user_primarie()
+    AND public.current_user_role() IN ('functionar', 'admin')
   );
 
 COMMENT ON POLICY plati_own ON plati IS 'Users can view their own payments';
@@ -238,7 +232,7 @@ COMMENT ON POLICY plati_functionar ON plati IS 'Funcționari can manage all paym
 -- Users can see their own notifications
 CREATE POLICY notificari_own ON notificari
   FOR ALL
-  USING (utilizator_id = auth.current_user_id());
+  USING (utilizator_id = auth.uid());
 
 COMMENT ON POLICY notificari_own ON notificari IS 'Users can view and manage their own notifications';
 
@@ -250,8 +244,8 @@ COMMENT ON POLICY notificari_own ON notificari IS 'Users can view and manage the
 CREATE POLICY audit_functionar ON audit_log
   FOR SELECT
   USING (
-    primarie_id = auth.current_user_primarie()
-    AND auth.current_user_role() IN ('functionar', 'admin')
+    primarie_id = public.current_user_primarie()
+    AND public.current_user_role() IN ('functionar', 'admin')
   );
 
 -- Super admin can see all audit logs
@@ -260,7 +254,7 @@ CREATE POLICY audit_super_admin ON audit_log
   USING (
     EXISTS (
       SELECT 1 FROM utilizatori
-      WHERE id = auth.current_user_id()
+      WHERE id = auth.uid()
         AND rol = 'super_admin'
     )
   );
@@ -276,8 +270,8 @@ COMMENT ON POLICY audit_super_admin ON audit_log IS 'Super admins can view all a
 CREATE POLICY templates_functionar ON templates
   FOR ALL
   USING (
-    primarie_id = auth.current_user_primarie()
-    AND auth.current_user_role() IN ('functionar', 'admin')
+    primarie_id = public.current_user_primarie()
+    AND public.current_user_role() IN ('functionar', 'admin')
   );
 
 COMMENT ON POLICY templates_functionar ON templates IS 'Funcționari can manage templates in their primărie';
@@ -297,7 +291,7 @@ CREATE POLICY statistici_publice_admin_write ON statistici_publice
   USING (
     EXISTS (
       SELECT 1 FROM utilizatori
-      WHERE id = auth.current_user_id()
+      WHERE id = auth.uid()
         AND rol = 'super_admin'
     )
   );
@@ -334,9 +328,9 @@ COMMIT;
 -- DROP POLICY IF EXISTS primarii_public ON primarii;
 -- DROP POLICY IF EXISTS primarii_own ON primarii;
 -- DROP POLICY IF EXISTS primarii_super_admin ON primarii;
--- DROP FUNCTION IF EXISTS auth.current_user_primarie();
--- DROP FUNCTION IF EXISTS auth.current_user_role();
--- DROP FUNCTION IF EXISTS auth.current_user_id();
+-- DROP FUNCTION IF EXISTS public.current_user_primarie();
+-- DROP FUNCTION IF EXISTS public.current_user_role();
+-- DROP FUNCTION IF EXISTS auth.uid();
 -- ALTER TABLE statistici_publice DISABLE ROW LEVEL SECURITY;
 -- ALTER TABLE templates DISABLE ROW LEVEL SECURITY;
 -- ALTER TABLE audit_log DISABLE ROW LEVEL SECURITY;
