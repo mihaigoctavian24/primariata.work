@@ -8,18 +8,11 @@ BEGIN;
 -- =====================================================
 -- EXTENSIONS
 -- =====================================================
+-- Note: Supabase pre-installs extensions in 'extensions' schema
+-- We reference them as extensions.uuid_generate_v4() or set search_path
 
--- UUID generation
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
--- Encryption functions
-CREATE EXTENSION IF NOT EXISTS "pgcrypto";
-
--- Full-text search trigram matching
-CREATE EXTENSION IF NOT EXISTS "pg_trgm";
-
--- Geolocation (optional, for coordonate field)
-CREATE EXTENSION IF NOT EXISTS "postgis";
+-- Set search path to include extensions schema
+SET search_path TO public, extensions;
 
 -- =====================================================
 -- CORE TABLES (in dependency order)

@@ -5,6 +5,9 @@
 
 BEGIN;
 
+-- Set search path to include extensions schema for pg_trgm
+SET search_path TO public, extensions;
+
 -- =====================================================
 -- FULL-TEXT SEARCH INDEXES (Romanian language)
 -- =====================================================
@@ -21,12 +24,8 @@ CREATE INDEX idx_localitati_nume_trgm ON localitati
 
 COMMENT ON INDEX idx_localitati_nume_trgm IS 'Trigram index for fuzzy/partial matching on localități names';
 
--- Full-slug index for compound judet+localitate lookup
-CREATE INDEX idx_localitati_full_slug ON localitati(
-  (SELECT cod FROM judete WHERE id = judet_id) || '/' || slug
-);
-
-COMMENT ON INDEX idx_localitati_full_slug IS 'Composite index for full slug matching (e.g., "arad/zimandu-nou")';
+-- Note: Full-slug index would require a generated column or function
+-- For now, we'll use separate indexes on judet_id and slug (already exist)
 
 -- Search cereri by content (Romanian text search)
 CREATE INDEX idx_cereri_search ON cereri
