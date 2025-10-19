@@ -10,9 +10,9 @@
 
 ---
 
-## 🌟 Ce este Primăriata?
+## 🌟 Ce este primariaTa❤️_?
 
-**Primăriata** este o platformă SaaS white-label care digitalizează complet procesele administrative locale din România. 
+**primariaTa❤️_** este o platformă SaaS white-label care digitalizează complet procesele administrative locale din România. 
 
 Imaginează-ți o primărie unde:
 
@@ -22,7 +22,7 @@ Imaginează-ți o primărie unde:
 - 📄 **Descarci documente** - semnate digital, valabile legal
 - 💬 **Comunici direct** - cu funcționarii, prin chat integrat
 
-**Asta e Primăriata** - administrația publică așa cum ar trebui să fie: **rapidă, transparentă, accesibilă**.
+**Asta e primariaTa❤️_** - administrația publică așa cum ar trebui să fie: **rapidă, transparentă, accesibilă**.
 
 ---
 
@@ -40,7 +40,7 @@ Verifică că ai instalate:
 
 ```bash
 # 1. Clone repo-ul
-git clone https://github.com/[your-org]/primariata.work.git
+git clone https://github.com/mihaigoctavian24/primariata.work.git
 cd primariata.work
 
 # 2. Instalează dependințele
@@ -410,7 +410,7 @@ Mulțumim tuturor celor care au contribuit la acest proiect:
 - 📧 **Prof. Andrei Luchici**: [andrei.luchici@rau.ro](mailto:andrei.luchici@rau.ro)
 
 ### Alte Canale
-- 💬 GitHub Issues: [Create an issue](https://github.com/[your-org]/primariata.work/issues)
+- 💬 GitHub Issues: [Create an issue](https://github.com/mihaigoctavian24/primariata.work/issues)
 - 🌐 Website: [primariata.work](https://primariata.work)
 
 ---
