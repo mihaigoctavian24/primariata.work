@@ -9,6 +9,7 @@
 ## 🎯 Scop
 
 Acest director conține **documentația oficială în limba română** destinată:
+
 - 🎓 **Profesorilor** - evaluare proiect universitar
 - 📋 **Comisiei** - prezentare tehnică și demonstrație
 - 🏛️ **Stakeholderilor** - primării, utilizatori finali
@@ -63,7 +64,9 @@ Documentatie/
 ## 🔄 Relația cu `.docs/`
 
 ### `.docs/` (EN - Technical, gitignored)
+
 **Scop**: Documentație tehnică detaliată pentru dezvoltatori
+
 - 🇬🇧 **Limba**: Engleză
 - 🛠️ **Public**: Dezvoltatori, DevOps, QA
 - 📊 **Nivel**: Tehnic avansat (PRD, API specs, DB schemas)
@@ -71,7 +74,9 @@ Documentatie/
 - 📁 **Conținut**: 804KB, 19 fișiere tehnice detaliate
 
 ### `Documentatie/` (RO - Official, committed)
+
 **Scop**: Documentație oficială pentru prezentare și evaluare
+
 - 🇷🇴 **Limba**: Română
 - 🎓 **Public**: Profesori, comisie, stakeholderi
 - 📖 **Nivel**: Comprehensibil, prezentare
@@ -83,17 +88,20 @@ Documentatie/
 ## 📝 Standarde Documentație
 
 ### Format
+
 - ✅ **Markdown** (.md) pentru ușurință în editare și versioning
 - ✅ **Diagrame**: Export ca PNG/SVG în `03-Arhitectura/Diagrame/`
 - ✅ **Screenshots**: Incluse în ghidurile de utilizare
 
 ### Stil
+
 - ✅ **Limbaj formal** dar accesibil
 - ✅ **Structură clară** cu headings și liste
 - ✅ **Exemple concrete** și capturi de ecran
 - ✅ **Emoji subtile** pentru navigare ușoară (📄, 🎯, ⚠️)
 
 ### Versioning
+
 - ✅ Toate documentele au **Versiune** și **Dată actualizare**
 - ✅ Changelog inclus pentru modificări majore
 - ✅ Commituri clare: `docs(ro): actualizare Cerinte-Functionale.md`
@@ -103,20 +111,26 @@ Documentatie/
 ## 🎯 Prioritizare Documentare
 
 ### Phase 0-1 (Săptămâni 1-6)
+
 **Prioritate**: 🔴 CRITICAL
+
 - [ ] `01-Prezentare/README.md` - Introducere proiect
 - [ ] `01-Prezentare/Obiective.md` - Obiective clare
 - [ ] `02-Cerinte/Cerinte-Functionale.md` - Ce face aplicația
 - [ ] `03-Arhitectura/Arhitectura-Generala.md` - Overview tehnic
 
 ### Phase 2 (Săptămâni 7-12)
+
 **Prioritate**: 🟡 HIGH
+
 - [ ] `02-Cerinte/Cazuri-Utilizare.md` - Scenarii detaliate
 - [ ] `03-Arhitectura/Baza-Date.md` - Schema DB
 - [ ] `04-Implementare/Tehnologii.md` - Stack tehnologic
 
 ### Phase 3-5 (Săptămâni 13-24)
+
 **Prioritate**: 🟢 MEDIUM
+
 - [ ] `05-Utilizare/Ghid-*.md` - Ghiduri complete utilizatori
 - [ ] `06-Anexe/Glossar.md` - Termeni tehnici
 - [ ] Toate diagramele în `03-Arhitectura/Diagrame/`
@@ -126,12 +140,14 @@ Documentatie/
 ## 🛠️ Cum Contribui
 
 ### 1. Creează/Editează Document
+
 ```bash
 cd Documentatie/02-Cerinte
 nano Cerinte-Functionale.md
 ```
 
 ### 2. Folosește Template
+
 ```markdown
 # Titlu Document
 
@@ -142,19 +158,23 @@ nano Cerinte-Functionale.md
 ---
 
 ## Scop
+
 [Scurtă descriere a scopului documentului]
 
 ## Conținut
+
 [Conținut principal]
 
 ---
 
 **Referințe**:
+
 - Link către alte documente
 - Surse externe
 ```
 
 ### 3. Commit Changes
+
 ```bash
 git add Documentatie/
 git commit -m "docs(ro): adaugă Cerinte-Functionale.md"
@@ -165,14 +185,14 @@ git push origin develop
 
 ## 📊 Status Documentare
 
-| Categorie | Status | Completare | Prioritate |
-|-----------|--------|------------|------------|
-| 01-Prezentare | 🔴 TODO | 0% | CRITICAL |
-| 02-Cerinte | 🔴 TODO | 0% | CRITICAL |
-| 03-Arhitectura | 🔴 TODO | 0% | HIGH |
-| 04-Implementare | 🟡 STARTED | 10% | MEDIUM |
-| 05-Utilizare | 🔴 TODO | 0% | MEDIUM |
-| 06-Anexe | 🔴 TODO | 0% | LOW |
+| Categorie       | Status     | Completare | Prioritate |
+| --------------- | ---------- | ---------- | ---------- |
+| 01-Prezentare   | 🔴 TODO    | 0%         | CRITICAL   |
+| 02-Cerinte      | 🔴 TODO    | 0%         | CRITICAL   |
+| 03-Arhitectura  | 🔴 TODO    | 0%         | HIGH       |
+| 04-Implementare | 🟡 STARTED | 10%        | MEDIUM     |
+| 05-Utilizare    | 🔴 TODO    | 0%         | MEDIUM     |
+| 06-Anexe        | 🔴 TODO    | 0%         | LOW        |
 
 **Target**: 80% completare pentru prezentare finală (Săptămâna 20-22)
 
@@ -181,11 +201,13 @@ git push origin develop
 ## 🎓 Pentru Profesori și Comisie
 
 ### Documente Principale (Must Read)
+
 1. **[01-Prezentare/README.md]** - Ce este Primăriata (5 min)
 2. **[02-Cerinte/Cerinte-Functionale.md]** - Ce face aplicația (10 min)
 3. **[03-Arhitectura/Arhitectura-Generala.md]** - Cum funcționează tehnic (15 min)
 
 ### Demo și Prezentare
+
 - 🎥 **Video Demo**: Link către prezentare video
 - 💻 **Live Demo**: https://primariata.work (când va fi live)
 - 📊 **Prezentare PPT**: Link către slides
@@ -196,7 +218,7 @@ git push origin develop
 
 **Pentru întrebări despre documentație**:
 
-- 📧 Email to: 
+- 📧 Email to:
 
 To: **Bianca-Maria Abbasi Pazeyazd** - [abbasipazeyazd.h.biancamaria24@stud.rau.ro](mailto:abbasipazeyazd.h.biancamaria24@stud.rau.ro)
 

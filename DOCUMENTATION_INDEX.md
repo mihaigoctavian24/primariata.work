@@ -96,6 +96,7 @@ Documentatie/
 ```
 
 **Proces**:
+
 1. 📝 **Scrii** în `.docs/` (EN) - documentație tehnică work-in-progress
 2. 🔄 **Extrage** concepte principale
 3. 🇷🇴 **Traduci** și **simplifici** în `Documentatie/` (RO)
@@ -106,18 +107,21 @@ Documentatie/
 ## 📖 Quick Navigation
 
 ### Pentru Dezvoltatori
+
 1. **Start aici**: [README.md](README.md) - Project overview
 2. **Setup**: [GETTING_STARTED.md](GETTING_STARTED.md) - Quick start în 5 min
 3. **Technical docs**: `.docs/02-technical-specs/` - Database, API, Infrastructure
 4. **Roadmap**: `.docs/03-implementation/IMPLEMENTATION_ROADMAP.md` - Phase 0-5 tasks
 
 ### Pentru Profesori/Comisie
+
 1. **Start aici**: [Documentatie/README.md](Documentatie/README.md) - Index documentație oficială
 2. **Prezentare**: `Documentatie/01-Prezentare/` - Viziune, obiective
 3. **Cerințe**: `Documentatie/02-Cerinte/` - Specificații funcționale
 4. **Arhitectură**: `Documentatie/03-Arhitectura/` - Design și diagrame
 
 ### Pentru Utilizatori Finali
+
 1. **Ghid cetățean**: `Documentatie/05-Utilizare/Ghid-Cetatean.md`
 2. **Ghid funcționar**: `Documentatie/05-Utilizare/Ghid-Functionar.md`
 3. **FAQ**: `Documentatie/05-Utilizare/FAQ.md`
@@ -129,6 +133,7 @@ Documentatie/
 ### Când creezi documentație nouă:
 
 #### Pentru implementare tehnică → `.docs/`
+
 - ✅ Scrie în **engleză**
 - ✅ Include detalii tehnice (code snippets, SQL, configs)
 - ✅ Format Markdown cu syntax highlighting
@@ -137,6 +142,7 @@ Documentatie/
 **Exemplu**: `.docs/02-technical-specs/TECH_SPEC_NewFeature.md`
 
 #### Pentru prezentare oficială → `Documentatie/`
+
 - ✅ Scrie în **română**
 - ✅ Limbaj accesibil, explică termeni tehnici
 - ✅ Include diagrame vizuale și screenshots
@@ -148,12 +154,12 @@ Documentatie/
 
 ## 📊 Status Overview
 
-| Documentație | Limba | Status | Completare | Git |
-|--------------|-------|--------|------------|-----|
-| **README.md** | 🇷🇴 | ✅ Complete | 100% | ✅ Committed |
-| **GETTING_STARTED.md** | 🇷🇴 | ✅ Complete | 100% | ✅ Committed |
-| **.docs/** | 🇬🇧 | ✅ Complete | 100% (804KB) | ❌ Gitignored |
-| **Documentatie/** | 🇷🇴 | 🔴 TODO | 5% | ✅ Will commit |
+| Documentație           | Limba | Status      | Completare   | Git            |
+| ---------------------- | ----- | ----------- | ------------ | -------------- |
+| **README.md**          | 🇷🇴    | ✅ Complete | 100%         | ✅ Committed   |
+| **GETTING_STARTED.md** | 🇷🇴    | ✅ Complete | 100%         | ✅ Committed   |
+| **.docs/**             | 🇬🇧    | ✅ Complete | 100% (804KB) | ❌ Gitignored  |
+| **Documentatie/**      | 🇷🇴    | 🔴 TODO     | 5%           | ✅ Will commit |
 
 **Next Priority**: Documentare `Documentatie/01-Prezentare/` și `02-Cerinte/`
 
@@ -164,11 +170,13 @@ Documentatie/
 ### Actualizare documentație
 
 **Când schimbi ceva tehnic** (database, API, feature):
+
 1. ✅ Actualizează `.docs/` (technical specs)
 2. ✅ Verifică dacă impactează `Documentatie/` (oficial)
 3. ✅ Actualizează `Documentatie/` dacă e relevant pentru utilizatori
 
 **Commit Convention**:
+
 ```bash
 # Pentru documentație tehnică (dacă ar fi commitată)
 git commit -m "docs(en): update database schema specs"
@@ -185,7 +193,7 @@ git commit -m "docs(ro): actualizare cerințe funcționale"
 
 - 💬 Creează issue cu tag `documentation`
 
-- 📧 Email to: 
+- 📧 Email to:
 
 To: **Bianca-Maria Abbasi Pazeyazd** - [abbasipazeyazd.h.biancamaria24@stud.rau.ro](mailto:abbasipazeyazd.h.biancamaria24@stud.rau.ro)
 

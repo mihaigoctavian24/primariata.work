@@ -145,3 +145,16 @@ vite.config.ts.timestamp-*
 .claude/
 .serena/
 .mcp/
+claudedocs/
+scripts/gh/* 
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Cursor IDE
+.cursor/
+
+# Prettier cache
+.prettiercache

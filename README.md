@@ -1,4 +1,4 @@
-# **primariaTa❤️_**
+# **primariaTa❤️\_**
 
 <div align="center">
 
@@ -10,9 +10,9 @@
 
 ---
 
-## 🌟 Ce este primariaTa❤️_?
+## 🌟 Ce este primariaTa❤️\_?
 
-**primariaTa❤️_** este o platformă SaaS white-label care digitalizează complet procesele administrative locale din România. 
+**primariaTa❤️\_** este o platformă SaaS white-label care digitalizează complet procesele administrative locale din România.
 
 Imaginează-ți o primărie unde:
 
@@ -22,7 +22,7 @@ Imaginează-ți o primărie unde:
 - 📄 **Descarci documente** - semnate digital, valabile legal
 - 💬 **Comunici direct** - cu funcționarii, prin chat integrat
 
-**Asta e primariaTa❤️_** - administrația publică așa cum ar trebui să fie: **rapidă, transparentă, accesibilă**.
+**Asta e primariaTa❤️\_** - administrația publică așa cum ar trebui să fie: **rapidă, transparentă, accesibilă**.
 
 ---
 
@@ -31,6 +31,7 @@ Imaginează-ți o primărie unde:
 ### Prerequisite (ce îți trebuie)
 
 Verifică că ai instalate:
+
 - **Node.js 20+** - [Descarcă aici](https://nodejs.org/)
 - **pnpm 8+** - `npm install -g pnpm`
 - **Supabase CLI** - `brew install supabase/tap/supabase` (macOS) sau `npm install -g supabase`
@@ -109,6 +110,7 @@ primariata.work/
 ## 🎯 Tech Stack
 
 **Frontend**:
+
 - ⚛️ **Next.js 14** - App Router, Server Components, Route Handlers
 - 🎨 **Tailwind CSS** + **shadcn/ui** - Modern, accessible UI components
 - 📝 **TypeScript 5** - Type safety everywhere
@@ -117,6 +119,7 @@ primariata.work/
 - 🔄 **Zustand** + **React Query** - State management
 
 **Backend**:
+
 - 🐘 **Supabase** - PostgreSQL 15 + Auth + Storage + Realtime
 - 🔐 **Row Level Security (RLS)** - Multi-tenancy isolation
 - 🔑 **JWT Authentication** - Email + Google OAuth
@@ -124,12 +127,14 @@ primariata.work/
 - ⚡ **Edge Functions** - PDF generation, webhooks, notifications
 
 **Infrastructure**:
+
 - 🚀 **Vercel** - Hosting (Frankfurt region)
 - 🌐 **Cloudflare** - DNS + CDN + WAF + DDoS protection
 - 📊 **Sentry** - Error tracking
 - 📈 **Vercel Analytics** - Real User Monitoring
 
 **Integrări**:
+
 - ✍️ **certSIGN** - Semnături digitale certificate
 - 💳 **Ghișeul.ro** - Plăți online taxe locale
 - 📧 **SendGrid** - Email transactional
@@ -146,6 +151,7 @@ primariata.work/
 **Pentru**: Profesori, comisie evaluare, stakeholderi, utilizatori finali
 
 📍 **[Documentatie/](Documentatie/)** - Documentație oficială în limba română
+
 - 📄 **[01-Prezentare/](Documentatie/01-Prezentare/)** - Viziune, misiune, obiective
 - 📋 **[02-Cerinte/](Documentatie/02-Cerinte/)** - Specificații funcționale/nefuncționale
 - 🏗️ **[03-Arhitectura/](Documentatie/03-Arhitectura/)** - Design sistem, diagrame
@@ -160,16 +166,19 @@ primariata.work/
 📍 **`.docs/`** - Technical specs (gitignored, 804KB)
 
 **Start Here** 👇
+
 1. **[PRD Complete](.docs/01-requirements/PRD_Primariata_Complete.md)** - Business case, features, usage scenarios (2-45 min read)
 2. **[Implementation Roadmap](.docs/03-implementation/IMPLEMENTATION_ROADMAP.md)** - Phase 0-5 cu task-uri detaliate
 
 **Pentru Dezvoltatori** 🛠️
+
 - **[Database Schema](.docs/02-technical-specs/TECH_SPEC_Database.md)** - Tabele, RLS policies, indexes, triggers
 - **[API Specification](.docs/02-technical-specs/TECH_SPEC_API.md)** - Endpoint contracts, auth flows
 - **[Infrastructure Setup](.docs/02-technical-specs/TECH_SPEC_Infrastructure.md)** - Vercel, Supabase, Cloudflare config
 - **[Security Architecture](.docs/02-technical-specs/TECH_SPEC_Security.md)** - Multi-layer security, GDPR compliance
 
 **Pentru QA** 🧪
+
 - **[Testing Strategy](.docs/05-quality/TESTING_STRATEGY.md)** - Unit, Integration, E2E, Accessibility tests
 - **[Performance Budgets](.docs/05-quality/PERFORMANCE.md)** - LCP <2.5s, FCP <1.2s, TTI <3.5s
 - **[Error Handling](.docs/05-quality/ERROR_HANDLING.md)** - Taxonomy, retry logic, user feedback
@@ -205,6 +214,7 @@ pnpm format:write
 ```
 
 **Quality Standards**:
+
 - ✅ **WCAG 2.1 AA** compliance (accessibility)
 - ✅ **95%+ test coverage** (unit + integration)
 - ✅ **100% E2E coverage** for critical flows
@@ -214,13 +224,14 @@ pnpm format:write
 
 ## 🚢 Deployment & Environments
 
-| Environment | URL | Branch | Purpose |
-|-------------|-----|--------|---------|
-| **Production** | https://primariata.work | `main` | Live pentru primării |
-| **Staging** | https://develop.primariata.work | `develop` | Pre-production testing |
-| **Preview** | Auto-generated per PR | `feature/*` | Feature review |
+| Environment    | URL                             | Branch      | Purpose                |
+| -------------- | ------------------------------- | ----------- | ---------------------- |
+| **Production** | https://primariata.work         | `main`      | Live pentru primării   |
+| **Staging**    | https://develop.primariata.work | `develop`   | Pre-production testing |
+| **Preview**    | Auto-generated per PR           | `feature/*` | Feature review         |
 
 **CI/CD Pipeline** (GitHub Actions):
+
 - ✅ Lint + TypeCheck + Tests on every push
 - ✅ E2E tests on PR to `main`/`develop`
 - ✅ Auto-deploy to Vercel on merge
@@ -233,6 +244,7 @@ pnpm format:write
 **Current Phase**: 🔴 **Phase 0 - Infrastructure Setup** (Week 1-2)
 
 ### Phase 0: Foundation (2 weeks)
+
 - [ ] Development environment setup
 - [ ] Supabase project + database migrations
 - [ ] **Data seeding** (42 județe + 13,851 localități) ← **CRITICAL**
@@ -241,18 +253,21 @@ pnpm format:write
 - [ ] Monitoring (Sentry + Analytics)
 
 ### Phase 1: MVP Landing + Auth (Week 3-6)
+
 - [ ] Landing page cu animații
 - [ ] Location selection (județ + localitate)
 - [ ] Authentication (email + Google OAuth)
 - [ ] User dashboard (cetatean vs functionar)
 
 ### Phase 2: Cereri Module (Week 7-12)
+
 - [ ] Request submission flow
 - [ ] Document upload & management
 - [ ] Request tracking & status updates
 - [ ] Admin approval workflow
 
 ### Phase 3-5: Integrations + Advanced + Launch (Week 13-24)
+
 - [ ] certSIGN digital signatures
 - [ ] Ghișeul.ro payment integration
 - [ ] Advanced features (plăți, transparență, sesizări)
@@ -267,6 +282,7 @@ pnpm format:write
 ### Git Workflow
 
 1. **Create feature branch** from `develop`:
+
    ```bash
    git checkout develop
    git pull origin develop
@@ -274,12 +290,14 @@ pnpm format:write
    ```
 
 2. **Make changes** + commit:
+
    ```bash
    git add .
    git commit -m "feat: add location selection component"
    ```
 
 3. **Push & create PR**:
+
    ```bash
    git push origin feature/your-feature-name
    # Then create PR on GitHub: feature/* → develop
@@ -290,6 +308,7 @@ pnpm format:write
 ### Commit Convention
 
 Follow [Conventional Commits](https://www.conventionalcommits.org/):
+
 - `feat:` - New feature
 - `fix:` - Bug fix
 - `docs:` - Documentation changes
@@ -329,6 +348,7 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/):
 ### Common Issues
 
 **Problem**: `pnpm install` fails
+
 ```bash
 # Solution: Clear cache and retry
 pnpm store prune
@@ -337,18 +357,21 @@ pnpm install
 ```
 
 **Problem**: Supabase connection error
+
 ```bash
 # Solution: Check .env.local has correct credentials
 # Verify: NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY
 ```
 
 **Problem**: TypeScript errors after migration
+
 ```bash
 # Solution: Regenerate types from database
 pnpm types:generate
 ```
 
 **Problem**: E2E tests failing locally
+
 ```bash
 # Solution: Install Playwright browsers
 pnpm playwright install --with-deps
@@ -403,13 +426,16 @@ Mulțumim tuturor celor care au contribuit la acest proiect:
 **Questions? Feedback? Want to contribute?**
 
 ### Owneri Proiect
+
 - 📧 **Octavian Mihai**: [mihai.g.octavian24@stud.rau.ro](mailto:mihai.g.octavian24@stud.rau.ro)
 - 📧 **Bianca-Maria Abbasi Pazeyazd**: [abbasipazeyazd.h.biancamaria24@stud.rau.ro](mailto:abbasipazeyazd.h.biancamaria24@stud.rau.ro)
 
 ### Coordonare Academică
+
 - 📧 **Prof. Andrei Luchici**: [andrei.luchici@rau.ro](mailto:andrei.luchici@rau.ro)
 
 ### Alte Canale
+
 - 💬 GitHub Issues: [Create an issue](https://github.com/mihaigoctavian24/primariata.work/issues)
 - 🌐 Website: [primariata.work](https://primariata.work)
 
