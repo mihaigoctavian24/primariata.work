@@ -6,6 +6,19 @@
 
 `Made with ❤️ by Bubu & Dudu Dev Team!`
 
+---
+
+[![Deploy Status](https://img.shields.io/github/deployments/mihaigoctavian24/primariata.work/production?label=Vercel&logo=vercel)](https://primariata.work)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/mihaigoctavian24/primariata.work/ci.yml?branch=main&label=CI/CD)](https://github.com/mihaigoctavian24/primariata.work/actions)
+[![License](https://img.shields.io/badge/license-Proprietary-red.svg)](LICENSE)
+[![Node Version](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen.svg)](https://nodejs.org/)
+[![pnpm](https://img.shields.io/badge/pnpm-%3E%3D8.0.0-orange.svg)](https://pnpm.io/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg?logo=typescript)](https://www.typescriptlang.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-15.5-black.svg?logo=next.js)](https://nextjs.org/)
+[![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL%2015-green.svg?logo=supabase)](https://supabase.com/)
+[![Code Style](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://prettier.io/)
+[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
+
 </div>
 
 ---
@@ -146,6 +159,20 @@ primariata.work/
 
 **🗂️ Avem DOUĂ tipuri de documentație** - vezi [DOCUMENTATION_INDEX.md](DOCUMENTATION_INDEX.md) pentru detalii:
 
+### 👨‍💻 Developer Documentation (Start Here!)
+
+**Pentru**: Dezvoltatori noi, contributori, code reviewers
+
+**🚀 Essential Guides:**
+1. **[CONTRIBUTING.md](CONTRIBUTING.md)** - Git workflow, code standards, PR process (comprehensive guide)
+2. **[DEVELOPMENT_GUIDE.md](DEVELOPMENT_GUIDE.md)** - Daily workflows, common tasks with code examples
+3. **[ARCHITECTURE.md](ARCHITECTURE.md)** - System design, data flow, technology stack
+4. **[Pull Request Template](.github/pull_request_template.md)** - PR checklist and structure
+
+**📋 Issue Templates:**
+- **[Bug Report](.github/ISSUE_TEMPLATE/bug_report.md)** - Report bugs with comprehensive details
+- **[Feature Request](.github/ISSUE_TEMPLATE/feature_request.md)** - Propose new features
+
 ### 🇷🇴 Documentație Oficială (Română)
 
 **Pentru**: Profesori, comisie evaluare, stakeholderi, utilizatori finali
@@ -159,9 +186,9 @@ primariata.work/
 - 📖 **[05-Utilizare/](Documentatie/05-Utilizare/)** - Ghiduri pentru cetățeni, funcționari, admini
 - 📎 **[06-Anexe/](Documentatie/06-Anexe/)** - Glossar, referințe, contribuitori
 
-### 🇬🇧 Technical Documentation (English)
+### 🇬🇧 Technical Specifications (Advanced)
 
-**Pentru**: Dezvoltatori, DevOps, QA Engineers
+**Pentru**: Arhitecți, DevOps, QA Engineers, Security Specialists
 
 📍 **`.docs/`** - Technical specs (gitignored, 804KB)
 
@@ -185,7 +212,7 @@ primariata.work/
 
 ---
 
-**📚 Navigation**: Vezi **[DOCUMENTATION_INDEX.md](DOCUMENTATION_INDEX.md)** pentru ghid complet de navigare
+**📚 Full Navigation**: Vezi **[DOCUMENTATION_INDEX.md](DOCUMENTATION_INDEX.md)** pentru ghid complet de navigare
 
 ---
 
@@ -279,50 +306,50 @@ pnpm format:write
 
 ## 🤝 Contributing
 
-### Git Workflow
+**We welcome contributions!** Please read our comprehensive guides before contributing:
 
-1. **Create feature branch** from `develop`:
+📖 **[CONTRIBUTING.md](CONTRIBUTING.md)** - Complete guide covering:
+- Code of Conduct
+- Getting Started (fork, clone, setup)
+- Development Workflow (Git Flow, branching strategy)
+- Code Standards (TypeScript, React, naming conventions)
+- Testing Requirements (unit, integration, E2E)
+- Pull Request Process
+- Code Review Guidelines
 
+### Quick Start for Contributors
+
+1. **Fork & Clone**:
    ```bash
-   git checkout develop
-   git pull origin develop
+   git clone https://github.com/YOUR_USERNAME/primariata.work.git
+   cd primariata.work
+   pnpm install
+   ```
+
+2. **Create Feature Branch**:
+   ```bash
    git checkout -b feature/your-feature-name
    ```
 
-2. **Make changes** + commit:
+3. **Make Changes** following our [code standards](CONTRIBUTING.md#code-standards)
 
+4. **Commit** using [Conventional Commits](https://www.conventionalcommits.org/):
    ```bash
-   git add .
-   git commit -m "feat: add location selection component"
+   git commit -m "feat(scope): description"
    ```
 
-3. **Push & create PR**:
+5. **Create Pull Request** using our [PR template](.github/pull_request_template.md)
 
-   ```bash
-   git push origin feature/your-feature-name
-   # Then create PR on GitHub: feature/* → develop
-   ```
+### Code Quality Checks
 
-4. **CI must pass** before merge (lint, tests, E2E)
+Before submitting your PR, ensure:
+- ✅ `pnpm lint` passes
+- ✅ `pnpm type-check` passes
+- ✅ `pnpm test` passes (90%+ coverage)
+- ✅ `pnpm format:check` passes
+- ✅ Pre-commit hooks pass (Husky + lint-staged)
 
-### Commit Convention
-
-Follow [Conventional Commits](https://www.conventionalcommits.org/):
-
-- `feat:` - New feature
-- `fix:` - Bug fix
-- `docs:` - Documentation changes
-- `style:` - Code style changes (formatting, etc.)
-- `refactor:` - Code refactoring
-- `test:` - Adding/updating tests
-- `chore:` - Build process, dependencies
-
-### Code Style
-
-- **TypeScript strict mode** enabled
-- **ESLint** + **Prettier** enforced
-- **File naming**: `kebab-case.tsx` for components, `camelCase.ts` for utilities
-- **Component structure**: Props interface → Component → Export
+**For detailed guidelines**, see **[CONTRIBUTING.md](CONTRIBUTING.md)**
 
 ---
 
@@ -445,8 +472,19 @@ Mulțumim tuturor celor care au contribuit la acest proiect:
 
 **Made with ❤️ by Bubu & Dudu Dev Team**
 
-🚀 **Să digitalizăm România, cate o primărie odată!** 🚀
+🚀 **Să digitalizăm România, câte o primărie odată!** 🚀
 
-[Documentație](.docs/) • [Roadmap](.docs/03-implementation/IMPLEMENTATION_ROADMAP.md) • [Contributing](#-contributing) • [License](#-license--credits)
+---
+
+### 📚 Quick Links
+
+[Contributing](CONTRIBUTING.md) • [Development Guide](DEVELOPMENT_GUIDE.md) • [Architecture](ARCHITECTURE.md) • [Roadmap](.docs/03-implementation/IMPLEMENTATION_ROADMAP.md) • [Issues](https://github.com/mihaigoctavian24/primariata.work/issues)
+
+---
+
+**⭐ If you find this project useful, please give it a star!**
+
+[![GitHub stars](https://img.shields.io/github/stars/mihaigoctavian24/primariata.work?style=social)](https://github.com/mihaigoctavian24/primariata.work/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/mihaigoctavian24/primariata.work?style=social)](https://github.com/mihaigoctavian24/primariata.work/network/members)
 
 </div>
