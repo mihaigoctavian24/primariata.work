@@ -243,7 +243,7 @@ pnpm format:write
 
 **Current Phase**: 🔴 **Phase 0 - Infrastructure Setup** (Week 1-2)
 
-### Phase 0: Foundation (2 weeks)
+### Phase 0: Foundation (1 weeks)
 
 - [ ] Development environment setup
 - [ ] Supabase project + database migrations
