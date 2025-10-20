@@ -65,18 +65,22 @@ interface LocalitateInsert {
 }
 
 /**
- * Generate URL-safe slug from locality name
+ * Generate URL-safe slug from locality name and județ auto code
  * - Removes diacritics (ă, î, ș, ț, â)
  * - Converts to lowercase
  * - Replaces non-alphanumeric with hyphens
+ * - Includes județ code to ensure uniqueness (e.g., "posta-ar", "posta-tm")
  */
-function generateSlug(nume: string): string {
-  return nume
+function generateSlug(nume: string, judetAuto: string): string {
+  const baseSlug = nume
     .normalize("NFD") // Decompose combined characters
     .replace(/[\u0300-\u036f]/g, "") // Remove diacritics
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-") // Replace non-alphanumeric with hyphen
     .replace(/^-|-$/g, ""); // Remove leading/trailing hyphens
+
+  const judetSlug = judetAuto.toLowerCase();
+  return `${baseSlug}-${judetSlug}`; // e.g., "zimandu-nou-ar"
 }
 
 /**
@@ -136,12 +140,22 @@ async function importLocalitati() {
   console.log(`✅ Loaded ${judete.length} județe from database\n`);
 
   // Create mapping: județ name -> județ id
-  const judeteMap = new Map<string, number>(judete.map((j) => [j.nume, j.id]));
+  // Handle both with and without diacritics
+  const judeteMap = new Map<string, number>();
+  judete.forEach((j) => {
+    judeteMap.set(j.nume, j.id);
+    // Also map without diacritics for compatibility
+    const sansDiacritics = j.nume
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+    judeteMap.set(sansDiacritics, j.id);
+  });
 
   // Step 3: Transform data for database insertion
   console.log("🔄 Transforming data...");
   const localitatiToInsert: LocalitateInsert[] = [];
   const warnings: string[] = [];
+  const slugCounts = new Map<string, number>(); // Track slug occurrences for deduplication
 
   for (const loc of localitatiData) {
     const judetId = judeteMap.get(loc.judet);
@@ -151,7 +165,15 @@ async function importLocalitati() {
       continue;
     }
 
-    const slug = generateSlug(loc.nume);
+    let slug = generateSlug(loc.nume, loc.auto); // Include județ auto code for uniqueness
+
+    // Handle rare cases where same name exists multiple times in same județ
+    const count = slugCounts.get(slug) || 0;
+    if (count > 0) {
+      slug = `${slug}-${count}`; // Add numeric suffix: "muscel-bz-1", "muscel-bz-2"
+    }
+    slugCounts.set(slug.replace(/-\d+$/, ''), count + 1); // Track base slug
+
     const tip = classifyTip(loc.populatie);
 
     localitatiToInsert.push({
@@ -160,7 +182,7 @@ async function importLocalitati() {
       slug: slug,
       tip: tip,
       populatie: loc.populatie,
-      coordonate: `POINT(${loc.lng} ${loc.lat})`, // PostGIS format: POINT(lng lat)
+      coordonate: `(${loc.lng},${loc.lat})`, // PostgreSQL POINT format: (lng,lat)
     });
   }
 
