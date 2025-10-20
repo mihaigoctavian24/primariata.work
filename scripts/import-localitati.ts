@@ -145,9 +145,7 @@ async function importLocalitati() {
   judete.forEach((j) => {
     judeteMap.set(j.nume, j.id);
     // Also map without diacritics for compatibility
-    const sansDiacritics = j.nume
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "");
+    const sansDiacritics = j.nume.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     judeteMap.set(sansDiacritics, j.id);
   });
 
@@ -172,7 +170,7 @@ async function importLocalitati() {
     if (count > 0) {
       slug = `${slug}-${count}`; // Add numeric suffix: "muscel-bz-1", "muscel-bz-2"
     }
-    slugCounts.set(slug.replace(/-\d+$/, ''), count + 1); // Track base slug
+    slugCounts.set(slug.replace(/-\d+$/, ""), count + 1); // Track base slug
 
     const tip = classifyTip(loc.populatie);
 
