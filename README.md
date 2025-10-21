@@ -12,7 +12,7 @@
 
 ## 🌟 Ce este primariaTa❤️\_?
 
-**primariaTa❤️\_** este o platformă SaaS white-label care digitalizează complet procesele administrative locale din România.
+**primariata.work_** este o platformă SaaS white-label care digitalizează complet procesele administrative locale din România.
 
 Imaginează-ți o primărie unde:
 
