@@ -5,7 +5,6 @@ import { useEffect } from "react";
 export default function TestSentryPage() {
   useEffect(() => {
     // Auto-trigger error on page load for Sentry verification
-    // eslint-disable-next-line no-console
     console.log("Triggering test error for Sentry...");
   }, []);
 

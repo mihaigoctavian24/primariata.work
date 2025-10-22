@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
@@ -35,7 +35,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function TestUIPage() {
   return (
-    <div className="container mx-auto p-8 space-y-8">
+    <div className="container mx-auto space-y-8 p-8">
       <div className="flex items-start justify-between">
         <div className="space-y-2">
           <h1 className="text-4xl font-bold">shadcn/ui Component Test Page</h1>
@@ -52,7 +52,9 @@ export default function TestUIPage() {
       <Card>
         <CardHeader>
           <CardTitle>Buttons (with Ripple Effect)</CardTitle>
-          <CardDescription>All buttons now have Material Design ripple, tap and hover animations</CardDescription>
+          <CardDescription>
+            All buttons now have Material Design ripple, tap and hover animations
+          </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-4">
           <Button>Default</Button>
@@ -169,21 +171,14 @@ export default function TestUIPage() {
           <CardDescription>Notification toast examples</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-4">
-          <Button onClick={() => toast("Default toast message")}>
-            Default Toast
-          </Button>
+          <Button onClick={() => toast("Default toast message")}>Default Toast</Button>
           <Button
-            onClick={() =>
-              toast.success("Operation completed successfully!")
-            }
+            onClick={() => toast.success("Operation completed successfully!")}
             variant="secondary"
           >
             Success Toast
           </Button>
-          <Button
-            onClick={() => toast.error("Something went wrong!")}
-            variant="destructive"
-          >
+          <Button onClick={() => toast.error("Something went wrong!")} variant="destructive">
             Error Toast
           </Button>
         </CardContent>
@@ -195,22 +190,22 @@ export default function TestUIPage() {
           <CardTitle>Theme Colors</CardTitle>
           <CardDescription>Testing tweakcn custom theme colors</CardDescription>
         </CardHeader>
-        <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <CardContent className="grid grid-cols-2 gap-4 md:grid-cols-4">
           <div className="space-y-2">
-            <div className="h-20 rounded-md bg-primary" />
-            <p className="text-sm text-center">Primary</p>
+            <div className="bg-primary h-20 rounded-md" />
+            <p className="text-center text-sm">Primary</p>
           </div>
           <div className="space-y-2">
-            <div className="h-20 rounded-md bg-secondary" />
-            <p className="text-sm text-center">Secondary</p>
+            <div className="bg-secondary h-20 rounded-md" />
+            <p className="text-center text-sm">Secondary</p>
           </div>
           <div className="space-y-2">
-            <div className="h-20 rounded-md bg-accent" />
-            <p className="text-sm text-center">Accent</p>
+            <div className="bg-accent h-20 rounded-md" />
+            <p className="text-center text-sm">Accent</p>
           </div>
           <div className="space-y-2">
-            <div className="h-20 rounded-md bg-muted" />
-            <p className="text-sm text-center">Muted</p>
+            <div className="bg-muted h-20 rounded-md" />
+            <p className="text-center text-sm">Muted</p>
           </div>
         </CardContent>
       </Card>
