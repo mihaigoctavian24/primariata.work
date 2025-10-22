@@ -158,3 +158,8 @@ scripts/gh/*
 
 # Prettier cache
 .prettiercache
+
+# Playwright
+/test-results/
+/playwright-report/
+/playwright/.cache/
