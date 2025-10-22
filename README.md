@@ -245,10 +245,10 @@ pnpm format:write
 
 ### Phase 0: Foundation (1 weeks)
 
-- [ ] Development environment setup
-- [ ] Supabase project + database migrations
-- [ ] **Data seeding** (42 județe + 13,851 localități) ← **CRITICAL**
-- [ ] Vercel deployment + Cloudflare security
+- [x] Development environment setup
+- [x] Supabase project + database migrations
+- [x] **Data seeding** (42 județe + 13,851 localități) ← **CRITICAL**
+- [x] Vercel deployment + Cloudflare security
 - [ ] CI/CD pipeline (GitHub Actions)
 - [ ] Monitoring (Sentry + Analytics)
 
