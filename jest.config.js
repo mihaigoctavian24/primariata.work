@@ -19,10 +19,7 @@ const customJestConfig = {
   },
 
   // Test match patterns
-  testMatch: [
-    "**/__tests__/**/*.[jt]s?(x)",
-    "**/?(*.)+(spec|test).[jt]s?(x)",
-  ],
+  testMatch: ["**/__tests__/**/*.[jt]s?(x)", "**/?(*.)+(spec|test).[jt]s?(x)"],
 
   // Ignore patterns - EXCLUDE e2e/ folder (Playwright tests)
   testPathIgnorePatterns: [

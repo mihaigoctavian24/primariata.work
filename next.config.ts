@@ -2,19 +2,8 @@ import { withSentryConfig } from "@sentry/nextjs";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Enable instrumentation for Sentry
-  experimental: {
-    instrumentationHook: true,
-  },
-
-  // Sentry configuration
-  sentry: {
-    // Hides source maps from generated client bundles
-    hideSourceMaps: true,
-
-    // Automatically tree-shake Sentry logger statements to reduce bundle size
-    disableLogger: true,
-  },
+  // instrumentation.ts is enabled by default in Next.js 15+
+  // No experimental flag needed
 };
 
 // Wrap the config with Sentry for automatic error tracking
@@ -43,10 +32,4 @@ export default withSentryConfig(nextConfig, {
   // This can increase your server load as well as your hosting bill.
   // Note: Check that the Sentry DSN provided in your environment variables is valid before deploying.
   tunnelRoute: "/monitoring",
-
-  // Hides source maps from generated client bundles
-  hideSourceMaps: true,
-
-  // Automatically tree-shake Sentry logger statements to reduce bundle size
-  disableLogger: true,
 });

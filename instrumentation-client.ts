@@ -4,6 +4,9 @@
 
 import * as Sentry from "@sentry/nextjs";
 
+// Export hook for navigation instrumentation (required by Sentry SDK)
+export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;
+
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
 
