@@ -28,6 +28,7 @@
     "test:all": "pnpm test:ci && pnpm test:e2e",
     "playwright:install": "playwright install --with-deps",
     "playwright:codegen": "playwright codegen localhost:3000",
+    "types:generate": "supabase gen types --lang=typescript --project-id ihwfqsongyaahdtypgnh --schema public > src/types/database.types.ts",
     "validate": "pnpm type-check && pnpm lint && pnpm format:check",
     "ci": "pnpm validate && pnpm test:ci && pnpm build"
   },
