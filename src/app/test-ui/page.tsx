@@ -51,8 +51,8 @@ export default function TestUIPage() {
       {/* Buttons Section */}
       <Card>
         <CardHeader>
-          <CardTitle>Buttons</CardTitle>
-          <CardDescription>Different button variants and sizes</CardDescription>
+          <CardTitle>Buttons (with Ripple Effect)</CardTitle>
+          <CardDescription>All buttons now have Material Design ripple, tap and hover animations</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-4">
           <Button>Default</Button>
