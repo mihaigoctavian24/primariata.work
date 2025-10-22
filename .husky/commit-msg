@@ -1,1 +1,13 @@
-pnpm commitlint --edit $1
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Try to find pnpm in common locations
+if command -v pnpm >/dev/null 2>&1; then
+  pnpm commitlint --edit $1
+elif [ -f "node_modules/.bin/pnpm" ]; then
+  node_modules/.bin/pnpm commitlint --edit $1
+else
+  echo "⚠️  pnpm not found - skipping commit-msg validation"
+  echo "Please install pnpm globally or run: npm install"
+  exit 0
+fi
