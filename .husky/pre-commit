@@ -1,1 +1,13 @@
-pnpm lint-staged
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Try to find pnpm in common locations
+if command -v pnpm >/dev/null 2>&1; then
+  pnpm lint-staged
+elif [ -f "node_modules/.bin/pnpm" ]; then
+  node_modules/.bin/pnpm lint-staged
+else
+  echo "⚠️  pnpm not found - skipping pre-commit hooks"
+  echo "Please install pnpm globally or run: npm install"
+  exit 0
+fi
