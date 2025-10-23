@@ -345,7 +345,7 @@ export function HeroSection() {
               >
                 {stat.countUp ? (
                   // Check if countUp has parts (for 24/7 case)
-                  "parts" in stat.countUp ? (
+                  "parts" in stat.countUp && stat.countUp.parts ? (
                     <span
                       className="text-2xl font-bold sm:text-3xl md:text-4xl"
                       style={{ color: "#4a6cf6" }}
