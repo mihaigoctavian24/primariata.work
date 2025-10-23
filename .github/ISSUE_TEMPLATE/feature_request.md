@@ -1,9 +1,9 @@
 ---
 name: ✨ Feature Request
 about: Suggest a new feature or enhancement for primariaTa
-title: '[FEATURE] '
-labels: ['enhancement', 'needs-discussion']
-assignees: ''
+title: "[FEATURE] "
+labels: ["enhancement", "needs-discussion"]
+assignees: ""
 ---
 
 # ✨ Feature Request
@@ -12,13 +12,12 @@ assignees: ''
 
 <!-- Provide a clear and concise description of the feature you'd like to see -->
 
-
-
 ## 🎯 Problem Statement
 
 <!-- What problem does this feature solve? What user need does it address? -->
 
 **User Story:**
+
 <!-- Write as: "As a [user type], I want [feature] so that [benefit]" -->
 
 As a **[Cetățean/Administrator/Funcționar]**, I want **[feature]** so that **[benefit]**.
@@ -100,23 +99,17 @@ CREATE TABLE IF NOT EXISTS example (
 
 **Description:**
 
+## **Pros:**
 
-**Pros:**
--
-
-**Cons:**
--
+## **Cons:**
 
 ### Alternative 2: [Name]
 
 **Description:**
 
+## **Pros:**
 
-**Pros:**
--
-
-**Cons:**
--
+## **Cons:**
 
 ## 🎨 Examples
 
@@ -158,6 +151,7 @@ CREATE TABLE IF NOT EXISTS example (
 <!-- How will we measure success? -->
 
 **Success Criteria:**
+
 - [ ] [e.g., 80% of users complete task successfully]
 - [ ] [e.g., Average completion time < 3 minutes]
 - [ ] [e.g., User satisfaction score > 4.5/5]
@@ -175,8 +169,6 @@ CREATE TABLE IF NOT EXISTS example (
 - [ ] Payment processing (PCI compliance needed)
 
 **Security Notes:**
-
-
 
 ## ♿ Accessibility Considerations
 
@@ -204,7 +196,7 @@ CREATE TABLE IF NOT EXISTS example (
 
 - [ ] Romanian only
 - [ ] Romanian + English
-- [ ] Other languages: ___________
+- [ ] Other languages: ****\_\_\_****
 
 ## ⏱️ Implementation Complexity
 
@@ -236,8 +228,9 @@ CREATE TABLE IF NOT EXISTS example (
 <!-- When would you like to see this implemented? -->
 
 **Desired Milestone:**
-- [ ] Phase 0 (Current)
-- [ ] Phase 1
+
+- [ ] Phase 0 (Complete ✅)
+- [ ] Phase 1 (Current)
 - [ ] Phase 2
 - [ ] Phase 3
 - [ ] Phase 4
@@ -261,22 +254,22 @@ CREATE TABLE IF NOT EXISTS example (
 <!-- Who is requesting or would benefit from this feature? -->
 
 **Requested by:**
+
 - User Type: [Cetățean/Administrator/Funcționar]
 - Role: [if applicable]
 - Organization: [if applicable]
 
 **Stakeholders:**
+
 - [ ] End Users (Cetățeni)
 - [ ] Municipal Staff (Funcționari)
 - [ ] Administrators
 - [ ] External Partners
-- [ ] Other: ___________
+- [ ] Other: ****\_\_\_****
 
 ## 💬 Additional Context
 
 <!-- Any other context, screenshots, links, or information -->
-
-
 
 ## 📚 Resources & References
 
@@ -308,12 +301,14 @@ CREATE TABLE IF NOT EXISTS example (
 <!-- Check all that apply - maintainers will apply these -->
 
 **Type:**
+
 - [ ] `feature` - New feature
 - [ ] `enhancement` - Improvement to existing feature
 - [ ] `ui-ux` - User interface/experience improvement
 - [ ] `integration` - External system integration
 
 **Category:**
+
 - [ ] `frontend` - UI/UX related
 - [ ] `backend` - API/Server related
 - [ ] `database` - Database related
@@ -323,6 +318,7 @@ CREATE TABLE IF NOT EXISTS example (
 - [ ] `performance` - Performance improvement
 
 **Phase:**
+
 - [ ] `phase-0` - Core Infrastructure
 - [ ] `phase-1` - Basic Features
 - [ ] `phase-2` - Advanced Features
@@ -332,6 +328,7 @@ CREATE TABLE IF NOT EXISTS example (
 - [ ] `phase-6` - Polish Features
 
 **Module:**
+
 - [ ] `auth` - Authentication/Authorization
 - [ ] `cereri` - Request Management
 - [ ] `documente` - Document Management
