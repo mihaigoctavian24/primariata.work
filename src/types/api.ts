@@ -43,6 +43,20 @@ export interface Judet {
 }
 
 /**
+ * Localitate type for API responses
+ * Represents a Romanian locality (comună, oraș, or municipiu)
+ */
+export interface Localitate {
+  id: number;
+  judet_id: number | null;
+  nume: string;
+  slug: string;
+  tip: string | null; // "Comună" | "Oraș" | "Municipiu"
+  populatie: number | null;
+  cod_siruta: string | null;
+}
+
+/**
  * Helper type for pagination metadata
  */
 export interface PaginationMeta {
