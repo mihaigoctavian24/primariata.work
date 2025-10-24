@@ -8,6 +8,7 @@ interface CountUpProps {
   delay?: number;
   duration?: number;
   className?: string;
+  style?: React.CSSProperties;
   startWhen?: boolean;
   separator?: string;
   onStart?: () => void;
@@ -21,6 +22,7 @@ export default function CountUp({
   delay = 0,
   duration = 2,
   className = "",
+  style,
   startWhen = true,
   separator = "",
   onStart,
@@ -107,5 +109,5 @@ export default function CountUp({
     return () => unsubscribe();
   }, [springValue, separator, maxDecimals]);
 
-  return <span className={className} ref={ref} style={{ color: "#4a6cf6" }} />;
+  return <span className={className} style={style} ref={ref} />;
 }

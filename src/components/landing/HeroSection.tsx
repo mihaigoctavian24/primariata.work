@@ -3,10 +3,12 @@
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useMemo } from "react";
+import { useTheme } from "next-themes";
 import TextType from "@/components/TextType";
 import { MorphingText } from "@/components/ui/morphing-text";
 import PixelBlast from "@/components/ui/PixelBlast";
 import CountUp from "@/components/ui/CountUp";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 /**
  * Hero Section Component for Landing Page
@@ -24,6 +26,8 @@ import CountUp from "@/components/ui/CountUp";
  */
 export function HeroSection() {
   const router = useRouter();
+  const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
   const [animationPhase, setAnimationPhase] = useState<"typing" | "shrinking" | "complete">(
     "typing"
   );
@@ -33,6 +37,18 @@ export function HeroSection() {
   const [heartbeatActive, setHeartbeatActive] = useState(false);
   const [showHeart, setShowHeart] = useState(false);
   const [typingScale, setTypingScale] = useState(1.5);
+
+  // Wait for client-side mount to prevent hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Get PixelBlast color based on theme
+  const pixelBlastColor = mounted && resolvedTheme === "dark" ? "#90a1b9" : "#e2e8f0";
+
+  // Get stats box colors based on theme
+  const statsBoxBg = mounted && resolvedTheme === "dark" ? "#1d293d" : "rgba(255, 255, 255, 0.85)";
+  const statsTextColor = mounted && resolvedTheme === "dark" ? "#f0bf17" : "#2563eb";
 
   // Update typing scale after mount to avoid hydration mismatch
   useEffect(() => {
@@ -180,21 +196,25 @@ export function HeroSection() {
 
   return (
     <section
-      className="relative flex h-screen items-center justify-center overflow-hidden bg-white px-4 py-16 sm:px-6 lg:px-8"
+      className="bg-background relative flex h-screen items-center justify-center overflow-hidden px-4 py-16 sm:px-6 lg:px-8"
       aria-label="Hero section - Pagina principală Primăriata"
     >
+      {/* Theme Toggle - fixed in top right */}
+      <div className="fixed top-4 right-4 z-50 sm:top-6 sm:right-6">
+        <ThemeToggle />
+      </div>
+
       {/* PixelBlast animated background */}
       <div
         className="absolute top-0 left-0 h-screen w-screen"
         style={{
           zIndex: 1,
-          backgroundColor: "oklch(0.929 0.013 255.508)",
         }}
       >
         <PixelBlast
           variant="triangle"
           pixelSize={6}
-          color="#cfd8e3"
+          color={pixelBlastColor}
           patternScale={1.75}
           patternDensity={1}
           pixelSizeJitter={0}
@@ -216,7 +236,7 @@ export function HeroSection() {
         animate={animationPhase}
         className="fixed top-[38%] left-[50%] z-50 -translate-x-1/2 -translate-y-1/2 sm:left-1/2"
       >
-        <h1 className="relative text-3xl font-bold tracking-tight whitespace-nowrap text-gray-900 sm:text-5xl md:text-6xl lg:text-7xl">
+        <h1 className="text-foreground relative text-3xl font-bold tracking-tight whitespace-nowrap sm:text-5xl md:text-6xl lg:text-7xl">
           <TextType
             text={["primariaTa   "]}
             as="span"
@@ -281,7 +301,7 @@ export function HeroSection() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
-            className="absolute top-full left-1/2 z-50 mt-4 w-[280px] -translate-x-1/2 text-gray-900 sm:mt-6 sm:w-[400px] md:mt-8 md:w-[500px]"
+            className="text-foreground absolute top-full left-1/2 z-50 mt-4 w-[280px] -translate-x-1/2 sm:mt-6 sm:w-[400px] md:mt-8 md:w-[500px]"
           >
             <MorphingText texts={["rapidă", "transparentă", "accesibilă"]} />
           </motion.div>
@@ -297,10 +317,10 @@ export function HeroSection() {
           animate={showSubtitle ? "visible" : "hidden"}
           className="mb-8"
         >
-          <p className="text-lg text-gray-600 sm:text-xl md:text-2xl lg:text-3xl">
+          <p className="text-muted-foreground text-lg sm:text-xl md:text-2xl lg:text-3xl">
             Bine ai venit la Primăria ta digitală.
           </p>
-          <p className="mt-2 text-base text-gray-500 sm:text-lg md:text-xl">
+          <p className="text-muted-foreground mt-2 text-base opacity-90 sm:text-lg md:text-xl">
             Servicii publice online, fără cozi, 24/7.
           </p>
         </motion.div>
@@ -342,18 +362,15 @@ export function HeroSection() {
           {stats.map((stat) => (
             <div key={stat.label} className="flex flex-col items-center">
               <div
-                className="mb-1.5 flex w-[75px] items-center justify-center rounded-lg px-2 py-1.5 sm:mb-2 sm:w-[130px] sm:px-4 sm:py-3 md:w-[160px]"
-                style={{
-                  backgroundColor: "rgba(248, 250, 252, 0.85)",
-                  boxShadow: "inset 0 3px 12px 0 rgba(0, 0, 0, 0.25)",
-                }}
+                className="mb-1.5 flex w-[75px] items-center justify-center rounded-lg px-2 py-1.5 shadow-[inset_0_3px_12px_0_rgba(0,0,0,0.25)] sm:mb-2 sm:w-[130px] sm:px-4 sm:py-3 md:w-[160px]"
+                style={{ backgroundColor: statsBoxBg }}
               >
                 {stat.countUp ? (
                   // Check if countUp has parts (for 24/7 case)
                   "parts" in stat.countUp && stat.countUp.parts ? (
                     <span
                       className="text-xs font-bold sm:text-2xl md:text-3xl"
-                      style={{ color: "#4a6cf6" }}
+                      style={{ color: statsTextColor }}
                     >
                       {stat.countUp.parts.map((part, idx) => {
                         if (part.type === "static") {
@@ -381,19 +398,20 @@ export function HeroSection() {
                       duration={2}
                       delay={0.5}
                       className="text-xs font-bold sm:text-2xl md:text-3xl"
+                      style={{ color: statsTextColor }}
                       startWhen={showStats}
                     />
                   )
                 ) : (
                   <span
                     className="text-xs font-bold sm:text-2xl md:text-3xl"
-                    style={{ color: "#4a6cf6" }}
+                    style={{ color: statsTextColor }}
                   >
                     {stat.value}
                   </span>
                 )}
               </div>
-              <span className="text-[10px] font-bold text-gray-600 sm:text-xs md:text-sm">
+              <span className="text-muted-foreground text-[10px] font-bold sm:text-xs md:text-sm">
                 {stat.label}
               </span>
             </div>
@@ -403,7 +421,7 @@ export function HeroSection() {
         {/* Accessibility: Skip to content link */}
         <a
           href="#main-content"
-          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:shadow-lg focus:ring-2 focus:ring-red-500 focus:outline-none"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-gray-900 focus:shadow-lg focus:ring-2 focus:ring-red-500 focus:outline-none dark:focus:bg-gray-800 dark:focus:text-white"
         >
           Sari la conținut
         </a>
