@@ -129,17 +129,17 @@ primariata.work/
 
 ### Configuration Files
 
-| File | Purpose |
-|------|---------|
-| `package.json` | Dependencies, scripts, project metadata |
-| `tsconfig.json` | TypeScript compiler configuration |
-| `next.config.ts` | Next.js configuration + Sentry |
-| `tailwind.config.ts` | Tailwind CSS theme customization |
-| `eslint.config.mjs` | ESLint rules (Next.js + Prettier) |
-| `prettier.config.js` | Code formatting rules |
-| `playwright.config.ts` | E2E test configuration |
-| `jest.config.js` | Unit test configuration |
-| `commitlint.config.js` | Commit message validation |
+| File                   | Purpose                                 |
+| ---------------------- | --------------------------------------- |
+| `package.json`         | Dependencies, scripts, project metadata |
+| `tsconfig.json`        | TypeScript compiler configuration       |
+| `next.config.ts`       | Next.js configuration + Sentry          |
+| `tailwind.config.ts`   | Tailwind CSS theme customization        |
+| `eslint.config.mjs`    | ESLint rules (Next.js + Prettier)       |
+| `prettier.config.js`   | Code formatting rules                   |
+| `playwright.config.ts` | E2E test configuration                  |
+| `jest.config.js`       | Unit test configuration                 |
+| `commitlint.config.js` | Commit message validation               |
 
 ---
 
@@ -152,11 +152,13 @@ primariata.work/
 **Steps:**
 
 1. **Create page file**:
+
 ```bash
 # File: src/app/dashboard/cereri/page.tsx
 ```
 
 2. **Implement Server Component** (data fetching):
+
 ```typescript
 // src/app/dashboard/cereri/page.tsx
 import { createClient } from '@/lib/supabase/server';
@@ -190,16 +192,18 @@ export default async function CereriPage() {
 ```
 
 3. **Add to navigation**:
+
 ```typescript
 // src/components/shared/sidebar.tsx
 const navItems = [
-  { href: '/dashboard', label: 'Dashboard', icon: HomeIcon },
-  { href: '/dashboard/cereri', label: 'Cereri', icon: FileTextIcon }, // ← Add this
-  { href: '/dashboard/plati', label: 'Plăți', icon: CreditCardIcon },
+  { href: "/dashboard", label: "Dashboard", icon: HomeIcon },
+  { href: "/dashboard/cereri", label: "Cereri", icon: FileTextIcon }, // ← Add this
+  { href: "/dashboard/plati", label: "Plăți", icon: CreditCardIcon },
 ];
 ```
 
 4. **Test the page**:
+
 ```bash
 pnpm dev
 # Visit http://localhost:3000/dashboard/cereri
@@ -214,11 +218,13 @@ pnpm dev
 **Steps:**
 
 1. **Create component file**:
+
 ```bash
 # File: src/components/ui/status-badge.tsx
 ```
 
 2. **Implement component**:
+
 ```typescript
 // src/components/ui/status-badge.tsx
 import { cva, type VariantProps } from 'class-variance-authority';
@@ -256,6 +262,7 @@ export function StatusBadge({ status, className, children }: StatusBadgeProps) {
 ```
 
 3. **Create tests**:
+
 ```typescript
 // src/components/ui/__tests__/status-badge.test.tsx
 import { render, screen } from '@testing-library/react';
@@ -275,6 +282,7 @@ describe('StatusBadge', () => {
 ```
 
 4. **Use component**:
+
 ```typescript
 // Usage in other components
 import { StatusBadge } from '@/components/ui/status-badge';
@@ -291,16 +299,18 @@ import { StatusBadge } from '@/components/ui/status-badge';
 **Steps:**
 
 1. **Create Route Handler**:
+
 ```bash
 # File: src/app/api/cereri/route.ts
 ```
 
 2. **Implement POST handler**:
+
 ```typescript
 // src/app/api/cereri/route.ts
-import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
-import { cerereSchema } from '@/lib/validations/cereri';
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
+import { cerereSchema } from "@/lib/validations/cereri";
 
 export async function POST(req: NextRequest) {
   try {
@@ -310,22 +320,22 @@ export async function POST(req: NextRequest) {
 
     // 2. Get authenticated user
     const supabase = createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // 3. Insert into database (RLS applies automatically)
     const { data: cerere, error: dbError } = await supabase
-      .from('cereri')
+      .from("cereri")
       .insert({
         user_id: user.id,
         type: validatedData.type,
-        status: 'draft',
+        status: "draft",
         data: validatedData.data,
       })
       .select()
@@ -339,25 +349,21 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         success: true,
-        data: cerere
+        data: cerere,
       },
       { status: 201 }
     );
-
   } catch (error) {
-    console.error('Error creating cerere:', error);
+    console.error("Error creating cerere:", error);
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Validation error', details: error.errors },
+        { error: "Validation error", details: error.errors },
         { status: 400 }
       );
     }
 
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
@@ -366,9 +372,9 @@ export async function GET(req: NextRequest) {
   const supabase = createClient();
 
   const { data: cereri, error } = await supabase
-    .from('cereri')
-    .select('*')
-    .order('created_at', { ascending: false });
+    .from("cereri")
+    .select("*")
+    .order("created_at", { ascending: false });
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -379,12 +385,13 @@ export async function GET(req: NextRequest) {
 ```
 
 3. **Create validation schema**:
+
 ```typescript
 // src/lib/validations/cereri.ts
-import { z } from 'zod';
+import { z } from "zod";
 
 export const cerereSchema = z.object({
-  type: z.enum(['certificat_nastere', 'certificat_casatorie', 'autorizatie_construire']),
+  type: z.enum(["certificat_nastere", "certificat_casatorie", "autorizatie_construire"]),
   data: z.object({
     nume: z.string().min(2).max(100),
     prenume: z.string().min(2).max(100),
@@ -398,19 +405,20 @@ export type CerereInput = z.infer<typeof cerereSchema>;
 ```
 
 4. **Use from client**:
+
 ```typescript
 // Client-side usage
-'use client';
+"use client";
 
 async function createCerere(data: CerereInput) {
-  const response = await fetch('/api/cereri', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+  const response = await fetch("/api/cereri", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
 
   if (!response.ok) {
-    throw new Error('Failed to create cerere');
+    throw new Error("Failed to create cerere");
   }
 
   return response.json();
@@ -426,6 +434,7 @@ async function createCerere(data: CerereInput) {
 **Steps:**
 
 1. **Create migration file**:
+
 ```bash
 # Generate timestamp-based migration file
 supabase migration new add_phone_number_to_users
@@ -434,6 +443,7 @@ supabase migration new add_phone_number_to_users
 ```
 
 2. **Write migration SQL**:
+
 ```sql
 -- supabase/migrations/20250118120000_add_phone_number_to_users.sql
 
@@ -454,6 +464,7 @@ COMMENT ON COLUMN auth.users.phone_number IS 'Romanian phone number in +40XXXXXX
 ```
 
 3. **Test migration locally**:
+
 ```bash
 # Reset local database
 supabase db reset
@@ -466,18 +477,17 @@ supabase db diff
 ```
 
 4. **Update TypeScript types**:
+
 ```bash
 # Regenerate types from database
 pnpm types:generate
 ```
 
 5. **Use new field**:
+
 ```typescript
 // Now TypeScript knows about phone_number
-const { data: user } = await supabase
-  .from('users')
-  .select('id, email, phone_number')
-  .single();
+const { data: user } = await supabase.from("users").select("id, email, phone_number").single();
 
 // Type-safe!
 console.log(user.phone_number); // string | null
@@ -492,22 +502,24 @@ console.log(user.phone_number); // string | null
 **Steps:**
 
 1. **Create Zod schema**:
+
 ```typescript
 // src/lib/validations/contact.ts
-import { z } from 'zod';
+import { z } from "zod";
 
 export const contactFormSchema = z.object({
-  name: z.string().min(2, 'Numele trebuie să aibă minim 2 caractere'),
-  email: z.string().email('Email invalid'),
-  phone: z.string().regex(/^\+40[0-9]{9}$/, 'Telefon invalid (format: +40XXXXXXXXX)'),
-  subject: z.string().min(5, 'Subiectul trebuie să aibă minim 5 caractere'),
-  message: z.string().min(20, 'Mesajul trebuie să aibă minim 20 caractere'),
+  name: z.string().min(2, "Numele trebuie să aibă minim 2 caractere"),
+  email: z.string().email("Email invalid"),
+  phone: z.string().regex(/^\+40[0-9]{9}$/, "Telefon invalid (format: +40XXXXXXXXX)"),
+  subject: z.string().min(5, "Subiectul trebuie să aibă minim 5 caractere"),
+  message: z.string().min(20, "Mesajul trebuie să aibă minim 20 caractere"),
 });
 
 export type ContactFormData = z.infer<typeof contactFormSchema>;
 ```
 
 2. **Create form component**:
+
 ```typescript
 // src/components/forms/contact-form.tsx
 'use client';
@@ -646,6 +658,7 @@ export function ContactForm() {
 ```
 
 3. **Test form validation**:
+
 ```typescript
 // src/components/forms/__tests__/contact-form.test.tsx
 import { render, screen, waitFor } from '@testing-library/react';
@@ -691,13 +704,14 @@ describe('ContactForm', () => {
 **Steps:**
 
 1. **Create auth hook**:
+
 ```typescript
 // src/hooks/use-auth.ts
-'use client';
+"use client";
 
-import { useEffect, useState } from 'use';
-import { createClient } from '@/lib/supabase/client';
-import type { User } from '@supabase/supabase-js';
+import { useEffect, useState } from "use";
+import { createClient } from "@/lib/supabase/client";
+import type { User } from "@supabase/supabase-js";
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
@@ -726,10 +740,11 @@ export function useAuth() {
 ```
 
 2. **Protect a page** (middleware):
+
 ```typescript
 // src/middleware.ts
-import { createServerClient } from '@supabase/ssr';
-import { NextResponse, type NextRequest } from 'next/server';
+import { createServerClient } from "@supabase/ssr";
+import { NextResponse, type NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({
@@ -756,7 +771,7 @@ export async function middleware(request: NextRequest) {
         remove(name: string, options: CookieOptions) {
           response.cookies.set({
             name,
-            value: '',
+            value: "",
             ...options,
           });
         },
@@ -769,19 +784,20 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   // Redirect to login if not authenticated
-  if (!user && request.nextUrl.pathname.startsWith('/dashboard')) {
-    return NextResponse.redirect(new URL('/login', request.url));
+  if (!user && request.nextUrl.pathname.startsWith("/dashboard")) {
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 
   return response;
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*'],
+  matcher: ["/dashboard/:path*"],
 };
 ```
 
 3. **Login component**:
+
 ```typescript
 // src/components/auth/login-form.tsx
 'use client';
@@ -886,6 +902,7 @@ supabase db diff
 ### Common SQL Patterns
 
 **Create table with RLS:**
+
 ```sql
 -- Create table
 CREATE TABLE documents (
@@ -924,16 +941,19 @@ WITH CHECK (
 ```
 
 **Query with joins:**
+
 ```typescript
 const { data } = await supabase
-  .from('cereri')
-  .select(`
+  .from("cereri")
+  .select(
+    `
     *,
     documents(*),
     user:users(email, full_name)
-  `)
-  .eq('status', 'submitted')
-  .order('created_at', { ascending: false });
+  `
+  )
+  .eq("status", "submitted")
+  .order("created_at", { ascending: false });
 ```
 
 ---
@@ -943,6 +963,7 @@ const { data } = await supabase
 ### Unit Tests (Jest)
 
 **Run tests:**
+
 ```bash
 pnpm test              # Run once
 pnpm test:watch        # Watch mode
@@ -950,6 +971,7 @@ pnpm test:coverage     # With coverage report
 ```
 
 **Testing a component:**
+
 ```typescript
 // components/ui/__tests__/button.test.tsx
 import { render, screen } from '@testing-library/react';
@@ -982,6 +1004,7 @@ describe('Button', () => {
 ### E2E Tests (Playwright)
 
 **Run tests:**
+
 ```bash
 pnpm test:e2e              # All browsers
 pnpm test:e2e:chromium     # Chromium only
@@ -990,35 +1013,36 @@ pnpm test:e2e:debug        # Debug mode with inspector
 ```
 
 **Writing E2E tests:**
+
 ```typescript
 // e2e/auth/login.spec.ts
-import { test, expect } from '@playwright/test';
+import { test, expect } from "@playwright/test";
 
-test.describe('Login Flow', () => {
-  test('successful login redirects to dashboard', async ({ page }) => {
+test.describe("Login Flow", () => {
+  test("successful login redirects to dashboard", async ({ page }) => {
     // Navigate to login page
-    await page.goto('/login');
+    await page.goto("/login");
 
     // Fill form
-    await page.fill('input[name="email"]', 'test@example.com');
-    await page.fill('input[name="password"]', 'password123');
+    await page.fill('input[name="email"]', "test@example.com");
+    await page.fill('input[name="password"]', "password123");
 
     // Submit
     await page.click('button[type="submit"]');
 
     // Verify redirect
-    await expect(page).toHaveURL('/dashboard');
-    await expect(page.locator('text=Welcome back')).toBeVisible();
+    await expect(page).toHaveURL("/dashboard");
+    await expect(page.locator("text=Welcome back")).toBeVisible();
   });
 
-  test('invalid credentials show error', async ({ page }) => {
-    await page.goto('/login');
+  test("invalid credentials show error", async ({ page }) => {
+    await page.goto("/login");
 
-    await page.fill('input[name="email"]', 'invalid@example.com');
-    await page.fill('input[name="password"]', 'wrongpassword');
+    await page.fill('input[name="email"]', "invalid@example.com");
+    await page.fill('input[name="password"]', "wrongpassword");
     await page.click('button[type="submit"]');
 
-    await expect(page.locator('text=Invalid credentials')).toBeVisible();
+    await expect(page.locator("text=Invalid credentials")).toBeVisible();
   });
 });
 ```
@@ -1030,6 +1054,7 @@ test.describe('Login Flow', () => {
 ### Next.js Debugging
 
 **1. Console logging (server vs client):**
+
 ```typescript
 // Server Component
 export default async function Page() {
@@ -1046,6 +1071,7 @@ export function Component() {
 ```
 
 **2. VS Code debugging:**
+
 ```json
 // .vscode/launch.json
 {
@@ -1068,6 +1094,7 @@ export function Component() {
 ```
 
 **3. React DevTools:**
+
 - Install React DevTools browser extension
 - Inspect component tree
 - View props/state
@@ -1076,6 +1103,7 @@ export function Component() {
 ### Database Debugging
 
 **Check RLS policies:**
+
 ```sql
 -- Disable RLS temporarily for debugging
 ALTER TABLE cereri DISABLE ROW LEVEL SECURITY;
@@ -1088,14 +1116,12 @@ ALTER TABLE cereri ENABLE ROW LEVEL SECURITY;
 ```
 
 **Query logging:**
+
 ```typescript
 // Log all queries (development only)
 const supabase = createClient();
 
-supabase.from('cereri')
-  .select()
-  .then(console.log)
-  .catch(console.error);
+supabase.from("cereri").select().then(console.log).catch(console.error);
 ```
 
 ---
@@ -1105,6 +1131,7 @@ supabase.from('cereri')
 ### Image Optimization
 
 **Use Next.js Image component:**
+
 ```typescript
 import Image from 'next/image';
 
@@ -1124,6 +1151,7 @@ import Image from 'next/image';
 ### Code Splitting
 
 **Dynamic imports:**
+
 ```typescript
 import dynamic from 'next/dynamic';
 
@@ -1145,6 +1173,7 @@ export function Dashboard() {
 ### Database Query Optimization
 
 **Use indexes:**
+
 ```sql
 -- Check slow queries
 SELECT * FROM pg_stat_statements
@@ -1156,6 +1185,7 @@ CREATE INDEX idx_cereri_status_created ON cereri(status, created_at DESC);
 ```
 
 **Optimize RLS:**
+
 ```sql
 -- Use indexes in RLS policies
 CREATE INDEX idx_cereri_user_id ON cereri(user_id);
@@ -1172,12 +1202,14 @@ USING (user_id = auth.uid()); -- Uses index
 ### Vercel Deployment
 
 **1. Push to GitHub:**
+
 ```bash
 git push origin main
 # Vercel auto-deploys from main branch
 ```
 
 **2. Manual deployment:**
+
 ```bash
 # Install Vercel CLI
 pnpm add -g vercel
@@ -1190,6 +1222,7 @@ vercel --prod
 ```
 
 **3. Environment variables:**
+
 - Add in Vercel Dashboard → Settings → Environment Variables
 - Required: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 
@@ -1216,6 +1249,7 @@ supabase db diff --db-url postgresql://[connection-string]
 **Problem**: `pnpm install` fails
 
 **Solution:**
+
 ```bash
 # Clear cache and retry
 pnpm store prune
@@ -1228,6 +1262,7 @@ pnpm install
 **Problem**: TypeScript errors after migration
 
 **Solution:**
+
 ```bash
 # Regenerate types
 pnpm types:generate
@@ -1241,6 +1276,7 @@ pnpm types:generate
 **Problem**: Supabase connection error
 
 **Solution:**
+
 ```bash
 # Check .env.local has correct values
 cat .env.local | grep SUPABASE
@@ -1254,6 +1290,7 @@ curl https://[project-id].supabase.co/rest/v1/
 **Problem**: Playwright tests failing
 
 **Solution:**
+
 ```bash
 # Install/update browsers
 pnpm playwright:install
@@ -1286,20 +1323,24 @@ See [Document Upload Flow](ARCHITECTURE.md#document-upload-flow) in Architecture
 **Q: How do I implement real-time features?**
 
 ```typescript
-import { createClient } from '@/lib/supabase/client';
+import { createClient } from "@/lib/supabase/client";
 
 const supabase = createClient();
 
 // Subscribe to changes
 const channel = supabase
-  .channel('cereri-changes')
-  .on('postgres_changes', {
-    event: '*',
-    schema: 'public',
-    table: 'cereri',
-  }, (payload) => {
-    console.log('Change received!', payload);
-  })
+  .channel("cereri-changes")
+  .on(
+    "postgres_changes",
+    {
+      event: "*",
+      schema: "public",
+      table: "cereri",
+    },
+    (payload) => {
+      console.log("Change received!", payload);
+    }
+  )
   .subscribe();
 
 // Cleanup
@@ -1327,7 +1368,7 @@ supabase functions logs function-name
 
 <div align="center">
 
-**Complete Development Guide** 
+**Complete Development Guide**
 
 For architecture details, see [ARCHITECTURE.md](ARCHITECTURE.md)
 

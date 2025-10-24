@@ -42,14 +42,14 @@ Comprehensive guide to the system design, data flow, and integration architectur
 
 ### Key Characteristics
 
-| Characteristic | Implementation |
-|---------------|----------------|
+| Characteristic           | Implementation                         |
+| ------------------------ | -------------------------------------- |
 | **Architecture Pattern** | Serverless, Event-Driven, Multi-Tenant |
-| **Deployment Model** | Edge-first, globally distributed |
-| **Data Sovereignty** | EU-compliant (Frankfurt region) |
-| **Scalability** | Auto-scaling, pay-per-use |
-| **Security** | Multi-layer, zero-trust model |
-| **Availability** | 99.9% SLA target |
+| **Deployment Model**     | Edge-first, globally distributed       |
+| **Data Sovereignty**     | EU-compliant (Frankfurt region)        |
+| **Scalability**          | Auto-scaling, pay-per-use              |
+| **Security**             | Multi-layer, zero-trust model          |
+| **Availability**         | 99.9% SLA target                       |
 
 ### Design Principles
 
@@ -225,16 +225,16 @@ graph TB
 
 ### Infrastructure Stack
 
-| Layer | Technology | Purpose |
-|-------|------------|---------|
-| **Hosting** | Vercel (Frankfurt) | Serverless Next.js deployment |
-| **CDN** | Cloudflare | Global content delivery |
-| **Database** | Supabase (PostgreSQL 15) | Primary data store |
-| **Auth** | Supabase Auth | Authentication & authorization |
-| **Storage** | Supabase Storage | Document management |
-| **Monitoring** | Sentry + Vercel Analytics | Error tracking + RUM |
-| **DNS** | Cloudflare | DNS management |
-| **Security** | Cloudflare WAF + DDoS | Protection layer |
+| Layer          | Technology                | Purpose                        |
+| -------------- | ------------------------- | ------------------------------ |
+| **Hosting**    | Vercel (Frankfurt)        | Serverless Next.js deployment  |
+| **CDN**        | Cloudflare                | Global content delivery        |
+| **Database**   | Supabase (PostgreSQL 15)  | Primary data store             |
+| **Auth**       | Supabase Auth             | Authentication & authorization |
+| **Storage**    | Supabase Storage          | Document management            |
+| **Monitoring** | Sentry + Vercel Analytics | Error tracking + RUM           |
+| **DNS**        | Cloudflare                | DNS management                 |
+| **Security**   | Cloudflare WAF + DDoS     | Protection layer               |
 
 ---
 
@@ -245,18 +245,21 @@ graph TB
 **Responsibility**: User interface, client-side logic, routing
 
 **Components:**
+
 - **Next.js App Router** - File-based routing, Server Components
 - **React Components** - UI elements (atomic design)
 - **shadcn/ui** - Pre-built accessible components
 - **Tailwind CSS** - Styling system
 
 **Key Features:**
+
 - ✅ Server-Side Rendering (SSR)
 - ✅ Static Site Generation (SSG) for public pages
 - ✅ Client-side navigation (SPA behavior)
 - ✅ Progressive enhancement
 
 **File Structure:**
+
 ```
 src/app/
 ├── (auth)/              # Authentication routes (grouped)
@@ -279,12 +282,14 @@ src/app/
 **Responsibility**: Business logic, data fetching, state management
 
 **Components:**
+
 - **Route Handlers** (`/api/*`) - API endpoints
 - **Server Actions** - Mutations from Server Components
 - **Custom Hooks** - Reusable client logic
 - **State Stores** - Zustand for global state
 
 **Patterns:**
+
 ```typescript
 // Server Component (data fetching)
 export default async function DashboardPage() {
@@ -310,12 +315,14 @@ export function RequestForm() {
 **Responsibility**: Data persistence, queries, business rules
 
 **Components:**
+
 - **PostgreSQL Database** - Relational data
 - **Row Level Security (RLS)** - Multi-tenant isolation
 - **Database Functions** - Business logic in SQL
 - **Triggers** - Automated workflows
 
 **Multi-Tenancy Model:**
+
 ```sql
 -- Every table has județ + localitate for isolation
 CREATE TABLE cereri (
@@ -341,6 +348,7 @@ USING (
 **Responsibility**: External service communication, webhooks
 
 **Components:**
+
 - **Supabase Edge Functions** - Deno runtime
 - **API Clients** - Third-party service wrappers
 - **Webhook Handlers** - Payment/signature callbacks
@@ -758,6 +766,7 @@ sequenceDiagram
 ```
 
 **Configuration:**
+
 ```typescript
 const certSignConfig = {
   apiUrl: process.env.CERTSIGN_API_URL,
@@ -849,11 +858,12 @@ graph TB
 ### Authentication & Authorization
 
 **JWT Flow:**
+
 ```typescript
 // 1. User logs in
 const { data, error } = await supabase.auth.signInWithPassword({
-  email: 'user@example.com',
-  password: 'password123',
+  email: "user@example.com",
+  password: "password123",
 });
 
 // 2. JWT stored in httpOnly cookie
@@ -861,11 +871,13 @@ document.cookie = `access_token=${data.session.access_token}; httpOnly; secure; 
 
 // 3. Middleware validates on every request
 export async function middleware(req: NextRequest) {
-  const token = req.cookies.get('access_token');
-  const { data: { user } } = await supabase.auth.getUser(token);
+  const token = req.cookies.get("access_token");
+  const {
+    data: { user },
+  } = await supabase.auth.getUser(token);
 
   if (!user) {
-    return NextResponse.redirect('/login');
+    return NextResponse.redirect("/login");
   }
 
   return NextResponse.next();
@@ -878,22 +890,24 @@ export async function middleware(req: NextRequest) {
 
 ### Performance Targets
 
-| Metric | Target | Strategy |
-|--------|--------|----------|
-| **LCP** (Largest Contentful Paint) | < 2.5s | SSR, Image optimization, CDN |
-| **FCP** (First Contentful Paint) | < 1.2s | Critical CSS, Font optimization |
-| **TTI** (Time to Interactive) | < 3.5s | Code splitting, Progressive enhancement |
-| **CLS** (Cumulative Layout Shift) | < 0.1 | Reserved space, Font loading |
+| Metric                             | Target | Strategy                                |
+| ---------------------------------- | ------ | --------------------------------------- |
+| **LCP** (Largest Contentful Paint) | < 2.5s | SSR, Image optimization, CDN            |
+| **FCP** (First Contentful Paint)   | < 1.2s | Critical CSS, Font optimization         |
+| **TTI** (Time to Interactive)      | < 3.5s | Code splitting, Progressive enhancement |
+| **CLS** (Cumulative Layout Shift)  | < 0.1  | Reserved space, Font loading            |
 
 ### Scalability Strategy
 
 **Horizontal Scaling:**
+
 - ✅ Serverless functions (auto-scale)
 - ✅ CDN edge nodes (300+ locations)
 - ✅ Database read replicas (Supabase)
 - ✅ Connection pooling (PgBouncer)
 
 **Caching Strategy:**
+
 ```mermaid
 graph LR
     Browser[Browser Cache<br/>Static assets]
@@ -971,19 +985,19 @@ graph TB
 
 ### Infrastructure Providers
 
-| Service | Provider | Region | Purpose |
-|---------|----------|--------|---------|
-| **Hosting** | Vercel | Frankfurt (eu-central-1) | Next.js app |
-| **Database** | Supabase | Frankfurt (eu-central-1) | PostgreSQL |
-| **CDN** | Cloudflare | Global (300+ PoPs) | Static assets |
-| **DNS** | Cloudflare | Global | Domain management |
-| **Monitoring** | Sentry | EU (Frankfurt) | Error tracking |
+| Service        | Provider   | Region                   | Purpose           |
+| -------------- | ---------- | ------------------------ | ----------------- |
+| **Hosting**    | Vercel     | Frankfurt (eu-central-1) | Next.js app       |
+| **Database**   | Supabase   | Frankfurt (eu-central-1) | PostgreSQL        |
+| **CDN**        | Cloudflare | Global (300+ PoPs)       | Static assets     |
+| **DNS**        | Cloudflare | Global                   | Domain management |
+| **Monitoring** | Sentry     | EU (Frankfurt)           | Error tracking    |
 
 ---
 
 <div align="center">
 
-**Complete Architecture Documentation** 
+**Complete Architecture Documentation**
 
 For implementation details, please see [DEVELOPMENT_GUIDE.md](DEVELOPMENT_GUIDE.md)
 

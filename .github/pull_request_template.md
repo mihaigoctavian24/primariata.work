@@ -4,8 +4,6 @@
 
 <!-- Provide a clear and concise description of what this PR does -->
 
-
-
 ## 🔗 Related Issues
 
 <!-- Link to related issues using keywords: Closes #123, Fixes #456, Related to #789 -->
@@ -36,9 +34,11 @@
 <summary>Before & After (if applicable)</summary>
 
 **Before:**
+
 <!-- Add screenshot or describe previous behavior -->
 
 **After:**
+
 <!-- Add screenshot or describe new behavior -->
 
 </details>
@@ -48,6 +48,7 @@
 <!-- Mark completed items with [x] -->
 
 ### Code Quality
+
 - [ ] Code follows the project's [style guidelines](CONTRIBUTING.md#code-standards)
 - [ ] TypeScript compiles without errors (`pnpm type-check`)
 - [ ] ESLint passes without errors (`pnpm lint`)
@@ -56,6 +57,7 @@
 - [ ] Code is self-documenting or has appropriate comments
 
 ### Testing
+
 - [ ] Unit tests added/updated (`pnpm test`)
 - [ ] Integration tests added/updated (if applicable)
 - [ ] E2E tests added/updated (if applicable)
@@ -63,30 +65,35 @@
 - [ ] Test coverage meets requirements (90%+ for new code)
 
 ### Documentation
+
 - [ ] README updated (if needed)
 - [ ] DEVELOPMENT_GUIDE updated (if adding new patterns)
 - [ ] JSDoc comments added for new functions/components
 - [ ] Migration guide added (if breaking changes)
 
 ### Database & Backend
+
 - [ ] Database migrations created (if schema changes)
 - [ ] RLS policies updated (if new tables/columns)
 - [ ] Database types regenerated (`pnpm types:generate`)
 - [ ] Edge Functions tested (if modified)
 
 ### Git
+
 - [ ] Commits follow [Conventional Commits](https://www.conventionalcommits.org/)
 - [ ] Branch is up-to-date with `develop`
 - [ ] No merge conflicts
 - [ ] Commit messages are clear and descriptive
 
 ### Performance & Security
+
 - [ ] No performance regressions introduced
 - [ ] No security vulnerabilities added
 - [ ] Sensitive data not exposed in logs/responses
 - [ ] Environment variables properly configured
 
 ### CI/CD
+
 - [ ] Build succeeds (`pnpm build`)
 - [ ] CI pipeline passes (will be checked automatically)
 
@@ -112,9 +119,11 @@
 <summary>Breaking Changes Details</summary>
 
 **What breaks:**
+
 <!-- Describe what existing functionality will break -->
 
 **Migration steps:**
+
 <!-- Provide step-by-step migration instructions -->
 
 1.
@@ -131,15 +140,12 @@
 - [ ] Database query performance verified (if DB changes)
 
 **Performance notes:**
+
 <!-- Add benchmarks, metrics, or observations -->
-
-
 
 ## 🔍 Additional Context
 
 <!-- Add any other context, implementation notes, or design decisions -->
-
-
 
 ## 📸 Preview Deployment
 
@@ -147,6 +153,7 @@
 <!-- Add any specific pages/features to test in the preview -->
 
 **Pages to review:**
+
 - [ ] [Page/feature 1]
 - [ ] [Page/feature 2]
 
@@ -156,15 +163,12 @@
 
 <!-- Optional: Add specific areas you want reviewers to focus on -->
 
-**Areas needing special attention:**
--
--
+## **Areas needing special attention:**
 
-**Questions for reviewers:**
--
--
+- **Questions for reviewers:**
 
----
+-
+- ***
 
 <div align="center">
 

@@ -69,14 +69,15 @@ We are committed to providing a welcoming and inspiring community for all. We ex
 
 Before you begin, ensure you have the following installed:
 
-| Tool | Version | Installation |
-|------|---------|--------------|
-| **Node.js** | 20.x or higher | [Download](https://nodejs.org/) |
-| **pnpm** | 8.x or higher | `npm install -g pnpm` |
-| **Git** | Latest | [Download](https://git-scm.com/) |
-| **Supabase CLI** | Latest | `brew install supabase/tap/supabase` (macOS)<br>`npm install -g supabase` (others) |
+| Tool             | Version        | Installation                                                                       |
+| ---------------- | -------------- | ---------------------------------------------------------------------------------- |
+| **Node.js**      | 20.x or higher | [Download](https://nodejs.org/)                                                    |
+| **pnpm**         | 8.x or higher  | `npm install -g pnpm`                                                              |
+| **Git**          | Latest         | [Download](https://git-scm.com/)                                                   |
+| **Supabase CLI** | Latest         | `brew install supabase/tap/supabase` (macOS)<br>`npm install -g supabase` (others) |
 
 **Optional but Recommended:**
+
 - VS Code with recommended extensions (ESLint, Prettier, Tailwind CSS IntelliSense)
 - GitHub CLI: `brew install gh` or `npm install -g gh`
 
@@ -85,12 +86,14 @@ Before you begin, ensure you have the following installed:
 1. **Fork the repository** on GitHub (click "Fork" button)
 
 2. **Clone your fork**:
+
    ```bash
    git clone https://github.com/YOUR-USERNAME/primariata.work.git
    cd primariata.work
    ```
 
 3. **Add upstream remote**:
+
    ```bash
    git remote add upstream https://github.com/mihaigoctavian24/primariata.work.git
    ```
@@ -124,6 +127,7 @@ pnpm dev
 ```
 
 **Verify installation**:
+
 ```bash
 pnpm type-check  # Should pass with no errors
 pnpm lint        # Should pass with no errors
@@ -150,25 +154,27 @@ fix/*     ───────●────────●                (Bu
 
 **Branch Types:**
 
-| Branch Pattern | Purpose | Base Branch | Merge Target |
-|---------------|---------|-------------|--------------|
-| `main` | Production-ready code | - | - |
-| `develop` | Integration branch | `main` | `main` |
-| `feature/*` | New features | `develop` | `develop` |
-| `fix/*` | Bug fixes | `develop` | `develop` |
-| `hotfix/*` | Urgent production fixes | `main` | `main` + `develop` |
-| `chore/*` | Maintenance tasks | `develop` | `develop` |
-| `docs/*` | Documentation updates | `develop` | `develop` |
+| Branch Pattern | Purpose                 | Base Branch | Merge Target       |
+| -------------- | ----------------------- | ----------- | ------------------ |
+| `main`         | Production-ready code   | -           | -                  |
+| `develop`      | Integration branch      | `main`      | `main`             |
+| `feature/*`    | New features            | `develop`   | `develop`          |
+| `fix/*`        | Bug fixes               | `develop`   | `develop`          |
+| `hotfix/*`     | Urgent production fixes | `main`      | `main` + `develop` |
+| `chore/*`      | Maintenance tasks       | `develop`   | `develop`          |
+| `docs/*`       | Documentation updates   | `develop`   | `develop`          |
 
 ### Making Changes
 
 **1. Sync with upstream**:
+
 ```bash
 git checkout develop
 git pull upstream develop
 ```
 
 **2. Create feature branch**:
+
 ```bash
 git checkout -b feature/your-feature-name
 
@@ -180,18 +186,21 @@ git checkout -b feature/your-feature-name
 ```
 
 **3. Make your changes**:
+
 - Write clean, documented code
 - Follow code standards (see [Code Standards](#code-standards))
 - Add tests for new functionality
 - Update documentation if needed
 
 **4. Commit your changes** (see [Commit Guidelines](#commit-guidelines)):
+
 ```bash
 git add .
 git commit -m "feat(auth): implement Google OAuth login"
 ```
 
 **5. Keep branch updated**:
+
 ```bash
 # Regularly sync with develop
 git fetch upstream
@@ -199,6 +208,7 @@ git rebase upstream/develop
 ```
 
 **6. Push to your fork**:
+
 ```bash
 git push origin feature/your-feature-name
 ```
@@ -223,19 +233,19 @@ We follow **[Conventional Commits](https://www.conventionalcommits.org/)** speci
 
 **Must be one of:**
 
-| Type | Description | Example |
-|------|-------------|---------|
-| `feat` | New feature | `feat(auth): add Google OAuth` |
-| `fix` | Bug fix | `fix(api): resolve CORS issue` |
-| `docs` | Documentation only | `docs(readme): update setup guide` |
-| `style` | Code style changes (formatting) | `style: fix indentation` |
-| `refactor` | Code refactoring | `refactor(db): optimize queries` |
-| `perf` | Performance improvement | `perf(api): cache responses` |
-| `test` | Adding/updating tests | `test(auth): add login tests` |
-| `build` | Build system changes | `build: upgrade Next.js` |
-| `ci` | CI/CD changes | `ci: add E2E workflow` |
-| `chore` | Maintenance tasks | `chore(deps): update packages` |
-| `revert` | Revert previous commit | `revert: feat(auth): OAuth` |
+| Type       | Description                     | Example                            |
+| ---------- | ------------------------------- | ---------------------------------- |
+| `feat`     | New feature                     | `feat(auth): add Google OAuth`     |
+| `fix`      | Bug fix                         | `fix(api): resolve CORS issue`     |
+| `docs`     | Documentation only              | `docs(readme): update setup guide` |
+| `style`    | Code style changes (formatting) | `style: fix indentation`           |
+| `refactor` | Code refactoring                | `refactor(db): optimize queries`   |
+| `perf`     | Performance improvement         | `perf(api): cache responses`       |
+| `test`     | Adding/updating tests           | `test(auth): add login tests`      |
+| `build`    | Build system changes            | `build: upgrade Next.js`           |
+| `ci`       | CI/CD changes                   | `ci: add E2E workflow`             |
+| `chore`    | Maintenance tasks               | `chore(deps): update packages`     |
+| `revert`   | Revert previous commit          | `revert: feat(auth): OAuth`        |
 
 #### Scope
 
@@ -244,6 +254,7 @@ We follow **[Conventional Commits](https://www.conventionalcommits.org/)** speci
 `phase-0`, `phase-1`, `phase-2`, `phase-3`, `phase-4`, `phase-5`, `phase-6`, `auth`, `api`, `ui`, `db`, `config`, `deps`
 
 **Examples:**
+
 ```bash
 feat(phase-0): implement git hooks setup
 fix(auth): resolve session expiration bug
@@ -260,12 +271,14 @@ test(api): add request validation tests
 - Maximum 72 characters
 
 ✅ **Good:**
+
 ```
 feat(auth): add password reset functionality
 fix(ui): resolve button alignment issue
 ```
 
 ❌ **Bad:**
+
 ```
 feat(auth): Added password reset functionality.
 fix(ui): Resolves button alignment issues
@@ -278,6 +291,7 @@ fix(ui): Resolves button alignment issues
 - Separate from subject with blank line
 
 **Example:**
+
 ```
 feat(payments): integrate Ghișeul.ro payment gateway
 
@@ -290,11 +304,13 @@ Closes #123
 #### Footer (Optional)
 
 **Breaking Changes:**
+
 ```
 BREAKING CHANGE: API endpoint /api/users renamed to /api/accounts
 ```
 
 **Issue References:**
+
 ```
 Closes #123
 Fixes #456
@@ -352,6 +368,7 @@ git commit -m "Added OAuth login"
 **1. Always use TypeScript** - No `.js` or `.jsx` files
 
 **2. Enable strict mode** (already configured in `tsconfig.json`):
+
 ```json
 {
   "compilerOptions": {
@@ -363,35 +380,38 @@ git commit -m "Added OAuth login"
 ```
 
 **3. Prefer `interface` over `type` for object shapes**:
+
 ```typescript
 // ✅ Good
 interface User {
   id: string;
   email: string;
-  role: 'admin' | 'user';
+  role: "admin" | "user";
 }
 
 // ❌ Avoid (unless needed for unions/intersections)
 type User = {
   id: string;
   email: string;
-}
+};
 ```
 
 **4. Use explicit return types for functions**:
+
 ```typescript
 // ✅ Good
 function getUser(id: string): Promise<User> {
-  return supabase.from('users').select().eq('id', id).single();
+  return supabase.from("users").select().eq("id", id).single();
 }
 
 // ❌ Avoid
 function getUser(id: string) {
-  return supabase.from('users').select().eq('id', id).single();
+  return supabase.from("users").select().eq("id", id).single();
 }
 ```
 
 **5. Avoid `any` - use `unknown` or proper types**:
+
 ```typescript
 // ✅ Good
 function parseJSON(json: string): unknown {
@@ -407,18 +427,19 @@ function parseJSON(json: string): any {
 ### React Best Practices
 
 **1. Component Structure**:
+
 ```tsx
 // ✅ Good: Props interface → Component → Export
 interface ButtonProps {
-  variant?: 'default' | 'destructive';
-  size?: 'sm' | 'md' | 'lg';
+  variant?: "default" | "destructive";
+  size?: "sm" | "md" | "lg";
   children: React.ReactNode;
   onClick?: () => void;
 }
 
-export function Button({ variant = 'default', size = 'md', children, onClick }: ButtonProps) {
+export function Button({ variant = "default", size = "md", children, onClick }: ButtonProps) {
   return (
-    <button className={cn('btn', `btn-${variant}`, `btn-${size}`)} onClick={onClick}>
+    <button className={cn("btn", `btn-${variant}`, `btn-${size}`)} onClick={onClick}>
       {children}
     </button>
   );
@@ -426,6 +447,7 @@ export function Button({ variant = 'default', size = 'md', children, onClick }: 
 ```
 
 **2. Use Server Components by default** (Next.js 15):
+
 ```tsx
 // ✅ Server Component (default)
 export default async function UsersPage() {
@@ -434,24 +456,26 @@ export default async function UsersPage() {
 }
 
 // Only use 'use client' when needed (interactivity, hooks)
-'use client';
+("use client");
 export function UserForm() {
-  const [name, setName] = useState('');
+  const [name, setName] = useState("");
   // ...
 }
 ```
 
 **3. Prefer named exports over default exports**:
+
 ```typescript
 // ✅ Good
-export function Button() { }
-export function Card() { }
+export function Button() {}
+export function Card() {}
 
 // ❌ Avoid (except for pages)
-export default function Button() { }
+export default function Button() {}
 ```
 
 **4. Use custom hooks for reusable logic**:
+
 ```typescript
 // hooks/use-auth.ts
 export function useAuth() {
@@ -462,6 +486,7 @@ export function useAuth() {
 ```
 
 **5. Memoize expensive computations**:
+
 ```tsx
 const expensiveValue = useMemo(() => {
   return computeExpensiveValue(data);
@@ -470,17 +495,18 @@ const expensiveValue = useMemo(() => {
 
 ### File Naming Conventions
 
-| Type | Convention | Example |
-|------|------------|---------|
-| **Components** | `kebab-case.tsx` | `user-profile.tsx` |
-| **Pages** | `kebab-case/page.tsx` | `dashboard/page.tsx` |
-| **Utilities** | `camelCase.ts` | `formatDate.ts` |
-| **Hooks** | `use-*.ts` | `use-auth.ts` |
-| **Types** | `PascalCase.ts` | `User.ts` |
-| **Constants** | `UPPER_SNAKE_CASE.ts` | `API_ENDPOINTS.ts` |
-| **Tests** | `*.test.ts(x)` | `button.test.tsx` |
+| Type           | Convention            | Example              |
+| -------------- | --------------------- | -------------------- |
+| **Components** | `kebab-case.tsx`      | `user-profile.tsx`   |
+| **Pages**      | `kebab-case/page.tsx` | `dashboard/page.tsx` |
+| **Utilities**  | `camelCase.ts`        | `formatDate.ts`      |
+| **Hooks**      | `use-*.ts`            | `use-auth.ts`        |
+| **Types**      | `PascalCase.ts`       | `User.ts`            |
+| **Constants**  | `UPPER_SNAKE_CASE.ts` | `API_ENDPOINTS.ts`   |
+| **Tests**      | `*.test.ts(x)`        | `button.test.tsx`    |
 
 **Directory structure:**
+
 ```
 src/
 ├── app/                    # Next.js pages (kebab-case)
@@ -510,6 +536,7 @@ src/
 **Enforced by ESLint + Prettier** (runs on `git commit`):
 
 **1. Indentation**: 2 spaces
+
 ```typescript
 // ✅ Good
 function example() {
@@ -520,50 +547,57 @@ function example() {
 ```
 
 **2. Quotes**: Double quotes for strings
+
 ```typescript
 // ✅ Good
 const message = "Hello, world!";
 
 // ❌ Avoid
-const message = 'Hello, world!';
+const message = "Hello, world!";
 ```
 
 **3. Semicolons**: Required
+
 ```typescript
 // ✅ Good
 const x = 10;
 const y = 20;
 
 // ❌ Avoid
-const x = 10
-const y = 20
+const x = 10;
+const y = 20;
 ```
 
 **4. Arrow functions**: Prefer arrow functions for callbacks
+
 ```typescript
 // ✅ Good
-array.map(item => item.id);
+array.map((item) => item.id);
 
 // ❌ Avoid
-array.map(function(item) { return item.id; });
+array.map(function (item) {
+  return item.id;
+});
 ```
 
 **5. Object/Array trailing commas**: Always
+
 ```typescript
 // ✅ Good
 const user = {
-  id: '1',
-  email: 'user@example.com',
+  id: "1",
+  email: "user@example.com",
 };
 
 // ❌ Avoid
 const user = {
-  id: '1',
-  email: 'user@example.com'
+  id: "1",
+  email: "user@example.com",
 };
 ```
 
 **6. Max line length**: 100 characters
+
 ```typescript
 // ✅ Good
 const message =
@@ -574,6 +608,7 @@ const message = "This is a very long message that exceeds 100 characters and we 
 ```
 
 **Run formatters manually:**
+
 ```bash
 pnpm lint        # Check for issues
 pnpm lint --fix  # Auto-fix issues
@@ -593,6 +628,7 @@ All new features and bug fixes **must include tests**.
 **Location**: `tests/unit/` or `__tests__/` adjacent to component
 
 **Run tests:**
+
 ```bash
 pnpm test              # Run all tests
 pnpm test:watch        # Watch mode
@@ -600,6 +636,7 @@ pnpm test:coverage     # With coverage
 ```
 
 **Example:**
+
 ```typescript
 // components/ui/__tests__/button.test.tsx
 import { render, screen } from '@testing-library/react';
@@ -626,6 +663,7 @@ describe('Button', () => {
 ```
 
 **Coverage requirements:**
+
 - **Branches**: 80%+
 - **Functions**: 80%+
 - **Lines**: 90%+
@@ -638,16 +676,17 @@ describe('Button', () => {
 **Purpose**: Test interactions between modules (API routes, database operations)
 
 **Example:**
+
 ```typescript
 // tests/integration/auth.test.ts
-import { createClient } from '@/lib/supabase/server';
+import { createClient } from "@/lib/supabase/server";
 
-describe('Authentication Integration', () => {
-  it('should create user and session', async () => {
+describe("Authentication Integration", () => {
+  it("should create user and session", async () => {
     const supabase = createClient();
     const { data, error } = await supabase.auth.signUp({
-      email: 'test@example.com',
-      password: 'password123',
+      email: "test@example.com",
+      password: "password123",
     });
 
     expect(error).toBeNull();
@@ -664,6 +703,7 @@ describe('Authentication Integration', () => {
 **Location**: `e2e/`
 
 **Run tests:**
+
 ```bash
 pnpm test:e2e              # All browsers
 pnpm test:e2e:chromium     # Chromium only
@@ -672,30 +712,31 @@ pnpm test:e2e:debug        # Debug mode
 ```
 
 **Example:**
+
 ```typescript
 // e2e/auth/login.spec.ts
-import { test, expect } from '@playwright/test';
+import { test, expect } from "@playwright/test";
 
-test.describe('Login Flow', () => {
-  test('should login with valid credentials', async ({ page }) => {
-    await page.goto('/login');
+test.describe("Login Flow", () => {
+  test("should login with valid credentials", async ({ page }) => {
+    await page.goto("/login");
 
-    await page.fill('input[name="email"]', 'user@example.com');
-    await page.fill('input[name="password"]', 'password123');
+    await page.fill('input[name="email"]', "user@example.com");
+    await page.fill('input[name="password"]', "password123");
     await page.click('button[type="submit"]');
 
-    await expect(page).toHaveURL('/dashboard');
-    await expect(page.locator('text=Welcome back')).toBeVisible();
+    await expect(page).toHaveURL("/dashboard");
+    await expect(page.locator("text=Welcome back")).toBeVisible();
   });
 
-  test('should show error with invalid credentials', async ({ page }) => {
-    await page.goto('/login');
+  test("should show error with invalid credentials", async ({ page }) => {
+    await page.goto("/login");
 
-    await page.fill('input[name="email"]', 'invalid@example.com');
-    await page.fill('input[name="password"]', 'wrongpassword');
+    await page.fill('input[name="email"]', "invalid@example.com");
+    await page.fill('input[name="password"]', "wrongpassword");
     await page.click('button[type="submit"]');
 
-    await expect(page.locator('text=Invalid credentials')).toBeVisible();
+    await expect(page.locator("text=Invalid credentials")).toBeVisible();
   });
 });
 ```
@@ -720,6 +761,7 @@ test.describe('Login Flow', () => {
 - [ ] No merge conflicts
 
 **Run validation:**
+
 ```bash
 pnpm validate  # Runs type-check + lint + format:check
 pnpm test:all  # Runs all tests (unit + E2E)
@@ -738,11 +780,13 @@ When creating a PR, our template will guide you. **Complete all sections:**
 6. **Breaking Changes** - Document if applicable
 
 **Example PR title:**
+
 ```
 feat(auth): implement Google OAuth login
 ```
 
 **PR labels** (added by maintainers):
+
 - `phase-0`, `phase-1`, etc. - Development phase
 - `feature`, `bugfix`, `documentation` - PR type
 - `needs-review`, `approved`, `changes-requested` - Review status
@@ -770,10 +814,12 @@ feat(auth): implement Google OAuth login
 4. **Merge** - Squash and merge into `develop`
 
 **Review timeline:**
+
 - Initial review: Within 48 hours
 - Follow-up: Within 24 hours
 
 **Addressing feedback:**
+
 ```bash
 # Make requested changes
 git add .
@@ -811,6 +857,7 @@ git push origin feature/your-feature
 4. **Create an issue** - For bugs or feature requests
 
 **Contact:**
+
 - 📧 **Octavian Mihai**: mihai.g.octavian24@stud.rau.ro
 - 📧 **Bianca-Maria Abbasi**: abbasipazeyazd.h.biancamaria24@stud.rau.ro
 - 💬 **GitHub Issues**: [Create issue](https://github.com/mihaigoctavian24/primariata.work/issues)

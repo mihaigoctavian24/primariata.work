@@ -1,54 +1,52 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import { type HTMLMotionProps, motion, type Transition } from 'motion/react';
-import { cva, type VariantProps } from 'class-variance-authority';
+import * as React from "react";
+import { type HTMLMotionProps, motion, type Transition } from "motion/react";
+import { cva, type VariantProps } from "class-variance-authority";
 
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
   "relative overflow-hidden cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
   {
     variants: {
       variant: {
-        default: 'bg-primary text-primary-foreground hover:bg-primary/90',
+        default: "bg-primary text-primary-foreground hover:bg-primary/90",
         destructive:
-          'bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60',
+          "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
         outline:
-          'border border-border/40 bg-background hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input/40 dark:hover:bg-input/50',
-        secondary:
-          'bg-secondary text-secondary-foreground hover:bg-secondary/80',
-        ghost:
-          'hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50',
-        link: 'text-primary underline-offset-4 hover:underline',
+          "border border-border/40 bg-background hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input/40 dark:hover:bg-input/50",
+        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        ghost: "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
+        link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
-        default: 'h-10 px-4 py-2 has-[>svg]:px-3',
-        sm: 'h-9 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5',
-        lg: 'h-11 px-8 has-[>svg]:px-6',
-        icon: 'size-10',
+        default: "h-10 px-4 py-2 has-[>svg]:px-3",
+        sm: "h-9 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5",
+        lg: "h-11 px-8 has-[>svg]:px-6",
+        icon: "size-10",
       },
     },
     defaultVariants: {
-      variant: 'default',
-      size: 'default',
+      variant: "default",
+      size: "default",
     },
-  },
+  }
 );
 
-const rippleVariants = cva('absolute rounded-full size-5 pointer-events-none', {
+const rippleVariants = cva("absolute rounded-full size-5 pointer-events-none", {
   variants: {
     variant: {
-      default: 'bg-primary-foreground',
-      destructive: 'bg-destructive',
-      outline: 'bg-input',
-      secondary: 'bg-secondary',
-      ghost: 'bg-accent',
-      link: 'bg-primary',
+      default: "bg-primary-foreground",
+      destructive: "bg-destructive",
+      outline: "bg-input",
+      secondary: "bg-secondary",
+      ghost: "bg-accent",
+      link: "bg-primary",
     },
   },
   defaultVariants: {
-    variant: 'default',
+    variant: "default",
   },
 });
 
@@ -58,7 +56,7 @@ type Ripple = {
   y: number;
 };
 
-type ButtonProps = HTMLMotionProps<'button'> & {
+type ButtonProps = HTMLMotionProps<"button"> & {
   children: React.ReactNode;
   rippleClassName?: string;
   scale?: number;
@@ -75,7 +73,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       variant,
       size,
       scale = 10,
-      transition = { duration: 0.6, ease: 'easeOut' },
+      transition = { duration: 0.6, ease: "easeOut" },
       ...props
     },
     ref
@@ -84,29 +82,26 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const buttonRef = React.useRef<HTMLButtonElement>(null);
     React.useImperativeHandle(ref, () => buttonRef.current as HTMLButtonElement);
 
-    const createRipple = React.useCallback(
-      (event: React.MouseEvent<HTMLButtonElement>) => {
-        const button = buttonRef.current;
-        if (!button) return;
+    const createRipple = React.useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
+      const button = buttonRef.current;
+      if (!button) return;
 
-        const rect = button.getBoundingClientRect();
-        const x = event.clientX - rect.left;
-        const y = event.clientY - rect.top;
+      const rect = button.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
 
-        const newRipple: Ripple = {
-          id: Date.now(),
-          x,
-          y,
-        };
+      const newRipple: Ripple = {
+        id: Date.now(),
+        x,
+        y,
+      };
 
-        setRipples((prev) => [...prev, newRipple]);
+      setRipples((prev) => [...prev, newRipple]);
 
-        setTimeout(() => {
-          setRipples((prev) => prev.filter((r) => r.id !== newRipple.id));
-        }, 600);
-      },
-      [],
-    );
+      setTimeout(() => {
+        setRipples((prev) => prev.filter((r) => r.id !== newRipple.id));
+      }, 600);
+    }, []);
 
     const handleClick = React.useCallback(
       (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -115,7 +110,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           onClick(event);
         }
       },
-      [createRipple, onClick],
+      [createRipple, onClick]
     );
 
     return (
@@ -135,9 +130,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             initial={{ scale: 0, opacity: 0.5 }}
             animate={{ scale, opacity: 0 }}
             transition={transition}
-            className={cn(
-              rippleVariants({ variant, className: rippleClassName }),
-            )}
+            className={cn(rippleVariants({ variant, className: rippleClassName }))}
             style={{
               top: ripple.y - 10,
               left: ripple.x - 10,
@@ -149,6 +142,6 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   }
 );
 
-Button.displayName = 'Button';
+Button.displayName = "Button";
 
 export { Button, buttonVariants, type ButtonProps };

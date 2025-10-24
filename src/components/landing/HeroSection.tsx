@@ -99,10 +99,16 @@ export function HeroSection() {
     };
   }, []);
 
+  // Responsive scale: no scale on mobile, larger on desktop
+  const getTypingScale = () => {
+    if (typeof window === "undefined") return 1.5;
+    return window.innerWidth < 640 ? 1.5 : 1.8; // sm breakpoint at 640px
+  };
+
   // Logo animation variants - stays in center, only shrinks
   const logoVariants = {
     typing: {
-      scale: 1.8,
+      scale: getTypingScale(),
       transition: {
         duration: 0,
       },
@@ -200,9 +206,9 @@ export function HeroSection() {
         variants={logoVariants}
         initial="typing"
         animate={animationPhase}
-        className="fixed top-[38%] left-1/2 z-50 -translate-x-1/2 -translate-y-1/2"
+        className="fixed top-[38%] left-[50%] z-50 -translate-x-1/2 -translate-y-1/2 sm:left-1/2"
       >
-        <h1 className="relative text-5xl font-bold tracking-tight text-gray-900 sm:text-6xl md:text-7xl lg:text-8xl">
+        <h1 className="relative text-3xl font-bold tracking-tight whitespace-nowrap text-gray-900 sm:text-5xl md:text-6xl lg:text-7xl">
           <TextType
             text={["primariaTa   "]}
             as="span"
@@ -218,7 +224,7 @@ export function HeroSection() {
             <motion.span
               className="absolute inline-block"
               style={{
-                left: "8.6ch", // Position closer to "primariaTa"
+                left: "8.7ch", // Position closer to "primariaTa"
                 top: "0%", // Direct positioning instead of translateY
               }}
               initial={{ opacity: 0, scale: 0.5 }}
@@ -267,7 +273,7 @@ export function HeroSection() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
-            className="absolute top-full left-1/2 mt-8 w-[500px] -translate-x-1/2"
+            className="absolute top-full left-1/2 z-50 mt-4 w-[280px] -translate-x-1/2 text-gray-900 sm:mt-6 sm:w-[400px] md:mt-8 md:w-[500px]"
           >
             <MorphingText
               texts={[
@@ -332,12 +338,12 @@ export function HeroSection() {
           variants={cascadeVariants}
           initial="hidden"
           animate={showStats ? "visible" : "hidden"}
-          className="grid grid-cols-3 gap-4 sm:gap-8 md:gap-12"
+          className="grid grid-cols-3 gap-4 sm:gap-6 md:gap-10"
         >
           {stats.map((stat) => (
             <div key={stat.label} className="flex flex-col items-center">
               <div
-                className="mb-2 flex w-[120px] items-center justify-center rounded-lg px-3 py-2 sm:w-[140px] sm:px-4 sm:py-3 md:w-[160px]"
+                className="mb-1.5 flex w-[75px] items-center justify-center rounded-lg px-2 py-1.5 sm:mb-2 sm:w-[130px] sm:px-4 sm:py-3 md:w-[160px]"
                 style={{
                   backgroundColor: "rgba(248, 250, 252, 0.85)",
                   boxShadow: "inset 0 3px 12px 0 rgba(0, 0, 0, 0.25)",
@@ -347,7 +353,7 @@ export function HeroSection() {
                   // Check if countUp has parts (for 24/7 case)
                   "parts" in stat.countUp && stat.countUp.parts ? (
                     <span
-                      className="text-2xl font-bold sm:text-3xl md:text-4xl"
+                      className="text-xs font-bold sm:text-2xl md:text-3xl"
                       style={{ color: "#4a6cf6" }}
                     >
                       {stat.countUp.parts.map((part, idx) => {
@@ -375,20 +381,20 @@ export function HeroSection() {
                       separator={stat.countUp.separator}
                       duration={2}
                       delay={0.5}
-                      className="text-2xl font-bold sm:text-3xl md:text-4xl"
+                      className="text-xs font-bold sm:text-2xl md:text-3xl"
                       startWhen={showStats}
                     />
                   )
                 ) : (
                   <span
-                    className="text-2xl font-bold sm:text-3xl md:text-4xl"
+                    className="text-xs font-bold sm:text-2xl md:text-3xl"
                     style={{ color: "#4a6cf6" }}
                   >
                     {stat.value}
                   </span>
                 )}
               </div>
-              <span className="text-xs font-bold text-gray-600 sm:text-sm md:text-base">
+              <span className="text-[10px] font-bold text-gray-600 sm:text-xs md:text-sm">
                 {stat.label}
               </span>
             </div>

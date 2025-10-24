@@ -53,49 +53,49 @@
 
   .dark {
     /* Color Variables - Dark Mode */
-      --background: oklch(0.372 0.044 257.287);
-      --foreground: #e5e5e5;
+    --background: oklch(0.372 0.044 257.287);
+    --foreground: #e5e5e5;
 
-      --card: oklch(0.278 0.033 256.848);
-      --card-foreground: #e5e5e5;
+    --card: oklch(0.278 0.033 256.848);
+    --card-foreground: #e5e5e5;
 
-      --primary: #5e30eb;
-      --primary-foreground: #d6d6d6;
+    --primary: #5e30eb;
+    --primary-foreground: #d6d6d6;
 
-      --secondary: #ed719e;
-      --secondary-foreground: #ffffff;
+    --secondary: #ed719e;
+    --secondary-foreground: #ffffff;
 
-      --muted: #1f1f1f;
-      --muted-foreground: #a3a3a3;
+    --muted: #1f1f1f;
+    --muted-foreground: #a3a3a3;
 
-      --accent: #4d22b3;
-      --accent-foreground: #d9cafe;
+    --accent: #4d22b3;
+    --accent-foreground: #d9cafe;
 
-      --destructive: #ef4444;
-      --destructive-foreground: #ffffff;
+    --destructive: #ef4444;
+    --destructive-foreground: #ffffff;
 
-      --border: #404040;
-      --input: #404040;
-      --ring: #3b82f6;
+    --border: #404040;
+    --input: #404040;
+    --ring: #3b82f6;
 
-      --popover: #262626;
-      --popover-foreground: #e5e5e5;
+    --popover: #262626;
+    --popover-foreground: #e5e5e5;
 
-      --sidebar-background: #1f1f1f;
-      --sidebar-foreground: #e5e5e5;
-      --sidebar-primary: #60a5fa;
-      --sidebar-primary-foreground: #0f172a;
-      --sidebar-accent: #1e3a8a;
-      --sidebar-accent-foreground: #bfdbfe;
-      --sidebar-border: #404040;
-      --sidebar-ring: #60a5fa;
+    --sidebar-background: #1f1f1f;
+    --sidebar-foreground: #e5e5e5;
+    --sidebar-primary: #60a5fa;
+    --sidebar-primary-foreground: #0f172a;
+    --sidebar-accent: #1e3a8a;
+    --sidebar-accent-foreground: #bfdbfe;
+    --sidebar-border: #404040;
+    --sidebar-ring: #60a5fa;
 
-      /* Chart Colors - Dark Mode - Blue Gradient */
-      --chart-1: #60a5fa;
-      --chart-2: #3b82f6;
-      --chart-3: #2563eb;
-      --chart-4: #1d4ed8;
-      --chart-5: #1e40af;
+    /* Chart Colors - Dark Mode - Blue Gradient */
+    --chart-1: #60a5fa;
+    --chart-2: #3b82f6;
+    --chart-3: #2563eb;
+    --chart-4: #1d4ed8;
+    --chart-5: #1e40af;
   }
 }
 
@@ -179,7 +179,8 @@
 }
 
 @keyframes heartbeat {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
   }
   15% {
