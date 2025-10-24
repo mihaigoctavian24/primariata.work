@@ -1,9 +1,9 @@
 ---
 name: 🐛 Bug Report
 about: Report a bug or unexpected behavior to help us improve 🕵🏼‍♂️
-title: '[BUG] '
-labels: ['bug', 'needs-triage']
-assignees: ''
+title: "[BUG] "
+labels: ["bug", "needs-triage"]
+assignees: ""
 ---
 
 # 🐛 Bug Report
@@ -11,8 +11,6 @@ assignees: ''
 ## 📋 Bug Description
 
 <!-- Provide a clear and concise description of the bug -->
-
-
 
 ## 🔄 Steps to Reproduce
 
@@ -27,13 +25,9 @@ assignees: ''
 
 <!-- What did you expect to happen? -->
 
-
-
 ## ❌ Actual Behavior
 
 <!-- What actually happened? -->
-
-
 
 ## 🖼️ Screenshots / Videos
 
@@ -51,15 +45,18 @@ assignees: ''
 <!-- Please complete the following information -->
 
 **Browser:**
+
 - Name: [e.g., Chrome, Firefox, Safari]
 - Version: [e.g., 120.0]
 
 **Device:**
+
 - OS: [e.g., Windows 11, macOS 14, iOS 17]
 - Device: [e.g., Desktop, iPhone 14, Samsung Galaxy S23]
 - Screen Resolution: [e.g., 1920x1080]
 
 **Application:**
+
 - Environment: [e.g., Production, Staging, Development]
 - URL: [e.g., https://primariata.work/dashboard]
 - User Role: [e.g., Cetățean, Administrator, Funcționar]
@@ -119,7 +116,7 @@ Paste failed network requests here (from DevTools Network tab)
 - [ ] Plăți (Payments)
 - [ ] API Integration
 - [ ] Admin Panel
-- [ ] Other: ___________
+- [ ] Other: \***\*\_\_\_\*\***
 
 ## 🧪 Attempted Fixes
 
@@ -129,12 +126,11 @@ Paste failed network requests here (from DevTools Network tab)
 - [ ] Tried different browser
 - [ ] Tried incognito/private mode
 - [ ] Restarted application
-- [ ] Other: ___________
+- [ ] Other: \***\*\_\_\_\*\***
 
 **Results:**
+
 <!-- Describe what happened when you tried these fixes -->
-
-
 
 ## 💾 Related Data
 
@@ -184,19 +180,19 @@ Paste error logs here
 
 <!-- Optional: Suggest a fix or reason for the bug if you have one -->
 
-
-
 ## 🏷️ Labels to Add
 
 <!-- Check all that apply - maintainers will apply these -->
 
 **Priority:**
+
 - [ ] `priority-critical` - Immediate attention required
 - [ ] `priority-high` - Should be fixed soon
 - [ ] `priority-medium` - Standard priority
 - [ ] `priority-low` - Can be addressed later
 
 **Category:**
+
 - [ ] `frontend` - UI/UX related
 - [ ] `backend` - API/Server related
 - [ ] `database` - Database related
@@ -207,6 +203,7 @@ Paste error logs here
 - [ ] `mobile` - Mobile-specific issue
 
 **Phase:**
+
 - [ ] `phase-0` - Core Infrastructure
 - [ ] `phase-1` - Basic Features
 - [ ] `phase-2` - Advanced Features
@@ -219,9 +216,9 @@ Paste error logs here
 
 <div align="center">
 
-**Thank you for helping improve primariaTa❤️_!** 🚀
+**Thank you for helping improve primariaTa❤️\_!** 🚀
 
-Please be patient while we investigate. 
+Please be patient while we investigate.
 We'll update you as soon as possible.
 
 ## 🐒

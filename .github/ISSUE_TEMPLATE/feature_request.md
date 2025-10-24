@@ -196,7 +196,7 @@ CREATE TABLE IF NOT EXISTS example (
 
 - [ ] Romanian only
 - [ ] Romanian + English
-- [ ] Other languages: ****\_\_\_****
+- [ ] Other languages: \***\*\_\_\_\*\***
 
 ## ⏱️ Implementation Complexity
 
@@ -265,7 +265,7 @@ CREATE TABLE IF NOT EXISTS example (
 - [ ] Municipal Staff (Funcționari)
 - [ ] Administrators
 - [ ] External Partners
-- [ ] Other: ****\_\_\_****
+- [ ] Other: \***\*\_\_\_\*\***
 
 ## 💬 Additional Context
 
