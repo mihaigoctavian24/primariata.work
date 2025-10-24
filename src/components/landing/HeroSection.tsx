@@ -236,7 +236,10 @@ export function HeroSection() {
         animate={animationPhase}
         className="fixed top-[38%] left-[50%] z-50 -translate-x-1/2 -translate-y-1/2 sm:left-1/2"
       >
-        <h1 className="text-foreground relative text-3xl font-bold tracking-tight whitespace-nowrap sm:text-5xl md:text-6xl lg:text-7xl">
+        <h1
+          className="text-foreground relative text-3xl font-bold tracking-tight whitespace-nowrap sm:text-5xl md:text-6xl lg:text-7xl"
+          style={{ filter: "drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4))" }}
+        >
           <TextType
             text={["primariaTa   "]}
             as="span"
@@ -316,6 +319,7 @@ export function HeroSection() {
           initial="hidden"
           animate={showSubtitle ? "visible" : "hidden"}
           className="mb-8"
+          style={{ filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))" }}
         >
           <p className="text-muted-foreground text-lg sm:text-xl md:text-2xl lg:text-3xl">
             Bine ai venit la Primăria ta digitală.
@@ -331,11 +335,13 @@ export function HeroSection() {
           initial="hidden"
           animate={showButton ? "visible" : "hidden"}
           className="mb-16"
+          style={{ filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))" }}
         >
           <motion.button
             className="ring-offset-background inline-flex h-12 min-w-[200px] items-center justify-center rounded-full px-8 text-base font-semibold text-white shadow-lg transition-colors focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 sm:h-14 sm:px-10 sm:text-lg"
             style={{
               backgroundColor: "oklch(0.712 0.194 13.428)",
+              textShadow: "3px 3px 6px rgba(0, 0, 0, 0.6), -3px -3px 6px rgba(255, 255, 255, 0.3)",
             }}
             onClick={() => router.push("/app/dashboard")}
             aria-label="Continuă către aplicație"
@@ -370,7 +376,10 @@ export function HeroSection() {
                   "parts" in stat.countUp && stat.countUp.parts ? (
                     <span
                       className="text-xs font-bold sm:text-2xl md:text-3xl"
-                      style={{ color: statsTextColor }}
+                      style={{
+                        color: statsTextColor,
+                        filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))",
+                      }}
                     >
                       {stat.countUp.parts.map((part, idx) => {
                         if (part.type === "static") {
@@ -398,14 +407,20 @@ export function HeroSection() {
                       duration={2}
                       delay={0.5}
                       className="text-xs font-bold sm:text-2xl md:text-3xl"
-                      style={{ color: statsTextColor }}
+                      style={{
+                        color: statsTextColor,
+                        filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))",
+                      }}
                       startWhen={showStats}
                     />
                   )
                 ) : (
                   <span
                     className="text-xs font-bold sm:text-2xl md:text-3xl"
-                    style={{ color: statsTextColor }}
+                    style={{
+                      color: statsTextColor,
+                      filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))",
+                    }}
                   >
                     {stat.value}
                   </span>
