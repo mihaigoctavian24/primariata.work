@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import TextType from "@/components/TextType";
 import { MorphingText } from "@/components/ui/morphing-text";
 import PixelBlast from "@/components/ui/PixelBlast";
@@ -32,6 +32,17 @@ export function HeroSection() {
   const [showStats, setShowStats] = useState(false);
   const [heartbeatActive, setHeartbeatActive] = useState(false);
   const [showHeart, setShowHeart] = useState(false);
+  const [typingScale, setTypingScale] = useState(1.5);
+
+  // Update typing scale after mount to avoid hydration mismatch
+  useEffect(() => {
+    const updateScale = () => {
+      setTypingScale(window.innerWidth < 640 ? 1.5 : 1.8);
+    };
+    updateScale();
+    window.addEventListener("resize", updateScale);
+    return () => window.removeEventListener("resize", updateScale);
+  }, []);
 
   // Character styler for custom coloring
   const charStyler = (_char: string, index: number) => {
@@ -99,36 +110,33 @@ export function HeroSection() {
     };
   }, []);
 
-  // Responsive scale: no scale on mobile, larger on desktop
-  const getTypingScale = () => {
-    if (typeof window === "undefined") return 1.5;
-    return window.innerWidth < 640 ? 1.5 : 1.8; // sm breakpoint at 640px
-  };
-
   // Logo animation variants - stays in center, only shrinks
-  const logoVariants = {
-    typing: {
-      scale: getTypingScale(),
-      transition: {
-        duration: 0,
+  const logoVariants = useMemo(
+    () => ({
+      typing: {
+        scale: typingScale,
+        transition: {
+          duration: 0,
+        },
       },
-    },
-    shrinking: {
-      scale: 1,
-      transition: {
-        type: "spring" as const,
-        stiffness: 120,
-        damping: 20,
-        mass: 0.8,
+      shrinking: {
+        scale: 1,
+        transition: {
+          type: "spring" as const,
+          stiffness: 120,
+          damping: 20,
+          mass: 0.8,
+        },
       },
-    },
-    complete: {
-      scale: 1,
-      transition: {
-        duration: 0,
+      complete: {
+        scale: 1,
+        transition: {
+          duration: 0,
+        },
       },
-    },
-  };
+    }),
+    [typingScale]
+  );
 
   // Cascade animation variants for content elements
   const cascadeVariants = {
@@ -275,16 +283,7 @@ export function HeroSection() {
             transition={{ duration: 0.5 }}
             className="absolute top-full left-1/2 z-50 mt-4 w-[280px] -translate-x-1/2 text-gray-900 sm:mt-6 sm:w-[400px] md:mt-8 md:w-[500px]"
           >
-            <MorphingText
-              texts={[
-                "rapidă",
-                "transparentă",
-                "accesibilă",
-                "rapidă",
-                "transparentă",
-                "accesibilă",
-              ]}
-            />
+            <MorphingText texts={["rapidă", "transparentă", "accesibilă"]} />
           </motion.div>
         )}
       </motion.div>
