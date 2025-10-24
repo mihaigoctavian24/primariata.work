@@ -10,7 +10,7 @@ const cooldownTime = 0.5;
 const useMorphingText = (texts: string[]) => {
   const textIndexRef = useRef(0);
   const morphRef = useRef(0);
-  const cooldownRef = useRef(cooldownTime);
+  const cooldownRef = useRef(0);
   const timeRef = useRef(new Date());
 
   const text1Ref = useRef<HTMLSpanElement>(null);
@@ -123,7 +123,7 @@ const SvgFilters: React.FC = () => (
 export const MorphingText: React.FC<MorphingTextProps> = ({ texts, className }) => (
   <div
     className={cn(
-      "relative mx-auto h-8 w-full max-w-screen-md text-center font-sans text-[14pt] leading-none font-light [filter:url(#threshold)_blur(0.6px)] sm:h-10 sm:text-[14pt] md:h-14 md:text-[18pt] lg:text-[2.5rem]",
+      "relative mx-auto h-16 w-full max-w-screen-md text-center font-sans text-[24pt] leading-none font-bold [filter:url(#threshold)_blur(0.6px)] md:h-24 lg:text-[3.6rem]",
       className
     )}
   >
