@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 /**
  * Dashboard Page (Protected Route)
@@ -17,7 +18,12 @@ export default async function DashboardPage() {
   } = await supabase.auth.getUser();
 
   return (
-    <div className="container mx-auto max-w-4xl p-8">
+    <div className="relative container mx-auto max-w-4xl p-8">
+      {/* Theme Toggle - fixed in top right */}
+      <div className="fixed top-4 right-4 z-50 sm:top-6 sm:right-6">
+        <ThemeToggle />
+      </div>
+
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
