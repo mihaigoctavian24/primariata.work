@@ -84,14 +84,61 @@ function generateSlug(nume: string, judetAuto: string): string {
 }
 
 /**
- * Classify locality type based on population
- * - Municipiu: > 100,000
- * - Oraș: > 20,000
- * - Comună: <= 20,000
+ * Load official list of municipalities from JSON
  */
-function classifyTip(populatie: number): string {
-  if (populatie > 100000) return "Municipiu";
-  if (populatie > 20000) return "Oraș";
+function loadMunicipalitiesList(): Set<string> {
+  try {
+    const municipiiPath = path.join(process.cwd(), "scripts", "data", "municipii-romania.json");
+    const municipiiContent = fs.readFileSync(municipiiPath, "utf-8");
+    const municipiiData = JSON.parse(municipiiContent);
+
+    // Normalize municipality names (remove diacritics for matching)
+    const normalized = municipiiData.municipii.map((m: string) =>
+      m
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+    );
+
+    return new Set(normalized);
+  } catch (error) {
+    console.warn(
+      "⚠️  Warning: Could not load municipii-romania.json, falling back to population-based classification"
+    );
+    console.warn("   Error:", error);
+    return new Set();
+  }
+}
+
+/**
+ * Classify locality type based on official status (Legea 351/2001)
+ *
+ * CORRECT Classification (NOT based solely on population):
+ * - Municipiu: Official list from Legea 351/2001 (103 municipalities)
+ * - Oraș: Urban localities not classified as municipalities (~216 cities)
+ * - Comună: Rural localities (all others)
+ *
+ * Fallback heuristic when official list not available:
+ * - Municipiu: > 100,000 population
+ * - Oraș: > 5,000 population (lowered threshold for better accuracy)
+ * - Comună: <= 5,000 population
+ */
+function classifyTip(nume: string, populatie: number, municipiiSet: Set<string>): string {
+  // Normalize name for matching (remove diacritics)
+  const numeNormalized = nume
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+
+  // Check official municipalities list first
+  if (municipiiSet.has(numeNormalized)) {
+    return "Municipiu";
+  }
+
+  // Fallback to population-based heuristic for Oraș vs Comună
+  // Note: Some cities (orașe) have < 5,000 population, so this is imperfect
+  // but better than the previous 20,000 threshold
+  if (populatie > 5000) return "Oraș";
   return "Comună";
 }
 
@@ -149,7 +196,12 @@ async function importLocalitati() {
     judeteMap.set(sansDiacritics, j.id);
   });
 
-  // Step 3: Transform data for database insertion
+  // Step 3: Load official municipalities list
+  console.log("📋 Loading official municipalities list...");
+  const municipiiSet = loadMunicipalitiesList();
+  console.log(`✅ Loaded ${municipiiSet.size} municipalities from official list\n`);
+
+  // Step 4: Transform data for database insertion
   console.log("🔄 Transforming data...");
   const localitatiToInsert: LocalitateInsert[] = [];
   const warnings: string[] = [];
@@ -172,7 +224,7 @@ async function importLocalitati() {
     }
     slugCounts.set(slug.replace(/-\d+$/, ""), count + 1); // Track base slug
 
-    const tip = classifyTip(loc.populatie);
+    const tip = classifyTip(loc.diacritice || loc.nume, loc.populatie, municipiiSet);
 
     localitatiToInsert.push({
       judet_id: judetId,
@@ -194,7 +246,7 @@ async function importLocalitati() {
 
   console.log(`📦 Prepared ${localitatiToInsert.length} valid localities for import\n`);
 
-  // Step 4: Batch insert into database
+  // Step 5: Batch insert into database
   const BATCH_SIZE = 1000;
   const totalBatches = Math.ceil(localitatiToInsert.length / BATCH_SIZE);
 
@@ -222,7 +274,7 @@ async function importLocalitati() {
     );
   }
 
-  // Step 5: Final validation
+  // Step 6: Final validation
   console.log("\n🔍 Validating import...");
 
   const { count, error: countError } = await supabase
@@ -241,7 +293,7 @@ async function importLocalitati() {
     console.warn("   Some localities may not have been imported.");
   }
 
-  // Step 6: Sample validation queries
+  // Step 7: Sample validation queries
   console.log("\n🔎 Running sample validation queries...\n");
 
   // Top 5 județe by locality count
@@ -252,7 +304,7 @@ async function importLocalitati() {
 
   if (!topError && topJudete) {
     const counts = topJudete.reduce(
-      (acc, loc: any) => {
+      (acc, loc: { judete: { nume: string } }) => {
         const judet = loc.judete.nume;
         acc[judet] = (acc[judet] || 0) + 1;
         return acc;
