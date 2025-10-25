@@ -7,10 +7,12 @@ interface UseJudeteWheelPickerReturn {
   loading: boolean;
   error: string | null;
   retry: () => void;
+  getJudetById: (id: string) => Judet | undefined;
 }
 
 // In-memory cache for județ data
 let cachedJudete: WheelPickerOption[] | null = null;
+let cachedJudeteData: Judet[] | null = null;
 
 export function useJudeteWheelPicker(): UseJudeteWheelPickerReturn {
   const [options, setOptions] = useState<WheelPickerOption[]>([]);
@@ -19,7 +21,7 @@ export function useJudeteWheelPicker(): UseJudeteWheelPickerReturn {
 
   const fetchJudete = async () => {
     // Return cached data if available
-    if (cachedJudete) {
+    if (cachedJudete && cachedJudeteData) {
       setOptions(cachedJudete);
       setLoading(false);
       setError(null);
@@ -39,6 +41,9 @@ export function useJudeteWheelPicker(): UseJudeteWheelPickerReturn {
       }
 
       const successData = data as ApiResponse<Judet[]>;
+
+      // Cache the full data for slug lookups
+      cachedJudeteData = successData.data;
 
       // Format județe as WheelPickerOption[]
       const formattedOptions: WheelPickerOption[] = successData.data.map((judet) => ({
@@ -66,7 +71,13 @@ export function useJudeteWheelPicker(): UseJudeteWheelPickerReturn {
   const retry = () => {
     // Clear cache on retry
     cachedJudete = null;
+    cachedJudeteData = null;
     fetchJudete();
+  };
+
+  const getJudetById = (id: string): Judet | undefined => {
+    if (!cachedJudeteData) return undefined;
+    return cachedJudeteData.find((judet) => judet.id.toString() === id);
   };
 
   return {
@@ -74,5 +85,6 @@ export function useJudeteWheelPicker(): UseJudeteWheelPickerReturn {
     loading,
     error,
     retry,
+    getJudetById,
   };
 }

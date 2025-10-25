@@ -11,10 +11,12 @@ interface UseLocalitatiWheelPickerReturn {
   loading: boolean;
   error: string | null;
   retry: () => void;
+  getLocalitateById: (id: string) => Localitate | undefined;
 }
 
 // Simple in-memory cache
 const localitatiCache = new Map<number, WheelPickerOption[]>();
+const localitatiDataCache = new Map<number, Localitate[]>();
 
 export function useLocalitatiWheelPicker({
   judetId,
@@ -40,7 +42,7 @@ export function useLocalitatiWheelPicker({
     }
 
     // Check cache first
-    if (localitatiCache.has(judetId)) {
+    if (localitatiCache.has(judetId) && localitatiDataCache.has(judetId)) {
       setOptions(localitatiCache.get(judetId)!);
       setLoading(false);
       setError(null);
@@ -75,6 +77,9 @@ export function useLocalitatiWheelPicker({
       }
 
       const successData = data as ApiResponse<Localitate[]>;
+
+      // Cache the full data for slug lookups
+      localitatiDataCache.set(judetId, successData.data);
 
       // Format localități as WheelPickerOption[]
       const formattedOptions: WheelPickerOption[] = successData.data.map((localitate) => ({
@@ -119,8 +124,18 @@ export function useLocalitatiWheelPicker({
     // Clear cache for this județ on retry
     if (judetId) {
       localitatiCache.delete(judetId);
+      localitatiDataCache.delete(judetId);
     }
     fetchLocalitati();
+  };
+
+  const getLocalitateById = (id: string): Localitate | undefined => {
+    // Search across all cached județe
+    for (const localitati of localitatiDataCache.values()) {
+      const found = localitati.find((loc) => loc.id.toString() === id);
+      if (found) return found;
+    }
+    return undefined;
   };
 
   return {
@@ -128,5 +143,6 @@ export function useLocalitatiWheelPicker({
     loading,
     error,
     retry,
+    getLocalitateById,
   };
 }
