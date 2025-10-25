@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { useEffect, useState, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { Loader2, AlertCircle, Search } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,7 @@ import { Input } from "@/components/ui/input";
 import { WheelPicker, WheelPickerWrapper } from "@/components/wheel-picker";
 import { useJudeteWheelPicker } from "@/hooks/useJudeteWheelPicker";
 import { useLocalitatiWheelPicker } from "@/hooks/useLocalitatiWheelPicker";
+import { saveLocation } from "@/lib/location-storage";
 import { cn } from "@/lib/utils";
 
 // Normalize Romanian diacritics for search (outside component to avoid re-renders)
@@ -61,6 +63,7 @@ export function LocationWheelPickerForm({
     },
   });
 
+  const router = useRouter();
   const selectedJudetId = form.watch("judetId");
   const [localitateSearch, setLocalitateSearch] = useState("");
   const scrollIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -71,6 +74,7 @@ export function LocationWheelPickerForm({
     loading: judeteLoading,
     error: judeteError,
     retry: retryJudete,
+    getJudetById,
   } = useJudeteWheelPicker();
 
   // Fetch localități based on selected județ
@@ -79,6 +83,7 @@ export function LocationWheelPickerForm({
     loading: localitatiLoading,
     error: localitatiError,
     retry: retryLocalitati,
+    getLocalitateById,
   } = useLocalitatiWheelPicker({
     judetId: selectedJudetId ? parseInt(selectedJudetId, 10) : null,
   });
@@ -250,24 +255,44 @@ export function LocationWheelPickerForm({
   const onSubmit = (values: FormSchema) => {
     if (onSubmitProp) {
       onSubmitProp(values);
-    } else {
-      // Find the selected județ and localitate names
-      const selectedJudet = judeteOptions.find((j) => j.value === values.judetId);
-      const selectedLocalitate = localitatiOptions.find((l) => l.value === values.localitateId);
-
-      toast.success("Locație selectată!", {
-        description: (
-          <div className="mt-2 space-y-1">
-            <p>
-              <strong>Județ:</strong> {selectedJudet?.label || values.judetId}
-            </p>
-            <p>
-              <strong>Localitate:</strong> {selectedLocalitate?.label || values.localitateId}
-            </p>
-          </div>
-        ),
-      });
+      return;
     }
+
+    // Get full data for județ and localitate (including slugs)
+    const judet = getJudetById(values.judetId);
+    const localitate = getLocalitateById(values.localitateId);
+
+    // Validate data
+    if (!judet || !localitate) {
+      toast.error("Eroare la salvarea locației", {
+        description: "Nu s-au putut prelua detaliile locației. Te rugăm să încerci din nou.",
+      });
+      return;
+    }
+
+    // Validate slugs exist
+    if (!judet.slug || !localitate.slug) {
+      toast.error("Eroare de configurare", {
+        description: "Locația selectată nu are un identificator valid.",
+      });
+      return;
+    }
+
+    // Save location to storage (localStorage + cookie)
+    saveLocation({
+      judetId: judet.id.toString(),
+      judetSlug: judet.slug,
+      localitateId: localitate.id.toString(),
+      localitateSlug: localitate.slug,
+    });
+
+    // Show success toast
+    toast.success("Locație salvată!", {
+      description: `${judet.nume}, ${localitate.nume}`,
+    });
+
+    // Redirect to dashboard
+    router.push(`/app/${judet.slug}/${localitate.slug}/dashboard`);
   };
 
   return (

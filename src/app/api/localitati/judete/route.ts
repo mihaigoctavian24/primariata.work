@@ -17,6 +17,7 @@ import type { ApiResponse, ApiErrorResponse, Judet } from "@/types/api";
  *       "id": 1,
  *       "cod": "AB",
  *       "nume": "Alba",
+ *       "slug": "alba",
  *       "nume_complet": "Județul Alba"
  *     }
  *   ]
@@ -29,7 +30,7 @@ export async function GET() {
     // Query județe table, select required fields, and sort alphabetically
     const { data: judete, error } = await supabase
       .from("judete")
-      .select("id, cod, nume, nume_complet")
+      .select("id, cod, nume, slug, nume_complet")
       .order("nume", { ascending: true });
 
     // Handle database errors

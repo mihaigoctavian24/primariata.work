@@ -39,6 +39,7 @@ export interface Judet {
   id: number;
   cod: string;
   nume: string;
+  slug: string;
   nume_complet: string | null;
 }
 
