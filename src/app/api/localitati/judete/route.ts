@@ -57,7 +57,7 @@ export async function GET() {
     // Return successful response
     const response: ApiResponse<Judet[]> = {
       success: true,
-      data: judete || [],
+      data: (judete as Judet[]) || [],
       meta: {
         timestamp: new Date().toISOString(),
         version: "1.0",

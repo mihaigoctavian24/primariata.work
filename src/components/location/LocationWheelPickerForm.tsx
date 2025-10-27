@@ -158,10 +158,10 @@ export function LocationWheelPickerForm({
 
     // Advanced scoring algorithm with progressive refinement
     const matches = localitatiOptions.map((option, index) => {
-      const labelNormalized = normalizeDiacritics(option.label);
+      const labelNormalized = normalizeDiacritics(String(option.label ?? ""));
 
       // Extract the base name (before parentheses) for better matching
-      const labelBase = labelNormalized.split("(")[0].trim();
+      const labelBase = (labelNormalized.split("(")[0] ?? "").trim();
 
       // EXACT MATCH (highest priority)
       if (labelBase === searchNormalized) {
@@ -204,6 +204,7 @@ export function LocationWheelPickerForm({
 
     // Get the best match
     const bestMatch = validMatches[0];
+    if (!bestMatch) return;
     const targetIndex = bestMatch.index;
     const targetValue = bestMatch.option.value;
 
@@ -218,9 +219,9 @@ export function LocationWheelPickerForm({
     if (currentValue === targetValue) {
       // We're at the target position - check if it's still valid for current search
       const currentOption = localitatiOptions[currentIndex];
-      if (currentOption) {
-        const currentLabelNormalized = normalizeDiacritics(currentOption.label);
-        const currentLabelBase = currentLabelNormalized.split("(")[0].trim();
+      if (currentOption && currentOption.label) {
+        const currentLabelNormalized = normalizeDiacritics(String(currentOption.label));
+        const currentLabelBase = (currentLabelNormalized.split("(")[0] ?? "").trim();
 
         // Only stay if CURRENT position is exact match for CURRENT search
         const currentIsExactMatch = currentLabelBase === searchNormalized;

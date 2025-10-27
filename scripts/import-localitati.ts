@@ -304,9 +304,11 @@ async function importLocalitati() {
 
   if (!topError && topJudete) {
     const counts = topJudete.reduce(
-      (acc, loc: { judete: { nume: string } }) => {
-        const judet = loc.judete.nume;
-        acc[judet] = (acc[judet] || 0) + 1;
+      (acc, loc: { judet_id: number; judete: Array<{ nume: string }> }) => {
+        const judet = loc.judete[0]?.nume;
+        if (judet) {
+          acc[judet] = (acc[judet] || 0) + 1;
+        }
         return acc;
       },
       {} as Record<string, number>
