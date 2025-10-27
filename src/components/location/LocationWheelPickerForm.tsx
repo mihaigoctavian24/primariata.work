@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { useEffect, useState, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { Loader2, AlertCircle, Search } from "lucide-react";
 
@@ -23,6 +24,22 @@ import { useJudeteWheelPicker } from "@/hooks/useJudeteWheelPicker";
 import { useLocalitatiWheelPicker } from "@/hooks/useLocalitatiWheelPicker";
 import { saveLocation } from "@/lib/location-storage";
 import { cn } from "@/lib/utils";
+
+// Search bar styling constants for consistent design
+const SEARCH_INPUT_CLASSES = [
+  "h-14",
+  "!bg-transparent",
+  "pl-9",
+  "!text-lg",
+  "text-center",
+  "shadow-none",
+  "focus:!ring-0",
+  "focus:!ring-offset-0",
+  "focus-visible:!ring-0",
+  "focus-visible:!ring-offset-0",
+  "focus-visible:!border-border/40",
+  "sm:!text-xl",
+].join(" ");
 
 // Normalize Romanian diacritics for search (outside component to avoid re-renders)
 const normalizeDiacritics = (text: string): string => {
@@ -48,12 +65,14 @@ interface LocationWheelPickerFormProps {
   onSubmit?: (values: FormSchema) => void;
   defaultJudetId?: string;
   defaultLocalitateId?: string;
+  onSearchInputChange?: (length: number) => void;
 }
 
 export function LocationWheelPickerForm({
   onSubmit: onSubmitProp,
   defaultJudetId,
   defaultLocalitateId,
+  onSearchInputChange,
 }: LocationWheelPickerFormProps) {
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
@@ -66,6 +85,7 @@ export function LocationWheelPickerForm({
   const router = useRouter();
   const selectedJudetId = form.watch("judetId");
   const [localitateSearch, setLocalitateSearch] = useState("");
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
   const scrollIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Fetch județe
@@ -112,6 +132,11 @@ export function LocationWheelPickerForm({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedJudetId]);
+
+  // Notify parent of search input length changes
+  useEffect(() => {
+    onSearchInputChange?.(localitateSearch.length);
+  }, [localitateSearch, onSearchInputChange]);
 
   // Search with instant matching (no debounce) and smooth scroll animation
   useEffect(() => {
@@ -297,149 +322,232 @@ export function LocationWheelPickerForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="w-full max-w-md space-y-6">
-        {/* Județ Wheel Picker */}
-        <FormField
-          control={form.control}
-          name="judetId"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Județ</FormLabel>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="w-full max-w-4xl">
+        {/* Wheel Pickers Container - Responsive Layout */}
+        <div className="flex flex-col gap-6 md:flex-row md:gap-8">
+          {/* Județ Wheel Picker */}
+          <FormField
+            control={form.control}
+            name="judetId"
+            render={({ field }) => (
+              <FormItem className="flex-1">
+                <FormLabel
+                  htmlFor="judetId"
+                  className="block text-center"
+                  style={{ filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))" }}
+                >
+                  Județ
+                </FormLabel>
 
-              {judeteLoading ? (
-                <div className="flex items-center justify-center py-12">
-                  <Loader2 className="text-muted-foreground h-6 w-6 animate-spin" />
-                  <span className="text-muted-foreground ml-2 text-sm">Se încarcă județele...</span>
-                </div>
-              ) : judeteError ? (
-                <div className="border-destructive/50 bg-destructive/10 space-y-2 rounded-lg border p-4">
-                  <div className="text-destructive flex items-center text-sm">
-                    <AlertCircle className="mr-2 h-4 w-4" />
-                    <span>{judeteError}</span>
+                {judeteLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Loader2 className="text-muted-foreground h-6 w-6 animate-spin" />
+                    <span className="text-muted-foreground ml-2 text-sm">
+                      Se încarcă județele...
+                    </span>
                   </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={retryJudete}
-                    className="w-full"
-                  >
-                    Reîncearcă
-                  </Button>
-                </div>
-              ) : judeteOptions.length > 0 ? (
-                <FormControl>
-                  <WheelPickerWrapper>
-                    <WheelPicker
-                      options={judeteOptions}
-                      value={field.value || judeteOptions[0]?.value || ""}
-                      onValueChange={field.onChange}
-                      infinite
-                    />
-                  </WheelPickerWrapper>
-                </FormControl>
-              ) : (
-                <div className="text-muted-foreground flex h-32 items-center justify-center rounded-lg border text-sm">
-                  Nu există județe disponibile
-                </div>
-              )}
-
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Localitate Wheel Picker */}
-        <FormField
-          control={form.control}
-          name="localitateId"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Localitate</FormLabel>
-
-              {!selectedJudetId ? (
-                <div className="text-muted-foreground flex h-32 items-center justify-center rounded-lg border border-dashed text-sm">
-                  Selectează județul mai întâi
-                </div>
-              ) : localitatiError ? (
-                <div className="border-destructive/50 bg-destructive/10 space-y-2 rounded-lg border p-4">
-                  <div className="text-destructive flex items-center text-sm">
-                    <AlertCircle className="mr-2 h-4 w-4" />
-                    <span>{localitatiError}</span>
-                  </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={retryLocalitati}
-                    className="w-full"
-                  >
-                    Reîncearcă
-                  </Button>
-                </div>
-              ) : localitatiOptions.length > 0 ? (
-                <FormControl>
-                  <div className="space-y-3">
-                    {/* Search Input */}
-                    <div className="relative">
-                      <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
-                      <Input
-                        placeholder="Caută localitate... (min 3 caractere)"
-                        value={localitateSearch}
-                        onChange={(e) => setLocalitateSearch(e.target.value)}
-                        className="pl-9"
-                        aria-label="Caută localitate pentru auto-scroll"
-                      />
-                      {localitateSearch.length > 0 && localitateSearch.length < 3 && (
-                        <span className="text-muted-foreground mt-1 block text-xs">
-                          Introdu încă {3 - localitateSearch.length} caracter
-                          {3 - localitateSearch.length === 1 ? "" : "e"}
-                        </span>
-                      )}
+                ) : judeteError ? (
+                  <div className="border-destructive/50 bg-destructive/10 space-y-2 rounded-lg border p-4">
+                    <div className="text-destructive flex items-center text-sm">
+                      <AlertCircle className="mr-2 h-4 w-4" />
+                      <span>{judeteError}</span>
                     </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={retryJudete}
+                      className="w-full"
+                    >
+                      Reîncearcă
+                    </Button>
+                  </div>
+                ) : judeteOptions.length > 0 ? (
+                  <FormControl>
+                    <div>
+                      {/* Hidden input for form autofill support */}
+                      <input
+                        type="hidden"
+                        id="judetId"
+                        name="judetId"
+                        value={field.value || ""}
+                        aria-hidden="true"
+                      />
+                      <WheelPickerWrapper>
+                        <WheelPicker
+                          options={judeteOptions}
+                          value={field.value || judeteOptions[0]?.value || ""}
+                          onValueChange={field.onChange}
+                          infinite
+                          aria-label="Selectează județul"
+                        />
+                      </WheelPickerWrapper>
+                    </div>
+                  </FormControl>
+                ) : (
+                  <div className="text-muted-foreground flex h-32 items-center justify-center rounded-lg border text-sm">
+                    Nu există județe disponibile
+                  </div>
+                )}
 
-                    {/* Wheel Picker */}
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Localitate Wheel Picker */}
+          <FormField
+            control={form.control}
+            name="localitateId"
+            render={({ field }) => (
+              <FormItem className="flex-1">
+                <FormLabel
+                  htmlFor="localitateId"
+                  className="block text-center"
+                  style={{ filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))" }}
+                >
+                  Localitate
+                </FormLabel>
+
+                {!selectedJudetId ? (
+                  <div className="text-muted-foreground flex h-32 items-center justify-center rounded-lg border border-dashed text-sm">
+                    Selectează județul mai întâi
+                  </div>
+                ) : localitatiError ? (
+                  <div className="border-destructive/50 bg-destructive/10 space-y-2 rounded-lg border p-4">
+                    <div className="text-destructive flex items-center text-sm">
+                      <AlertCircle className="mr-2 h-4 w-4" />
+                      <span>{localitatiError}</span>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={retryLocalitati}
+                      className="w-full"
+                    >
+                      Reîncearcă
+                    </Button>
+                  </div>
+                ) : localitatiOptions.length > 0 ? (
+                  <FormControl>
                     <div
                       className={cn(
                         "transition-all duration-200 ease-in-out",
                         localitatiLoading && "scale-95 opacity-40 blur-[10px]"
                       )}
                     >
+                      {/* Hidden input for form autofill support */}
+                      <input
+                        type="hidden"
+                        id="localitateId"
+                        name="localitateId"
+                        value={field.value || ""}
+                        aria-hidden="true"
+                      />
                       <WheelPickerWrapper>
                         <WheelPicker
                           options={localitatiOptions}
                           value={field.value || localitatiOptions[0]?.value || ""}
                           onValueChange={field.onChange}
                           infinite
+                          aria-label="Selectează localitatea"
                         />
                       </WheelPickerWrapper>
                     </div>
+                  </FormControl>
+                ) : (
+                  <div className="text-muted-foreground flex h-32 items-center justify-center rounded-lg border text-sm">
+                    {localitatiLoading ? (
+                      <div className="flex items-center gap-2">
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                        <span>Se încarcă localitățile...</span>
+                      </div>
+                    ) : (
+                      "Nu există localități în acest județ"
+                    )}
                   </div>
-                </FormControl>
-              ) : (
-                <div className="text-muted-foreground flex h-32 items-center justify-center rounded-lg border text-sm">
-                  {localitatiLoading ? (
-                    <div className="flex items-center gap-2">
-                      <Loader2 className="h-5 w-5 animate-spin" />
-                      <span>Se încarcă localitățile...</span>
-                    </div>
-                  ) : (
-                    "Nu există localități în acest județ"
-                  )}
-                </div>
-              )}
+                )}
 
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Submit Button */}
-        <div className="flex justify-center pt-2">
-          <Button type="submit" size="lg" className="w-full">
-            Confirmă locația
-          </Button>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
+
+        {/* Search Bar - Centered BELOW wheel pickers, ABOVE button */}
+        {selectedJudetId && localitatiOptions.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="mx-auto mt-6 w-full max-w-md"
+          >
+            <div className="relative">
+              {/* Animated Search Icon */}
+              <motion.div
+                animate={{
+                  scale: isSearchFocused ? 1.15 : 1,
+                  rotate: localitateSearch.length >= 3 ? [0, -10, 10, -10, 0] : 0,
+                }}
+                transition={{
+                  scale: { duration: 0.2 },
+                  rotate: {
+                    duration: 0.5,
+                    repeat: localitateSearch.length >= 3 ? Infinity : 0,
+                    repeatDelay: 2,
+                  },
+                }}
+                className="absolute top-1/2 left-3 -translate-y-1/2"
+              >
+                <Search className="text-muted-foreground h-5 w-5 transition-colors duration-200" />
+              </motion.div>
+
+              {/* Input with animated placeholder */}
+              <div className="relative">
+                <Input
+                  value={localitateSearch}
+                  onChange={(e) => setLocalitateSearch(e.target.value)}
+                  onFocus={() => setIsSearchFocused(true)}
+                  onBlur={() => setIsSearchFocused(false)}
+                  className={SEARCH_INPUT_CLASSES}
+                  aria-label="Caută localitate pentru auto-scroll"
+                />
+
+                {/* Custom animated placeholder that fades on focus */}
+                <AnimatePresence>
+                  {!isSearchFocused && localitateSearch.length === 0 && (
+                    <motion.div
+                      initial={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="text-muted-foreground pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center text-sm sm:text-base"
+                      style={{ filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))" }}
+                    >
+                      Caută localitate...
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* Character counter with animation */}
+              <AnimatePresence>
+                {localitateSearch.length > 0 && localitateSearch.length < 3 && (
+                  <motion.span
+                    initial={{ opacity: 0, y: -5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -5 }}
+                    transition={{ duration: 0.2 }}
+                    className="text-muted-foreground mt-1 block text-center text-xs"
+                  >
+                    Introdu încă {3 - localitateSearch.length} caracter
+                    {3 - localitateSearch.length === 1 ? "" : "e"}
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            </div>
+          </motion.div>
+        )}
       </form>
     </Form>
   );
