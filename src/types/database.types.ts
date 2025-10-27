@@ -268,6 +268,7 @@ export type Database = {
           id: number;
           nume: string;
           nume_complet: string | null;
+          slug: string;
         };
         Insert: {
           cod: string;
@@ -275,6 +276,7 @@ export type Database = {
           id?: number;
           nume: string;
           nume_complet?: string | null;
+          slug: string;
         };
         Update: {
           cod?: string;
@@ -282,6 +284,7 @@ export type Database = {
           id?: number;
           nume?: string;
           nume_complet?: string | null;
+          slug?: string;
         };
         Relationships: [];
       };

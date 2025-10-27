@@ -197,6 +197,7 @@ export function LocalitateCombobox({
                 >
                   {rowVirtualizer.getVirtualItems().map((virtualRow) => {
                     const localitate = filteredLocalitati[virtualRow.index];
+                    if (!localitate) return null;
                     const isSelected = selectedLocalitate?.id === localitate.id;
 
                     return (
