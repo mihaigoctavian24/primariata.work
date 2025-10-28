@@ -327,64 +327,75 @@ export function HeroSection() {
           {/* Logo - animated by logoVariants (typing, shrinking, complete) */}
           <motion.div variants={logoVariants} initial="typing" animate={animationPhase}>
             <h1
-              className="text-foreground relative text-3xl font-bold tracking-tight whitespace-nowrap sm:text-5xl md:text-6xl lg:text-7xl"
+              className="text-foreground text-3xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl"
               style={{ filter: "drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4))" }}
             >
-              <TextType
-                text={["primariaTa   "]}
-                as="span"
-                typingSpeed={75}
-                pauseDuration={1500}
-                showCursor={true}
-                cursorCharacter="_"
-                loop={false}
-                className="inline"
-                charStyler={charStyler}
-              />
-              {showHeart && (
-                <motion.span
-                  className="absolute inline-block"
-                  style={{
-                    left: "8.7ch",
-                    top: "0%",
-                  }}
-                  initial={{ opacity: 0, scale: 0.5 }}
-                  animate={
-                    heartbeatActive
-                      ? {
-                          opacity: 1,
-                          scale: [
-                            1, 1.12, 1, 1.08, 1, 1, 1.12, 1, 1.08, 1, 1, 1.12, 1, 1.08, 1, 1, 1.12,
-                            1, 1.08, 1,
-                          ],
-                        }
-                      : { opacity: 1, scale: 1 }
-                  }
-                  transition={
-                    heartbeatActive
-                      ? {
-                          scale: {
-                            duration: 8,
-                            times: [
-                              0, 0.01, 0.02, 0.03, 0.04, 0.25, 0.26, 0.27, 0.28, 0.29, 0.5, 0.51,
-                              0.52, 0.53, 0.54, 0.75, 0.76, 0.77, 0.78, 0.79,
+              <span className="inline-block whitespace-nowrap">
+                <TextType
+                  text={["primariaTa"]}
+                  as="span"
+                  typingSpeed={75}
+                  pauseDuration={1500}
+                  showCursor={false}
+                  loop={false}
+                  className="inline"
+                  charStyler={charStyler}
+                />
+                {showHeart && (
+                  <motion.span
+                    className="inline-block"
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={
+                      heartbeatActive
+                        ? {
+                            opacity: 1,
+                            scale: [
+                              1, 1.12, 1, 1.08, 1, 1, 1.12, 1, 1.08, 1, 1, 1.12, 1, 1.08, 1, 1,
+                              1.12, 1, 1.08, 1,
                             ],
-                            ease: [0.4, 0, 0.6, 1],
-                            repeat: 0,
-                          },
-                          opacity: {
+                          }
+                        : { opacity: 1, scale: 1 }
+                    }
+                    transition={
+                      heartbeatActive
+                        ? {
+                            scale: {
+                              duration: 8,
+                              times: [
+                                0, 0.01, 0.02, 0.03, 0.04, 0.25, 0.26, 0.27, 0.28, 0.29, 0.5, 0.51,
+                                0.52, 0.53, 0.54, 0.75, 0.76, 0.77, 0.78, 0.79,
+                              ],
+                              ease: [0.4, 0, 0.6, 1],
+                              repeat: 0,
+                            },
+                            opacity: {
+                              duration: 0.3,
+                            },
+                          }
+                        : {
                             duration: 0.3,
-                          },
-                        }
-                      : {
-                          duration: 0.3,
-                          ease: "easeOut" as const,
-                        }
-                  }
+                            ease: "easeOut" as const,
+                          }
+                    }
+                  >
+                    ❤️
+                  </motion.span>
+                )}
+                <motion.span
+                  className="inline"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: [0, 1, 1, 0] }}
+                  transition={{
+                    delay: 1.2,
+                    duration: 1.2,
+                    repeat: Infinity,
+                    repeatType: "loop",
+                    times: [0, 0.1, 0.9, 1],
+                  }}
                 >
-                  ❤️
+                  _
                 </motion.span>
-              )}
+              </span>
             </h1>
 
             {/* Morphing text below logo during heartbeat (Layer 1: Background z-10) */}
@@ -487,12 +498,12 @@ export function HeroSection() {
                 className="text-muted-foreground text-sm"
                 animate={{ fontWeight: 400 }}
                 whileHover={{
-                  color: "oklch(0.712 0.194 13.428)",
+                  color: "#ED5C46",
                   fontWeight: 700,
                 }}
                 whileTap={{
                   scale: 0.92,
-                  color: "oklch(0.612 0.194 13.428)",
+                  color: "#D74428",
                 }}
                 transition={{
                   duration: 0.4,
@@ -644,66 +655,90 @@ export function HeroSection() {
               className="mb-8 text-center"
             >
               <h2
-                className="text-foreground relative mb-2 inline-block text-2xl font-bold sm:text-3xl md:text-4xl"
+                className="text-foreground mb-2 text-2xl font-bold sm:text-3xl md:text-4xl"
                 style={{ filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))" }}
               >
-                Selectează{" "}
-                <TextType
-                  text={["primariaTa   "]}
-                  as="span"
-                  typingSpeed={75}
-                  pauseDuration={1500}
-                  showCursor={true}
-                  cursorCharacter="_"
-                  loop={false}
-                  className="inline"
-                  charStyler={charStyler}
-                />
                 <motion.span
-                  className="absolute inline-block"
-                  style={{
-                    left: "18.8ch",
-                    top: "0%",
-                  }}
-                  initial={{ opacity: 0, scale: 0.5 }}
+                  initial={{ opacity: 0, filter: "blur(10px)" }}
                   animate={
-                    step2HeartbeatActive
-                      ? {
-                          opacity: 1,
-                          scale: [
-                            1, 1.15, 1, 1.12, 1, 1, 1.15, 1, 1.12, 1, 1, 1.15, 1, 1.12, 1, 1, 1.15,
-                            1, 1.12, 1,
-                          ],
-                        }
-                      : step === 2
-                        ? { opacity: 1, scale: 1 }
-                        : { opacity: 0, scale: 0.5 }
+                    step === 2
+                      ? { opacity: 1, filter: "blur(0px)" }
+                      : { opacity: 0, filter: "blur(10px)" }
                   }
-                  transition={
-                    step2HeartbeatActive
-                      ? {
-                          scale: {
-                            duration: 8,
-                            times: [
-                              0, 0.0125, 0.025, 0.0375, 0.05, 0.25, 0.2625, 0.275, 0.2875, 0.3, 0.5,
-                              0.5125, 0.525, 0.5375, 0.55, 0.75, 0.7625, 0.775, 0.7875, 0.8,
-                            ],
-                            ease: "easeOut",
-                            repeat: 0,
-                          },
-                          opacity: {
-                            duration: 0.3,
-                          },
-                        }
-                      : {
-                          delay: step === 2 ? 1.2 : 0,
-                          duration: 0.3,
-                          ease: "easeOut" as const,
-                        }
-                  }
+                  transition={{ delay: 0.2, duration: 0.6 }}
+                  className="inline"
                 >
-                  ❤️
+                  Selectează{" "}
                 </motion.span>
+                <span className="inline-block whitespace-nowrap">
+                  <motion.span
+                    className="inline"
+                    initial={{ opacity: 0, filter: "blur(10px)" }}
+                    animate={
+                      step === 2
+                        ? { opacity: 1, filter: "blur(0px)" }
+                        : { opacity: 0, filter: "blur(10px)" }
+                    }
+                    transition={{ delay: 0.2, duration: 0.6 }}
+                  >
+                    primaria<span style={{ color: "oklch(0.712 0.194 13.428)" }}>Ta</span>
+                  </motion.span>
+                  <motion.span
+                    className="inline-block"
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={
+                      step2HeartbeatActive
+                        ? {
+                            opacity: 1,
+                            scale: [
+                              1, 1.15, 1, 1.12, 1, 1, 1.15, 1, 1.12, 1, 1, 1.15, 1, 1.12, 1, 1,
+                              1.15, 1, 1.12, 1,
+                            ],
+                          }
+                        : step === 2
+                          ? { opacity: 1, scale: 1 }
+                          : { opacity: 0, scale: 0.5 }
+                    }
+                    transition={
+                      step2HeartbeatActive
+                        ? {
+                            scale: {
+                              duration: 8,
+                              times: [
+                                0, 0.0125, 0.025, 0.0375, 0.05, 0.25, 0.2625, 0.275, 0.2875, 0.3,
+                                0.5, 0.5125, 0.525, 0.5375, 0.55, 0.75, 0.7625, 0.775, 0.7875, 0.8,
+                              ],
+                              ease: "easeOut",
+                              repeat: 0,
+                            },
+                            opacity: {
+                              duration: 0.3,
+                            },
+                          }
+                        : {
+                            delay: step === 2 ? 1.0 : 0,
+                            duration: 0.3,
+                            ease: "easeOut" as const,
+                          }
+                    }
+                  >
+                    ❤️
+                  </motion.span>
+                  <motion.span
+                    className="inline"
+                    initial={{ opacity: 0 }}
+                    animate={step === 2 ? { opacity: [0, 1, 1, 0] } : { opacity: 0 }}
+                    transition={{
+                      delay: 1.0,
+                      duration: 1.2,
+                      repeat: Infinity,
+                      repeatType: "loop",
+                      times: [0, 0.1, 0.9, 1],
+                    }}
+                  >
+                    _
+                  </motion.span>
+                </span>
               </h2>
               <p
                 className="text-muted-foreground text-sm sm:text-base"
