@@ -33,12 +33,12 @@ export function SurveyCharts({
   return (
     <div className="grid gap-6 md:grid-cols-2">
       {/* Respondent Type Distribution */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Distribuție Tip Respondent</CardTitle>
+      <Card className="via-card to-card border-none bg-gradient-to-br from-purple-500/10 shadow-lg transition-all hover:shadow-xl">
+        <CardHeader className="border-b bg-gradient-to-r from-purple-500/5 to-transparent">
+          <CardTitle className="text-lg font-bold">Distribuție Tip Respondent</CardTitle>
           <CardDescription>Raport cetățeni vs funcționari publici</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
@@ -47,7 +47,7 @@ export function SurveyCharts({
                 cy="50%"
                 labelLine={false}
                 label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                outerRadius={80}
+                outerRadius={90}
                 fill="#8884d8"
                 dataKey="value"
               >
@@ -63,39 +63,46 @@ export function SurveyCharts({
       </Card>
 
       {/* Top Locations */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Top 10 Localități</CardTitle>
+      <Card className="via-card to-card border-none bg-gradient-to-br from-blue-500/10 shadow-lg transition-all hover:shadow-xl">
+        <CardHeader className="border-b bg-gradient-to-r from-blue-500/5 to-transparent">
+          <CardTitle className="text-lg font-bold">Top 10 Localități</CardTitle>
           <CardDescription>Cele mai active localități</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={locationData.slice(0, 10)}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} />
+              <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+              <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} fontSize={12} />
               <YAxis />
               <Tooltip />
-              <Bar dataKey="count" fill="#8884d8" />
+              <Bar dataKey="count" fill="hsl(var(--primary))" radius={[8, 8, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
       </Card>
 
       {/* Time Series - Responses over time */}
-      <Card className="md:col-span-2">
-        <CardHeader>
-          <CardTitle>Evoluție Răspunsuri în Timp</CardTitle>
+      <Card className="via-card to-card border-none bg-gradient-to-br from-green-500/10 shadow-lg transition-all hover:shadow-xl md:col-span-2">
+        <CardHeader className="border-b bg-gradient-to-r from-green-500/5 to-transparent">
+          <CardTitle className="text-lg font-bold">Evoluție Răspunsuri în Timp</CardTitle>
           <CardDescription>Număr de răspunsuri primite pe zile</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={timeSeriesData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" />
+              <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+              <XAxis dataKey="date" fontSize={12} />
               <YAxis />
               <Tooltip />
               <Legend />
-              <Line type="monotone" dataKey="count" stroke="#8884d8" activeDot={{ r: 8 }} />
+              <Line
+                type="monotone"
+                dataKey="count"
+                stroke="hsl(var(--primary))"
+                strokeWidth={3}
+                activeDot={{ r: 8 }}
+                dot={{ r: 4 }}
+              />
             </LineChart>
           </ResponsiveContainer>
         </CardContent>

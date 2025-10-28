@@ -1,34 +1,53 @@
-import { createServiceRoleClient } from "@/lib/supabase/server";
+import { createServiceRoleClient, createClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Users, FileText, CheckCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Users, FileText, CheckCircle, ArrowLeft, User } from "lucide-react";
 import { SurveyCharts } from "@/components/admin/SurveyCharts";
 import { ResponsesTable } from "@/components/admin/ResponsesTable";
 import { format } from "date-fns";
+import { redirect } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
 
 /**
  * Survey Admin Dashboard
  *
- * Protected route - requires authentication and admin/functionar role
+ * Protected route - requires authentication and admin/super_admin role
  * Displays survey analytics, responses, and export functionality
  */
 export default async function SurveyAdminPage() {
-  // Use service role client to bypass RLS for admin operations
+  // Check authentication first with regular client
+  const authClient = await createClient();
+  const {
+    data: { user },
+  } = await authClient.auth.getUser();
+
+  if (!user) {
+    redirect("/auth/login?redirectTo=/admin/survey");
+  }
+
+  // Check user role from utilizatori table
+  const { data: userData } = await authClient
+    .from("utilizatori")
+    .select("rol, nume, prenume, email")
+    .eq("id", user.id)
+    .single();
+
+  if (!userData || !["admin", "super_admin"].includes(userData.rol)) {
+    // User is authenticated but not admin - redirect to home
+    redirect("/?error=unauthorized");
+  }
+
+  const userDisplayName =
+    userData.nume && userData.prenume
+      ? `${userData.prenume} ${userData.nume}`
+      : userData.email || user.email || "Admin";
+
+  const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture;
+
+  // Use service role client for admin operations (bypasses RLS)
   const supabase = createServiceRoleClient();
-
-  // Check authentication
-  // TEMPORARY: Disabled for testing - will re-enable after testing
-  // const {
-  //   data: { user },
-  //   error: userError,
-  // } = await supabase.auth.getUser();
-
-  // if (userError || !user) {
-  //   redirect("/auth/login");
-  // }
-
-  // TODO: Add role check - verify user is functionar or admin
-  // For now, allow all authenticated users (will add role check later)
 
   // Fetch overview metrics
   const { count: total } = await supabase
@@ -48,7 +67,7 @@ export default async function SurveyAdminPage() {
   const { count: publicServants } = await supabase
     .from("survey_respondents")
     .select("*", { count: "exact", head: true })
-    .eq("respondent_type", "public_servant");
+    .eq("respondent_type", "official");
 
   const totalCount = total ?? 0;
   const completedCount = completed ?? 0;
@@ -114,80 +133,144 @@ export default async function SurveyAdminPage() {
     .order("created_at", { ascending: false });
 
   return (
-    <div className="container mx-auto space-y-8 p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Dashboard Chestionare</h1>
-          <p className="text-muted-foreground mt-1">
-            Analiză și statistici răspunsuri chestionar digitalizare
-          </p>
+    <div className="from-background via-background to-muted/20 min-h-screen bg-gradient-to-br">
+      <div className="container mx-auto space-y-8 p-6">
+        {/* Header */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="from-primary to-primary/60 bg-gradient-to-r bg-clip-text text-3xl font-bold tracking-tight text-transparent sm:text-4xl">
+              Dashboard Chestionare
+            </h1>
+            <p className="text-muted-foreground mt-2 text-sm">
+              Analiză și statistici răspunsuri chestionar digitalizare
+            </p>
+          </div>
+          <div className="flex items-center gap-4">
+            <Link href="/survey">
+              <Button variant="outline" size="sm" className="gap-2">
+                <ArrowLeft className="h-4 w-4" />
+                Înapoi la Survey
+              </Button>
+            </Link>
+            <div className="flex items-start gap-3 border-l pl-4">
+              <div className="flex flex-col items-end gap-1">
+                <div className="text-right text-sm font-medium">{userDisplayName}</div>
+                <div className="text-muted-foreground text-right text-xs">
+                  {userData.email || user.email}
+                </div>
+                <Badge variant="default" className="mt-0.5">
+                  {userData.rol === "super_admin" ? "Super Admin" : "Admin"}
+                </Badge>
+              </div>
+              <div className="relative h-10 w-10 flex-shrink-0 overflow-hidden rounded-full">
+                {avatarUrl ? (
+                  <Image
+                    src={avatarUrl}
+                    alt={userDisplayName}
+                    fill
+                    className="object-cover"
+                    sizes="40px"
+                  />
+                ) : (
+                  <div className="bg-primary/10 text-primary flex h-full w-full items-center justify-center">
+                    <User className="h-5 w-5" />
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
-        <Badge variant="default">Admin</Badge>
+
+        {/* Overview Metrics */}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <Card className="border-none bg-gradient-to-br from-blue-500/10 via-blue-500/5 to-transparent shadow-lg shadow-blue-500/10 transition-all hover:shadow-xl hover:shadow-blue-500/20">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-blue-700 dark:text-blue-400">
+                Total Răspunsuri
+              </CardTitle>
+              <div className="rounded-full bg-blue-500/10 p-2">
+                <Users className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-blue-900 dark:text-blue-100">
+                {totalCount}
+              </div>
+              <p className="text-muted-foreground mt-1 text-xs">
+                {citizensCount} cetățeni, {publicServantsCount} funcționari
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-none bg-gradient-to-br from-green-500/10 via-green-500/5 to-transparent shadow-lg shadow-green-500/10 transition-all hover:shadow-xl hover:shadow-green-500/20">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-green-700 dark:text-green-400">
+                Completate
+              </CardTitle>
+              <div className="rounded-full bg-green-500/10 p-2">
+                <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-green-900 dark:text-green-100">
+                {completedCount}
+              </div>
+              <p className="text-muted-foreground mt-1 text-xs">
+                Rată completare: {completionRate}%
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-none bg-gradient-to-br from-purple-500/10 via-purple-500/5 to-transparent shadow-lg shadow-purple-500/10 transition-all hover:shadow-xl hover:shadow-purple-500/20">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-purple-700 dark:text-purple-400">
+                Cetățeni
+              </CardTitle>
+              <div className="rounded-full bg-purple-500/10 p-2">
+                <Users className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-purple-900 dark:text-purple-100">
+                {citizensCount}
+              </div>
+              <p className="text-muted-foreground mt-1 text-xs">
+                {totalCount > 0 ? Math.round((citizensCount / totalCount) * 100) : 0}% din total
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-none bg-gradient-to-br from-orange-500/10 via-orange-500/5 to-transparent shadow-lg shadow-orange-500/10 transition-all hover:shadow-xl hover:shadow-orange-500/20">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-orange-700 dark:text-orange-400">
+                Funcționari
+              </CardTitle>
+              <div className="rounded-full bg-orange-500/10 p-2">
+                <FileText className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-orange-900 dark:text-orange-100">
+                {publicServantsCount}
+              </div>
+              <p className="text-muted-foreground mt-1 text-xs">
+                {totalCount > 0 ? Math.round((publicServantsCount / totalCount) * 100) : 0}% din
+                total
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Charts Section */}
+        <SurveyCharts
+          respondentTypeData={respondentTypeData}
+          locationData={locationData}
+          timeSeriesData={timeSeriesData}
+        />
+
+        {/* Responses Table */}
+        <ResponsesTable initialResponses={allResponses || []} />
       </div>
-
-      {/* Overview Metrics */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Răspunsuri</CardTitle>
-            <Users className="text-muted-foreground h-4 w-4" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalCount}</div>
-            <p className="text-muted-foreground mt-1 text-xs">
-              {citizensCount} cetățeni, {publicServantsCount} funcționari
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Completate</CardTitle>
-            <CheckCircle className="text-muted-foreground h-4 w-4" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{completedCount}</div>
-            <p className="text-muted-foreground mt-1 text-xs">Rată completare: {completionRate}%</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Cetățeni</CardTitle>
-            <Users className="text-muted-foreground h-4 w-4" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{citizensCount}</div>
-            <p className="text-muted-foreground mt-1 text-xs">
-              {totalCount > 0 ? Math.round((citizensCount / totalCount) * 100) : 0}% din total
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Funcționari</CardTitle>
-            <FileText className="text-muted-foreground h-4 w-4" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{publicServantsCount}</div>
-            <p className="text-muted-foreground mt-1 text-xs">
-              {totalCount > 0 ? Math.round((publicServantsCount / totalCount) * 100) : 0}% din total
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Charts Section */}
-      <SurveyCharts
-        respondentTypeData={respondentTypeData}
-        locationData={locationData}
-        timeSeriesData={timeSeriesData}
-      />
-
-      {/* Responses Table */}
-      <ResponsesTable initialResponses={allResponses || []} />
     </div>
   );
 }

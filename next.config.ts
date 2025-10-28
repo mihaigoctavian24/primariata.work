@@ -5,6 +5,16 @@ const nextConfig: NextConfig = {
   // instrumentation.ts is enabled by default in Next.js 15+
   // No experimental flag needed
 
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+        pathname: "/**",
+      },
+    ],
+  },
+
   async rewrites() {
     return {
       beforeFiles: [
