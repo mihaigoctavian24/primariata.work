@@ -21,7 +21,6 @@ export function RatingQuestion({ question, value, onChange }: RatingQuestionProp
       questionId: question.id,
       questionType: "rating",
       answerText: rating.toString(),
-      answeredAt: new Date(),
     });
   };
 
@@ -31,8 +30,8 @@ export function RatingQuestion({ question, value, onChange }: RatingQuestionProp
     <div className="space-y-4">
       <div className="space-y-2">
         <Label className="text-base font-medium">
-          {question.questionNumber}. {question.questionText}
-          {question.isRequired && <span className="text-destructive ml-1">*</span>}
+          {question.question_number}. {question.question_text}
+          {question.is_required && <span className="text-destructive ml-1">*</span>}
         </Label>
       </div>
 

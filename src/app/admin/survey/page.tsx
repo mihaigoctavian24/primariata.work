@@ -90,14 +90,16 @@ export default async function SurveyAdminPage() {
     .eq("is_completed", true)
     .order("created_at", { ascending: true });
 
-  const dateCounts = (timeResponses || []).reduce(
-    (acc, { created_at }) => {
-      const date = format(new Date(created_at), "yyyy-MM-dd");
-      acc[date] = (acc[date] || 0) + 1;
-      return acc;
-    },
-    {} as Record<string, number>
-  );
+  const dateCounts = (timeResponses || [])
+    .filter((r) => r.created_at) // Filter out null timestamps
+    .reduce(
+      (acc, { created_at }) => {
+        const date = format(new Date(created_at!), "yyyy-MM-dd");
+        acc[date] = (acc[date] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
 
   const timeSeriesData = Object.entries(dateCounts)
     .map(([date, count]) => ({ date, count }))

@@ -79,8 +79,8 @@ export interface SurveyQuestion {
   question_type: QuestionType;
   options?: string[] | null; // Pentru single/multiple choice
   is_required: boolean;
-  order_index: number;
-  created_at: string; // ISO timestamp
+  order_index?: number;
+  created_at?: string; // ISO timestamp
 }
 
 // =====================================================

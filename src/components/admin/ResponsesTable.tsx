@@ -31,8 +31,8 @@ interface Respondent {
   county: string;
   locality: string;
   respondent_type: string;
-  is_completed: boolean;
-  created_at: string;
+  is_completed: boolean | null;
+  created_at: string | null;
   completed_at: string | null;
 }
 
@@ -93,7 +93,7 @@ export function ResponsesTable({ initialResponses }: ResponsesTableProps) {
       r.locality,
       r.respondent_type === "citizen" ? "Cetățean" : "Funcționar",
       r.is_completed ? "Da" : "Nu",
-      format(new Date(r.created_at), "dd.MM.yyyy HH:mm"),
+      r.created_at ? format(new Date(r.created_at), "dd.MM.yyyy HH:mm") : "",
     ]);
 
     const csv = [headers, ...rows].map((row) => row.join(",")).join("\n");
@@ -218,7 +218,9 @@ export function ResponsesTable({ initialResponses }: ResponsesTableProps) {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-muted-foreground text-sm">
-                      {format(new Date(response.created_at), "dd.MM.yyyy HH:mm")}
+                      {response.created_at
+                        ? format(new Date(response.created_at), "dd.MM.yyyy HH:mm")
+                        : "-"}
                     </TableCell>
                   </TableRow>
                 ))

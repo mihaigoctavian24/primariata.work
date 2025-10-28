@@ -28,7 +28,6 @@ export function MultipleChoiceQuestion({
       questionId: question.id,
       questionType: "multiple_choice",
       answerChoices: newChoices,
-      answeredAt: new Date(),
     });
   };
 
@@ -36,8 +35,8 @@ export function MultipleChoiceQuestion({
     <div className="space-y-4">
       <div className="space-y-2">
         <Label className="text-base font-medium">
-          {question.questionNumber}. {question.questionText}
-          {question.isRequired && <span className="text-destructive ml-1">*</span>}
+          {question.question_number}. {question.question_text}
+          {question.is_required && <span className="text-destructive ml-1">*</span>}
         </Label>
       </div>
 
