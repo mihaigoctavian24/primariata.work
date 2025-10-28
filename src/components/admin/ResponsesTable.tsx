@@ -19,9 +19,21 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
-import { Download, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { Download, Search, ChevronLeft, ChevronRight, Eye, Trash2, FileText } from "lucide-react";
 import { format } from "date-fns";
+import { ResponsesDialog } from "./ResponsesDialog";
+import type { RespondentType } from "@/types/survey";
 
 interface Respondent {
   id: string;
@@ -43,16 +55,57 @@ interface ResponsesTableProps {
 const ITEMS_PER_PAGE = 10;
 
 export function ResponsesTable({ initialResponses }: ResponsesTableProps) {
+  const [responses, setResponses] = useState<Respondent[]>(initialResponses);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState<string>("all");
   const [filterCounty, setFilterCounty] = useState<string>("all");
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedRespondent, setSelectedRespondent] = useState<Respondent | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [respondentToDelete, setRespondentToDelete] = useState<Respondent | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleViewResponses = (respondent: Respondent) => {
+    setSelectedRespondent(respondent);
+    setDialogOpen(true);
+  };
+
+  const handleDeleteClick = (respondent: Respondent) => {
+    setRespondentToDelete(respondent);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!respondentToDelete) return;
+
+    setIsDeleting(true);
+    try {
+      const response = await fetch(`/api/admin/survey/responses/${respondentToDelete.id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete respondent");
+      }
+
+      // Remove from local state
+      setResponses((prev) => prev.filter((r) => r.id !== respondentToDelete.id));
+      setDeleteDialogOpen(false);
+      setRespondentToDelete(null);
+    } catch (error) {
+      console.error("Error deleting respondent:", error);
+      alert("Eroare la ștergerea respondentului. Încercați din nou.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   // Get unique counties for filter
-  const counties = Array.from(new Set(initialResponses.map((r) => r.county))).sort();
+  const counties = Array.from(new Set(responses.map((r) => r.county))).sort();
 
   // Filter responses
-  const filteredResponses = initialResponses.filter((response) => {
+  const filteredResponses = responses.filter((response) => {
     const matchesSearch =
       searchTerm === "" ||
       response.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -107,17 +160,24 @@ export function ResponsesTable({ initialResponses }: ResponsesTableProps) {
   };
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="from-card via-card to-muted/20 border-none bg-gradient-to-br shadow-2xl">
+      <CardHeader className="from-primary/5 border-b bg-gradient-to-r to-transparent">
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle>Răspunsuri Chestionar</CardTitle>
-            <CardDescription>
+            <CardTitle className="from-primary to-primary/60 bg-gradient-to-r bg-clip-text text-2xl font-bold text-transparent">
+              Răspunsuri Chestionar
+            </CardTitle>
+            <CardDescription className="mt-1">
               {filteredResponses.length} răspunsuri{" "}
               {searchTerm || filterType !== "all" || filterCounty !== "all" ? "filtrate" : "total"}
             </CardDescription>
           </div>
-          <Button onClick={handleExportCSV} variant="outline" size="sm">
+          <Button
+            onClick={handleExportCSV}
+            variant="outline"
+            size="sm"
+            className="shadow-lg transition-all hover:scale-105 hover:shadow-xl"
+          >
             <Download className="mr-2 h-4 w-4" />
             Export CSV
           </Button>
@@ -176,28 +236,35 @@ export function ResponsesTable({ initialResponses }: ResponsesTableProps) {
         </div>
 
         {/* Table */}
-        <div className="rounded-md border">
+        <div className="border-border/50 bg-card/50 overflow-hidden rounded-lg border backdrop-blur-sm">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Nume</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Locație</TableHead>
-                <TableHead>Tip</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Data</TableHead>
+              <TableRow className="bg-muted/30 hover:bg-muted/50 border-b-2">
+                <TableHead className="font-semibold">Nume</TableHead>
+                <TableHead className="font-semibold">Email</TableHead>
+                <TableHead className="font-semibold">Locație</TableHead>
+                <TableHead className="font-semibold">Tip</TableHead>
+                <TableHead className="font-semibold">Status</TableHead>
+                <TableHead className="font-semibold">Data</TableHead>
+                <TableHead className="text-right font-semibold">Acțiuni</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {paginatedResponses.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-muted-foreground text-center">
-                    Nu există răspunsuri care să corespundă filtrelor
+                  <TableCell colSpan={7} className="text-muted-foreground py-12 text-center">
+                    <div className="flex flex-col items-center gap-2">
+                      <FileText className="h-12 w-12 opacity-20" />
+                      <p>Nu există răspunsuri care să corespundă filtrelor</p>
+                    </div>
                   </TableCell>
                 </TableRow>
               ) : (
                 paginatedResponses.map((response) => (
-                  <TableRow key={response.id}>
+                  <TableRow
+                    key={response.id}
+                    className="hover:bg-muted/50 border-border/30 border-b transition-colors"
+                  >
                     <TableCell className="font-medium">
                       {response.first_name} {response.last_name}
                     </TableCell>
@@ -221,6 +288,29 @@ export function ResponsesTable({ initialResponses }: ResponsesTableProps) {
                       {response.created_at
                         ? format(new Date(response.created_at), "dd.MM.yyyy HH:mm")
                         : "-"}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleViewResponses(response)}
+                          disabled={!response.is_completed}
+                          className="hover:bg-primary/10 hover:text-primary gap-2 transition-all hover:scale-105"
+                        >
+                          <Eye className="h-4 w-4" />
+                          Vezi
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteClick(response)}
+                          className="text-destructive hover:bg-destructive/10 hover:text-destructive gap-2 transition-all hover:scale-105"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          Șterge
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))
@@ -258,6 +348,48 @@ export function ResponsesTable({ initialResponses }: ResponsesTableProps) {
           </div>
         )}
       </CardContent>
+
+      {/* Responses Dialog */}
+      {selectedRespondent && (
+        <ResponsesDialog
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+          respondent={{
+            id: selectedRespondent.id,
+            first_name: selectedRespondent.first_name,
+            last_name: selectedRespondent.last_name,
+            respondent_type: selectedRespondent.respondent_type as RespondentType,
+            county: selectedRespondent.county,
+            locality: selectedRespondent.locality,
+          }}
+        />
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmă ștergerea</AlertDialogTitle>
+            <AlertDialogDescription>
+              Sigur vrei să ștergi răspunsurile lui{" "}
+              <span className="font-semibold">
+                {respondentToDelete?.first_name} {respondentToDelete?.last_name}
+              </span>
+              ? Această acțiune nu poate fi anulată.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Anulează</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              disabled={isDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? "Se șterge..." : "Șterge"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }

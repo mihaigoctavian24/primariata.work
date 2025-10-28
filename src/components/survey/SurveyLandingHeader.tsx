@@ -27,7 +27,7 @@ export function SurveyLandingHeader() {
         <div className="flex items-center gap-4">
           <ThemeToggle />
 
-          <Link href="/admin/survey">
+          <Link href="/auth/login?redirectTo=/admin/survey">
             <Badge
               variant="outline"
               className="hover:bg-primary hover:text-primary-foreground cursor-pointer gap-1.5 transition-colors"
