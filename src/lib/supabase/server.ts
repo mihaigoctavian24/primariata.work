@@ -1,4 +1,5 @@
 import { createServerClient } from "@supabase/ssr";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 import type { Database } from "@/types/database.types";
 
@@ -58,6 +59,33 @@ export async function createClient() {
             // user sessions.
           }
         },
+      },
+    }
+  );
+}
+
+/**
+ * Create a Supabase service role client that bypasses RLS
+ *
+ * WARNING: This client has admin privileges and bypasses Row Level Security.
+ * Only use in secure server-side contexts (API routes, server actions).
+ * Never expose this client or service role key to the client side.
+ *
+ * Use cases:
+ * - Public data submission (surveys, contact forms)
+ * - Admin operations that need to bypass RLS
+ * - Batch operations on behalf of system
+ *
+ * @returns Typed Supabase client with service role privileges
+ */
+export function createServiceRoleClient() {
+  return createSupabaseClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
       },
     }
   );
