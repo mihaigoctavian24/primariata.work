@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { SurveyLandingHeader } from "@/components/survey/SurveyLandingHeader";
 import { AnimatedHero } from "@/components/survey/AnimatedHero";
 import { AnimatedStats } from "@/components/survey/AnimatedStats";
 import { AnimatedFeatures } from "@/components/survey/AnimatedFeatures";
@@ -15,6 +16,7 @@ export const metadata: Metadata = {
 export default function SurveyLandingPage() {
   return (
     <div className="bg-background min-h-screen">
+      <SurveyLandingHeader />
       <AnimatedHero />
       <AnimatedStats />
       <AnimatedFeatures />

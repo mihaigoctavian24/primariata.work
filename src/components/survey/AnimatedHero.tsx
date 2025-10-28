@@ -28,34 +28,35 @@ export function AnimatedHero() {
             transition={{ duration: 0.6 }}
             className="mb-4"
           >
-            <h1
-              className="relative text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl"
-              style={{ filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))" }}
-            >
-              <span className="relative inline-block">
+            <h1 className="text-2xl font-bold tracking-tight md:text-4xl lg:text-5xl">
+              <TextType
+                text="Ajută-ne să construim "
+                as="span"
+                className="inline"
+                typingSpeed={75}
+                initialDelay={600}
+                showCursor={false}
+                loop={false}
+              />
+              <span className="inline-block whitespace-nowrap">
                 <TextType
-                  text="Ajută-ne să construim primariaTa   "
+                  text="primariaTa"
                   as="span"
                   className="inline"
                   charStyler={(_char, idx) => {
-                    // "Ta" is at indices 30 and 31 (after "Ajută-ne să construim primaria")
-                    if (idx === 30 || idx === 31) {
+                    // "Ta" is at indices 8 and 9 (in "primariaTa")
+                    if (idx === 8 || idx === 9) {
                       return { color: "oklch(0.712 0.194 13.428)" };
                     }
                     return {};
                   }}
                   typingSpeed={75}
-                  initialDelay={600}
-                  showCursor={true}
-                  cursorCharacter="_"
+                  initialDelay={2100}
+                  showCursor={false}
                   loop={false}
                 />
                 <motion.span
-                  className="absolute inline-block"
-                  style={{
-                    left: "27ch",
-                    top: "0%",
-                  }}
+                  className="inline-block"
                   initial={{ opacity: 0, scale: 0.5 }}
                   animate={{
                     opacity: 1,
@@ -82,6 +83,20 @@ export function AnimatedHero() {
                   }}
                 >
                   ❤️
+                </motion.span>
+                <motion.span
+                  className="inline"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: [0, 1, 1, 0] }}
+                  transition={{
+                    delay: 3.45,
+                    duration: 1.2,
+                    repeat: Infinity,
+                    repeatType: "loop",
+                    times: [0, 0.1, 0.9, 1],
+                  }}
+                >
+                  _
                 </motion.span>
               </span>
             </h1>
