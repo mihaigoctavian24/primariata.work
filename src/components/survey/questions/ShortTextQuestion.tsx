@@ -16,7 +16,6 @@ export function ShortTextQuestion({ question, value = "", onChange }: ShortTextQ
       questionId: question.id,
       questionType: "short_text",
       answerText: e.target.value,
-      answeredAt: new Date(),
     });
   };
 
@@ -24,8 +23,8 @@ export function ShortTextQuestion({ question, value = "", onChange }: ShortTextQ
     <div className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor={question.id} className="text-base font-medium">
-          {question.questionNumber}. {question.questionText}
-          {question.isRequired && <span className="text-destructive ml-1">*</span>}
+          {question.question_number}. {question.question_text}
+          {question.is_required && <span className="text-destructive ml-1">*</span>}
         </Label>
       </div>
 

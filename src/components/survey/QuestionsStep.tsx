@@ -38,13 +38,13 @@ export function QuestionsStep({
   };
 
   // Check if all required questions are answered
-  const requiredQuestions = questions.filter((q) => q.isRequired);
+  const requiredQuestions = questions.filter((q) => q.is_required);
   const allRequiredAnswered = requiredQuestions.every((q) => {
     const answer = answers[q.id];
     if (!answer) return false;
 
     // For multiple choice, check if at least one choice is selected
-    if (q.questionType === "multiple_choice") {
+    if (q.question_type === "multiple_choice") {
       return answer.answerChoices && answer.answerChoices.length > 0;
     }
 

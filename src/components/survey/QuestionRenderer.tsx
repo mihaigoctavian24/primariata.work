@@ -16,7 +16,7 @@ interface QuestionRendererProps {
 }
 
 export function QuestionRenderer({ question, answer, onChange }: QuestionRendererProps) {
-  switch (question.questionType) {
+  switch (question.question_type) {
     case "single_choice":
       return (
         <SingleChoiceQuestion question={question} value={answer?.answerText} onChange={onChange} />

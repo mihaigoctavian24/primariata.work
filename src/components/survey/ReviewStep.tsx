@@ -36,7 +36,7 @@ export function ReviewStep({
   const getAnswerDisplay = (question: SurveyQuestion, answer: SurveyAnswer | undefined) => {
     if (!answer) return <span className="text-muted-foreground italic">Fără răspuns</span>;
 
-    switch (question.questionType) {
+    switch (question.question_type) {
       case "single_choice":
       case "short_text":
       case "text":
@@ -181,8 +181,8 @@ export function ReviewStep({
             {questions.map((question) => (
               <div key={question.id} className="border-b pb-4 last:border-b-0 last:pb-0">
                 <p className="mb-2 font-medium">
-                  {question.questionNumber}. {question.questionText}
-                  {question.isRequired && <span className="text-destructive ml-1">*</span>}
+                  {question.question_number}. {question.question_text}
+                  {question.is_required && <span className="text-destructive ml-1">*</span>}
                 </p>
                 <div className="text-foreground pl-4">
                   {getAnswerDisplay(question, answers[question.id])}

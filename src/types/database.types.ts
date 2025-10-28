@@ -6,6 +6,31 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "13.0.5";
   };
+  graphql_public: {
+    Tables: {
+      [_ in never]: never;
+    };
+    Views: {
+      [_ in never]: never;
+    };
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json;
+          operationName?: string;
+          query?: string;
+          variables?: Json;
+        };
+        Returns: Json;
+      };
+    };
+    Enums: {
+      [_ in never]: never;
+    };
+    CompositeTypes: {
+      [_ in never]: never;
+    };
+  };
   public: {
     Tables: {
       audit_log: {
@@ -642,6 +667,140 @@ export type Database = {
         };
         Relationships: [];
       };
+      survey_questions: {
+        Row: {
+          created_at: string | null;
+          id: string;
+          is_required: boolean | null;
+          options: Json | null;
+          order_index: number;
+          question_number: number;
+          question_text: string;
+          question_type: string;
+          survey_type: string;
+        };
+        Insert: {
+          created_at?: string | null;
+          id: string;
+          is_required?: boolean | null;
+          options?: Json | null;
+          order_index: number;
+          question_number: number;
+          question_text: string;
+          question_type: string;
+          survey_type: string;
+        };
+        Update: {
+          created_at?: string | null;
+          id?: string;
+          is_required?: boolean | null;
+          options?: Json | null;
+          order_index?: number;
+          question_number?: number;
+          question_text?: string;
+          question_type?: string;
+          survey_type?: string;
+        };
+        Relationships: [];
+      };
+      survey_respondents: {
+        Row: {
+          age_category: string | null;
+          completed_at: string | null;
+          county: string;
+          created_at: string | null;
+          department: string | null;
+          email: string | null;
+          first_name: string;
+          id: string;
+          ip_address: unknown;
+          is_completed: boolean | null;
+          last_name: string;
+          locality: string;
+          respondent_type: string;
+          updated_at: string | null;
+          user_agent: string | null;
+        };
+        Insert: {
+          age_category?: string | null;
+          completed_at?: string | null;
+          county: string;
+          created_at?: string | null;
+          department?: string | null;
+          email?: string | null;
+          first_name: string;
+          id?: string;
+          ip_address?: unknown;
+          is_completed?: boolean | null;
+          last_name: string;
+          locality: string;
+          respondent_type: string;
+          updated_at?: string | null;
+          user_agent?: string | null;
+        };
+        Update: {
+          age_category?: string | null;
+          completed_at?: string | null;
+          county?: string;
+          created_at?: string | null;
+          department?: string | null;
+          email?: string | null;
+          first_name?: string;
+          id?: string;
+          ip_address?: unknown;
+          is_completed?: boolean | null;
+          last_name?: string;
+          locality?: string;
+          respondent_type?: string;
+          updated_at?: string | null;
+          user_agent?: string | null;
+        };
+        Relationships: [];
+      };
+      survey_responses: {
+        Row: {
+          answer_choices: Json | null;
+          answer_rating: number | null;
+          answer_text: string | null;
+          created_at: string | null;
+          id: string;
+          question_id: string;
+          question_type: string;
+          respondent_id: string;
+          updated_at: string | null;
+        };
+        Insert: {
+          answer_choices?: Json | null;
+          answer_rating?: number | null;
+          answer_text?: string | null;
+          created_at?: string | null;
+          id?: string;
+          question_id: string;
+          question_type: string;
+          respondent_id: string;
+          updated_at?: string | null;
+        };
+        Update: {
+          answer_choices?: Json | null;
+          answer_rating?: number | null;
+          answer_text?: string | null;
+          created_at?: string | null;
+          id?: string;
+          question_id?: string;
+          question_type?: string;
+          respondent_id?: string;
+          updated_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "survey_responses_respondent_id_fkey";
+            columns: ["respondent_id"];
+            isOneToOne: false;
+            referencedRelation: "survey_respondents";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       templates: {
         Row: {
           activ: boolean | null;
@@ -993,6 +1152,9 @@ export type CompositeTypes<
     : never;
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {},
   },
