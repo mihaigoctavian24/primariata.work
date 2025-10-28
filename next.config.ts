@@ -4,6 +4,35 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   // instrumentation.ts is enabled by default in Next.js 15+
   // No experimental flag needed
+
+  async rewrites() {
+    return {
+      beforeFiles: [
+        // Redirect survey.primariata.work to /survey
+        {
+          source: "/",
+          destination: "/survey",
+          has: [
+            {
+              type: "host",
+              value: "survey.primariata.work",
+            },
+          ],
+        },
+        // Preserve /start path on subdomain
+        {
+          source: "/start",
+          destination: "/survey/start",
+          has: [
+            {
+              type: "host",
+              value: "survey.primariata.work",
+            },
+          ],
+        },
+      ],
+    };
+  },
 };
 
 // Wrap the config with Sentry for automatic error tracking
