@@ -105,7 +105,7 @@ export function SelectJudet({ onSelect, defaultValue, disabled = false }: Select
       >
         <SelectValue placeholder="Selectează județul" />
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent position="popper" className="max-h-[300px] overflow-y-auto">
         {judete.map((judet) => (
           <SelectItem
             key={judet.id}
