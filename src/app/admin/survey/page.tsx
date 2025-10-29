@@ -26,18 +26,30 @@ export default async function SurveyAdminPage() {
   } = await authClient.auth.getUser();
 
   if (!user) {
-    redirect("/auth/login?redirectTo=/admin/survey");
+    redirect("/admin/login");
   }
 
   // Check user role from utilizatori table
-  const { data: userData } = await authClient
+  const { data: userData, error: userError } = await authClient
     .from("utilizatori")
     .select("rol, nume, prenume, email")
     .eq("id", user.id)
     .single();
 
+  // Debug logging
+  console.log("🔍 Admin Auth Debug:", {
+    userId: user.id,
+    userEmail: user.email,
+    userData,
+    userError,
+    hasUserData: !!userData,
+    userRole: userData?.rol,
+    isAdmin: userData ? ["admin", "super_admin"].includes(userData.rol) : false,
+  });
+
   if (!userData || !["admin", "super_admin"].includes(userData.rol)) {
     // User is authenticated but not admin - redirect to home
+    console.error("❌ Access denied - not admin", { userData, userError });
     redirect("/?error=unauthorized");
   }
 
