@@ -1,0 +1,27 @@
+{
+  "name": "primariaTa - Primăria ta digitală",
+  "short_name": "primariaTa",
+  "description": "Platformă SaaS white-label care digitalizează complet procesele administrative locale din România",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0066cc",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "500x500",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "500x500",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["government", "utilities", "productivity"],
+  "lang": "ro-RO",
+  "dir": "ltr"
+}
