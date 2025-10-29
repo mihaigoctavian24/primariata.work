@@ -48,9 +48,14 @@ export default async function SurveyAdminPage() {
   });
 
   if (!userData || !["admin", "super_admin"].includes(userData.rol)) {
-    // User is authenticated but not admin - redirect to home
+    // User is authenticated but not admin - redirect to admin login with logout
     console.error("❌ Access denied - not admin", { userData, userError });
-    redirect("/?error=unauthorized");
+
+    // Sign out the user before redirecting
+    await authClient.auth.signOut();
+
+    // Redirect to admin login page where they'll see an error message
+    redirect("/admin/login");
   }
 
   const userDisplayName =
