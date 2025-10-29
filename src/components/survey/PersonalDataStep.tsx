@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/select";
 import { SelectJudet } from "@/components/location/SelectJudet";
 import { SelectLocalitate } from "@/components/location/SelectLocalitate";
+import { GDPRConsent } from "@/components/survey/GDPRConsent";
 import type { PersonalDataForm } from "@/types/survey";
 import type { Judet, ApiResponse } from "@/types/api";
 
@@ -40,6 +41,9 @@ const personalDataSchema = z.object({
   ageCategory: z.enum(["18-25", "26-35", "36-45", "46-60", "60+"] as const).optional(),
   county: z.string().min(1, "Județul este obligatoriu"),
   locality: z.string().min(1, "Localitatea este obligatorie"),
+  gdprConsent: z.boolean().refine((val) => val === true, {
+    message: "Trebuie să accepți Politica de Confidențialitate pentru a continua",
+  }),
 });
 
 type PersonalDataFormValues = z.infer<typeof personalDataSchema>;
@@ -64,6 +68,7 @@ export function PersonalDataStep({ defaultValues, onSubmit, onBack }: PersonalDa
       ageCategory: defaultValues?.ageCategory,
       county: defaultValues?.county || "",
       locality: defaultValues?.locality || "",
+      gdprConsent: false,
     },
   });
 
@@ -237,6 +242,23 @@ export function PersonalDataStep({ defaultValues, onSubmit, onBack }: PersonalDa
                   />
                 </FormControl>
                 <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* GDPR Consent */}
+          <FormField
+            control={form.control}
+            name="gdprConsent"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <GDPRConsent
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                    error={form.formState.errors.gdprConsent?.message}
+                  />
+                </FormControl>
               </FormItem>
             )}
           />
