@@ -422,8 +422,8 @@ test.describe("Admin Dashboard - Export Functionality", () => {
     const dateMatch = filename.match(/(\d{4})-(\d{2})-(\d{2})/);
     expect(dateMatch).toBeTruthy();
 
-    if (dateMatch) {
-      const year = parseInt(dateMatch[1]);
+    if (dateMatch && dateMatch[1]) {
+      const year = parseInt(dateMatch[1], 10);
       const currentYear = new Date().getFullYear();
 
       // Year should be current or recent
