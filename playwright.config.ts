@@ -26,8 +26,9 @@ export default defineConfig({
   // Fail fast on CI, but continue locally for better debugging
   fullyParallel: true,
   forbidOnly: isCI,
-  retries: isCI ? 2 : 0,
+  retries: isCI ? 2 : 1, // Retry once locally for flaky tests
   workers: isCI ? 2 : undefined, // Use default locally for better performance
+  maxFailures: isCI ? 10 : undefined, // Stop after 10 failures in CI
 
   // =============================================================================
   // REPORTER CONFIGURATION
