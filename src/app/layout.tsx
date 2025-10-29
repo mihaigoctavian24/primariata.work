@@ -59,13 +59,6 @@ export const metadata: Metadata = {
     description: "Platformă SaaS white-label care digitalizează procesele administrative locale.",
     images: ["/opengraph-image.png"],
   },
-  icons: {
-    icon: [
-      { url: "/icon.png", sizes: "500x500", type: "image/png" },
-      { url: "/logo_fav.png", sizes: "500x500", type: "image/png" },
-    ],
-    apple: [{ url: "/apple-touch-icon.png", sizes: "500x500", type: "image/png" }],
-  },
   manifest: "/manifest.json",
   robots: {
     index: true,
