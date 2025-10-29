@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,7 +33,15 @@ import { Badge } from "@/components/ui/badge";
 import { Download, Search, ChevronLeft, ChevronRight, Eye, Trash2, FileText } from "lucide-react";
 import { format } from "date-fns";
 import { ResponsesDialog } from "./ResponsesDialog";
+import {
+  ExportDialog,
+  type ExportOptions,
+  type ColumnOption,
+} from "@/components/dashboard/ExportDialog";
+import { useExport, type ExportData, type ExportSummaryData } from "@/hooks/useExport";
 import type { RespondentType } from "@/types/survey";
+import { useOptimisticMutation } from "@/hooks/useRealTimeData";
+import { toast } from "sonner";
 
 interface Respondent {
   id: string;
@@ -64,7 +72,43 @@ export function ResponsesTable({ initialResponses }: ResponsesTableProps) {
   const [selectedRespondent, setSelectedRespondent] = useState<Respondent | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [respondentToDelete, setRespondentToDelete] = useState<Respondent | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [exportDialogOpen, setExportDialogOpen] = useState(false);
+
+  // Export hook
+  const { exportData, isExporting } = useExport();
+
+  // Optimistic delete mutation
+  const deleteMutation = useOptimisticMutation<void, string>({
+    mutationFn: async (respondentId: string) => {
+      const response = await fetch(`/api/admin/survey/responses/${respondentId}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete respondent");
+      }
+    },
+    queryKey: ["responses"], // Local cache key
+    onSuccess: () => {
+      toast.success("Respondent șters cu succes", {
+        duration: 2000,
+        position: "bottom-right",
+      });
+    },
+    onError: () => {
+      toast.error("Eroare la ștergerea respondentului", {
+        duration: 3000,
+        position: "bottom-right",
+      });
+    },
+    updateOptimistically: (oldData: unknown, respondentId: string) => {
+      // Optimistically remove from local state
+      if (Array.isArray(oldData)) {
+        return oldData.filter((r: Respondent) => r.id !== respondentId);
+      }
+      return oldData;
+    },
+  });
 
   const handleViewResponses = (respondent: Respondent) => {
     setSelectedRespondent(respondent);
@@ -79,25 +123,20 @@ export function ResponsesTable({ initialResponses }: ResponsesTableProps) {
   const handleDeleteConfirm = async () => {
     if (!respondentToDelete) return;
 
-    setIsDeleting(true);
+    // Optimistically remove from local state
+    setResponses((prev) => prev.filter((r) => r.id !== respondentToDelete.id));
+
+    // Close dialog immediately for better UX
+    setDeleteDialogOpen(false);
+    const respondentId = respondentToDelete.id;
+    setRespondentToDelete(null);
+
+    // Execute mutation with optimistic update
     try {
-      const response = await fetch(`/api/admin/survey/responses/${respondentToDelete.id}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to delete respondent");
-      }
-
-      // Remove from local state
-      setResponses((prev) => prev.filter((r) => r.id !== respondentToDelete.id));
-      setDeleteDialogOpen(false);
-      setRespondentToDelete(null);
-    } catch (error) {
-      console.error("Error deleting respondent:", error);
-      alert("Eroare la ștergerea respondentului. Încercați din nou.");
-    } finally {
-      setIsDeleting(false);
+      await deleteMutation.mutateAsync(respondentId);
+    } catch {
+      // Error handled by mutation, but rollback local state
+      setResponses(initialResponses);
     }
   };
 
@@ -124,62 +163,87 @@ export function ResponsesTable({ initialResponses }: ResponsesTableProps) {
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const paginatedResponses = filteredResponses.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
-  // Export to CSV
-  const handleExportCSV = () => {
-    const headers = [
-      "ID",
-      "Nume",
-      "Prenume",
-      "Email",
-      "Județ",
-      "Localitate",
-      "Tip",
-      "Completat",
-      "Data",
-    ];
-    const rows = filteredResponses.map((r) => [
-      r.id,
-      r.last_name,
-      r.first_name,
-      r.email || "",
-      r.county,
-      r.locality,
-      r.respondent_type === "citizen" ? "Cetățean" : "Funcționar",
-      r.is_completed ? "Da" : "Nu",
-      r.created_at ? format(new Date(r.created_at), "dd.MM.yyyy HH:mm") : "",
-    ]);
+  // Available columns for export
+  const availableColumns: ColumnOption[] = [
+    { id: "id", label: "ID", required: true },
+    { id: "first_name", label: "Prenume", required: true },
+    { id: "last_name", label: "Nume", required: true },
+    { id: "email", label: "Email" },
+    { id: "county", label: "Județ" },
+    { id: "locality", label: "Localitate" },
+    { id: "respondent_type", label: "Tip Respondent" },
+    { id: "is_completed", label: "Status Completare" },
+    { id: "created_at", label: "Data Creării" },
+    { id: "completed_at", label: "Data Completării" },
+  ];
 
-    const csv = [headers, ...rows].map((row) => row.join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `raspunsuri_chestionar_${format(new Date(), "yyyy-MM-dd")}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+  // Summary data for export
+  const exportSummary: ExportSummaryData = useMemo(() => {
+    const completed = filteredResponses.filter((r) => r.is_completed).length;
+    const citizens = filteredResponses.filter((r) => r.respondent_type === "citizen").length;
+    const publicServants = filteredResponses.filter(
+      (r) => r.respondent_type === "public_servant"
+    ).length;
+
+    // Calculate top counties
+    const countyCounts = filteredResponses.reduce(
+      (acc, r) => {
+        acc[r.county] = (acc[r.county] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
+
+    const topCounties = Object.entries(countyCounts)
+      .map(([county, count]) => ({ county, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+
+    return {
+      totalResponses: filteredResponses.length,
+      completedResponses: completed,
+      citizenResponses: citizens,
+      publicServantResponses: publicServants,
+      topCounties,
+    };
+  }, [filteredResponses]);
+
+  // Handle export with new dialog
+  const handleExport = async (format: string, options: ExportOptions) => {
+    const exportDataPayload: ExportData<Record<string, unknown>> = {
+      data: filteredResponses as unknown as Record<string, unknown>[],
+      columns: [
+        { key: "id", label: "ID" },
+        { key: "first_name", label: "Prenume" },
+        { key: "last_name", label: "Nume" },
+        { key: "email", label: "Email" },
+        { key: "county", label: "Județ" },
+        { key: "locality", label: "Localitate" },
+        { key: "respondent_type", label: "Tip Respondent" },
+        { key: "is_completed", label: "Status" },
+        { key: "created_at", label: "Data Creării" },
+        { key: "completed_at", label: "Data Completării" },
+      ],
+      summary: exportSummary,
+    };
+
+    await exportData(exportDataPayload, options);
   };
 
   return (
-    <Card className="from-card via-card to-muted/20 border-none bg-gradient-to-br shadow-2xl">
-      <CardHeader className="from-primary/5 border-b bg-gradient-to-r to-transparent">
+    <Card className="border-border bg-card border shadow-sm">
+      <CardHeader className="border-b">
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="from-primary to-primary/60 bg-gradient-to-r bg-clip-text text-2xl font-bold text-transparent">
-              Răspunsuri Chestionar
-            </CardTitle>
+            <CardTitle className="text-2xl font-bold">Răspunsuri Chestionar</CardTitle>
             <CardDescription className="mt-1">
               {filteredResponses.length} răspunsuri{" "}
               {searchTerm || filterType !== "all" || filterCounty !== "all" ? "filtrate" : "total"}
             </CardDescription>
           </div>
-          <Button
-            onClick={handleExportCSV}
-            variant="outline"
-            size="sm"
-            className="shadow-lg transition-all hover:scale-105 hover:shadow-xl"
-          >
+          <Button onClick={() => setExportDialogOpen(true)} variant="outline" size="sm">
             <Download className="mr-2 h-4 w-4" />
-            Export CSV
+            Export Data
           </Button>
         </div>
       </CardHeader>
@@ -236,10 +300,10 @@ export function ResponsesTable({ initialResponses }: ResponsesTableProps) {
         </div>
 
         {/* Table */}
-        <div className="border-border/50 bg-card/50 overflow-hidden rounded-lg border backdrop-blur-sm">
+        <div className="border-border overflow-hidden rounded-lg border">
           <Table>
             <TableHeader>
-              <TableRow className="bg-muted/30 hover:bg-muted/50 border-b-2">
+              <TableRow className="bg-muted/50 hover:bg-muted/50">
                 <TableHead className="font-semibold">Nume</TableHead>
                 <TableHead className="font-semibold">Email</TableHead>
                 <TableHead className="font-semibold">Locație</TableHead>
@@ -261,26 +325,31 @@ export function ResponsesTable({ initialResponses }: ResponsesTableProps) {
                 </TableRow>
               ) : (
                 paginatedResponses.map((response) => (
-                  <TableRow
-                    key={response.id}
-                    className="hover:bg-muted/50 border-border/30 border-b transition-colors"
-                  >
+                  <TableRow key={response.id} className="hover:bg-muted/30 transition-colors">
                     <TableCell className="font-medium">
                       {response.first_name} {response.last_name}
                     </TableCell>
-                    <TableCell>{response.email || "-"}</TableCell>
-                    <TableCell>
+                    <TableCell className="text-muted-foreground">{response.email || "-"}</TableCell>
+                    <TableCell className="text-muted-foreground">
                       {response.locality}, {response.county}
                     </TableCell>
                     <TableCell>
                       <Badge
                         variant={response.respondent_type === "citizen" ? "default" : "secondary"}
+                        className={
+                          response.respondent_type === "citizen"
+                            ? "bg-blue-500 hover:bg-blue-600"
+                            : ""
+                        }
                       >
                         {response.respondent_type === "citizen" ? "Cetățean" : "Funcționar"}
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={response.is_completed ? "default" : "outline"}>
+                      <Badge
+                        variant={response.is_completed ? "default" : "outline"}
+                        className={response.is_completed ? "bg-green-500 hover:bg-green-600" : ""}
+                      >
                         {response.is_completed ? "Completat" : "Draft"}
                       </Badge>
                     </TableCell>
@@ -296,18 +365,18 @@ export function ResponsesTable({ initialResponses }: ResponsesTableProps) {
                           size="sm"
                           onClick={() => handleViewResponses(response)}
                           disabled={!response.is_completed}
-                          className="hover:bg-primary/10 hover:text-primary gap-2 transition-all hover:scale-105"
+                          className="hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-950 dark:hover:text-blue-400"
                         >
-                          <Eye className="h-4 w-4" />
+                          <Eye className="mr-1 h-4 w-4" />
                           Vezi
                         </Button>
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => handleDeleteClick(response)}
-                          className="text-destructive hover:bg-destructive/10 hover:text-destructive gap-2 transition-all hover:scale-105"
+                          className="hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 className="mr-1 h-4 w-4" />
                           Șterge
                         </Button>
                       </div>
@@ -379,17 +448,29 @@ export function ResponsesTable({ initialResponses }: ResponsesTableProps) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Anulează</AlertDialogCancel>
+            <AlertDialogCancel disabled={deleteMutation.isPending}>Anulează</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteConfirm}
-              disabled={isDeleting}
+              disabled={deleteMutation.isPending}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {isDeleting ? "Se șterge..." : "Șterge"}
+              {deleteMutation.isPending ? "Se șterge..." : "Șterge"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Export Dialog */}
+      <ExportDialog
+        isOpen={exportDialogOpen}
+        onClose={() => setExportDialogOpen(false)}
+        onExport={handleExport}
+        formats={["csv", "xlsx", "pdf"]}
+        title="Export Survey Responses"
+        description="Configure your export settings and download your data"
+        isExporting={isExporting}
+        availableColumns={availableColumns}
+      />
     </Card>
   );
 }

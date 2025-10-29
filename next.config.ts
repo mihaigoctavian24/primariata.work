@@ -5,6 +5,12 @@ const nextConfig: NextConfig = {
   // instrumentation.ts is enabled by default in Next.js 15+
   // No experimental flag needed
 
+  // Performance optimizations
+  reactStrictMode: true,
+  poweredByHeader: false,
+  compress: true,
+
+  // Image optimization
   images: {
     remotePatterns: [
       {
@@ -13,6 +19,8 @@ const nextConfig: NextConfig = {
         pathname: "/**",
       },
     ],
+    formats: ["image/avif", "image/webp"],
+    minimumCacheTTL: 60,
   },
 
   async rewrites() {
