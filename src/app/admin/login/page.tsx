@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,11 +12,53 @@ import Image from "next/image";
  *
  * Dedicated login page for Survey Admin Platform
  * Uses Google OAuth with direct redirect to /admin/survey
+ *
+ * Handles:
+ * - Logged in admin → redirect to /admin/survey
+ * - Logged in non-admin → logout + show error
+ * - Not logged in → show Google OAuth button
  */
 export default function AdminLoginPage() {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [isChecking, setIsChecking] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const supabase = createClient();
+
+  useEffect(() => {
+    async function checkAuthStatus() {
+      try {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+
+        if (user) {
+          // User is logged in, check if admin
+          const { data: userData } = await supabase
+            .from("utilizatori")
+            .select("rol")
+            .eq("id", user.id)
+            .single();
+
+          if (userData && ["admin", "super_admin"].includes(userData.rol)) {
+            // User is admin, redirect to dashboard
+            router.push("/admin/survey");
+            return;
+          } else {
+            // User is logged in but not admin - logout and show error
+            await supabase.auth.signOut();
+            setError("Acces restricționat: Contul tău nu are permisiuni de administrator.");
+          }
+        }
+      } catch (err) {
+        console.error("Error checking auth status:", err);
+      } finally {
+        setIsChecking(false);
+      }
+    }
+
+    checkAuthStatus();
+  }, [supabase, router]);
 
   const handleGoogleLogin = async () => {
     try {
@@ -39,6 +82,18 @@ export default function AdminLoginPage() {
     }
   };
 
+  // Show loading state while checking auth
+  if (isChecking) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 p-4 dark:from-slate-950 dark:to-slate-900">
+        <div className="flex flex-col items-center gap-4">
+          <div className="border-primary h-8 w-8 animate-spin rounded-full border-4 border-t-transparent" />
+          <p className="text-muted-foreground text-sm">Verificare autentificare...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 p-4 dark:from-slate-950 dark:to-slate-900">
       <Card className="w-full max-w-md">
@@ -53,7 +108,9 @@ export default function AdminLoginPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           {error && (
-            <div className="bg-destructive/10 text-destructive rounded-md p-3 text-sm">{error}</div>
+            <div className="bg-destructive/10 text-destructive rounded-md p-3 text-sm font-medium">
+              {error}
+            </div>
           )}
 
           <Button onClick={handleGoogleLogin} disabled={isLoading} className="w-full" size="lg">
