@@ -30,9 +30,9 @@ timezone: Europe/Bucharest
 # Language
 lang: ro
 
-# Base URL (pentru custom domain docs.primariata.work)
-baseurl: ""
-url: "https://docs.primariata.work"
+# Base URL pentru GitHub Pages (fără custom domain)
+baseurl: "/primariata.work"
+url: "https://mihaigoctavian24.github.io"
 
 # Navigation (opțional - pentru menuri custom)
 navigation:
