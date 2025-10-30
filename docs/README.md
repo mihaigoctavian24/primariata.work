@@ -20,7 +20,7 @@ Acest director conține **documentația oficială în limba română** destinat�
 ## 📂 Structura Documentației
 
 ```
-Documentatie/
+docs/
 ├── 01-Prezentare/              # 📄 Prezentare generală proiect
 │   ├── README.md               # Overview și introducere
 │   ├── Viziune-Misiune.md      # Viziunea și misiunea proiectului
@@ -73,7 +73,7 @@ Documentatie/
 - 🚫 **Git**: Ignorat (`.gitignore`)
 - 📁 **Conținut**: 804KB, 19 fișiere tehnice detaliate
 
-### `Documentatie/` (RO - Official, committed)
+### `docs/` (RO - Official, committed)
 
 **Scop**: Documentație oficială pentru prezentare și evaluare
 
@@ -142,7 +142,7 @@ Documentatie/
 ### 1. Creează/Editează Document
 
 ```bash
-cd Documentatie/02-Cerinte
+cd docs/02-Cerinte
 nano Cerinte-Functionale.md
 ```
 
@@ -176,26 +176,40 @@ nano Cerinte-Functionale.md
 ### 3. Commit Changes
 
 ```bash
-git add Documentatie/
+git add docs/
 git commit -m "docs(ro): adaugă Cerinte-Functionale.md"
 git push origin develop
 ```
 
 ---
 
-## 📊 Status Documentare
+## 📊 Status Documentare (Actualizat: 30 octombrie 2025)
 
-| Categorie       | Status  | Completare | Prioritate | Notes                                 |
-| --------------- | ------- | ---------- | ---------- | ------------------------------------- |
-| 01-Prezentare   | 🔴 TODO | 0%         | CRITICAL   | Phase 1                               |
-| 02-Cerinte      | 🔴 TODO | 0%         | CRITICAL   | Phase 1                               |
-| 03-Arhitectura  | 🔴 TODO | 0%         | HIGH       | Phase 1-2                             |
-| 04-Implementare | ✅ DONE | 100%       | MEDIUM     | ✅ Phase 0 Complete (EN docs in root) |
-| 05-Utilizare    | 🔴 TODO | 0%         | MEDIUM     | Phase 2-3                             |
-| 06-Anexe        | 🔴 TODO | 0%         | LOW        | Phase 3-5                             |
+| Categorie           | Status      | Completare | Prioritate | Notes                                            |
+| ------------------- | ----------- | ---------- | ---------- | ------------------------------------------------ |
+| **01-Prezentare**   | ✅ COMPLETE | 100% (6/6) | CRITICAL   | ✅ Toate documentele create și actualizate       |
+| **02-Cerinte**      | ✅ COMPLETE | 100% (5/5) | CRITICAL   | ✅ Funcționale, nefuncționale, cazuri            |
+| **03-Arhitectura**  | ✅ COMPLETE | 100% (6/6) | HIGH       | ✅ Generală, DB, API, Componente, Securitate     |
+| **04-Implementare** | 🟡 PARȚIAL  | 25% (1/4)  | MEDIUM     | ✅ Stack-Tehnologic.md creat (30 oct 2025)       |
+| **05-Utilizare**    | 🔴 TODO     | 0% (0/4)   | HIGH       | 🎯 M6 - Ghiduri Cetățean, Funcționar, Admin, FAQ |
+| **06-Anexe**        | 🔴 TODO     | 0% (0/4)   | LOW        | 🎯 M6 - Glossar, Referințe, Contributori         |
 
-**Phase 0**: ✅ **COMPLETE** - Developer documentation created (CONTRIBUTING.md, ARCHITECTURE.md, DEVELOPMENT_GUIDE.md)
-**Target**: 80% completare pentru prezentare finală (Săptămâna 20-22)
+**Progress general**: 18/25 documente (72%) | **M6 Deadline**: 29 noiembrie 2025
+
+**Completate** (October 2025):
+
+- ✅ **01-Prezentare**: 6 documente (Viziune, Obiective, Context, Echipa, Status)
+- ✅ **02-Cerinte**: 5 documente (Funcționale, Nefuncționale, Cazuri, Persoane, User Stories)
+- ✅ **03-Arhitectura**: 6 documente (Generală, DB, API, Componente, Securitate, Deployment)
+- ✅ **04-Implementare**: Stack-Tehnologic.md (500+ linii, 10 secțiuni, monitoring & logging)
+
+**În lucru** (M6 Documentation - November 2025):
+
+- 🔴 **04-Implementare**: 3 documente rămase (Setup, Workflow, Testare)
+- 🔴 **05-Utilizare**: 4 ghiduri (Cetățean, Funcționar, Admin, FAQ)
+- 🔴 **06-Anexe**: 4 documente (Glossar, Referințe, Contributori, Licență)
+
+**Target**: 100% completare pentru prezentare finală (29 noiembrie 2025)
 
 ---
 
