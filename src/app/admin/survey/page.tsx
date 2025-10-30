@@ -1,15 +1,14 @@
 import { createServiceRoleClient, createClient } from "@/lib/supabase/server";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, User } from "lucide-react";
+import { User } from "lucide-react";
 import { SurveyCharts } from "@/components/admin/SurveyCharts";
 import { ResponsesTable } from "@/components/admin/ResponsesTable";
 import { RealTimeWrapper } from "./real-time-wrapper";
 import { AdminQueryProvider } from "./providers";
 import { AdminSurveyMetrics } from "./metrics-wrapper";
+import { LogoutButton } from "@/components/admin/LogoutButton";
 import { format } from "date-fns";
 import { redirect } from "next/navigation";
-import Link from "next/link";
 import Image from "next/image";
 
 /**
@@ -156,12 +155,7 @@ export default async function SurveyAdminPage() {
             <div className="flex flex-col items-end gap-3">
               {/* User Info and Navigation */}
               <div className="flex items-center gap-4">
-                <Link href="/survey">
-                  <Button variant="outline" size="sm" className="gap-2">
-                    <ArrowLeft className="h-4 w-4" />
-                    Înapoi la Survey
-                  </Button>
-                </Link>
+                <LogoutButton />
                 <div className="flex items-start gap-3 border-l pl-4">
                   <div className="flex flex-col items-end gap-1">
                     <div className="text-right text-sm font-medium">{userDisplayName}</div>

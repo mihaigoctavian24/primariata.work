@@ -4,13 +4,19 @@ import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useTheme } from "next-themes";
+import dynamic from "next/dynamic";
 import TextType from "@/components/TextType";
 import { MorphingText } from "@/components/ui/morphing-text";
-import PixelBlast from "@/components/ui/PixelBlast";
 import CountUp from "@/components/ui/CountUp";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LocationWheelPickerForm } from "@/components/location/LocationWheelPickerForm";
 import { saveLocation } from "@/lib/location-storage";
+
+// Dynamic import for PixelBlast to prevent SSR issues and reduce initial bundle
+const PixelBlast = dynamic(() => import("@/components/ui/PixelBlast"), {
+  ssr: false,
+  loading: () => <div className="absolute inset-0 bg-black" />,
+});
 
 /**
  * Hero Section Component for Landing Page - Multi-Step Flow
