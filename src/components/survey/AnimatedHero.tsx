@@ -188,18 +188,11 @@ export function AnimatedHero() {
                 <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
               </Button>
             </Link>
-            <Link
-              href="/"
-              className="min-w-[200px]"
-              onClick={() => {
-                // Set flag to prevent auto-redirect when user explicitly navigates to landing
-                sessionStorage.setItem("skipLandingRedirect", "true");
-              }}
-            >
+            <a href="https://primariata.work" className="min-w-[200px]">
               <Button variant="outline" size="lg" className="w-full">
                 Înapoi la pagina principală
               </Button>
-            </Link>
+            </a>
           </motion.div>
         </div>
       </div>
