@@ -179,14 +179,14 @@ primariata.work/
 
 **Pentru**: Profesori, comisie evaluare, stakeholderi, utilizatori finali
 
-📍 **[Documentatie/](Documentatie/)** - Documentație oficială în limba română
+📍 **[docs/](docs/)** - Documentație oficială în limba română
 
-- 📄 **[01-Prezentare/](Documentatie/01-Prezentare/)** - Viziune, misiune, obiective
-- 📋 **[02-Cerinte/](Documentatie/02-Cerinte/)** - Specificații funcționale/nefuncționale
-- 🏗️ **[03-Arhitectura/](Documentatie/03-Arhitectura/)** - Design sistem, diagrame
-- 💻 **[04-Implementare/](Documentatie/04-Implementare/)** - Tehnologii, ghid dezvoltare
-- 📖 **[05-Utilizare/](Documentatie/05-Utilizare/)** - Ghiduri pentru cetățeni, funcționari, admini
-- 📎 **[06-Anexe/](Documentatie/06-Anexe/)** - Glossar, referințe, contribuitori
+- 📄 **[01-Prezentare/](docs/01-Prezentare/)** - Viziune, misiune, obiective
+- 📋 **[02-Cerinte/](docs/02-Cerinte/)** - Specificații funcționale/nefuncționale
+- 🏗️ **[03-Arhitectura/](docs/03-Arhitectura/)** - Design sistem, diagrame
+- 💻 **[04-Implementare/](docs/04-Implementare/)** - Tehnologii, ghid dezvoltare
+- 📖 **[05-Utilizare/](docs/05-Utilizare/)** - Ghiduri pentru cetățeni, funcționari, admini
+- 📎 **[06-Anexe/](docs/06-Anexe/)** - Glossar, referințe, contribuitori
 
 ### 🇬🇧 Technical Specifications (Advanced)
 
@@ -270,42 +270,85 @@ pnpm format:write
 
 ## 📊 Project Status & Roadmap
 
-**Current Phase**: ✅ **Phase 0 - COMPLETE** | 🚀 **Ready for Phase 1**
+**Status actual**: Octombrie 2025 (An universitar 2025-2026)
+**Progres general**: 11 issues închise din 101 totale = **10.9%**
 
-### Phase 0: Foundation ✅ (Completed 2025-10-23)
+### 📈 Milestones Overview (GitHub)
 
-- [x] Development environment setup
-- [x] Supabase project + database migrations (13 tables)
-- [x] **Data seeding** (42 județe + 13,851 localități) ✅ **CRITICAL BLOCKER RESOLVED**
+| Milestone                    | Progress        | Status       | Due Date    |
+| ---------------------------- | --------------- | ------------ | ----------- |
+| **M1: Landing & Auth 🚀**    | 10✅ / 21 total | 🔄 **47.6%** | 28 Oct 2025 |
+| **M7: Survey Platform**      | 1✅ / 1 total   | ✅ **100%**  | 31 Oct 2025 |
+| **M2: Cereri Module 📋**     | 0✅ / 10 total  | ⏳ 0%        | 1 Nov 2025  |
+| **M3: Integrations 💳**      | 0✅ / 8 total   | ⏳ 0%        | 8 Nov 2025  |
+| **M4: Advanced Features ✨** | 0✅ / 14 total  | ⏳ 0%        | 15 Nov 2025 |
+| **M5: Production Launch 🚀** | 0✅ / 13 total  | ⏳ 0%        | 22 Nov 2025 |
+| **M6: Documentation 📚**     | 0✅ / 22 total  | ⏳ 0%        | 29 Nov 2025 |
+
+### ✅ M1: Landing Page & Authentication (47.6% - In Progress)
+
+**Completate (10/21)**:
+
+- [x] Landing page design cu animații WebGL
+- [x] Location selection (județ + localitate cu 13,851 entries)
+- [x] Google OAuth integration
+- [x] Email/Password authentication
+- [x] Database schema (13 tables cu RLS)
 - [x] Vercel deployment + Cloudflare security
 - [x] CI/CD pipeline (GitHub Actions)
 - [x] Monitoring (Sentry + Analytics)
+- [x] Developer documentation (CONTRIBUTING.md, ARCHITECTURE.md)
 - [x] Git hooks (Husky + lint-staged + commitlint)
-- [x] Developer documentation (CONTRIBUTING.md, ARCHITECTURE.md, DEVELOPMENT_GUIDE.md)
-- [x] GitHub templates (PR + bug report + feature request)
 
-### Phase 1: MVP Landing + Auth (Week 3-6)
+**În lucru (11/21)**:
 
-- [ ] Landing page cu animații
-- [ ] Location selection (județ + localitate)
-- [ ] Authentication (email + Google OAuth)
-- [ ] User dashboard (cetatean vs functionar)
+- [ ] Footer cu Navigation Links & Social Media (#58)
+- [ ] Register Page cu Validation (#60)
+- [ ] Password Reset Flow (#61)
+- [ ] User Dashboard Layout (#62)
+- [ ] User Profile Page (#63)
+- [ ] Unit Tests pentru Auth Components (#64)
+- [ ] E2E Tests pentru Auth Flow (#65)
+- [ ] Performance Optimization (#66)
+- [ ] Accessibility Testing (#67)
+- [ ] Documentation Updates (#115)
+- [ ] Code Review & Cleanup (#116)
 
-### Phase 2: Cereri Module (Week 7-12)
+### ✅ M7: Survey Platform (100% - Complete)
 
-- [ ] Request submission flow
-- [ ] Document upload & management
-- [ ] Request tracking & status updates
-- [ ] Admin approval workflow
+**Completate (1/1)**:
 
-### Phase 3-5: Integrations + Advanced + Launch (Week 13-24)
+- [x] Survey system multi-step (5 pași, 25+ întrebări)
+- [x] Admin dashboard cu analytics
+- [x] Export date (CSV, JSON, XLSX, PDF)
 
-- [ ] certSIGN digital signatures
-- [ ] Ghișeul.ro payment integration
-- [ ] Advanced features (plăți, transparență, sesizări)
-- [ ] Production launch & onboarding
+### ⏳ M2-M6: Următoarele Faze (Planificate)
 
-**Detailed Roadmap**: Vezi [IMPLEMENTATION_ROADMAP.md](.docs/03-implementation/IMPLEMENTATION_ROADMAP.md)
+**M2: Cereri Module** (0% - Due 1 Nov):
+
+- Request submission flow
+- Document upload & management
+- Request tracking & status updates
+- Admin approval workflow
+
+**M3: Integrations** (0% - Due 8 Nov):
+
+- certSIGN digital signatures
+- Ghișeul.ro payment integration
+
+**M4: Advanced Features** (0% - Due 15 Nov):
+
+- Advanced features (plăți, transparență, sesizări)
+
+**M5: Production Launch** (0% - Due 22 Nov):
+
+- Production launch & onboarding
+
+**M6: Documentation** (0% - Due 29 Nov):
+
+- Documentație oficială română completă
+
+**Detailed Roadmap**: Vezi [GitHub Milestones](https://github.com/mihaigoctavian24/primariata.work/milestones)
 
 ---
 
@@ -419,18 +462,21 @@ pnpm playwright install --with-deps
 ## 📝 License & Credits
 
 **License**: Proprietary - Proiect universitar
-**Copyright**: © 2025 Bubu & Dudu Dev Team
+**Copyright**: © 2025-2026 Bubu & Dudu Dev Team
 
 ### 🎓 Context Academic
 
 **Universitate**: Universitatea Română-Americană
 **Facultate**: Informatică Managerială
 **Curs**: Programarea Aplicatiilor Web
+**An universitar**: 2025-2026
 
 ### 👥 Contributori Principali (Owneri)
 
-- **Octavian Mihai** - [mihai.g.octavian24@stud.rau.ro](mailto:mihai.g.octavian24@stud.rau.ro)
-- **Bianca-Maria Abbasi Pazeyazd** - [abbasipazeyazd.h.biancamaria24@stud.rau.ro](mailto:abbasipazeyazd.h.biancamaria24@stud.rau.ro)
+- **Octavian Mihai** - Full-Stack Developer - [mihai.g.octavian24@stud.rau.ro](mailto:mihai.g.octavian24@stud.rau.ro)
+  - Frontend, Backend, DevOps, UI/UX, Documentație Tehnică
+- **Bianca-Maria Abbasi Pazeyazd** - Frontend Developer & UI/UX Designer - [abbasipazeyazd.h.biancamaria24@stud.rau.ro](mailto:abbasipazeyazd.h.biancamaria24@stud.rau.ro)
+  - Design UI/UX, Frontend, QA, Documentație Oficială
 
 ### 👨‍🏫 Coordonare Academică
 

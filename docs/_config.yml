@@ -1,0 +1,65 @@
+# GitHub Pages Configuration pentru Documentația Primăriata
+
+# Tema Jekyll (opțional - poți alege altă temă)
+theme: jekyll-theme-cayman
+
+# Informații site
+title: "Primăriata - Documentație Oficială"
+description: "Platformă SaaS white-label pentru digitalizarea primăriilor din România"
+author: "Bubu & Dudu Dev Team"
+
+# Configurare build
+markdown: kramdown
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+
+# Exclude files from processing
+exclude:
+  - .gitkeep
+  - node_modules/
+  - vendor/
+
+# Include files that start with underscore
+include:
+  - _*
+
+# Timezone
+timezone: Europe/Bucharest
+
+# Language
+lang: ro
+
+# Base URL (pentru GitHub Pages va fi /primariata.work dacă nu e custom domain)
+# Lasă gol dacă ai custom domain
+baseurl: ""
+url: "https://mihaigoctavian24.github.io"
+
+# Navigation (opțional - pentru menuri custom)
+navigation:
+  - title: "Prezentare"
+    url: "/01-Prezentare/"
+  - title: "Cerințe"
+    url: "/02-Cerinte/"
+  - title: "Arhitectură"
+    url: "/03-Arhitectura/"
+  - title: "Implementare"
+    url: "/04-Implementare/"
+  - title: "Utilizare"
+    url: "/05-Utilizare/"
+  - title: "Anexe"
+    url: "/06-Anexe/"
+
+# Google Analytics (opțional)
+# google_analytics: UA-XXXXXXXXX-X
+
+# SEO
+plugins:
+  - jekyll-seo-tag
+  - jekyll-sitemap
+
+# Social media
+social:
+  name: "Primăriata"
+  links:
+    - https://github.com/mihaigoctavian24/primariata.work
