@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { HeroSection } from "@/components/landing/HeroSection";
 import { getLocation } from "@/lib/location-storage";
@@ -27,15 +27,32 @@ export default function LandingPage() {
     // Check if user has saved location
     const savedLocation = getLocation();
 
-    if (savedLocation) {
-      // Auto-redirect to their dashboard
-      router.push(`/app/${savedLocation.judetSlug}/${savedLocation.localitateSlug}/dashboard`);
+    if (!savedLocation) {
+      return;
+    }
+
+    // Check if we should skip redirect (flag set when user explicitly navigates to /)
+    const skipRedirect = sessionStorage.getItem("skipLandingRedirect");
+
+    if (skipRedirect) {
+      // User explicitly wants to stay on landing page - don't redirect
+      return;
+    }
+
+    // Perform redirect only once per session
+    const hasRedirected = sessionStorage.getItem("hasRedirectedFromLanding");
+
+    if (!hasRedirected) {
+      sessionStorage.setItem("hasRedirectedFromLanding", "true");
+      router.replace(`/app/${savedLocation.judetSlug}/${savedLocation.localitateSlug}/dashboard`);
     }
   }, [router]);
 
   return (
     <main id="main-content" className="min-h-screen">
-      <HeroSection />
+      <Suspense fallback={<div className="min-h-screen bg-black" />}>
+        <HeroSection />
+      </Suspense>
     </main>
   );
 }

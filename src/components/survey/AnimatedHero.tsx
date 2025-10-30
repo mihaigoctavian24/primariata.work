@@ -1,6 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useAnimation } from "framer-motion";
+import { useEffect } from "react";
 import TextType from "@/components/TextType";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,74 @@ import Link from "next/link";
  */
 
 export function AnimatedHero() {
+  const heartControls = useAnimation();
+  const cursorControls = useAnimation();
+
+  useEffect(() => {
+    let isMounted = true;
+    let heartAnimationId: ReturnType<typeof setTimeout> | null = null;
+    let cursorAnimationId: ReturnType<typeof setTimeout> | null = null;
+
+    // Start animations only if component is still mounted
+    if (isMounted) {
+      heartAnimationId = setTimeout(() => {
+        if (isMounted) {
+          heartControls.start({
+            opacity: 1,
+            scale: [
+              1, 1.12, 1, 1.08, 1, 1, 1.12, 1, 1.08, 1, 1, 1.12, 1, 1.08, 1, 1, 1.12, 1, 1.08, 1,
+            ],
+          });
+        }
+      }, 0) as unknown as ReturnType<typeof setTimeout>;
+
+      cursorAnimationId = setTimeout(() => {
+        if (isMounted) {
+          cursorControls.start({
+            opacity: [0, 1, 1, 0],
+          });
+        }
+      }, 0) as unknown as ReturnType<typeof setTimeout>;
+    }
+
+    // Page Visibility API: pause animations when page is hidden
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        heartControls.stop();
+        cursorControls.stop();
+      } else if (isMounted) {
+        // Resume animations when page becomes visible again
+        heartControls.start({
+          opacity: 1,
+          scale: [
+            1, 1.12, 1, 1.08, 1, 1, 1.12, 1, 1.08, 1, 1, 1.12, 1, 1.08, 1, 1, 1.12, 1, 1.08, 1,
+          ],
+        });
+        cursorControls.start({
+          opacity: [0, 1, 1, 0],
+        });
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    // Cleanup: stop all animations and cancel pending timers when component unmounts
+    return () => {
+      isMounted = false;
+
+      // Remove visibility change listener
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+
+      // Clear any pending animation starts
+      if (heartAnimationId) clearTimeout(heartAnimationId);
+      if (cursorAnimationId) clearTimeout(cursorAnimationId);
+
+      // Stop animation controls - this is sufficient to clean up
+      heartControls.stop();
+      cursorControls.stop();
+    };
+  }, [heartControls, cursorControls]);
+
   return (
     <section className="relative overflow-hidden px-4 py-16 md:py-24">
       <div className="container mx-auto max-w-6xl">
@@ -51,28 +120,22 @@ export function AnimatedHero() {
                     return {};
                   }}
                   typingSpeed={75}
-                  initialDelay={2100}
+                  initialDelay={2400}
                   showCursor={false}
                   loop={false}
                 />
                 <motion.span
                   className="inline-block"
                   initial={{ opacity: 0, scale: 0.5 }}
-                  animate={{
-                    opacity: 1,
-                    scale: [
-                      1, 1.12, 1, 1.08, 1, 1, 1.12, 1, 1.08, 1, 1, 1.12, 1, 1.08, 1, 1, 1.12, 1,
-                      1.08, 1,
-                    ],
-                  }}
+                  animate={heartControls}
                   transition={{
                     opacity: {
                       duration: 0.3,
-                      delay: 3.45,
+                      delay: 3.75,
                     },
                     scale: {
                       duration: 8,
-                      delay: 3.85,
+                      delay: 4.15,
                       times: [
                         0, 0.01, 0.02, 0.03, 0.04, 0.25, 0.26, 0.27, 0.28, 0.29, 0.5, 0.51, 0.52,
                         0.53, 0.54, 0.75, 0.76, 0.77, 0.78, 0.79,
@@ -87,9 +150,9 @@ export function AnimatedHero() {
                 <motion.span
                   className="inline"
                   initial={{ opacity: 0 }}
-                  animate={{ opacity: [0, 1, 1, 0] }}
+                  animate={cursorControls}
                   transition={{
-                    delay: 3.45,
+                    delay: 3.85,
                     duration: 1.2,
                     repeat: Infinity,
                     repeatType: "loop",
@@ -125,7 +188,14 @@ export function AnimatedHero() {
                 <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
               </Button>
             </Link>
-            <Link href="/" className="min-w-[200px]">
+            <Link
+              href="/"
+              className="min-w-[200px]"
+              onClick={() => {
+                // Set flag to prevent auto-redirect when user explicitly navigates to landing
+                sessionStorage.setItem("skipLandingRedirect", "true");
+              }}
+            >
               <Button variant="outline" size="lg" className="w-full">
                 Înapoi la pagina principală
               </Button>

@@ -401,8 +401,26 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
     composer?: EffectComposer;
     touch?: ReturnType<typeof createTouchTexture>;
     liquidEffect?: Effect;
+    eventHandlers?: {
+      onPointerDown: (e: PointerEvent) => void;
+      onPointerMove: (e: PointerEvent) => void;
+    };
   } | null>(null);
   const prevConfigRef = useRef<Record<string, unknown> | null>(null);
+
+  // Monitor page visibility to pause animations
+  useEffect(() => {
+    if (!autoPauseOffscreen) return;
+    const handleVisibilityChange = () => {
+      visibilityRef.current.visible = !document.hidden;
+    };
+    visibilityRef.current.visible = !document.hidden;
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [autoPauseOffscreen]);
+
   useEffect(() => {
     const container = containerRef.current;
     if (!container) {
@@ -628,6 +646,7 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
         composer,
         touch,
         liquidEffect,
+        eventHandlers: { onPointerDown, onPointerMove },
       };
     } else {
       const t = threeRef.current!;
@@ -658,17 +677,63 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
     }
     prevConfigRef.current = cfg;
     return () => {
-      if (threeRef.current && mustReinit) return;
+      // Always run cleanup to prevent memory leaks
       if (!threeRef.current) return;
       const t = threeRef.current;
       t.resizeObserver?.disconnect();
-      cancelAnimationFrame(t.raf!);
-      t.quad?.geometry.dispose();
-      t.material.dispose();
-      t.composer?.dispose();
-      t.renderer.dispose();
-      if (t.renderer.domElement.parentElement === container)
-        container.removeChild(t.renderer.domElement);
+
+      // Cancel RAF BEFORE disposal to prevent race conditions
+      if (t.raf) {
+        cancelAnimationFrame(t.raf);
+        t.raf = undefined;
+      }
+
+      // Remove event listeners to prevent memory leaks
+      if (t.eventHandlers && t.renderer?.domElement) {
+        t.renderer.domElement.removeEventListener("pointerdown", t.eventHandlers.onPointerDown);
+        t.renderer.domElement.removeEventListener("pointermove", t.eventHandlers.onPointerMove);
+      }
+
+      // Dispose touch texture
+      if (t.touch) {
+        t.touch.texture.dispose();
+      }
+
+      // 🔥 CRITICAL: Force immediate GPU context destruction to prevent deadlock
+      if (t.renderer) {
+        try {
+          // Store domElement reference before forcing context loss
+          const domElement = t.renderer.domElement;
+
+          // Force WebGL context loss before disposal
+          t.renderer.forceContextLoss();
+
+          // Flush any pending GPU operations
+          if (t.renderer.getContext()) {
+            t.renderer.getContext().flush();
+          }
+
+          // Dispose resources
+          t.quad?.geometry.dispose();
+          t.material.dispose();
+          t.composer?.dispose();
+          t.renderer.dispose();
+
+          // Remove DOM element safely
+          if (domElement && domElement.parentElement === container) {
+            container.removeChild(domElement);
+          }
+
+          // Nullify context references to break circular refs
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (t.renderer as any).context = null;
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (t.renderer as any).domElement = null;
+        } catch (error) {
+          console.warn("WebGL cleanup failed:", error);
+        }
+      }
+
       threeRef.current = null;
     };
   }, [

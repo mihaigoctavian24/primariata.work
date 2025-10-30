@@ -96,16 +96,21 @@ const TextType = ({
   }, [startOnVisible]);
 
   useEffect(() => {
-    if (showCursor && cursorRef.current) {
-      gsap.set(cursorRef.current, { opacity: 1 });
-      gsap.to(cursorRef.current, {
-        opacity: 0,
-        duration: cursorBlinkDuration,
-        repeat: -1,
-        yoyo: true,
-        ease: "power2.inOut",
-      });
-    }
+    if (!showCursor || !cursorRef.current) return;
+
+    gsap.set(cursorRef.current, { opacity: 1 });
+    const animation = gsap.to(cursorRef.current, {
+      opacity: 0,
+      duration: cursorBlinkDuration,
+      repeat: -1,
+      yoyo: true,
+      ease: "power2.inOut",
+    });
+
+    // CRITICAL: Kill GSAP animation on unmount to prevent memory leak
+    return () => {
+      animation.kill();
+    };
   }, [showCursor, cursorBlinkDuration]);
 
   useEffect(() => {

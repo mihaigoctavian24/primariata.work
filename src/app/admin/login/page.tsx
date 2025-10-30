@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import Image from "next/image";
 
 /**
  * Admin Login Page
@@ -99,7 +98,54 @@ export default function AdminLoginPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-4 text-center">
           <div className="mx-auto mb-4">
-            <Image src="/logo.svg" alt="Logo" width={80} height={80} className="mx-auto" />
+            <h1 className="text-4xl font-bold">
+              <span className="text-foreground">primaria</span>
+              <span style={{ color: "oklch(0.712 0.194 13.428)" }}>Ta</span>
+              <span
+                className="inline-block"
+                style={{
+                  animation: "heartbeat 8s ease-in-out infinite",
+                }}
+              >
+                ❤️
+              </span>
+              <span className="text-muted-foreground">_</span>
+            </h1>
+            <style jsx>{`
+              @keyframes heartbeat {
+                0%,
+                25%,
+                50%,
+                75%,
+                100% {
+                  transform: scale(1);
+                }
+                1%,
+                26%,
+                51%,
+                76% {
+                  transform: scale(1.12);
+                }
+                2%,
+                27%,
+                52%,
+                77% {
+                  transform: scale(1);
+                }
+                3%,
+                28%,
+                53%,
+                78% {
+                  transform: scale(1.08);
+                }
+                4%,
+                29%,
+                54%,
+                79% {
+                  transform: scale(1);
+                }
+              }
+            `}</style>
           </div>
           <CardTitle className="text-2xl font-bold">Admin Survey Platform</CardTitle>
           <CardDescription>
