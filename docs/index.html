@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Platformă SaaS white-label pentru digitalizarea primăriilor din România">
+    <title>Documentație Oficială - primariaTa❤️_</title>
+
+    <!-- Marked.js for Markdown rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --text-color: #1f2937;
+            --text-light: #6b7280;
+            --bg-light: #f9fafb;
+            --border-color: #e5e7eb;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background: var(--bg-light);
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .badges {
+            margin-top: 1.5rem;
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .progress-section {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .progress-section h2 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            font-size: 1.75rem;
+        }
+
+        .progress-bar {
+            background: #e5e7eb;
+            border-radius: 10px;
+            height: 40px;
+            overflow: hidden;
+            margin: 1.5rem 0;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: width 0.6s ease;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            color: var(--text-light);
+            margin-top: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+
+        .nav-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .nav-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+
+        .nav-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .nav-card h3 {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .status-badge {
+            padding: 0.4rem 0.9rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .status-complete {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-partial {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-todo {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .nav-card-description {
+            color: var(--text-light);
+            font-size: 0.95rem;
+            margin: 1rem 0;
+            line-height: 1.5;
+        }
+
+        .nav-card ul {
+            list-style: none;
+            margin-top: 1.5rem;
+        }
+
+        .nav-card li {
+            margin: 0.75rem 0;
+            padding-left: 0;
+        }
+
+        .nav-card a {
+            color: var(--text-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .nav-card a:hover {
+            background: var(--bg-light);
+            color: var(--primary-color);
+            padding-left: 0.75rem;
+        }
+
+        .nav-card .disabled {
+            color: var(--text-light);
+            font-style: italic;
+            padding: 0.5rem;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin: 2rem 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: var(--bg-light);
+        }
+
+        .tech-stack {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .tech-category {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        .tech-category h4 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tech-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .tech-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            background: var(--bg-light);
+            border-radius: 6px;
+            font-size: 0.95rem;
+        }
+
+        .footer {
+            background: #1f2937;
+            color: white;
+            padding: 3rem 2rem;
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .footer h4 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .footer a {
+            color: #9ca3af;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer a:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #374151;
+            color: #9ca3af;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.75rem;
+            }
+
+            .nav-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📚 Documentație Oficială - primariaTa❤️_</h1>
+        <p>Platformă SaaS white-label pentru digitalizarea completă a primăriilor din România</p>
+        <div class="badges">
+            <img src="https://img.shields.io/badge/GitHub-Pages-blue?logo=github" alt="GitHub Pages">
+            <img src="https://img.shields.io/badge/docs-75%25-yellow" alt="Documentation 75%">
+            <img src="https://img.shields.io/badge/license-MIT-green" alt="MIT License">
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Progress Section -->
+        <div class="progress-section">
+            <h2>📊 Progres Documentație</h2>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 75%;">75% Complet • 15/20 documente</div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">15</div>
+                    <div class="stat-label">Documente Complete</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">5</div>
+                    <div class="stat-label">În Dezvoltare</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">12K+</div>
+                    <div class="stat-label">Linii Documentație</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">29 Nov</div>
+                    <div class="stat-label">Deadline M6</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Cards -->
+        <div class="nav-grid">
+            <!-- 01-Prezentare -->
+            <div class="nav-card">
+                <div class="nav-card-header">
+                    <h3>📄 01-Prezentare</h3>
+                    <span class="status-badge status-complete">✅ 100% (5/5)</span>
+                </div>
+                <p class="nav-card-description">Viziunea și contextul proiectului</p>
+                <ul>
+                    <li><a href="./01-Prezentare/Viziune-si-Misiune.md">🎯 Viziune & Misiune</a></li>
+                    <li><a href="./01-Prezentare/Obiective-si-Scopuri.md">🎪 Obiective & Scopuri</a></li>
+                    <li><a href="./01-Prezentare/Contextul-Proiectului.md">🌍 Context Proiect</a></li>
+                    <li><a href="./01-Prezentare/Echipa-si-Roluri.md">👥 Echipa & Roluri</a></li>
+                    <li><a href="./01-Prezentare/Status-Proiect.md">📊 Status Proiect</a></li>
+                </ul>
+            </div>
+
+            <!-- 02-Cerinte -->
+            <div class="nav-card">
+                <div class="nav-card-header">
+                    <h3>📋 02-Cerinte</h3>
+                    <span class="status-badge status-complete">✅ 100% (4/4)</span>
+                </div>
+                <p class="nav-card-description">Specificații funcționale și tehnice</p>
+                <ul>
+                    <li><a href="./02-Cerinte/Cerinte-Functionale.md">⚙️ Cerințe Funcționale</a></li>
+                    <li><a href="./02-Cerinte/Cerinte-Nefunctionale.md">🔧 Cerințe Nefuncționale</a></li>
+                    <li><a href="./02-Cerinte/Cazuri-de-Utilizare.md">📝 Cazuri de Utilizare</a></li>
+                    <li><a href="./02-Cerinte/User-Stories.md">👤 User Stories</a></li>
+                </ul>
+            </div>
+
+            <!-- 03-Arhitectura -->
+            <div class="nav-card">
+                <div class="nav-card-header">
+                    <h3>🏗️ 03-Arhitectura</h3>
+                    <span class="status-badge status-complete">✅ 100% (5/5)</span>
+                </div>
+                <p class="nav-card-description">Design sistem și infrastructură</p>
+                <ul>
+                    <li><a href="./03-Arhitectura/Arhitectura-Generala.md">🏛️ Arhitectură Generală</a></li>
+                    <li><a href="./03-Arhitectura/Baza-de-Date.md">🗄️ Bază de Date</a></li>
+                    <li><a href="./03-Arhitectura/API-si-Backend.md">🔌 API & Backend</a></li>
+                    <li><a href="./03-Arhitectura/Componente-Frontend.md">🎨 Componente Frontend</a></li>
+                    <li><a href="./03-Arhitectura/Securitate.md">🔒 Securitate & Monitoring</a></li>
+                </ul>
+            </div>
+
+            <!-- 04-Implementare -->
+            <div class="nav-card">
+                <div class="nav-card-header">
+                    <h3>💻 04-Implementare</h3>
+                    <span class="status-badge status-partial">🟡 50% (1/2)</span>
+                </div>
+                <p class="nav-card-description">Stack tehnologic și development • <strong>Deadline: 29 Nov 2025</strong></p>
+                <ul>
+                    <li><a href="./04-Implementare/Stack-Tehnologic.md">🛠️ Stack Tehnologic</a></li>
+                    <li><span class="disabled">⚙️ Setup Development (În lucru M6)</span></li>
+                </ul>
+            </div>
+
+            <!-- 05-Utilizare -->
+            <div class="nav-card">
+                <div class="nav-card-header">
+                    <h3>📖 05-Utilizare</h3>
+                    <span class="status-badge status-todo">🔴 0% (0/4)</span>
+                </div>
+                <p class="nav-card-description">Ghiduri pentru utilizatori • <strong>Deadline: 29 Nov 2025</strong></p>
+                <ul>
+                    <li><span class="disabled">👤 Ghid Cetățean (În dezvoltare M6)</span></li>
+                    <li><span class="disabled">👔 Ghid Funcționar (În dezvoltare M6)</span></li>
+                    <li><span class="disabled">⚙️ Ghid Administrator (În dezvoltare M6)</span></li>
+                    <li><span class="disabled">❓ FAQ (În dezvoltare M6)</span></li>
+                </ul>
+            </div>
+
+            <!-- 06-Anexe -->
+            <div class="nav-card">
+                <div class="nav-card-header">
+                    <h3>📎 06-Anexe</h3>
+                    <span class="status-badge status-todo">🔴 0% (0/4)</span>
+                </div>
+                <p class="nav-card-description">Materiale suplimentare • <strong>Deadline: 29 Nov 2025</strong></p>
+                <ul>
+                    <li><span class="disabled">📚 Glossar (În dezvoltare M6)</span></li>
+                    <li><span class="disabled">🔗 Referințe (În dezvoltare M6)</span></li>
+                    <li><span class="disabled">👥 Contributori (În dezvoltare M6)</span></li>
+                    <li><span class="disabled">⚖️ Licență (În dezvoltare M6)</span></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Status Table -->
+        <div class="progress-section">
+            <h2>📊 Status Detaliat</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Categorie</th>
+                            <th>Completare</th>
+                            <th>Status</th>
+                            <th>Files</th>
+                            <th>Deadline</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>01-Prezentare</strong></td>
+                            <td>100%</td>
+                            <td><span class="status-badge status-complete">✅ COMPLETE</span></td>
+                            <td>5/5</td>
+                            <td>✅ Done</td>
+                        </tr>
+                        <tr>
+                            <td><strong>02-Cerinte</strong></td>
+                            <td>100%</td>
+                            <td><span class="status-badge status-complete">✅ COMPLETE</span></td>
+                            <td>4/4</td>
+                            <td>✅ Done</td>
+                        </tr>
+                        <tr>
+                            <td><strong>03-Arhitectura</strong></td>
+                            <td>100%</td>
+                            <td><span class="status-badge status-complete">✅ COMPLETE</span></td>
+                            <td>5/5</td>
+                            <td>✅ Done</td>
+                        </tr>
+                        <tr>
+                            <td><strong>04-Implementare</strong></td>
+                            <td>50%</td>
+                            <td><span class="status-badge status-partial">🟡 PARȚIAL</span></td>
+                            <td>1/2</td>
+                            <td>29 Nov 2025</td>
+                        </tr>
+                        <tr>
+                            <td><strong>05-Utilizare</strong></td>
+                            <td>0%</td>
+                            <td><span class="status-badge status-todo">🔴 TODO</span></td>
+                            <td>0/4</td>
+                            <td>29 Nov 2025</td>
+                        </tr>
+                        <tr>
+                            <td><strong>06-Anexe</strong></td>
+                            <td>0%</td>
+                            <td><span class="status-badge status-todo">🔴 TODO</span></td>
+                            <td>0/4</td>
+                            <td>29 Nov 2025</td>
+                        </tr>
+                        <tr style="background: #f9fafb; font-weight: 600;">
+                            <td><strong>TOTAL</strong></td>
+                            <td><strong>75%</strong></td>
+                            <td><span class="status-badge status-partial">🟡 IN PROGRESS</span></td>
+                            <td><strong>15/20</strong></td>
+                            <td><strong>29 Nov 2025</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tech Stack -->
+        <div class="progress-section">
+            <h2>🛠️ Stack Tehnologic</h2>
+            <div class="tech-stack">
+                <div class="tech-category">
+                    <h4>💻 Frontend</h4>
+                    <div class="tech-list">
+                        <div class="tech-item">Next.js 15.5.6</div>
+                        <div class="tech-item">React 19.1.0</div>
+                        <div class="tech-item">TypeScript 5.x</div>
+                        <div class="tech-item">Tailwind CSS 4.x</div>
+                    </div>
+                </div>
+                <div class="tech-category">
+                    <h4>⚡ Backend</h4>
+                    <div class="tech-list">
+                        <div class="tech-item">Supabase Cloud</div>
+                        <div class="tech-item">PostgreSQL 15</div>
+                        <div class="tech-item">Edge Functions</div>
+                        <div class="tech-item">Row Level Security</div>
+                    </div>
+                </div>
+                <div class="tech-category">
+                    <h4>🚀 DevOps</h4>
+                    <div class="tech-list">
+                        <div class="tech-item">Vercel Edge</div>
+                        <div class="tech-item">GitHub Actions</div>
+                        <div class="tech-item">Sentry Monitoring</div>
+                        <div class="tech-item">Cloudflare CDN</div>
+                    </div>
+                </div>
+                <div class="tech-category">
+                    <h4>🧪 Testing</h4>
+                    <div class="tech-list">
+                        <div class="tech-item">Jest 29.x</div>
+                        <div class="tech-item">Playwright E2E</div>
+                        <div class="tech-item">Testing Library</div>
+                        <div class="tech-item">MSW Mocking</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <div class="footer-content">
+            <div>
+                <h4>📖 Documentație</h4>
+                <ul style="list-style: none;">
+                    <li><a href="./01-Prezentare/">Prezentare Proiect</a></li>
+                    <li><a href="./02-Cerinte/">Cerințe Sistem</a></li>
+                    <li><a href="./03-Arhitectura/">Arhitectură</a></li>
+                    <li><a href="./04-Implementare/">Implementare</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4>🔗 Link-uri Utile</h4>
+                <ul style="list-style: none;">
+                    <li><a href="https://github.com/mihaigoctavian24/primariata.work" target="_blank">GitHub Repository</a></li>
+                    <li><a href="https://primariata.work" target="_blank">Demo Live</a></li>
+                    <li><a href="https://github.com/mihaigoctavian24/primariata.work/issues">GitHub Issues</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4>📧 Contact</h4>
+                <ul style="list-style: none;">
+                    <li><a href="mailto:abbasipazeyazd.h.biancamaria24@stud.rau.ro">Documentație (RO)</a></li>
+                    <li><a href="mailto:mihai.g.octavian24@stud.rau.ro">Documentație (EN)</a></li>
+                    <li><a href="mailto:andrei.luchici@rau.ro">Coordonator</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4>🎓 Instituție</h4>
+                <p style="color: #9ca3af; font-size: 0.9rem; line-height: 1.6;">
+                    Universitatea Română-Americană<br>
+                    Facultatea de Informatică Managerială<br>
+                    Programarea Aplicațiilor Web<br>
+                    An Universitar 2025-2026
+                </p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p><strong>© 2025-2026 Bubu & Dudu Dev Team</strong></p>
+            <p style="margin-top: 0.5rem; font-size: 0.9rem;">Made with ❤️ by Bubu & Dudu Dev Team</p>
+        </div>
+    </div>
+</body>
+</html>
