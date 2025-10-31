@@ -144,6 +144,10 @@
             background: var(--bg-secondary);
         }
 
+        .theme-toggle svg.hidden {
+            display: none !important;
+        }
+
         /* Main Container */
         .container {
             max-width: 1280px;
@@ -712,7 +716,7 @@
             <a href="https://primariata.work" target="_blank">Live Demo</a>
             <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
                 <i id="theme-icon-moon" data-lucide="moon"></i>
-                <i id="theme-icon-sun" data-lucide="sun" style="display: none;"></i>
+                <i id="theme-icon-sun" data-lucide="sun"></i>
             </button>
         </nav>
     </header>
@@ -989,23 +993,27 @@
     </footer>
 
     <script>
-        // Theme Toggle
+        // Theme Toggle - setup BEFORE Lucide initialization
         const html = document.documentElement;
-        const moonIcon = document.getElementById('theme-icon-moon');
-        const sunIcon = document.getElementById('theme-icon-sun');
-
         const savedTheme = localStorage.getItem('theme') || 'light';
         html.setAttribute('data-theme', savedTheme);
+
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Get SVG elements created by Lucide (they replace the <i> tags)
+        const moonSvg = document.querySelector('svg[data-lucide="moon"]');
+        const sunSvg = document.querySelector('svg[data-lucide="sun"]');
 
         // Show correct icon based on saved theme
         // If dark theme, show sun icon (to switch to light)
         // If light theme, show moon icon (to switch to dark)
         if (savedTheme === 'dark') {
-            moonIcon.style.display = 'none';
-            sunIcon.style.display = 'inline-block';
+            moonSvg.classList.add('hidden');
+            sunSvg.classList.remove('hidden');
         } else {
-            sunIcon.style.display = 'none';
-            moonIcon.style.display = 'inline-block';
+            sunSvg.classList.add('hidden');
+            moonSvg.classList.remove('hidden');
         }
 
         function toggleTheme() {
@@ -1018,11 +1026,11 @@
             // If switching to dark, show sun icon (to switch back to light)
             // If switching to light, show moon icon (to switch back to dark)
             if (next === 'dark') {
-                moonIcon.style.display = 'none';
-                sunIcon.style.display = 'inline-block';
+                moonSvg.classList.add('hidden');
+                sunSvg.classList.remove('hidden');
             } else {
-                sunIcon.style.display = 'none';
-                moonIcon.style.display = 'inline-block';
+                sunSvg.classList.add('hidden');
+                moonSvg.classList.remove('hidden');
             }
         }
 
@@ -1099,7 +1107,6 @@
 
         // Initialize
         generateHeatmap();
-        lucide.createIcons();
     </script>
 </body>
 </html>

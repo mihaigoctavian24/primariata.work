@@ -153,6 +153,10 @@
             background: var(--bg-secondary);
         }
 
+        .theme-toggle svg.hidden {
+            display: none !important;
+        }
+
         /* Breadcrumbs */
         .breadcrumbs {
             background: var(--bg-primary);
@@ -383,6 +387,7 @@
             margin-bottom: 16px;
             padding-bottom: 8px;
             border-bottom: 1px solid var(--border-muted);
+            text-align: left;
         }
 
         .markdown-body h2 {
@@ -391,22 +396,26 @@
             margin: 24px 0 16px;
             padding-bottom: 8px;
             border-bottom: 1px solid var(--border-muted);
+            text-align: left;
         }
 
         .markdown-body h3 {
             font-size: 20px;
             font-weight: 600;
             margin: 24px 0 16px;
+            text-align: left;
         }
 
         .markdown-body h4 {
             font-size: 16px;
             font-weight: 600;
             margin: 24px 0 16px;
+            text-align: left;
         }
 
         .markdown-body p {
             margin: 16px 0;
+            text-align: left;
         }
 
         .markdown-body a {
@@ -422,10 +431,12 @@
         .markdown-body ol {
             margin: 16px 0;
             padding-left: 32px;
+            text-align: left;
         }
 
         .markdown-body li {
             margin: 8px 0;
+            text-align: left;
         }
 
         .markdown-body code {
@@ -453,14 +464,15 @@
         .markdown-body table {
             border-collapse: collapse;
             width: 100%;
-            margin: 16px 0;
+            margin: 16px auto;
+            display: table;
         }
 
         .markdown-body th,
         .markdown-body td {
             border: 1px solid var(--border-default);
             padding: 8px 12px;
-            text-align: left;
+            text-align: center;
         }
 
         .markdown-body th {
@@ -473,6 +485,7 @@
             padding-left: 16px;
             color: var(--text-secondary);
             margin: 16px 0;
+            text-align: left;
         }
 
         .markdown-body img {
@@ -485,6 +498,67 @@
             border: none;
             border-top: 1px solid var(--border-muted);
             margin: 24px 0;
+        }
+
+        /* Center Mermaid diagrams */
+        .markdown-body .mermaid {
+            display: flex;
+            justify-content: center;
+            margin: 16px 0;
+        }
+
+        /* Document Navigation */
+        .doc-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 48px;
+            padding: 24px;
+            border-top: 1px solid transparent;
+            background: linear-gradient(to bottom, transparent, var(--bg-secondary) 50%);
+        }
+
+        .doc-nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-default);
+            border-radius: 8px;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s;
+            min-width: 140px;
+        }
+
+        .doc-nav-btn:hover {
+            background: var(--bg-secondary);
+            border-color: var(--accent-emphasis);
+            transform: translateY(-2px);
+        }
+
+        .doc-nav-btn.disabled {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        .doc-nav-prev {
+            justify-content: flex-start;
+        }
+
+        .doc-nav-next {
+            justify-content: flex-end;
+        }
+
+        .doc-nav-title {
+            flex: 1;
+            text-align: center;
+            font-size: 14px;
+            color: var(--text-secondary);
+            padding: 0 24px;
+            font-weight: 500;
         }
 
         /* Loading and Error States */
@@ -546,7 +620,8 @@
             <a href="index.html">Home</a>
             <a href="https://github.com/mihaigoctavian24/primariata.work" target="_blank">GitHub</a>
             <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
-                <span id="theme-icon">🌙</span>
+                <i id="theme-icon-moon" data-lucide="moon"></i>
+                <i id="theme-icon-sun" data-lucide="sun"></i>
             </button>
         </nav>
     </header>
@@ -665,11 +740,26 @@
             <div id="markdown-content" class="markdown-body loading">
                 <p>⏳ Loading documentation...</p>
             </div>
+
+            <!-- Document Navigation -->
+            <nav class="doc-nav" id="doc-nav">
+                <a href="#" class="doc-nav-btn doc-nav-prev" id="prev-doc">
+                    <i data-lucide="arrow-left"></i>
+                    <span>Previous</span>
+                </a>
+                <div class="doc-nav-title" id="doc-nav-title">
+                    <!-- Current document title -->
+                </div>
+                <a href="#" class="doc-nav-btn doc-nav-next" id="next-doc">
+                    <span>Next</span>
+                    <i data-lucide="arrow-right"></i>
+                </a>
+            </nav>
         </main>
 
         <!-- Table of Contents -->
         <aside class="toc">
-            <div class="toc-title">On this page</div>
+            <div class="toc-title">Cuprins pagina:</div>
             <ul class="toc-list" id="toc-list">
                 <!-- Generated dynamically -->
             </ul>
@@ -705,6 +795,88 @@
             updateBreadcrumbs(docPath);
         } else {
             showWelcome();
+        }
+
+        // All documents in order
+        const allDocs = [
+            '01-Prezentare/README.md',
+            '01-Prezentare/Viziune-si-Misiune.md',
+            '01-Prezentare/Obiective-si-Scopuri.md',
+            '01-Prezentare/Contextul-Proiectului.md',
+            '01-Prezentare/Echipa-si-Roluri.md',
+            '01-Prezentare/Status-Proiect.md',
+            '02-Cerinte/README.md',
+            '02-Cerinte/Cerinte-Functionale.md',
+            '02-Cerinte/Cerinte-Nefunctionale.md',
+            '02-Cerinte/Cazuri-de-Utilizare.md',
+            '02-Cerinte/User-Stories.md',
+            '03-Arhitectura/README.md',
+            '03-Arhitectura/Arhitectura-Generala.md',
+            '03-Arhitectura/Baza-de-Date.md',
+            '03-Arhitectura/API-si-Backend.md',
+            '03-Arhitectura/Componente-Frontend.md',
+            '03-Arhitectura/Securitate.md',
+            '04-Implementare/README.md',
+            '04-Implementare/Stack-Tehnologic.md',
+            '05-Utilizare/README.md',
+            '06-Anexe/README.md'
+        ];
+
+        const docTitles = {
+            '01-Prezentare/README.md': 'Prezentare - Overview',
+            '01-Prezentare/Viziune-si-Misiune.md': 'Viziune & Misiune',
+            '01-Prezentare/Obiective-si-Scopuri.md': 'Obiective & Scopuri',
+            '01-Prezentare/Contextul-Proiectului.md': 'Context Proiect',
+            '01-Prezentare/Echipa-si-Roluri.md': 'Echipa & Roluri',
+            '01-Prezentare/Status-Proiect.md': 'Status Proiect',
+            '02-Cerinte/README.md': 'Cerințe - Overview',
+            '02-Cerinte/Cerinte-Functionale.md': 'Cerințe Funcționale',
+            '02-Cerinte/Cerinte-Nefunctionale.md': 'Cerințe Nefuncționale',
+            '02-Cerinte/Cazuri-de-Utilizare.md': 'Cazuri de Utilizare',
+            '02-Cerinte/User-Stories.md': 'User Stories',
+            '03-Arhitectura/README.md': 'Arhitectură - Overview',
+            '03-Arhitectura/Arhitectura-Generala.md': 'Arhitectură Generală',
+            '03-Arhitectura/Baza-de-Date.md': 'Bază de Date',
+            '03-Arhitectura/API-si-Backend.md': 'API & Backend',
+            '03-Arhitectura/Componente-Frontend.md': 'Componente Frontend',
+            '03-Arhitectura/Securitate.md': 'Securitate',
+            '04-Implementare/README.md': 'Implementare - Overview',
+            '04-Implementare/Stack-Tehnologic.md': 'Stack Tehnologic',
+            '05-Utilizare/README.md': 'Utilizare - Overview',
+            '06-Anexe/README.md': 'Anexe - Overview'
+        };
+
+        function updateDocNavigation(currentPath) {
+            const currentIndex = allDocs.indexOf(currentPath);
+            const prevBtn = document.getElementById('prev-doc');
+            const nextBtn = document.getElementById('next-doc');
+            const titleEl = document.getElementById('doc-nav-title');
+
+            // Set current document title
+            titleEl.textContent = docTitles[currentPath] || currentPath;
+
+            // Previous button
+            if (currentIndex > 0) {
+                const prevDoc = allDocs[currentIndex - 1];
+                prevBtn.href = `?doc=${prevDoc}`;
+                prevBtn.classList.remove('disabled');
+            } else {
+                prevBtn.href = '#';
+                prevBtn.classList.add('disabled');
+            }
+
+            // Next button
+            if (currentIndex < allDocs.length - 1 && currentIndex !== -1) {
+                const nextDoc = allDocs[currentIndex + 1];
+                nextBtn.href = `?doc=${nextDoc}`;
+                nextBtn.classList.remove('disabled');
+            } else {
+                nextBtn.href = '#';
+                nextBtn.classList.add('disabled');
+            }
+
+            // Reinitialize Lucide icons for navigation arrows
+            lucide.createIcons();
         }
 
         async function loadDocument(path) {
@@ -752,6 +924,9 @@
 
                 // Generate Table of Contents
                 generateTOC();
+
+                // Update document navigation
+                updateDocNavigation(path);
 
                 window.scrollTo({ top: 0, behavior: 'smooth' });
 
@@ -812,23 +987,46 @@
             `;
         }
 
-        // Theme Toggle
+        // Theme Toggle - setup BEFORE Lucide initialization
         const html = document.documentElement;
-        const themeIcon = document.getElementById('theme-icon');
         const highlightLight = document.getElementById('highlight-light');
         const highlightDark = document.getElementById('highlight-dark');
 
         const savedTheme = localStorage.getItem('theme') || 'light';
         html.setAttribute('data-theme', savedTheme);
-        themeIcon.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
         updateHighlightTheme(savedTheme);
+
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // NOW get SVG references created by Lucide
+        const moonSvg = document.querySelector('svg[data-lucide="moon"]');
+        const sunSvg = document.querySelector('svg[data-lucide="sun"]');
+
+        // Show correct icon based on saved theme
+        if (savedTheme === 'dark') {
+            moonSvg.classList.add('hidden');
+            sunSvg.classList.remove('hidden');
+        } else {
+            sunSvg.classList.add('hidden');
+            moonSvg.classList.remove('hidden');
+        }
 
         function toggleTheme() {
             const current = html.getAttribute('data-theme');
             const next = current === 'dark' ? 'light' : 'dark';
             html.setAttribute('data-theme', next);
             localStorage.setItem('theme', next);
-            themeIcon.textContent = next === 'dark' ? '☀️' : '🌙';
+
+            // Toggle icon visibility
+            if (next === 'dark') {
+                moonSvg.classList.add('hidden');
+                sunSvg.classList.remove('hidden');
+            } else {
+                sunSvg.classList.add('hidden');
+                moonSvg.classList.remove('hidden');
+            }
+
             updateHighlightTheme(next);
             mermaid.initialize({ theme: next === 'dark' ? 'dark' : 'default' });
         }
@@ -844,6 +1042,12 @@
         }
 
         // Generate Table of Contents from headings
+        // Strip emojis from text
+        function stripEmojis(text) {
+            // Regex to match emojis and other unicode symbols
+            return text.replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F000}-\u{1F02F}\u{1F0A0}-\u{1F0FF}\u{1F100}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{FE00}-\u{FE0F}\u{200D}]/gu, '').trim();
+        }
+
         function generateTOC() {
             const content = document.getElementById('markdown-content');
             const tocList = document.getElementById('toc-list');
@@ -866,7 +1070,7 @@
                 const a = document.createElement('a');
                 a.href = `#${id}`;
                 a.className = `toc-link ${heading.tagName === 'H3' ? 'toc-h3' : ''}`;
-                a.textContent = heading.textContent;
+                a.textContent = stripEmojis(heading.textContent);
                 a.onclick = (e) => {
                     e.preventDefault();
                     heading.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -904,9 +1108,6 @@
                 }
             });
         }
-
-        // Initialize Lucide icons
-        lucide.createIcons();
     </script>
 </body>
 </html>
