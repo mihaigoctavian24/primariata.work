@@ -3,649 +3,1103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Platformă SaaS white-label pentru digitalizarea primăriilor din România">
-    <title>Documentație Oficială - primariaTa❤️_</title>
-
-    <!-- Marked.js for Markdown rendering -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
+    <title>Documentation - primariaTa❤️_</title>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        :root {
-            --primary-color: #667eea;
-            --secondary-color: #764ba2;
-            --success-color: #10b981;
-            --warning-color: #f59e0b;
-            --danger-color: #ef4444;
-            --text-color: #1f2937;
-            --text-light: #6b7280;
-            --bg-light: #f9fafb;
-            --border-color: #e5e7eb;
-        }
-
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f6f8fa;
+            --bg-tertiary: #ffffff;
+            --text-primary: #1f2328;
+            --text-secondary: #636c76;
+            --text-link: #0969da;
+            --border-default: #d0d7de;
+            --border-muted: #e6ebf1;
+            --accent-emphasis: #0969da;
+            --success: #1a7f37;
+            --warning: #bf8700;
+            --danger: #cf222e;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #1c2128;
+            --text-primary: #e6edf3;
+            --text-secondary: #8d96a0;
+            --text-link: #4493f8;
+            --border-default: #30363d;
+            --border-muted: #21262d;
+            --accent-emphasis: #4493f8;
+        }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            line-height: 1.6;
-            color: var(--text-color);
-            background: var(--bg-light);
-        }
-
-        .header {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            color: white;
-            padding: 3rem 2rem;
-            text-align: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-            font-weight: 700;
-        }
-
-        .header p {
-            font-size: 1.1rem;
-            opacity: 0.95;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .badges {
-            margin-top: 1.5rem;
-            display: flex;
-            gap: 0.5rem;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-
-        .progress-section {
-            background: white;
-            border-radius: 12px;
-            padding: 2rem;
-            margin: 2rem 0;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-
-        .progress-section h2 {
-            color: var(--primary-color);
-            margin-bottom: 1.5rem;
-            font-size: 1.75rem;
-        }
-
-        .progress-bar {
-            background: #e5e7eb;
-            border-radius: 10px;
-            height: 40px;
-            overflow: hidden;
-            margin: 1.5rem 0;
-        }
-
-        .progress-fill {
-            background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 600;
-            font-size: 1.1rem;
-            transition: width 0.6s ease;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin: 2rem 0;
-        }
-
-        .stat-card {
-            background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
-            padding: 1.5rem;
-            border-radius: 10px;
-            text-align: center;
-            border: 1px solid var(--border-color);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .stat-label {
-            color: var(--text-light);
-            margin-top: 0.5rem;
-            font-size: 0.95rem;
-        }
-
-        .nav-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 2rem;
-            margin: 3rem 0;
-        }
-
-        .nav-card {
-            background: white;
-            border-radius: 12px;
-            padding: 2rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            border: 1px solid var(--border-color);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .nav-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-        }
-
-        .nav-card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-            padding-bottom: 1rem;
-            border-bottom: 2px solid var(--border-color);
-        }
-
-        .nav-card h3 {
-            color: var(--primary-color);
-            font-size: 1.5rem;
-            font-weight: 600;
-        }
-
-        .status-badge {
-            padding: 0.4rem 0.9rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            white-space: nowrap;
-        }
-
-        .status-complete {
-            background: #d1fae5;
-            color: #065f46;
-        }
-
-        .status-partial {
-            background: #fef3c7;
-            color: #92400e;
-        }
-
-        .status-todo {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .nav-card-description {
-            color: var(--text-light);
-            font-size: 0.95rem;
-            margin: 1rem 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
             line-height: 1.5;
         }
 
-        .nav-card ul {
-            list-style: none;
-            margin-top: 1.5rem;
+        /* Header */
+        .header {
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-default);
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
-        .nav-card li {
-            margin: 0.75rem 0;
-            padding-left: 0;
-        }
-
-        .nav-card a {
-            color: var(--text-color);
+        .logo {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
             text-decoration: none;
             display: flex;
             align-items: center;
-            padding: 0.5rem;
+            gap: 0;
+        }
+
+        .logo-normal {
+            color: var(--text-primary);
+        }
+
+        .logo-ta {
+            color: oklch(0.712 0.194 13.428);
+            font-weight: 700;
+        }
+
+        .logo-heart {
+            color: #e74c3c;
+            animation: heartbeat 1.5s ease-in-out infinite;
+            display: inline-block;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% {
+                transform: scale(1);
+            }
+            10%, 30% {
+                transform: scale(1.2);
+            }
+            20%, 40% {
+                transform: scale(1);
+            }
+        }
+
+        .logo-underscore {
+            color: var(--text-primary);
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% {
+                opacity: 1;
+            }
+            51%, 100% {
+                opacity: 0;
+            }
+        }
+
+        .header-nav {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .header-nav a {
+            color: var(--text-primary);
+            text-decoration: none;
+            font-size: 14px;
+            padding: 8px 12px;
             border-radius: 6px;
+            transition: background 0.2s;
+        }
+
+        .header-nav a:hover {
+            background: var(--bg-secondary);
+        }
+
+        .theme-toggle {
+            background: none;
+            border: 1px solid var(--border-default);
+            color: var(--text-primary);
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .theme-toggle:hover {
+            background: var(--bg-secondary);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 40px 32px;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 60px 0;
+            border-bottom: 1px solid var(--border-default);
+            margin-bottom: 48px;
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        .hero p {
+            font-size: 20px;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto 32px;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--accent-emphasis);
+            color: white;
+            border: 1px solid transparent;
+        }
+
+        .btn-primary:hover {
+            background: #0860ca;
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-default);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-tertiary);
+            border-color: var(--text-secondary);
+        }
+
+        /* Stats Grid */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 48px;
+        }
+
+        .stat-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-default);
+            border-radius: 6px;
+            padding: 16px 20px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stat-icon {
+            width: 24px;
+            height: 24px;
+            color: var(--accent-emphasis);
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        /* Timeline */
+        .timeline {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-default);
+            border-radius: 6px;
+            padding: 32px;
+            margin-bottom: 48px;
+        }
+
+        .timeline-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 32px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .timeline-items {
+            position: relative;
+            display: flex;
+            gap: 0;
+            margin: 24px 0;
+        }
+
+        .timeline-item {
+            flex: 1;
+            position: relative;
+            padding: 12px 16px;
+            border-right: 1px solid var(--border-default);
             transition: all 0.2s;
         }
 
-        .nav-card a:hover {
-            background: var(--bg-light);
-            color: var(--primary-color);
-            padding-left: 0.75rem;
+        .timeline-item:last-child {
+            border-right: none;
         }
 
-        .nav-card .disabled {
-            color: var(--text-light);
-            font-style: italic;
-            padding: 0.5rem;
+        .timeline-item:hover {
+            background: var(--bg-secondary);
         }
 
-        .table-container {
-            overflow-x: auto;
-            margin: 2rem 0;
+        .timeline-item.completed::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--accent-emphasis);
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-
-        th, td {
-            padding: 1rem;
-            text-align: left;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        th {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            color: white;
+        .timeline-label {
+            font-size: 14px;
             font-weight: 600;
-        }
-
-        tr:hover {
-            background: var(--bg-light);
-        }
-
-        .tech-stack {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2rem;
-            margin: 2rem 0;
-        }
-
-        .tech-category {
-            background: white;
-            padding: 2rem;
-            border-radius: 10px;
-            border: 1px solid var(--border-color);
-        }
-
-        .tech-category h4 {
-            color: var(--primary-color);
-            margin-bottom: 1rem;
-            font-size: 1.25rem;
+            color: var(--text-primary);
+            margin-bottom: 4px;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 6px;
         }
 
-        .tech-list {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
+        .timeline-label i {
+            width: 14px;
+            height: 14px;
         }
 
-        .tech-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem;
-            background: var(--bg-light);
-            border-radius: 6px;
-            font-size: 0.95rem;
+        .timeline-status {
+            font-size: 12px;
+            color: var(--text-secondary);
         }
 
-        .footer {
-            background: #1f2937;
-            color: white;
-            padding: 3rem 2rem;
-            margin-top: 4rem;
-        }
-
-        .footer-content {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-        }
-
-        .footer h4 {
-            color: var(--primary-color);
-            margin-bottom: 1rem;
-        }
-
-        .footer a {
-            color: #9ca3af;
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-
-        .footer a:hover {
-            color: white;
-        }
-
-        .footer-bottom {
-            text-align: center;
-            margin-top: 2rem;
-            padding-top: 2rem;
-            border-top: 1px solid #374151;
-            color: #9ca3af;
+        .timeline-status.completed {
+            color: var(--accent-emphasis);
+            font-weight: 500;
         }
 
         @media (max-width: 768px) {
-            .header h1 {
-                font-size: 1.75rem;
+            .timeline-items {
+                flex-direction: column;
             }
 
-            .nav-grid {
-                grid-template-columns: 1fr;
+            .timeline-item {
+                border-right: none;
+                border-bottom: 1px solid var(--border-default);
+            }
+
+            .timeline-item:last-child {
+                border-bottom: none;
+            }
+
+            .timeline-item.completed::before {
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: auto;
+                width: 3px;
+                height: auto;
+            }
+        }
+
+        /* Heatmap */
+        .heatmap {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-default);
+            border-radius: 6px;
+            padding: 24px;
+            margin-bottom: 48px;
+        }
+
+        .heatmap-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .heatmap-title i {
+            width: 18px;
+            height: 18px;
+        }
+
+        .heatmap-wrapper {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            grid-template-rows: auto 1fr auto;
+            gap: 16px;
+            min-height: 240px;
+        }
+
+        .heatmap-title-area {
+            grid-column: 1 / -1;
+        }
+
+        .heatmap-legend-left {
+            grid-row: 2;
+            grid-column: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            padding-right: 12px;
+        }
+
+        .heatmap-container {
+            grid-row: 2;
+            grid-column: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .heatmap-week {
+            display: flex;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .heatmap-cell {
+            flex: 1;
+            min-height: 60px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-default);
+            border-radius: 6px;
+            transition: all 0.2s;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .heatmap-cell:hover {
+            transform: scale(1.15);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            z-index: 10;
+        }
+
+        .heatmap-cell.level-1 {
+            background: #FEF3C7;
+            border-color: #FDE68A;
+        }
+
+        .heatmap-cell.level-2 {
+            background: #FDE047;
+            border-color: #FACC15;
+        }
+
+        .heatmap-cell.level-3 {
+            background: #FB923C;
+            border-color: #F97316;
+        }
+
+        .heatmap-cell.level-4 {
+            background: #F87171;
+            border-color: #EF4444;
+        }
+
+        .heatmap-cell.level-5 {
+            background: #C026D3;
+            border-color: #A21CAF;
+        }
+
+        .heatmap-cell.level-6 {
+            background: #7C3AED;
+            border-color: #6D28D9;
+        }
+
+        .heatmap-footer {
+            grid-row: 3;
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .heatmap-legend {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .heatmap-summary {
+            font-weight: 500;
+        }
+
+        .heatmap-legend-item {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+            border: 1px solid var(--border-default);
+        }
+
+        .heatmap-legend-item.level-0 {
+            background: var(--bg-tertiary);
+        }
+
+        .heatmap-legend-item.level-1 {
+            background: #FEF3C7;
+        }
+
+        .heatmap-legend-item.level-2 {
+            background: #FDE047;
+        }
+
+        .heatmap-legend-item.level-3 {
+            background: #FB923C;
+        }
+
+        .heatmap-legend-item.level-4 {
+            background: #F87171;
+        }
+
+        .heatmap-legend-item.level-5 {
+            background: #C026D3;
+        }
+
+        .heatmap-legend-item.level-6 {
+            background: #7C3AED;
+        }
+
+        /* Section */
+        .section {
+            margin-bottom: 48px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-muted);
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 16px;
+        }
+
+        .doc-card {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-default);
+            border-radius: 6px;
+            padding: 24px;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .doc-card:hover {
+            border-color: var(--accent-emphasis);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 12px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-title i {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+        }
+
+        .card-status {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-complete {
+            background: #dafbe1;
+            color: var(--success);
+        }
+
+        .status-partial {
+            background: #fff8c5;
+            color: var(--warning);
+        }
+
+        .status-todo {
+            background: #ffebe9;
+            color: var(--danger);
+        }
+
+        [data-theme="dark"] .status-complete {
+            background: #033a16;
+            color: #3fb950;
+        }
+
+        [data-theme="dark"] .status-partial {
+            background: #3d2b00;
+            color: #d29922;
+        }
+
+        [data-theme="dark"] .status-todo {
+            background: #490202;
+            color: #ff7b72;
+        }
+
+        .card-description {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .card-links {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .card-link {
+            color: var(--text-link);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .card-link i {
+            width: 14px !important;
+            height: 14px !important;
+            flex-shrink: 0;
+        }
+
+        .card-link svg {
+            width: 14px !important;
+            height: 14px !important;
+        }
+
+        .card-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Footer */
+        .footer {
+            border-top: 1px solid var(--border-default);
+            margin-top: 80px;
+            padding: 40px 0;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .footer a {
+            color: var(--text-link);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                padding: 12px 16px;
+            }
+
+            .header-nav {
+                gap: 12px;
             }
 
             .container {
-                padding: 1rem;
+                padding: 24px 16px;
+            }
+
+            .hero h1 {
+                font-size: 32px;
+            }
+
+            .hero p {
+                font-size: 16px;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>📚 Documentație Oficială - primariaTa❤️_</h1>
-        <p>Platformă SaaS white-label pentru digitalizarea completă a primăriilor din România</p>
-        <div class="badges">
-            <img src="https://img.shields.io/badge/GitHub-Pages-blue?logo=github" alt="GitHub Pages">
-            <img src="https://img.shields.io/badge/docs-75%25-yellow" alt="Documentation 75%">
-            <img src="https://img.shields.io/badge/license-MIT-green" alt="MIT License">
-        </div>
-    </div>
+    <!-- Header -->
+    <header class="header">
+        <a href="index.html" class="logo">
+            <span class="logo-normal">primăria</span><span class="logo-ta">Ta</span><span class="logo-heart">❤️</span><span class="logo-underscore">_</span>
+        </a>
+        <nav class="header-nav">
+            <a href="https://github.com/mihaigoctavian24/primariata.work" target="_blank">GitHub</a>
+            <a href="https://primariata.work" target="_blank">Live Demo</a>
+            <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+                <i id="theme-icon-moon" data-lucide="moon"></i>
+                <i id="theme-icon-sun" data-lucide="sun" style="display: none;"></i>
+            </button>
+        </nav>
+    </header>
 
+    <!-- Main Container -->
     <div class="container">
-        <!-- Progress Section -->
-        <div class="progress-section">
-            <h2>📊 Progres Documentație</h2>
-            <div class="progress-bar">
-                <div class="progress-fill" style="width: 75%;">75% Complet • 15/20 documente</div>
+        <!-- Hero -->
+        <section class="hero">
+            <h1>Documentation Hub</h1>
+            <p>Ghid complet pentru prezentare, evaluare și utilizare a platformei primăria<span style="color: oklch(0.712 0.194 13.428); font-weight: 700;">Ta</span>❤️<span style="opacity: 0.7;">_</span></p>
+            <div class="hero-actions">
+                <a href="viewer.html?doc=01-Prezentare/README.md" class="btn btn-primary">
+                    📖 Start Reading
+                </a>
+                <a href="https://github.com/mihaigoctavian24/primariata.work" class="btn btn-secondary" target="_blank">
+                    💻 View on GitHub
+                </a>
             </div>
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-number">15</div>
-                    <div class="stat-label">Documente Complete</div>
+        </section>
+
+        <!-- Stats -->
+        <div class="stats">
+            <div class="stat-card">
+                <i data-lucide="check-circle" class="stat-icon"></i>
+                <div class="stat-value">72%</div>
+                <div class="stat-label">Documentation Complete</div>
+            </div>
+            <div class="stat-card">
+                <i data-lucide="file-text" class="stat-icon"></i>
+                <div class="stat-value">18/25</div>
+                <div class="stat-label">Documents</div>
+            </div>
+            <div class="stat-card">
+                <i data-lucide="folder" class="stat-icon"></i>
+                <div class="stat-value">6</div>
+                <div class="stat-label">Categories</div>
+            </div>
+            <div class="stat-card">
+                <i data-lucide="flag" class="stat-icon"></i>
+                <div class="stat-value">Phase 4</div>
+                <div class="stat-label">Current Milestone</div>
+            </div>
+        </div>
+
+        <!-- Documentation Timeline -->
+        <div class="timeline">
+            <h3 class="timeline-title">
+                <i data-lucide="book-open"></i>
+                Documentation Milestones
+            </h3>
+            <div class="timeline-items">
+                <div class="timeline-item completed">
+                    <div class="timeline-label">
+                        <i data-lucide="file-text"></i>
+                        Prezentare
+                    </div>
+                    <div class="timeline-status completed">✓ Complete · 6/6 docs</div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-number">5</div>
-                    <div class="stat-label">În Dezvoltare</div>
+                <div class="timeline-item completed">
+                    <div class="timeline-label">
+                        <i data-lucide="clipboard-list"></i>
+                        Cerințe
+                    </div>
+                    <div class="timeline-status completed">✓ Complete · 5/5 docs</div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-number">12K+</div>
-                    <div class="stat-label">Linii Documentație</div>
+                <div class="timeline-item completed">
+                    <div class="timeline-label">
+                        <i data-lucide="box"></i>
+                        Arhitectură
+                    </div>
+                    <div class="timeline-status completed">✓ Complete · 6/6 docs</div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-number">29 Nov</div>
-                    <div class="stat-label">Deadline M6</div>
+                <div class="timeline-item">
+                    <div class="timeline-label">
+                        <i data-lucide="code"></i>
+                        Implementare
+                    </div>
+                    <div class="timeline-status">In Progress · 1/4 docs</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-label">
+                        <i data-lucide="users"></i>
+                        Utilizare
+                    </div>
+                    <div class="timeline-status">Nov 29, 2025 · 0/4 docs</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-label">
+                        <i data-lucide="paperclip"></i>
+                        Anexe
+                    </div>
+                    <div class="timeline-status">Nov 29, 2025 · 0/4 docs</div>
                 </div>
             </div>
         </div>
 
-        <!-- Navigation Cards -->
-        <div class="nav-grid">
-            <!-- 01-Prezentare -->
-            <div class="nav-card">
-                <div class="nav-card-header">
-                    <h3><a href="viewer.html?doc=01-Prezentare/README.md" style="color: var(--primary-color); text-decoration: none;">📄 01-Prezentare</a></h3>
-                    <span class="status-badge status-complete">✅ 100% (5/5)</span>
+        <!-- Documentation Sections -->
+        <section class="section">
+            <h2 class="section-title">Documentation Sections</h2>
+            <div class="cards-grid">
+                <!-- 01-Prezentare -->
+                <a href="viewer.html?doc=01-Prezentare/README.md" class="doc-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i data-lucide="file-text"></i> 01-Prezentare
+                        </div>
+                        <span class="card-status status-complete">100%</span>
+                    </div>
+                    <p class="card-description">Viziunea și contextul proiectului</p>
+                    <div class="card-links">
+                        <span class="card-link"><i data-lucide="target"></i> Viziune & Misiune</span>
+                        <span class="card-link"><i data-lucide="flag"></i> Obiective & Scopuri</span>
+                        <span class="card-link"><i data-lucide="activity"></i> Status Proiect</span>
+                        <span class="card-link">+3 more documents</span>
+                    </div>
+                </a>
+
+                <!-- 02-Cerinte -->
+                <a href="viewer.html?doc=02-Cerinte/README.md" class="doc-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i data-lucide="clipboard-list"></i> 02-Cerinte
+                        </div>
+                        <span class="card-status status-complete">100%</span>
+                    </div>
+                    <p class="card-description">Specificații funcționale și tehnice</p>
+                    <div class="card-links">
+                        <span class="card-link"><i data-lucide="check-square"></i> Cerințe Funcționale</span>
+                        <span class="card-link"><i data-lucide="shield-check"></i> Cerințe Nefuncționale</span>
+                        <span class="card-link"><i data-lucide="workflow"></i> Cazuri de Utilizare</span>
+                        <span class="card-link">+2 more documents</span>
+                    </div>
+                </a>
+
+                <!-- 03-Arhitectura -->
+                <a href="viewer.html?doc=03-Arhitectura/README.md" class="doc-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i data-lucide="layout"></i> 03-Arhitectura
+                        </div>
+                        <span class="card-status status-complete">100%</span>
+                    </div>
+                    <p class="card-description">Design sistem și infrastructură</p>
+                    <div class="card-links">
+                        <span class="card-link"><i data-lucide="box"></i> Arhitectură Generală</span>
+                        <span class="card-link"><i data-lucide="database"></i> Bază de Date</span>
+                        <span class="card-link"><i data-lucide="shield"></i> Securitate</span>
+                        <span class="card-link">+3 more documents</span>
+                    </div>
+                </a>
+
+                <!-- 04-Implementare -->
+                <a href="viewer.html?doc=04-Implementare/README.md" class="doc-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i data-lucide="code"></i> 04-Implementare
+                        </div>
+                        <span class="card-status status-partial">25%</span>
+                    </div>
+                    <p class="card-description">Stack tehnologic și development</p>
+                    <div class="card-links">
+                        <span class="card-link"><i data-lucide="layers"></i> Stack Tehnologic</span>
+                        <span class="card-link"><i data-lucide="settings"></i> Setup Development (WIP)</span>
+                        <span class="card-link"><i data-lucide="git-branch"></i> Workflow (WIP)</span>
+                        <span class="card-link">Deadline: Nov 29, 2025</span>
+                    </div>
+                </a>
+
+                <!-- 05-Utilizare -->
+                <a href="viewer.html?doc=05-Utilizare/README.md" class="doc-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i data-lucide="book"></i> 05-Utilizare
+                        </div>
+                        <span class="card-status status-todo">0%</span>
+                    </div>
+                    <p class="card-description">Ghiduri pentru utilizatori</p>
+                    <div class="card-links">
+                        <span class="card-link"><i data-lucide="user"></i> Ghid Cetățean (TODO)</span>
+                        <span class="card-link"><i data-lucide="briefcase"></i> Ghid Funcționar (TODO)</span>
+                        <span class="card-link"><i data-lucide="settings"></i> Ghid Administrator (TODO)</span>
+                        <span class="card-link">Deadline: Nov 29, 2025</span>
+                    </div>
+                </a>
+
+                <!-- 06-Anexe -->
+                <a href="viewer.html?doc=06-Anexe/README.md" class="doc-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i data-lucide="paperclip"></i> 06-Anexe
+                        </div>
+                        <span class="card-status status-todo">0%</span>
+                    </div>
+                    <p class="card-description">Materiale suplimentare</p>
+                    <div class="card-links">
+                        <span class="card-link"><i data-lucide="book-open"></i> Glossar (TODO)</span>
+                        <span class="card-link"><i data-lucide="link"></i> Referințe (TODO)</span>
+                        <span class="card-link"><i data-lucide="users"></i> Contributori (TODO)</span>
+                        <span class="card-link">Deadline: Nov 29, 2025</span>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+        <!-- Quick Links -->
+        <section class="section">
+            <h2 class="section-title">Quick Links</h2>
+            <div class="cards-grid">
+                <a href="https://primariata.work" class="doc-card" target="_blank">
+                    <div class="card-title"><i data-lucide="rocket"></i> Live Demo</div>
+                    <p class="card-description">Try the live application</p>
+                </a>
+                <a href="https://github.com/mihaigoctavian24/primariata.work" class="doc-card" target="_blank">
+                    <div class="card-title"><i data-lucide="github"></i> GitHub Repository</div>
+                    <p class="card-description">View source code</p>
+                </a>
+                <a href="viewer.html?doc=01-Prezentare/Echipa-si-Roluri.md" class="doc-card">
+                    <div class="card-title"><i data-lucide="users"></i> Team & Roles</div>
+                    <p class="card-description">Meet the development team</p>
+                </a>
+            </div>
+        </section>
+
+        <!-- Contribution Heatmap -->
+        <div class="heatmap">
+            <div class="heatmap-wrapper">
+                <!-- Title -->
+                <div class="heatmap-title-area">
+                    <h3 class="heatmap-title">
+                        <i data-lucide="activity"></i>
+                        Development Activity (Last 2 Weeks)
+                    </h3>
                 </div>
-                <p class="nav-card-description">Viziunea și contextul proiectului</p>
-                <ul>
-                    <li><a href="viewer.html?doc=01-Prezentare/Viziune-si-Misiune.md">🎯 Viziune & Misiune</a></li>
-                    <li><a href="viewer.html?doc=01-Prezentare/Obiective-si-Scopuri.md">🎪 Obiective & Scopuri</a></li>
-                    <li><a href="viewer.html?doc=01-Prezentare/Contextul-Proiectului.md">🌍 Context Proiect</a></li>
-                    <li><a href="viewer.html?doc=01-Prezentare/Echipa-si-Roluri.md">👥 Echipa & Roluri</a></li>
-                    <li><a href="viewer.html?doc=01-Prezentare/Status-Proiect.md">📊 Status Proiect</a></li>
-                </ul>
-            </div>
 
-            <!-- 02-Cerinte -->
-            <div class="nav-card">
-                <div class="nav-card-header">
-                    <h3><a href="viewer.html?doc=02-Cerinte/README.md" style="color: var(--primary-color); text-decoration: none;">📋 02-Cerinte</a></h3>
-                    <span class="status-badge status-complete">✅ 100% (4/4)</span>
+                <!-- Left Labels -->
+                <div class="heatmap-legend-left">
+                    <div>Week 1</div>
+                    <div>Week 2</div>
                 </div>
-                <p class="nav-card-description">Specificații funcționale și tehnice</p>
-                <ul>
-                    <li><a href="viewer.html?doc=02-Cerinte/Cerinte-Functionale.md">⚙️ Cerințe Funcționale</a></li>
-                    <li><a href="viewer.html?doc=02-Cerinte/Cerinte-Nefunctionale.md">🔧 Cerințe Nefuncționale</a></li>
-                    <li><a href="viewer.html?doc=02-Cerinte/Cazuri-de-Utilizare.md">📝 Cazuri de Utilizare</a></li>
-                    <li><a href="viewer.html?doc=02-Cerinte/User-Stories.md">👤 User Stories</a></li>
-                </ul>
-            </div>
 
-            <!-- 03-Arhitectura -->
-            <div class="nav-card">
-                <div class="nav-card-header">
-                    <h3><a href="viewer.html?doc=03-Arhitectura/README.md" style="color: var(--primary-color); text-decoration: none;">🏗️ 03-Arhitectura</a></h3>
-                    <span class="status-badge status-complete">✅ 100% (5/5)</span>
-                </div>
-                <p class="nav-card-description">Design sistem și infrastructură</p>
-                <ul>
-                    <li><a href="viewer.html?doc=03-Arhitectura/Arhitectura-Generala.md">🏛️ Arhitectură Generală</a></li>
-                    <li><a href="viewer.html?doc=03-Arhitectura/Baza-de-Date.md">🗄️ Bază de Date</a></li>
-                    <li><a href="viewer.html?doc=03-Arhitectura/API-si-Backend.md">🔌 API & Backend</a></li>
-                    <li><a href="viewer.html?doc=03-Arhitectura/Componente-Frontend.md">🎨 Componente Frontend</a></li>
-                    <li><a href="viewer.html?doc=03-Arhitectura/Securitate.md">🔒 Securitate & Monitoring</a></li>
-                </ul>
-            </div>
-
-            <!-- 04-Implementare -->
-            <div class="nav-card">
-                <div class="nav-card-header">
-                    <h3><a href="viewer.html?doc=04-Implementare/README.md" style="color: var(--primary-color); text-decoration: none;">💻 04-Implementare</a></h3>
-                    <span class="status-badge status-partial">🟡 50% (1/2)</span>
-                </div>
-                <p class="nav-card-description">Stack tehnologic și development • <strong>Deadline: 29 Nov 2025</strong></p>
-                <ul>
-                    <li><a href="viewer.html?doc=04-Implementare/Stack-Tehnologic.md">🛠️ Stack Tehnologic</a></li>
-                    <li><span class="disabled">⚙️ Setup Development (În lucru M6)</span></li>
-                </ul>
-            </div>
-
-            <!-- 05-Utilizare -->
-            <div class="nav-card">
-                <div class="nav-card-header">
-                    <h3><a href="viewer.html?doc=05-Utilizare/README.md" style="color: var(--primary-color); text-decoration: none;">📖 05-Utilizare</a></h3>
-                    <span class="status-badge status-todo">🔴 0% (0/4)</span>
-                </div>
-                <p class="nav-card-description">Ghiduri pentru utilizatori • <strong>Deadline: 29 Nov 2025</strong></p>
-                <ul>
-                    <li><span class="disabled">👤 Ghid Cetățean (În dezvoltare M6)</span></li>
-                    <li><span class="disabled">👔 Ghid Funcționar (În dezvoltare M6)</span></li>
-                    <li><span class="disabled">⚙️ Ghid Administrator (În dezvoltare M6)</span></li>
-                    <li><span class="disabled">❓ FAQ (În dezvoltare M6)</span></li>
-                </ul>
-            </div>
-
-            <!-- 06-Anexe -->
-            <div class="nav-card">
-                <div class="nav-card-header">
-                    <h3><a href="viewer.html?doc=06-Anexe/README.md" style="color: var(--primary-color); text-decoration: none;">📎 06-Anexe</a></h3>
-                    <span class="status-badge status-todo">🔴 0% (0/4)</span>
-                </div>
-                <p class="nav-card-description">Materiale suplimentare • <strong>Deadline: 29 Nov 2025</strong></p>
-                <ul>
-                    <li><span class="disabled">📚 Glossar (În dezvoltare M6)</span></li>
-                    <li><span class="disabled">🔗 Referințe (În dezvoltare M6)</span></li>
-                    <li><span class="disabled">👥 Contributori (În dezvoltare M6)</span></li>
-                    <li><span class="disabled">⚖️ Licență (În dezvoltare M6)</span></li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- Status Table -->
-        <div class="progress-section">
-            <h2>📊 Status Detaliat</h2>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Categorie</th>
-                            <th>Completare</th>
-                            <th>Status</th>
-                            <th>Files</th>
-                            <th>Deadline</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>01-Prezentare</strong></td>
-                            <td>100%</td>
-                            <td><span class="status-badge status-complete">✅ COMPLETE</span></td>
-                            <td>5/5</td>
-                            <td>✅ Done</td>
-                        </tr>
-                        <tr>
-                            <td><strong>02-Cerinte</strong></td>
-                            <td>100%</td>
-                            <td><span class="status-badge status-complete">✅ COMPLETE</span></td>
-                            <td>4/4</td>
-                            <td>✅ Done</td>
-                        </tr>
-                        <tr>
-                            <td><strong>03-Arhitectura</strong></td>
-                            <td>100%</td>
-                            <td><span class="status-badge status-complete">✅ COMPLETE</span></td>
-                            <td>5/5</td>
-                            <td>✅ Done</td>
-                        </tr>
-                        <tr>
-                            <td><strong>04-Implementare</strong></td>
-                            <td>50%</td>
-                            <td><span class="status-badge status-partial">🟡 PARȚIAL</span></td>
-                            <td>1/2</td>
-                            <td>29 Nov 2025</td>
-                        </tr>
-                        <tr>
-                            <td><strong>05-Utilizare</strong></td>
-                            <td>0%</td>
-                            <td><span class="status-badge status-todo">🔴 TODO</span></td>
-                            <td>0/4</td>
-                            <td>29 Nov 2025</td>
-                        </tr>
-                        <tr>
-                            <td><strong>06-Anexe</strong></td>
-                            <td>0%</td>
-                            <td><span class="status-badge status-todo">🔴 TODO</span></td>
-                            <td>0/4</td>
-                            <td>29 Nov 2025</td>
-                        </tr>
-                        <tr style="background: #f9fafb; font-weight: 600;">
-                            <td><strong>TOTAL</strong></td>
-                            <td><strong>75%</strong></td>
-                            <td><span class="status-badge status-partial">🟡 IN PROGRESS</span></td>
-                            <td><strong>15/20</strong></td>
-                            <td><strong>29 Nov 2025</strong></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Tech Stack -->
-        <div class="progress-section">
-            <h2>🛠️ Stack Tehnologic</h2>
-            <div class="tech-stack">
-                <div class="tech-category">
-                    <h4>💻 Frontend</h4>
-                    <div class="tech-list">
-                        <div class="tech-item">Next.js 15.5.6</div>
-                        <div class="tech-item">React 19.1.0</div>
-                        <div class="tech-item">TypeScript 5.x</div>
-                        <div class="tech-item">Tailwind CSS 4.x</div>
+                <!-- Heatmap Grid -->
+                <div class="heatmap-container">
+                    <div class="heatmap-week" id="heatmap-week-1">
+                        <!-- Generated by JavaScript -->
+                    </div>
+                    <div class="heatmap-week" id="heatmap-week-2">
+                        <!-- Generated by JavaScript -->
                     </div>
                 </div>
-                <div class="tech-category">
-                    <h4>⚡ Backend</h4>
-                    <div class="tech-list">
-                        <div class="tech-item">Supabase Cloud</div>
-                        <div class="tech-item">PostgreSQL 15</div>
-                        <div class="tech-item">Edge Functions</div>
-                        <div class="tech-item">Row Level Security</div>
+
+                <!-- Footer with Legend and Stats -->
+                <div class="heatmap-footer">
+                    <div class="heatmap-legend">
+                        <span>Less</span>
+                        <div class="heatmap-legend-item level-0"></div>
+                        <div class="heatmap-legend-item level-1"></div>
+                        <div class="heatmap-legend-item level-2"></div>
+                        <div class="heatmap-legend-item level-3"></div>
+                        <div class="heatmap-legend-item level-4"></div>
+                        <div class="heatmap-legend-item level-5"></div>
+                        <div class="heatmap-legend-item level-6"></div>
+                        <span>More</span>
                     </div>
-                </div>
-                <div class="tech-category">
-                    <h4>🚀 DevOps</h4>
-                    <div class="tech-list">
-                        <div class="tech-item">Vercel Edge</div>
-                        <div class="tech-item">GitHub Actions</div>
-                        <div class="tech-item">Sentry Monitoring</div>
-                        <div class="tech-item">Cloudflare CDN</div>
-                    </div>
-                </div>
-                <div class="tech-category">
-                    <h4>🧪 Testing</h4>
-                    <div class="tech-list">
-                        <div class="tech-item">Jest 29.x</div>
-                        <div class="tech-item">Playwright E2E</div>
-                        <div class="tech-item">Testing Library</div>
-                        <div class="tech-item">MSW Mocking</div>
-                    </div>
+                    <div class="heatmap-summary" id="heatmap-summary">Loading...</div>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Footer -->
-    <div class="footer">
-        <div class="footer-content">
-            <div>
-                <h4>📖 Documentație</h4>
-                <ul style="list-style: none;">
-                    <li><a href="./01-Prezentare/">Prezentare Proiect</a></li>
-                    <li><a href="./02-Cerinte/">Cerințe Sistem</a></li>
-                    <li><a href="./03-Arhitectura/">Arhitectură</a></li>
-                    <li><a href="./04-Implementare/">Implementare</a></li>
-                </ul>
-            </div>
-            <div>
-                <h4>🔗 Link-uri Utile</h4>
-                <ul style="list-style: none;">
-                    <li><a href="https://github.com/mihaigoctavian24/primariata.work" target="_blank">GitHub Repository</a></li>
-                    <li><a href="https://primariata.work" target="_blank">Demo Live</a></li>
-                    <li><a href="https://github.com/mihaigoctavian24/primariata.work/issues">GitHub Issues</a></li>
-                </ul>
-            </div>
-            <div>
-                <h4>📧 Contact</h4>
-                <ul style="list-style: none;">
-                    <li><a href="mailto:abbasipazeyazd.h.biancamaria24@stud.rau.ro">Documentație (RO)</a></li>
-                    <li><a href="mailto:mihai.g.octavian24@stud.rau.ro">Documentație (EN)</a></li>
-                    <li><a href="mailto:andrei.luchici@rau.ro">Coordonator</a></li>
-                </ul>
-            </div>
-            <div>
-                <h4>🎓 Instituție</h4>
-                <p style="color: #9ca3af; font-size: 0.9rem; line-height: 1.6;">
-                    Universitatea Română-Americană<br>
-                    Facultatea de Informatică Managerială<br>
-                    Programarea Aplicațiilor Web<br>
-                    An Universitar 2025-2026
-                </p>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p><strong>© 2025-2026 Bubu & Dudu Dev Team</strong></p>
-            <p style="margin-top: 0.5rem; font-size: 0.9rem;">Made with ❤️ by Bubu & Dudu Dev Team</p>
-        </div>
-    </div>
+    <footer class="footer">
+        <p>© 2025-2026 Bubu & Dudu Dev Team • <a href="https://github.com/mihaigoctavian24/primariata.work">GitHub</a> • Made with ❤️ for the community</p>
+        <p style="margin-top: 8px;">Last updated: October 30, 2025 • Next milestone: November 29, 2025</p>
+    </footer>
+
+    <script>
+        // Theme Toggle
+        const html = document.documentElement;
+        const moonIcon = document.getElementById('theme-icon-moon');
+        const sunIcon = document.getElementById('theme-icon-sun');
+
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        html.setAttribute('data-theme', savedTheme);
+
+        // Show correct icon based on saved theme
+        // If dark theme, show sun icon (to switch to light)
+        // If light theme, show moon icon (to switch to dark)
+        if (savedTheme === 'dark') {
+            moonIcon.style.display = 'none';
+            sunIcon.style.display = 'inline-block';
+        } else {
+            sunIcon.style.display = 'none';
+            moonIcon.style.display = 'inline-block';
+        }
+
+        function toggleTheme() {
+            const current = html.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+
+            // Toggle icon visibility
+            // If switching to dark, show sun icon (to switch back to light)
+            // If switching to light, show moon icon (to switch back to dark)
+            if (next === 'dark') {
+                moonIcon.style.display = 'none';
+                sunIcon.style.display = 'inline-block';
+            } else {
+                sunIcon.style.display = 'none';
+                moonIcon.style.display = 'inline-block';
+            }
+        }
+
+        // Generate Heatmap from Git data (Last 2 weeks)
+        async function generateHeatmap() {
+            const week1Grid = document.getElementById('heatmap-week-1');
+            const week2Grid = document.getElementById('heatmap-week-2');
+            const summary = document.getElementById('heatmap-summary');
+            const today = new Date();
+            const startDate = new Date(today);
+            startDate.setDate(startDate.getDate() - 13); // Last 14 days
+
+            const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+            let activityData = {};
+            let totalCommits = 0;
+
+            try {
+                // Fetch git commit data from GitHub API
+                const response = await fetch('https://api.github.com/repos/mihaigoctavian24/primariata.work/commits?per_page=100');
+                const commits = await response.json();
+
+                // Process commits into daily activity (last 2 weeks only)
+                commits.forEach(commit => {
+                    const date = new Date(commit.commit.author.date);
+                    const dateStr = date.toISOString().split('T')[0];
+
+                    // Only count if within last 14 days
+                    const commitDate = new Date(dateStr);
+                    if (commitDate >= startDate && commitDate <= today) {
+                        activityData[dateStr] = (activityData[dateStr] || 0) + 1;
+                        totalCommits++;
+                    }
+                });
+            } catch (error) {
+                console.warn('Could not fetch git data:', error);
+                summary.textContent = 'Unable to load activity data';
+            }
+
+            // Normalize activity levels to 0-6 scale (more granular colors)
+            const maxActivity = Math.max(...Object.values(activityData), 1);
+            const normalizedData = {};
+            Object.keys(activityData).forEach(date => {
+                const rawLevel = activityData[date];
+                normalizedData[date] = Math.min(Math.ceil((rawLevel / maxActivity) * 6), 6);
+            });
+
+            // Create cells for 14 days (2 weeks) - 7 days per week
+            for (let i = 0; i < 14; i++) {
+                const date = new Date(startDate);
+                date.setDate(date.getDate() + i);
+                const dateStr = date.toISOString().split('T')[0];
+                const level = normalizedData[dateStr] || 0;
+                const count = activityData[dateStr] || 0;
+                const dayName = dayNames[date.getDay()];
+
+                const cell = document.createElement('div');
+                cell.className = `heatmap-cell level-${level}`;
+                cell.title = `${dayName}, ${dateStr}: ${count} commit${count !== 1 ? 's' : ''}`;
+                cell.textContent = dayName.substring(0, 1); // First letter (S, M, T, W, T, F, S)
+
+                // First 7 days go to week 1, next 7 to week 2
+                if (i < 7) {
+                    week1Grid.appendChild(cell);
+                } else {
+                    week2Grid.appendChild(cell);
+                }
+            }
+
+            // Update summary
+            const activeDays = Object.keys(activityData).length;
+            summary.textContent = `${totalCommits} commits in ${activeDays} active days`;
+        }
+
+        // Initialize
+        generateHeatmap();
+        lucide.createIcons();
+    </script>
 </body>
 </html>
