@@ -69,5 +69,5 @@ Profesor coordonator: Andrei Luchici
 
 ---
 
-_Ultima actualizare: Octombrie 2024_
+_Ultima actualizare: Octombrie 2025_
 _Echipa: Bubu & Dudu Dev Team ❤️_
