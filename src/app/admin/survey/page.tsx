@@ -1,6 +1,8 @@
 import { createServiceRoleClient, createClient } from "@/lib/supabase/server";
 import { Badge } from "@/components/ui/badge";
-import { User } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { User, BarChart3 } from "lucide-react";
+import Link from "next/link";
 import { SurveyCharts } from "@/components/admin/SurveyCharts";
 import { ResponsesTable } from "@/components/admin/ResponsesTable";
 import { RealTimeWrapper } from "./real-time-wrapper";
@@ -186,6 +188,29 @@ export default async function SurveyAdminPage() {
 
               {/* Real-time Live Indicator */}
               <RealTimeWrapper />
+            </div>
+          </div>
+
+          {/* Research Analysis Link */}
+          <div className="border-border bg-card rounded-lg border p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="bg-primary/10 text-primary flex h-12 w-12 items-center justify-center rounded-lg">
+                  <BarChart3 className="h-6 w-6" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold">Analiză Cercetare AI</h3>
+                  <p className="text-muted-foreground text-sm">
+                    Insight-uri avansate, tendințe demografice și recomandări generate de AI
+                  </p>
+                </div>
+              </div>
+              <Link href="/admin/survey/research">
+                <Button size="lg" className="gap-2">
+                  <BarChart3 className="h-4 w-4" />
+                  Vezi Analiză
+                </Button>
+              </Link>
             </div>
           </div>
 
