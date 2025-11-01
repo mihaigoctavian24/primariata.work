@@ -54,25 +54,29 @@ export interface AIModelConfig {
 
 /**
  * Default model configurations for different use cases
+ * Updated to use GPT-4o-mini for best cost/performance ratio
  */
 export const AI_MODELS = {
-  // GPT-4 Turbo - Best for complex analysis
+  // GPT-4o-mini - Best cost/performance ratio for complex analysis
+  // $0.150/1M input, $0.600/1M output (66x cheaper than GPT-4 Turbo)
   ANALYSIS: {
-    model: "gpt-4-turbo-preview",
+    model: "gpt-4o-mini",
     temperature: 0.3, // Low temperature for consistent analysis
     maxTokens: 4096,
   } as AIModelConfig,
 
-  // GPT-4 - High quality for important tasks
+  // GPT-4o-mini - Excellent quality for insights at fraction of the cost
+  // Quality comparable to GPT-4, speed faster, cost 95% lower
   INSIGHTS: {
-    model: "gpt-4",
+    model: "gpt-4o-mini",
     temperature: 0.5, // Moderate creativity
     maxTokens: 2048,
   } as AIModelConfig,
 
-  // GPT-3.5 Turbo - Fast and cost-effective for simple tasks
+  // GPT-4o-mini - Fast and extremely cost-effective for all tasks
+  // Replaces GPT-3.5 Turbo with better quality at similar cost
   SUMMARIZATION: {
-    model: "gpt-3.5-turbo",
+    model: "gpt-4o-mini",
     temperature: 0.4,
     maxTokens: 1024,
   } as AIModelConfig,

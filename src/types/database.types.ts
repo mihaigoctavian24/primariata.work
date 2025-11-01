@@ -6,31 +6,6 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "13.0.5";
   };
-  graphql_public: {
-    Tables: {
-      [_ in never]: never;
-    };
-    Views: {
-      [_ in never]: never;
-    };
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json;
-          operationName?: string;
-          query?: string;
-          variables?: Json;
-        };
-        Returns: Json;
-      };
-    };
-    Enums: {
-      [_ in never]: never;
-    };
-    CompositeTypes: {
-      [_ in never]: never;
-    };
-  };
   public: {
     Tables: {
       audit_log: {
@@ -667,6 +642,111 @@ export type Database = {
         };
         Relationships: [];
       };
+      survey_ai_insights: {
+        Row: {
+          ai_summary: string | null;
+          completion_tokens: number | null;
+          confidence_score: number | null;
+          feature_requests: Json | null;
+          generated_at: string;
+          id: string;
+          key_phrases: string[] | null;
+          model_version: string;
+          prompt_tokens: number | null;
+          question_id: string;
+          recommendations: Json | null;
+          respondent_type: string | null;
+          response_distribution: Json | null;
+          sentiment_label: string | null;
+          sentiment_score: number | null;
+          themes: Json | null;
+          top_quotes: string[] | null;
+          total_responses: number;
+          total_tokens: number | null;
+        };
+        Insert: {
+          ai_summary?: string | null;
+          completion_tokens?: number | null;
+          confidence_score?: number | null;
+          feature_requests?: Json | null;
+          generated_at?: string;
+          id?: string;
+          key_phrases?: string[] | null;
+          model_version: string;
+          prompt_tokens?: number | null;
+          question_id: string;
+          recommendations?: Json | null;
+          respondent_type?: string | null;
+          response_distribution?: Json | null;
+          sentiment_label?: string | null;
+          sentiment_score?: number | null;
+          themes?: Json | null;
+          top_quotes?: string[] | null;
+          total_responses?: number;
+          total_tokens?: number | null;
+        };
+        Update: {
+          ai_summary?: string | null;
+          completion_tokens?: number | null;
+          confidence_score?: number | null;
+          feature_requests?: Json | null;
+          generated_at?: string;
+          id?: string;
+          key_phrases?: string[] | null;
+          model_version?: string;
+          prompt_tokens?: number | null;
+          question_id?: string;
+          recommendations?: Json | null;
+          respondent_type?: string | null;
+          response_distribution?: Json | null;
+          sentiment_label?: string | null;
+          sentiment_score?: number | null;
+          themes?: Json | null;
+          top_quotes?: string[] | null;
+          total_responses?: number;
+          total_tokens?: number | null;
+        };
+        Relationships: [];
+      };
+      survey_analysis_cache: {
+        Row: {
+          access_count: number;
+          analysis_type: string;
+          cache_key: string;
+          created_at: string;
+          expires_at: string;
+          id: string;
+          input_hash: string;
+          last_accessed_at: string | null;
+          result: Json;
+          result_size_bytes: number | null;
+        };
+        Insert: {
+          access_count?: number;
+          analysis_type: string;
+          cache_key: string;
+          created_at?: string;
+          expires_at?: string;
+          id?: string;
+          input_hash: string;
+          last_accessed_at?: string | null;
+          result: Json;
+          result_size_bytes?: number | null;
+        };
+        Update: {
+          access_count?: number;
+          analysis_type?: string;
+          cache_key?: string;
+          created_at?: string;
+          expires_at?: string;
+          id?: string;
+          input_hash?: string;
+          last_accessed_at?: string | null;
+          result?: Json;
+          result_size_bytes?: number | null;
+        };
+        Relationships: [];
+      };
       survey_questions: {
         Row: {
           created_at: string | null;
@@ -700,6 +780,54 @@ export type Database = {
           question_text?: string;
           question_type?: string;
           survey_type?: string;
+        };
+        Relationships: [];
+      };
+      survey_research_metadata: {
+        Row: {
+          analysis_id: string;
+          citizen_count: number;
+          county_count: number;
+          date_range_end: string | null;
+          date_range_start: string | null;
+          generated_at: string;
+          id: string;
+          key_findings: string[] | null;
+          locality_count: number;
+          official_count: number;
+          overall_sentiment_label: string | null;
+          overall_sentiment_score: number | null;
+          total_responses: number;
+        };
+        Insert: {
+          analysis_id: string;
+          citizen_count?: number;
+          county_count?: number;
+          date_range_end?: string | null;
+          date_range_start?: string | null;
+          generated_at?: string;
+          id?: string;
+          key_findings?: string[] | null;
+          locality_count?: number;
+          official_count?: number;
+          overall_sentiment_label?: string | null;
+          overall_sentiment_score?: number | null;
+          total_responses: number;
+        };
+        Update: {
+          analysis_id?: string;
+          citizen_count?: number;
+          county_count?: number;
+          date_range_end?: string | null;
+          date_range_start?: string | null;
+          generated_at?: string;
+          id?: string;
+          key_findings?: string[] | null;
+          locality_count?: number;
+          official_count?: number;
+          overall_sentiment_label?: string | null;
+          overall_sentiment_score?: number | null;
+          total_responses?: number;
         };
         Relationships: [];
       };
@@ -1023,9 +1151,43 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      cleanup_expired_analysis_cache: { Args: never; Returns: undefined };
       current_user_primarie: { Args: never; Returns: string };
       current_user_role: { Args: never; Returns: string };
+      get_current_user_id: { Args: never; Returns: string };
+      get_latest_ai_insight: {
+        Args: { p_question_id: string; p_respondent_type?: string };
+        Returns: {
+          ai_summary: string | null;
+          completion_tokens: number | null;
+          confidence_score: number | null;
+          feature_requests: Json | null;
+          generated_at: string;
+          id: string;
+          key_phrases: string[] | null;
+          model_version: string;
+          prompt_tokens: number | null;
+          question_id: string;
+          recommendations: Json | null;
+          respondent_type: string | null;
+          response_distribution: Json | null;
+          sentiment_label: string | null;
+          sentiment_score: number | null;
+          themes: Json | null;
+          top_quotes: string[] | null;
+          total_responses: number;
+          total_tokens: number | null;
+        };
+        SetofOptions: {
+          from: "*";
+          to: "survey_ai_insights";
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
+      is_cache_valid: { Args: { p_cache_key: string }; Returns: boolean };
       refresh_public_stats: { Args: never; Returns: undefined };
+      update_cache_access: { Args: { p_cache_key: string }; Returns: undefined };
     };
     Enums: {
       [_ in never]: never;
@@ -1152,9 +1314,6 @@ export type CompositeTypes<
     : never;
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {},
   },
