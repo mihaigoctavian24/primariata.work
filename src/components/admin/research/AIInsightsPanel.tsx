@@ -84,23 +84,42 @@ export function AIInsightsPanel({
   };
 
   const priorityConfig = {
-    high: { color: "text-red-600", bg: "bg-red-500/10", label: "Înalt", icon: ArrowUp },
-    medium: { color: "text-amber-600", bg: "bg-amber-500/10", label: "Mediu", icon: Minus },
-    low: { color: "text-green-600", bg: "bg-green-500/10", label: "Scăzut", icon: ArrowDown },
+    high: {
+      color: "text-red-600 dark:text-red-400",
+      bg: "bg-red-500/10 dark:bg-red-500/20",
+      label: "Înalt",
+      icon: ArrowUp,
+    },
+    medium: {
+      color: "text-amber-600 dark:text-amber-400",
+      bg: "bg-amber-500/10 dark:bg-amber-500/20",
+      label: "Mediu",
+      icon: Minus,
+    },
+    low: {
+      color: "text-green-600 dark:text-green-400",
+      bg: "bg-green-500/10 dark:bg-green-500/20",
+      label: "Scăzut",
+      icon: ArrowDown,
+    },
   };
 
   const timelineConfig = {
-    immediate: { label: "Imediat", icon: Zap, color: "text-green-600" },
-    "quick-win": { label: "Quick Win", icon: Zap, color: "text-green-600" },
-    "short-term": { label: "1-3 luni", icon: Clock, color: "text-amber-600" },
-    "medium-term": { label: "3-6 luni", icon: Clock, color: "text-orange-600" },
-    "long-term": { label: "6+ luni", icon: TrendingUp, color: "text-blue-600" },
+    immediate: { label: "Imediat", icon: Zap, color: "text-green-600 dark:text-green-400" },
+    "quick-win": { label: "Quick Win", icon: Zap, color: "text-green-600 dark:text-green-400" },
+    "short-term": { label: "1-3 luni", icon: Clock, color: "text-amber-600 dark:text-amber-400" },
+    "medium-term": {
+      label: "3-6 luni",
+      icon: Clock,
+      color: "text-orange-600 dark:text-orange-400",
+    },
+    "long-term": { label: "6+ luni", icon: TrendingUp, color: "text-blue-600 dark:text-blue-400" },
   };
 
   const effortConfig = {
-    low: { label: "Mic", color: "text-green-600" },
-    medium: { label: "Mediu", color: "text-amber-600" },
-    high: { label: "Mare", color: "text-red-600" },
+    low: { label: "Mic", color: "text-green-600 dark:text-green-400" },
+    medium: { label: "Mediu", color: "text-amber-600 dark:text-amber-400" },
+    high: { label: "Mare", color: "text-red-600 dark:text-red-400" },
   };
 
   return (
@@ -128,9 +147,14 @@ export function AIInsightsPanel({
                 layout="vertical"
                 margin={{ top: 5, right: 30, left: 200, bottom: 5 }}
               >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis type="number" />
-                <YAxis dataKey="name" type="category" width={190} />
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis type="number" stroke="hsl(var(--muted-foreground))" />
+                <YAxis
+                  dataKey="name"
+                  type="category"
+                  width={190}
+                  stroke="hsl(var(--muted-foreground))"
+                />
                 <Tooltip
                   content={({ active, payload }) => {
                     if (active && payload && payload.length && payload[0]?.payload) {
@@ -166,12 +190,13 @@ export function AIInsightsPanel({
                     .sort((a, b) => b.mentions - a.mentions)
                     .slice(0, 10)
                     .map((theme, index) => {
+                      // Use CSS variables for dark mode support
                       const color =
                         theme.sentiment > 0.3
-                          ? "hsl(142, 76%, 36%)"
+                          ? "hsl(var(--chart-1))" // Positive - green/blue
                           : theme.sentiment < -0.3
-                            ? "hsl(0, 72%, 51%)"
-                            : "hsl(215, 16%, 47%)";
+                            ? "hsl(var(--chart-5))" // Negative - red/orange
+                            : "hsl(var(--chart-3))"; // Neutral - blue
                       return <Cell key={`cell-${index}`} fill={color} />;
                     })}
                 </Bar>
@@ -264,7 +289,7 @@ export function AIInsightsPanel({
                         </td>
                         <td className="p-3">
                           <div className="flex items-center gap-2">
-                            <div className="h-2 w-20 overflow-hidden rounded-full bg-gray-200">
+                            <div className="bg-muted h-2 w-20 overflow-hidden rounded-full">
                               <div
                                 className="bg-primary h-full"
                                 style={{ width: `${feature.aiScore}%` }}

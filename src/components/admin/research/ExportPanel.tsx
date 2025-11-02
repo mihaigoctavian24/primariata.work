@@ -99,7 +99,7 @@ export function ExportPanel({ totalResponses }: ExportPanelProps) {
             <div className="mb-4 flex items-start justify-between">
               <div>
                 <div className="mb-1 flex items-center gap-2">
-                  <FileText className="h-5 w-5 text-red-600" />
+                  <FileText className="h-5 w-5 text-red-600 dark:text-red-400" />
                   <h3 className="font-semibold">Raport Executiv PDF</h3>
                 </div>
                 <p className="text-muted-foreground text-sm">
@@ -169,7 +169,7 @@ export function ExportPanel({ totalResponses }: ExportPanelProps) {
             <div className="mb-4 flex items-start justify-between">
               <div>
                 <div className="mb-1 flex items-center gap-2">
-                  <FileSpreadsheet className="h-5 w-5 text-green-600" />
+                  <FileSpreadsheet className="h-5 w-5 text-green-600 dark:text-green-400" />
                   <h3 className="font-semibold">Date Brute Excel</h3>
                 </div>
                 <p className="text-muted-foreground text-sm">
@@ -236,7 +236,7 @@ export function ExportPanel({ totalResponses }: ExportPanelProps) {
         </div>
 
         {/* Export Info */}
-        <div className="bg-muted/50 mt-4 rounded-lg p-4">
+        <div className="bg-muted/50 dark:bg-muted/20 mt-4 rounded-lg p-4">
           <div className="flex items-start gap-3">
             <div className="bg-primary/10 text-primary mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full">
               <span className="text-xs font-bold">ℹ️</span>

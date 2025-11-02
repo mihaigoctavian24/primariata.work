@@ -93,9 +93,9 @@ export function CohortComparison({
 
   // Get sentiment color
   const getSentimentColor = (sentiment: number) => {
-    if (sentiment > 0.3) return "text-green-600";
-    if (sentiment < -0.3) return "text-red-600";
-    return "text-gray-600";
+    if (sentiment > 0.3) return "text-green-600 dark:text-green-400";
+    if (sentiment < -0.3) return "text-red-600 dark:text-red-400";
+    return "text-gray-600 dark:text-gray-400";
   };
 
   return (
@@ -278,8 +278,11 @@ export function CohortComparison({
                           </span>
                           <span className="font-medium">{diff.cohort1Percentage.toFixed(1)}%</span>
                         </div>
-                        <Progress value={diff.cohort1Percentage} className="h-2 bg-blue-200">
-                          <div className="h-full rounded-full bg-blue-600 transition-all" />
+                        <Progress
+                          value={diff.cohort1Percentage}
+                          className="h-2 bg-blue-200 dark:bg-blue-900/50"
+                        >
+                          <div className="h-full rounded-full bg-blue-600 transition-all dark:bg-blue-500" />
                         </Progress>
                       </div>
 
@@ -290,8 +293,11 @@ export function CohortComparison({
                           </span>
                           <span className="font-medium">{diff.cohort2Percentage.toFixed(1)}%</span>
                         </div>
-                        <Progress value={diff.cohort2Percentage} className="h-2 bg-green-200">
-                          <div className="h-full rounded-full bg-green-600 transition-all" />
+                        <Progress
+                          value={diff.cohort2Percentage}
+                          className="h-2 bg-green-200 dark:bg-green-900/50"
+                        >
+                          <div className="h-full rounded-full bg-green-600 transition-all dark:bg-green-500" />
                         </Progress>
                       </div>
                     </div>
@@ -299,9 +305,9 @@ export function CohortComparison({
                     {/* Difference indicator */}
                     <div className="flex items-center justify-center gap-2 text-xs">
                       {diff.difference > 0 ? (
-                        <TrendingUp className="h-3 w-3 text-blue-600" />
+                        <TrendingUp className="h-3 w-3 text-blue-600 dark:text-blue-400" />
                       ) : diff.difference < 0 ? (
-                        <TrendingDown className="h-3 w-3 text-green-600" />
+                        <TrendingDown className="h-3 w-3 text-green-600 dark:text-green-400" />
                       ) : (
                         <Minus className="h-3 w-3" />
                       )}
@@ -335,7 +341,7 @@ export function CohortComparison({
                     <div className="grid grid-cols-3 gap-2 text-xs">
                       <div>
                         <div className="text-muted-foreground mb-1">Pozitiv</div>
-                        <div className="font-medium text-green-600">
+                        <div className="font-medium text-green-600 dark:text-green-400">
                           {selectedComparison.cohort1.sentimentDistribution.positive}%
                         </div>
                       </div>
@@ -347,7 +353,7 @@ export function CohortComparison({
                       </div>
                       <div>
                         <div className="text-muted-foreground mb-1">Negativ</div>
-                        <div className="font-medium text-red-600">
+                        <div className="font-medium text-red-600 dark:text-red-400">
                           {selectedComparison.cohort1.sentimentDistribution.negative}%
                         </div>
                       </div>
@@ -366,7 +372,7 @@ export function CohortComparison({
                     <div className="grid grid-cols-3 gap-2 text-xs">
                       <div>
                         <div className="text-muted-foreground mb-1">Pozitiv</div>
-                        <div className="font-medium text-green-600">
+                        <div className="font-medium text-green-600 dark:text-green-400">
                           {selectedComparison.cohort2.sentimentDistribution.positive}%
                         </div>
                       </div>
@@ -378,7 +384,7 @@ export function CohortComparison({
                       </div>
                       <div>
                         <div className="text-muted-foreground mb-1">Negativ</div>
-                        <div className="font-medium text-red-600">
+                        <div className="font-medium text-red-600 dark:text-red-400">
                           {selectedComparison.cohort2.sentimentDistribution.negative}%
                         </div>
                       </div>
@@ -438,9 +444,9 @@ export function CohortComparison({
                       <span
                         className={`font-semibold ${
                           selectedComparison.readinessDifference > 0
-                            ? "text-green-600"
+                            ? "text-green-600 dark:text-green-400"
                             : selectedComparison.readinessDifference < 0
-                              ? "text-red-600"
+                              ? "text-red-600 dark:text-red-400"
                               : ""
                         }`}
                       >

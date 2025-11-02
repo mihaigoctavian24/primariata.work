@@ -20,6 +20,12 @@ import { DemographicsCharts } from "@/components/admin/research/DemographicsChar
 import { ExportPanel } from "@/components/admin/research/ExportPanel";
 import { CorrelationMatrix } from "@/components/admin/research/CorrelationMatrix";
 import { CohortComparison } from "@/components/admin/research/CohortComparison";
+import {
+  AIInsightsSkeleton,
+  QuestionsSkeleton,
+  CorrelationsSkeleton,
+  CohortsSkeleton,
+} from "@/components/admin/research/ResearchSkeletons";
 import { Button } from "@/components/ui/button";
 import type { CorrelationAnalysisResult } from "@/lib/ai/correlation-analyzer";
 import type { CohortAnalysisResult } from "@/lib/ai/cohort-analyzer";
@@ -117,7 +123,12 @@ export function ResearchTabs({
   }>({ citizenInsights: [], officialInsights: [] });
   const [correlationData, setCorrelationData] = useState<CorrelationAnalysisResult | null>(null);
   const [cohortData, setCohortData] = useState<CohortAnalysisResult | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+
+  // Separate loading states for each data type
+  const [isLoadingInsights, setIsLoadingInsights] = useState(true);
+  const [isLoadingQuestions, setIsLoadingQuestions] = useState(true);
+  const [isLoadingCorrelations, setIsLoadingCorrelations] = useState(true);
+  const [isLoadingCohorts, setIsLoadingCohorts] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
 
   // Fetch holistic insights on mount
@@ -129,7 +140,7 @@ export function ResearchTabs({
   }, []);
 
   const fetchHolisticInsights = async () => {
-    setIsLoading(true);
+    setIsLoadingInsights(true);
     try {
       const response = await fetch("/api/survey/research/holistic-insights");
       if (response.ok) {
@@ -138,12 +149,16 @@ export function ResearchTabs({
       }
     } catch (error) {
       console.error("Error fetching holistic insights:", error);
+      toast.error("Eroare la încărcarea insight-urilor", {
+        description: "Nu s-au putut încărca datele de analiză AI",
+      });
     } finally {
-      setIsLoading(false);
+      setIsLoadingInsights(false);
     }
   };
 
   const fetchQuestionAnalysis = async () => {
+    setIsLoadingQuestions(true);
     try {
       const response = await fetch("/api/survey/research/question-analysis");
       if (response.ok) {
@@ -158,10 +173,16 @@ export function ResearchTabs({
       }
     } catch (error) {
       console.error("Error fetching question analysis:", error);
+      toast.error("Eroare la încărcarea analizei întrebărilor", {
+        description: "Nu s-au putut încărca datele de analiză pe întrebări",
+      });
+    } finally {
+      setIsLoadingQuestions(false);
     }
   };
 
   const fetchCorrelations = async () => {
+    setIsLoadingCorrelations(true);
     try {
       const response = await fetch("/api/survey/research/correlations");
       if (response.ok) {
@@ -171,10 +192,16 @@ export function ResearchTabs({
       }
     } catch (error) {
       console.error("Error fetching correlations:", error);
+      toast.error("Eroare la încărcarea corelațiilor", {
+        description: "Nu s-au putut încărca datele de corelații statistice",
+      });
+    } finally {
+      setIsLoadingCorrelations(false);
     }
   };
 
   const fetchCohorts = async () => {
+    setIsLoadingCohorts(true);
     try {
       const response = await fetch("/api/survey/research/cohorts");
       if (response.ok) {
@@ -184,6 +211,11 @@ export function ResearchTabs({
       }
     } catch (error) {
       console.error("Error fetching cohorts:", error);
+      toast.error("Eroare la încărcarea cohortelor", {
+        description: "Nu s-au putut încărca datele de analiză pe cohorte",
+      });
+    } finally {
+      setIsLoadingCohorts(false);
     }
   };
 
@@ -293,7 +325,7 @@ export function ResearchTabs({
   return (
     <>
       {/* Generate AI Analysis Button */}
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="text-muted-foreground text-sm">
           {holisticInsights.length > 0 ? (
             <span>
@@ -304,25 +336,37 @@ export function ResearchTabs({
             <span>⚠️ Nicio analiză AI generată încă</span>
           )}
         </div>
-        <Button onClick={generateAnalysis} disabled={isGenerating} className="gap-2">
+        <Button
+          onClick={generateAnalysis}
+          disabled={isGenerating}
+          className="w-full gap-2 sm:w-auto"
+          aria-label="Generează analiză AI pentru toate răspunsurile"
+          aria-busy={isGenerating}
+        >
           {isGenerating ? (
             <>
-              <Loader2 className="h-4 w-4 animate-spin" />
-              Generare în curs...
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+              <span className="hidden sm:inline">Generare în curs...</span>
+              <span className="sm:hidden">Generare...</span>
             </>
           ) : (
             <>
-              <Sparkles className="h-4 w-4" />
-              Generează Analiză AI
+              <Sparkles className="h-4 w-4" aria-hidden="true" />
+              <span className="hidden sm:inline">Generează Analiză AI</span>
+              <span className="sm:hidden">Generează AI</span>
             </>
           )}
         </Button>
       </div>
 
-      {/* Navigation Tabs */}
+      {/* Navigation Tabs - Scrollable on mobile */}
       <div className="border-border bg-card rounded-lg border">
-        <div className="flex gap-4 p-4">
-          {tabs.map((tab) => {
+        <div
+          className="hide-scrollbar flex gap-2 overflow-x-auto p-3 sm:gap-4 sm:p-4"
+          role="tablist"
+          aria-label="Secțiuni analiză cercetare"
+        >
+          {tabs.map((tab, index) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
 
@@ -330,14 +374,52 @@ export function ResearchTabs({
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+                role="tab"
+                aria-selected={isActive}
+                aria-controls={`tabpanel-${tab.id}`}
+                id={`tab-${tab.id}`}
+                tabIndex={isActive ? 0 : -1}
+                onKeyDown={(e) => {
+                  if (e.key === "ArrowRight") {
+                    e.preventDefault();
+                    const nextIndex = (index + 1) % tabs.length;
+                    const nextTab = tabs[nextIndex];
+                    if (nextTab) {
+                      setActiveTab(nextTab.id);
+                      document.getElementById(`tab-${nextTab.id}`)?.focus();
+                    }
+                  } else if (e.key === "ArrowLeft") {
+                    e.preventDefault();
+                    const prevIndex = (index - 1 + tabs.length) % tabs.length;
+                    const prevTab = tabs[prevIndex];
+                    if (prevTab) {
+                      setActiveTab(prevTab.id);
+                      document.getElementById(`tab-${prevTab.id}`)?.focus();
+                    }
+                  } else if (e.key === "Home") {
+                    e.preventDefault();
+                    const firstTab = tabs[0];
+                    if (firstTab) {
+                      setActiveTab(firstTab.id);
+                      document.getElementById(`tab-${firstTab.id}`)?.focus();
+                    }
+                  } else if (e.key === "End") {
+                    e.preventDefault();
+                    const lastTab = tabs[tabs.length - 1];
+                    if (lastTab) {
+                      setActiveTab(lastTab.id);
+                      document.getElementById(`tab-${lastTab.id}`)?.focus();
+                    }
+                  }
+                }}
+                className={`flex shrink-0 items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors sm:px-4 ${
                   isActive
                     ? "bg-primary text-primary-foreground"
                     : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                 }`}
               >
-                <Icon className="h-4 w-4" />
-                {tab.label}
+                <Icon className="h-4 w-4" aria-hidden="true" />
+                <span className="whitespace-nowrap">{tab.label}</span>
               </button>
             );
           })}
@@ -348,7 +430,7 @@ export function ResearchTabs({
       <div className="space-y-6">
         {/* Overview Tab */}
         {activeTab === "overview" && (
-          <div>
+          <div role="tabpanel" id="tabpanel-overview" aria-labelledby="tab-overview" tabIndex={0}>
             <h2 className="mb-4 text-2xl font-bold">📊 Sumar Executiv</h2>
             <ExecutiveSummary
               totalResponses={totalResponses}
@@ -365,13 +447,16 @@ export function ResearchTabs({
 
         {/* AI Insights Tab */}
         {activeTab === "insights" && (
-          <div>
+          <div
+            role="tabpanel"
+            id="tabpanel-insights"
+            aria-labelledby="tab-insights"
+            tabIndex={0}
+            aria-busy={isLoadingInsights}
+          >
             <h2 className="mb-4 text-2xl font-bold">🤖 Insight-uri Strategice AI</h2>
-            {isLoading ? (
-              <div className="flex items-center justify-center py-12">
-                <Loader2 className="text-primary h-8 w-8 animate-spin" />
-                <span className="ml-2">Încărcare insights...</span>
-              </div>
+            {isLoadingInsights ? (
+              <AIInsightsSkeleton />
             ) : holisticInsights.length === 0 ? (
               <div className="rounded-lg border border-dashed p-12 text-center">
                 <Sparkles className="text-muted-foreground mx-auto h-12 w-12" />
@@ -465,7 +550,12 @@ export function ResearchTabs({
 
         {/* Demographics Tab */}
         {activeTab === "demographics" && (
-          <div>
+          <div
+            role="tabpanel"
+            id="tabpanel-demographics"
+            aria-labelledby="tab-demographics"
+            tabIndex={0}
+          >
             <div className="mb-4">
               <h2 className="text-2xl font-bold">📊 Date Demografice</h2>
               <p className="text-muted-foreground text-sm">
@@ -482,33 +572,43 @@ export function ResearchTabs({
 
         {/* Questions Tab */}
         {activeTab === "questions" && (
-          <div>
+          <div
+            role="tabpanel"
+            id="tabpanel-questions"
+            aria-labelledby="tab-questions"
+            tabIndex={0}
+            aria-busy={isLoadingQuestions}
+          >
             <div className="mb-4">
               <h2 className="text-2xl font-bold">❓ Analiza pe Întrebări</h2>
               <p className="text-muted-foreground text-sm">
                 Detalii și insight-uri pentru fiecare întrebare din chestionar
               </p>
             </div>
-            <QuestionAnalysis
-              citizenInsights={questionInsights.citizenInsights.map((insight) => ({
-                ...insight,
-                questionType: insight.questionType as
-                  | "text"
-                  | "single_choice"
-                  | "multiple_choice"
-                  | "rating",
-                respondentType: "citizen" as const,
-              }))}
-              officialInsights={questionInsights.officialInsights.map((insight) => ({
-                ...insight,
-                questionType: insight.questionType as
-                  | "text"
-                  | "single_choice"
-                  | "multiple_choice"
-                  | "rating",
-                respondentType: "official" as const,
-              }))}
-            />
+            {isLoadingQuestions ? (
+              <QuestionsSkeleton />
+            ) : (
+              <QuestionAnalysis
+                citizenInsights={questionInsights.citizenInsights.map((insight) => ({
+                  ...insight,
+                  questionType: insight.questionType as
+                    | "text"
+                    | "single_choice"
+                    | "multiple_choice"
+                    | "rating",
+                  respondentType: "citizen" as const,
+                }))}
+                officialInsights={questionInsights.officialInsights.map((insight) => ({
+                  ...insight,
+                  questionType: insight.questionType as
+                    | "text"
+                    | "single_choice"
+                    | "multiple_choice"
+                    | "rating",
+                  respondentType: "official" as const,
+                }))}
+              />
+            )}
           </div>
         )}
 
@@ -671,18 +771,21 @@ export function ResearchTabs({
 
         {/* Correlations Tab */}
         {activeTab === "correlations" && (
-          <div>
+          <div
+            role="tabpanel"
+            id="tabpanel-correlations"
+            aria-labelledby="tab-correlations"
+            tabIndex={0}
+            aria-busy={isLoadingCorrelations}
+          >
             <div className="mb-4">
               <h2 className="text-2xl font-bold">🔗 Analiză Corelații</h2>
               <p className="text-muted-foreground text-sm">
                 Corelații statistice între variabilele sondajului
               </p>
             </div>
-            {isLoading ? (
-              <div className="flex items-center justify-center py-12">
-                <Loader2 className="text-primary h-8 w-8 animate-spin" />
-                <span className="ml-2">Încărcare corelații...</span>
-              </div>
+            {isLoadingCorrelations ? (
+              <CorrelationsSkeleton />
             ) : correlationData ? (
               <CorrelationMatrix
                 correlations={correlationData.correlations || []}
@@ -703,18 +806,21 @@ export function ResearchTabs({
 
         {/* Cohorts Tab */}
         {activeTab === "cohorts" && (
-          <div>
+          <div
+            role="tabpanel"
+            id="tabpanel-cohorts"
+            aria-labelledby="tab-cohorts"
+            tabIndex={0}
+            aria-busy={isLoadingCohorts}
+          >
             <div className="mb-4">
               <h2 className="text-2xl font-bold">👥 Analiza Cohorte</h2>
               <p className="text-muted-foreground text-sm">
                 Comparație între segmente de utilizatori
               </p>
             </div>
-            {isLoading ? (
-              <div className="flex items-center justify-center py-12">
-                <Loader2 className="text-primary h-8 w-8 animate-spin" />
-                <span className="ml-2">Încărcare cohorte...</span>
-              </div>
+            {isLoadingCohorts ? (
+              <CohortsSkeleton />
             ) : cohortData ? (
               <CohortComparison
                 cohorts={cohortData.cohorts || []}
@@ -736,7 +842,7 @@ export function ResearchTabs({
 
         {/* Export Tab */}
         {activeTab === "export" && (
-          <div>
+          <div role="tabpanel" id="tabpanel-export" aria-labelledby="tab-export" tabIndex={0}>
             <div className="mb-4">
               <h2 className="text-2xl font-bold">📥 Export</h2>
               <p className="text-muted-foreground text-sm">
