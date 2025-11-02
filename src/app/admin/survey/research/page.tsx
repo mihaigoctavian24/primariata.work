@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { User } from "lucide-react";
 import { LogoutButton } from "@/components/admin/LogoutButton";
-import { ResearchTabs } from "./ResearchTabs";
+import { ResearchPageClient } from "./ResearchPageClient";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -195,14 +195,17 @@ export default async function ResearchAnalysisPage() {
           </div>
         </div>
 
-        {/* Research Tabs */}
-        <ResearchTabs
+        {/* Research Tabs with Real-time Updates */}
+        <ResearchPageClient
           totalResponses={total}
           citizenCount={citizens}
           officialCount={officials}
           countyCount={countyCount}
           localityCount={localityCount}
           dateRange={dateRange}
+          overallSentiment={{ score: 0, label: "neutral" }}
+          keyFindings={[]}
+          ageDistribution={[]}
           locationData={locationData}
         />
       </div>

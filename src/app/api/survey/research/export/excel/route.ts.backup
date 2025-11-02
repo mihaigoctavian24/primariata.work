@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
       .order("generated_at", { ascending: false });
 
     if (respondentType) {
-      insightsQuery = insightsQuery.eq("survey_type", respondentType);
+      insightsQuery = insightsQuery.eq("respondent_type", respondentType);
     }
 
     const { data: insights, error: insightsError } = await insightsQuery;
@@ -192,7 +192,8 @@ export async function GET(request: NextRequest) {
 
       // Headers
       insightsSheet.addRow([
-        "Tip Sondaj",
+        "Question ID",
+        "Tip Respondent",
         "Sentiment Scor",
         "Sentiment Label",
         "Total Răspunsuri",
@@ -209,7 +210,8 @@ export async function GET(request: NextRequest) {
       // Data
       insights.forEach((insight) => {
         insightsSheet.addRow([
-          insight.survey_type === "citizen" ? "Cetățean" : "Funcționar",
+          insight.question_id,
+          insight.respondent_type === "citizen" ? "Cetățean" : "Funcționar",
           insight.sentiment_score?.toFixed(2) || "N/A",
           insight.sentiment_label || "N/A",
           insight.total_responses || 0,
@@ -228,7 +230,7 @@ export async function GET(request: NextRequest) {
 
       // Sheet 4: Themes (from insights)
       const themesSheet = workbook.addWorksheet("Teme");
-      themesSheet.addRow(["Tip Sondaj", "Temă", "Scor", "Mențiuni", "Sentiment"]);
+      themesSheet.addRow(["Question ID", "Temă", "Scor", "Mențiuni", "Sentiment"]);
       themesSheet.getRow(1).font = { bold: true };
       themesSheet.getRow(1).fill = {
         type: "pattern",
@@ -237,22 +239,21 @@ export async function GET(request: NextRequest) {
       };
 
       insights.forEach((insight) => {
-        const themes = insight.key_themes;
-        if (themes && Array.isArray(themes)) {
-          themes.forEach((themeObj) => {
+        if (insight.themes && Array.isArray(insight.themes)) {
+          insight.themes.forEach((theme) => {
             if (
-              themeObj &&
-              typeof themeObj === "object" &&
-              "theme" in themeObj &&
-              "score" in themeObj &&
-              "mentions" in themeObj
+              theme &&
+              typeof theme === "object" &&
+              "name" in theme &&
+              "score" in theme &&
+              "mentions" in theme
             ) {
               themesSheet.addRow([
-                insight.survey_type === "citizen" ? "Cetățean" : "Funcționar",
-                (themeObj as { theme: string }).theme,
-                (themeObj as { score: number }).score?.toFixed(2) || "N/A",
-                (themeObj as { mentions: number }).mentions || 0,
-                (themeObj as { sentiment?: number }).sentiment?.toFixed(2) || "N/A",
+                insight.question_id,
+                (theme as { name: string }).name,
+                (theme as { score: number }).score?.toFixed(2) || "N/A",
+                (theme as { mentions: number }).mentions || 0,
+                (theme as { sentiment?: number }).sentiment?.toFixed(2) || "N/A",
               ]);
             }
           });

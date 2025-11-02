@@ -4,6 +4,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { ArrowUp, ArrowDown, Minus, Lightbulb, TrendingUp, Clock, Zap } from "lucide-react";
 import { useState } from "react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Cell,
+} from "recharts";
 
 interface AITheme {
   name: string;
@@ -23,7 +33,7 @@ interface FeatureRequest {
 interface AIRecommendation {
   action: string;
   priority: "high" | "medium" | "low";
-  timeline: "quick-win" | "short-term" | "long-term";
+  timeline: "immediate" | "quick-win" | "short-term" | "medium-term" | "long-term";
   effort: "low" | "medium" | "high";
   impact: string;
   reasoning: string;
@@ -80,9 +90,11 @@ export function AIInsightsPanel({
   };
 
   const timelineConfig = {
+    immediate: { label: "Imediat", icon: Zap, color: "text-green-600" },
     "quick-win": { label: "Quick Win", icon: Zap, color: "text-green-600" },
     "short-term": { label: "1-3 luni", icon: Clock, color: "text-amber-600" },
-    "long-term": { label: "3+ luni", icon: TrendingUp, color: "text-blue-600" },
+    "medium-term": { label: "3-6 luni", icon: Clock, color: "text-orange-600" },
+    "long-term": { label: "6+ luni", icon: TrendingUp, color: "text-blue-600" },
   };
 
   const effortConfig = {
@@ -98,39 +110,73 @@ export function AIInsightsPanel({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">🏷️ Teme Identificate (AI)</CardTitle>
           <CardDescription>
-            Teme extrase automat din răspunsurile text, sortate după relevanță
+            Teme extrase automat din răspunsurile text, sortate după frecvență
           </CardDescription>
         </CardHeader>
         <CardContent>
           {themes.length > 0 ? (
-            <div className="flex flex-wrap gap-3">
-              {themes
-                .sort((a, b) => b.score - a.score)
-                .slice(0, 15)
-                .map((theme, index) => {
-                  const sentimentColor =
-                    theme.sentiment > 0.3
-                      ? "border-green-200 bg-green-50/50"
-                      : theme.sentiment < -0.3
-                        ? "border-red-200 bg-red-50/50"
-                        : "border-gray-200 bg-gray-50/50";
-
-                  return (
-                    <div
-                      key={index}
-                      className={`flex items-center gap-2 rounded-lg border px-3 py-2 ${sentimentColor}`}
-                      style={{
-                        fontSize: `${0.875 + theme.score * 0.5}rem`,
-                      }}
-                    >
-                      <span className="font-medium">{theme.name}</span>
-                      <Badge variant="secondary" className="text-xs">
-                        {theme.mentions}
-                      </Badge>
-                    </div>
-                  );
-                })}
-            </div>
+            <ResponsiveContainer width="100%" height={400}>
+              <BarChart
+                data={themes
+                  .sort((a, b) => b.mentions - a.mentions)
+                  .slice(0, 10)
+                  .map((theme) => ({
+                    name: theme.name.length > 40 ? theme.name.substring(0, 40) + "..." : theme.name,
+                    mentions: theme.mentions,
+                    sentiment: theme.sentiment,
+                  }))}
+                layout="vertical"
+                margin={{ top: 5, right: 30, left: 200, bottom: 5 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis type="number" />
+                <YAxis dataKey="name" type="category" width={190} />
+                <Tooltip
+                  content={({ active, payload }) => {
+                    if (active && payload && payload.length && payload[0]?.payload) {
+                      const data = payload[0].payload;
+                      return (
+                        <div className="bg-background border-border rounded-lg border p-3 shadow-lg">
+                          <p className="font-medium">
+                            {
+                              themes.find((t) =>
+                                t.name.startsWith(data.name?.replace("...", "") || "")
+                              )?.name
+                            }
+                          </p>
+                          <p className="text-sm">
+                            <span className="font-medium">Mențiuni:</span> {data.mentions}
+                          </p>
+                          <p className="text-sm">
+                            <span className="font-medium">Sentiment:</span>{" "}
+                            {data.sentiment > 0.3
+                              ? "Pozitiv"
+                              : data.sentiment < -0.3
+                                ? "Negativ"
+                                : "Neutru"}
+                          </p>
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
+                />
+                <Bar dataKey="mentions" radius={[0, 4, 4, 0]}>
+                  {themes
+                    .sort((a, b) => b.mentions - a.mentions)
+                    .slice(0, 10)
+                    .map((theme, index) => {
+                      const color =
+                        theme.sentiment > 0.3
+                          ? "hsl(142, 76%, 36%)"
+                          : theme.sentiment < -0.3
+                            ? "hsl(0, 72%, 51%)"
+                            : "hsl(215, 16%, 47%)";
+                      return <Cell key={`cell-${index}`} fill={color} />;
+                    })}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
           ) : (
             <div className="text-muted-foreground rounded-lg border border-dashed p-8 text-center text-sm">
               <div className="mb-2 text-lg">🔄</div>
@@ -255,9 +301,9 @@ export function AIInsightsPanel({
           {recommendations.length > 0 ? (
             <div className="space-y-4">
               {recommendations.map((rec, index) => {
-                const priorityConf = priorityConfig[rec.priority];
-                const timelineConf = timelineConfig[rec.timeline];
-                const effortConf = effortConfig[rec.effort];
+                const priorityConf = priorityConfig[rec.priority] || priorityConfig.medium;
+                const timelineConf = timelineConfig[rec.timeline] || timelineConfig["short-term"];
+                const effortConf = effortConfig[rec.effort] || effortConfig.medium;
                 const TimelineIcon = timelineConf.icon;
 
                 return (

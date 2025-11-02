@@ -72,12 +72,12 @@ export async function GET(request: NextRequest) {
 
     // Fetch AI insights
     let insightsQuery = supabase
-      .from("survey_ai_insights")
+      .from("survey_holistic_insights")
       .select("*")
       .order("generated_at", { ascending: false });
 
     if (respondentType) {
-      insightsQuery = insightsQuery.eq("respondent_type", respondentType);
+      insightsQuery = insightsQuery.eq("survey_type", respondentType);
     }
 
     const { data: insights, error: insightsError } = await insightsQuery;
@@ -192,18 +192,19 @@ export async function GET(request: NextRequest) {
       yPosition += 10;
 
       // Top themes
-      const allThemes: Array<{ name: string; score: number; mentions: number }> = [];
+      const allThemes: Array<{ theme: string; score: number; mentions: number }> = [];
       insights.forEach((insight) => {
-        if (insight.themes && Array.isArray(insight.themes)) {
-          insight.themes.forEach((theme) => {
+        const themes = insight.key_themes;
+        if (themes && Array.isArray(themes)) {
+          themes.forEach((themeObj) => {
             if (
-              theme &&
-              typeof theme === "object" &&
-              "name" in theme &&
-              "score" in theme &&
-              "mentions" in theme
+              themeObj &&
+              typeof themeObj === "object" &&
+              "theme" in themeObj &&
+              "score" in themeObj &&
+              "mentions" in themeObj
             ) {
-              allThemes.push(theme as { name: string; score: number; mentions: number });
+              allThemes.push(themeObj as { theme: string; score: number; mentions: number });
             }
           });
         }
@@ -216,10 +217,10 @@ export async function GET(request: NextRequest) {
 
         const sortedThemes = allThemes.sort((a, b) => b.mentions - a.mentions).slice(0, 5);
 
-        sortedThemes.forEach((theme, index) => {
+        sortedThemes.forEach((themeObj, index) => {
           checkPageBreak(6);
           addText(
-            `${index + 1}. ${theme.name} (${theme.mentions} mențiuni, scor: ${theme.score.toFixed(2)})`,
+            `${index + 1}. ${themeObj.theme} (${themeObj.mentions} mențiuni, scor: ${themeObj.score.toFixed(2)})`,
             11
           );
           yPosition += 2;
