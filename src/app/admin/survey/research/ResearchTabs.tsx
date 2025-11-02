@@ -1,12 +1,73 @@
 "use client";
 
-import { useState } from "react";
-import { TrendingUp, Users, Download, Lightbulb, MessageSquare } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
+import {
+  TrendingUp,
+  Users,
+  Download,
+  Lightbulb,
+  MessageSquare,
+  Sparkles,
+  Loader2,
+  Network,
+  GitCompare,
+} from "lucide-react";
+import { toast } from "sonner";
 import { ExecutiveSummary } from "@/components/admin/research/ExecutiveSummary";
 import { AIInsightsPanel } from "@/components/admin/research/AIInsightsPanel";
 import { QuestionAnalysis } from "@/components/admin/research/QuestionAnalysis";
 import { DemographicsCharts } from "@/components/admin/research/DemographicsCharts";
 import { ExportPanel } from "@/components/admin/research/ExportPanel";
+import { CorrelationMatrix } from "@/components/admin/research/CorrelationMatrix";
+import { CohortComparison } from "@/components/admin/research/CohortComparison";
+import { Button } from "@/components/ui/button";
+import type { CorrelationAnalysisResult } from "@/lib/ai/correlation-analyzer";
+import type { CohortAnalysisResult } from "@/lib/ai/cohort-analyzer";
+
+interface HolisticInsight {
+  id: string;
+  survey_type: string;
+  ai_summary: string | null;
+  key_themes: Array<{ theme: string; frequency: number; sentiment: string }>;
+  sentiment_score: number | null;
+  sentiment_label: string | null;
+  recommendations: Array<{
+    action: string;
+    priority: string;
+    timeline: string;
+    effort: string;
+    impact: string;
+    reasoning: string;
+  }>;
+  feature_requests: Array<{
+    feature: string;
+    count: number;
+    priority: string;
+    aiScore: number;
+    roi: number;
+  }>;
+  total_questions: number;
+  total_responses: number;
+  model_version: string;
+  prompt_tokens: number | null;
+  completion_tokens: number | null;
+  confidence_score: number | null;
+  generated_at: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface QuestionInsight {
+  questionId: string;
+  questionText: string;
+  questionType: string;
+  respondentType: string;
+  totalResponses: number;
+  insights: string[];
+  topThemes?: Array<{ theme: string; count: number }>;
+  distribution?: Record<string, number>;
+  averageScore?: number;
+}
 
 interface ResearchTabsProps {
   // Executive Summary data
@@ -30,7 +91,14 @@ interface ResearchTabsProps {
   }>;
 }
 
-type TabType = "overview" | "insights" | "demographics" | "questions" | "export";
+type TabType =
+  | "overview"
+  | "insights"
+  | "demographics"
+  | "questions"
+  | "correlations"
+  | "cohorts"
+  | "export";
 
 export function ResearchTabs({
   totalResponses,
@@ -42,17 +110,215 @@ export function ResearchTabs({
   locationData,
 }: ResearchTabsProps) {
   const [activeTab, setActiveTab] = useState<TabType>("overview");
+  const [holisticInsights, setHolisticInsights] = useState<HolisticInsight[]>([]);
+  const [questionInsights, setQuestionInsights] = useState<{
+    citizenInsights: QuestionInsight[];
+    officialInsights: QuestionInsight[];
+  }>({ citizenInsights: [], officialInsights: [] });
+  const [correlationData, setCorrelationData] = useState<CorrelationAnalysisResult | null>(null);
+  const [cohortData, setCohortData] = useState<CohortAnalysisResult | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  // Fetch holistic insights on mount
+  useEffect(() => {
+    fetchHolisticInsights();
+    fetchQuestionAnalysis();
+    fetchCorrelations();
+    fetchCohorts();
+  }, []);
+
+  const fetchHolisticInsights = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/survey/research/holistic-insights");
+      if (response.ok) {
+        const data = await response.json();
+        setHolisticInsights(data.insights || []);
+      }
+    } catch (error) {
+      console.error("Error fetching holistic insights:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchQuestionAnalysis = async () => {
+    try {
+      const response = await fetch("/api/survey/research/question-analysis");
+      if (response.ok) {
+        const data = await response.json();
+        setQuestionInsights({
+          citizenInsights: data.citizenInsights || [],
+          officialInsights: data.officialInsights || [],
+        });
+        console.log(
+          `[Question Analysis] Loaded ${data.citizenInsights?.length || 0} citizen questions, ${data.officialInsights?.length || 0} official questions`
+        );
+      }
+    } catch (error) {
+      console.error("Error fetching question analysis:", error);
+    }
+  };
+
+  const fetchCorrelations = async () => {
+    try {
+      const response = await fetch("/api/survey/research/correlations");
+      if (response.ok) {
+        const data = await response.json();
+        setCorrelationData(data);
+        console.log(`[Correlations] Loaded ${data.correlations?.length || 0} correlations`);
+      }
+    } catch (error) {
+      console.error("Error fetching correlations:", error);
+    }
+  };
+
+  const fetchCohorts = async () => {
+    try {
+      const response = await fetch("/api/survey/research/cohorts");
+      if (response.ok) {
+        const data = await response.json();
+        setCohortData(data);
+        console.log(`[Cohorts] Loaded ${data.cohorts?.length || 0} cohorts`);
+      }
+    } catch (error) {
+      console.error("Error fetching cohorts:", error);
+    }
+  };
+
+  const generateAnalysis = async () => {
+    setIsGenerating(true);
+    toast.info("🤖 Generare analiză AI în curs...", {
+      description: "Se procesează răspunsurile și se generează insight-uri strategice",
+    });
+    console.log("🤖 Generare Analiză Holistică AI - Procesare răspunsuri...");
+
+    try {
+      const response = await fetch("/api/survey/research/analyze", {
+        method: "POST",
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const totalRecs =
+          data.holisticInsights?.reduce(
+            (sum: number, i: HolisticInsight) => sum + (i.recommendations?.length || 0),
+            0
+          ) || 0;
+        const totalFeatures =
+          data.holisticInsights?.reduce(
+            (sum: number, i: HolisticInsight) => sum + (i.feature_requests?.length || 0),
+            0
+          ) || 0;
+        console.log(`✅ Analiză Holistică Completă - ${totalRecs} recomandări strategice!`);
+
+        toast.success("✅ Analiză holistică completă!", {
+          description: `${totalRecs} recomandări strategice și ${totalFeatures} funcționalități identificate`,
+          duration: 5000,
+        });
+
+        await fetchHolisticInsights(); // Refresh holistic insights
+      } else {
+        const error = await response.json();
+        console.error("❌ Eroare:", error);
+        toast.error("Eroare la generarea analizei", {
+          description: error.error || "Nu s-a putut genera analiza AI",
+          duration: 5000,
+        });
+      }
+    } catch (error) {
+      console.error("❌ Eroare:", error);
+      toast.error("Eroare de rețea", {
+        description: "Nu s-a putut conecta la serverul de analiză AI",
+        duration: 5000,
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   const tabs = [
     { id: "overview" as TabType, label: "Sumar Executiv", icon: TrendingUp },
     { id: "insights" as TabType, label: "Insight-uri AI", icon: Lightbulb },
     { id: "demographics" as TabType, label: "Demografice", icon: Users },
     { id: "questions" as TabType, label: "Întrebări", icon: MessageSquare },
+    { id: "correlations" as TabType, label: "Corelații", icon: Network },
+    { id: "cohorts" as TabType, label: "Cohorte", icon: GitCompare },
     { id: "export" as TabType, label: "Export", icon: Download },
   ];
 
+  // Memoize Executive Summary data - persist even when holisticInsights becomes empty temporarily
+  const executiveSummaryData = useMemo(() => {
+    if (holisticInsights.length === 0) {
+      return { overallSentiment: undefined, keyFindings: undefined };
+    }
+
+    // Calculate average sentiment
+    const avgScore =
+      holisticInsights.reduce((sum, insight) => sum + (insight.sentiment_score || 0), 0) /
+      holisticInsights.length;
+
+    const sentimentLabel =
+      holisticInsights.length === 1
+        ? holisticInsights[0]?.sentiment_label || "neutral"
+        : avgScore > 0.3
+          ? "positive"
+          : avgScore < -0.3
+            ? "negative"
+            : "neutral";
+
+    // Extract key findings from themes
+    const keyFindings = holisticInsights
+      .flatMap((insight: HolisticInsight) => {
+        if (!insight.key_themes || !Array.isArray(insight.key_themes)) return [];
+        return insight.key_themes
+          .filter((t) => t && typeof t === "object")
+          .slice(0, 3)
+          .map(
+            (t) => `${t.theme} (${insight.survey_type === "citizen" ? "cetățeni" : "funcționari"})`
+          );
+      })
+      .slice(0, 5);
+
+    return {
+      overallSentiment: {
+        score: avgScore,
+        label: sentimentLabel as "positive" | "negative" | "neutral",
+      },
+      keyFindings: keyFindings.length > 0 ? keyFindings : undefined,
+    };
+  }, [holisticInsights]);
+
   return (
     <>
+      {/* Generate AI Analysis Button */}
+      <div className="mb-4 flex items-center justify-between">
+        <div className="text-muted-foreground text-sm">
+          {holisticInsights.length > 0 ? (
+            <span>
+              ✅ {holisticInsights.reduce((sum, i) => sum + (i.recommendations?.length || 0), 0)}{" "}
+              recomandări strategice generate
+            </span>
+          ) : (
+            <span>⚠️ Nicio analiză AI generată încă</span>
+          )}
+        </div>
+        <Button onClick={generateAnalysis} disabled={isGenerating} className="gap-2">
+          {isGenerating ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Generare în curs...
+            </>
+          ) : (
+            <>
+              <Sparkles className="h-4 w-4" />
+              Generează Analiză AI
+            </>
+          )}
+        </Button>
+      </div>
+
       {/* Navigation Tabs */}
       <div className="border-border bg-card rounded-lg border">
         <div className="flex gap-4 p-4">
@@ -91,17 +357,8 @@ export function ResearchTabs({
               countyCount={countyCount}
               localityCount={localityCount}
               dateRange={dateRange}
-              overallSentiment={{
-                score: 0.65,
-                label: "positive",
-              }}
-              keyFindings={[
-                "84% dintre cetățeni doresc funcționalitatea de solicitare online a documentelor",
-                "Preferință puternică pentru tracking-ul statusului (89% consideră important)",
-                "Preocupările legate de securitate sunt moderate (sentiment: 0.65)",
-                "Grup de vârstă 18-45 ani prezintă cel mai înalt nivel de pregătire digitală",
-                "Funcționarii publici identifică integrarea sistemelor ca fiind cea mai mare provocare",
-              ]}
+              overallSentiment={executiveSummaryData.overallSentiment}
+              keyFindings={executiveSummaryData.keyFindings}
             />
           </div>
         )}
@@ -109,125 +366,100 @@ export function ResearchTabs({
         {/* AI Insights Tab */}
         {activeTab === "insights" && (
           <div>
-            <h2 className="mb-4 text-2xl font-bold">🤖 Insight-uri AI</h2>
-            <AIInsightsPanel
-              themes={[
-                { name: "Digitalizare", score: 0.95, mentions: 18, sentiment: 0.8 },
-                { name: "Eficiență", score: 0.88, mentions: 15, sentiment: 0.7 },
-                { name: "Transparență", score: 0.82, mentions: 12, sentiment: 0.75 },
-                { name: "Accesibilitate", score: 0.79, mentions: 14, sentiment: 0.65 },
-                { name: "Securitate date", score: 0.76, mentions: 10, sentiment: 0.5 },
-                { name: "Tracking status", score: 0.73, mentions: 16, sentiment: 0.85 },
-                { name: "Birocra ție", score: 0.68, mentions: 9, sentiment: -0.4 },
-                { name: "Integrare sisteme", score: 0.65, mentions: 8, sentiment: 0.3 },
-              ]}
-              features={[
-                {
-                  feature: "Solicitare online documente",
-                  count: 16,
-                  priority: "high",
-                  aiScore: 92,
-                  roi: 8.5,
-                },
-                {
-                  feature: "Tracking status cereri",
-                  count: 17,
-                  priority: "high",
-                  aiScore: 89,
-                  roi: 7.8,
-                },
-                {
-                  feature: "Notificări email/SMS",
-                  count: 14,
-                  priority: "medium",
-                  aiScore: 78,
-                  roi: 6.2,
-                },
-                {
-                  feature: "Plăți online taxe",
-                  count: 15,
-                  priority: "high",
-                  aiScore: 85,
-                  roi: 8.0,
-                },
-                {
-                  feature: "Programări online",
-                  count: 12,
-                  priority: "medium",
-                  aiScore: 72,
-                  roi: 5.9,
-                },
-                {
-                  feature: "Chat suport",
-                  count: 9,
-                  priority: "low",
-                  aiScore: 58,
-                  roi: 4.2,
-                },
-                {
-                  feature: "Bază cunoștințe FAQ",
-                  count: 11,
-                  priority: "medium",
-                  aiScore: 68,
-                  roi: 6.5,
-                },
-                {
-                  feature: "Aplicație mobilă",
-                  count: 8,
-                  priority: "low",
-                  aiScore: 62,
-                  roi: 5.1,
-                },
-              ]}
-              recommendations={[
-                {
-                  action: "Prioritizare: Solicitare online documente + Tracking status",
-                  priority: "high",
-                  timeline: "quick-win",
-                  effort: "medium",
-                  impact:
-                    "Impact direct asupra a 89% din respondenți care au solicitat aceste funcții",
-                  reasoning:
-                    "Cele mai solicitate funcționalități cu ROI ridicat (8.5 și 7.8). Implementarea lor va acoperi nevoile principale ale majorității utilizatorilor.",
-                },
-                {
-                  action: "Program de formare digitală pentru funcționari",
-                  priority: "high",
-                  timeline: "short-term",
-                  effort: "medium",
-                  impact: "Reducere rezistență la schimbare, creștere rata adoptare",
-                  reasoning:
-                    "Funcționarii au identificat lipsa competențelor digitale ca barieră principală. Training-ul este esențial pentru succesul platformei.",
-                },
-                {
-                  action: "Integrare plăți online (taxe locale, amenzi)",
-                  priority: "high",
-                  timeline: "short-term",
-                  effort: "high",
-                  impact: "15 respondenți au solicitat explicit, potential venit administrație",
-                  reasoning:
-                    "Funcționalitate cu demand ridicat și beneficii financiare directe. Necesită parteneriat cu procesatori plăți.",
-                },
-                {
-                  action: "Îmbunătățire securitate și GDPR compliance",
-                  priority: "medium",
-                  timeline: "short-term",
-                  effort: "medium",
-                  impact: "Creștere încredere utilizatori, conformitate legală",
-                  reasoning:
-                    "Deși preocupările sunt moderate (sentiment 0.65), securitatea datelor este critică pentru adopție pe termen lung.",
-                },
-                {
-                  action: "Aplicație mobilă nativă (iOS + Android)",
-                  priority: "low",
-                  timeline: "long-term",
-                  effort: "high",
-                  impact: "Acces crescut pentru utilizatorii mobile-first (18-35 ani)",
-                  reasoning:
-                    "Deși doar 42% dintre respondenți au solicitat explicit, tendința demografică indică necesitate viitoare. Recomandat după stabilizarea platformei web.",
-                },
-              ]}
-            />
+            <h2 className="mb-4 text-2xl font-bold">🤖 Insight-uri Strategice AI</h2>
+            {isLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="text-primary h-8 w-8 animate-spin" />
+                <span className="ml-2">Încărcare insights...</span>
+              </div>
+            ) : holisticInsights.length === 0 ? (
+              <div className="rounded-lg border border-dashed p-12 text-center">
+                <Sparkles className="text-muted-foreground mx-auto h-12 w-12" />
+                <h3 className="mt-4 text-lg font-semibold">Nu există analize generate</h3>
+                <p className="text-muted-foreground mt-2">
+                  Apasă butonul &ldquo;Generează Analiză AI&rdquo; pentru a crea insight-uri
+                  strategice.
+                </p>
+              </div>
+            ) : (
+              <>
+                {/* Display summary per survey type */}
+                <div className="mb-6 grid gap-4 md:grid-cols-2">
+                  {holisticInsights.map((insight: HolisticInsight) => (
+                    <div key={insight.survey_type} className="rounded-lg border p-4">
+                      <h3 className="mb-2 text-lg font-semibold capitalize">
+                        {insight.survey_type === "citizen" ? "📋 Cetățeni" : "🏛️ Funcționari"}
+                      </h3>
+                      <p className="text-muted-foreground mb-3 text-sm">{insight.ai_summary}</p>
+                      <div className="flex items-center gap-4 text-sm">
+                        <span className="bg-primary/10 text-primary rounded px-2 py-1 font-medium">
+                          {insight.recommendations?.length || 0} recomandări
+                        </span>
+                        <span className="bg-secondary rounded px-2 py-1">
+                          {insight.total_questions} întrebări
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Combined insights panel */}
+                <AIInsightsPanel
+                  themes={holisticInsights.flatMap((insight: HolisticInsight) => {
+                    if (!insight.key_themes || !Array.isArray(insight.key_themes)) return [];
+                    return insight.key_themes
+                      .filter((t) => t && typeof t === "object")
+                      .map((t) => ({
+                        name: t.theme || "",
+                        score: t.frequency || 0,
+                        mentions: Math.round((t.frequency || 0) * 100),
+                        sentiment:
+                          t.sentiment === "positive" ? 0.8 : t.sentiment === "negative" ? -0.8 : 0,
+                      }));
+                  })}
+                  features={holisticInsights.flatMap((insight: HolisticInsight) => {
+                    if (!insight.feature_requests || !Array.isArray(insight.feature_requests))
+                      return [];
+                    return insight.feature_requests
+                      .filter((f) => f && typeof f === "object")
+                      .map((f) => ({
+                        feature: f.feature || "",
+                        count: f.count || 0,
+                        priority: (f.priority as "high" | "medium" | "low") || "medium",
+                        aiScore: f.aiScore || 0,
+                        roi: f.roi || 0,
+                      }));
+                  })}
+                  recommendations={holisticInsights
+                    .flatMap((insight: HolisticInsight) => {
+                      if (!insight.recommendations || !Array.isArray(insight.recommendations))
+                        return [];
+                      return insight.recommendations
+                        .filter((r) => r && typeof r === "object")
+                        .map((r) => ({
+                          action: r.action || "",
+                          priority: (r.priority as "high" | "medium" | "low") || "medium",
+                          timeline:
+                            (r.timeline as
+                              | "immediate"
+                              | "short-term"
+                              | "medium-term"
+                              | "long-term"
+                              | "quick-win") || "short-term",
+                          effort: (r.effort as "high" | "medium" | "low") || "medium",
+                          impact: (r.impact as "high" | "medium" | "low") || "medium",
+                          reasoning: r.reasoning || "",
+                          surveyType: insight.survey_type, // Add survey type for filtering
+                        }));
+                    })
+                    .sort((a, b) => {
+                      // Sort by impact: high > medium > low
+                      const impactOrder: Record<string, number> = { high: 3, medium: 2, low: 1 };
+                      return (impactOrder[b.impact] || 0) - (impactOrder[a.impact] || 0);
+                    })}
+                />
+              </>
+            )}
           </div>
         )}
 
@@ -253,6 +485,38 @@ export function ResearchTabs({
           <div>
             <div className="mb-4">
               <h2 className="text-2xl font-bold">❓ Analiza pe Întrebări</h2>
+              <p className="text-muted-foreground text-sm">
+                Detalii și insight-uri pentru fiecare întrebare din chestionar
+              </p>
+            </div>
+            <QuestionAnalysis
+              citizenInsights={questionInsights.citizenInsights.map((insight) => ({
+                ...insight,
+                questionType: insight.questionType as
+                  | "text"
+                  | "single_choice"
+                  | "multiple_choice"
+                  | "rating",
+                respondentType: "citizen" as const,
+              }))}
+              officialInsights={questionInsights.officialInsights.map((insight) => ({
+                ...insight,
+                questionType: insight.questionType as
+                  | "text"
+                  | "single_choice"
+                  | "multiple_choice"
+                  | "rating",
+                respondentType: "official" as const,
+              }))}
+            />
+          </div>
+        )}
+
+        {/* Export Tab - ORIGINAL HARDCODED VERSION FOR REFERENCE */}
+        {false && activeTab === "questions" && (
+          <div>
+            <div className="mb-4">
+              <h2 className="text-2xl font-bold">❓ Analiza pe Întrebări (OLD)</h2>
               <p className="text-muted-foreground text-sm">
                 Detalii și insight-uri pentru fiecare întrebare din chestionar
               </p>
@@ -402,6 +666,71 @@ export function ResearchTabs({
                 },
               ]}
             />
+          </div>
+        )}
+
+        {/* Correlations Tab */}
+        {activeTab === "correlations" && (
+          <div>
+            <div className="mb-4">
+              <h2 className="text-2xl font-bold">🔗 Analiză Corelații</h2>
+              <p className="text-muted-foreground text-sm">
+                Corelații statistice între variabilele sondajului
+              </p>
+            </div>
+            {isLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="text-primary h-8 w-8 animate-spin" />
+                <span className="ml-2">Încărcare corelații...</span>
+              </div>
+            ) : correlationData ? (
+              <CorrelationMatrix
+                correlations={correlationData.correlations || []}
+                keyFindings={correlationData.keyFindings || []}
+                recommendations={correlationData.recommendations || []}
+              />
+            ) : (
+              <div className="rounded-lg border border-dashed p-12 text-center">
+                <Network className="text-muted-foreground mx-auto h-12 w-12" />
+                <h3 className="mt-4 text-lg font-semibold">Nu există date de corelație</h3>
+                <p className="text-muted-foreground mt-2">
+                  Datele de corelație vor fi generate automat când există suficiente răspunsuri.
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Cohorts Tab */}
+        {activeTab === "cohorts" && (
+          <div>
+            <div className="mb-4">
+              <h2 className="text-2xl font-bold">👥 Analiza Cohorte</h2>
+              <p className="text-muted-foreground text-sm">
+                Comparație între segmente de utilizatori
+              </p>
+            </div>
+            {isLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="text-primary h-8 w-8 animate-spin" />
+                <span className="ml-2">Încărcare cohorte...</span>
+              </div>
+            ) : cohortData ? (
+              <CohortComparison
+                cohorts={cohortData.cohorts || []}
+                metrics={cohortData.metrics || []}
+                comparisons={cohortData.comparisons || []}
+                summary={cohortData.summary}
+              />
+            ) : (
+              <div className="rounded-lg border border-dashed p-12 text-center">
+                <GitCompare className="text-muted-foreground mx-auto h-12 w-12" />
+                <h3 className="mt-4 text-lg font-semibold">Nu există date de cohorte</h3>
+                <p className="text-muted-foreground mt-2">
+                  Datele de cohorte vor fi generate automat când există suficiente răspunsuri.
+                </p>
+              </div>
+            )}
           </div>
         )}
 

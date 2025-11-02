@@ -28,21 +28,21 @@ export function ExportPanel({ totalResponses }: ExportPanelProps) {
     setPdfSuccess(false);
 
     try {
-      // TODO: Call API endpoint /api/research/export/pdf
-      // For now, simulate delay
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const response = await fetch("/api/survey/research/export/pdf", { method: "GET" });
 
-      // Placeholder: Create a download link
-      // const response = await fetch('/api/research/export/pdf', { method: 'POST' });
-      // const blob = await response.blob();
-      // const url = window.URL.createObjectURL(blob);
-      // const a = document.createElement('a');
-      // a.href = url;
-      // a.download = `research-report-${new Date().toISOString().split('T')[0]}.pdf`;
-      // document.body.appendChild(a);
-      // a.click();
-      // window.URL.revokeObjectURL(url);
-      // document.body.removeChild(a);
+      if (!response.ok) {
+        throw new Error(`PDF export failed: ${response.statusText}`);
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `research-report-${new Date().toISOString().split("T")[0]}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
 
       setPdfSuccess(true);
       setTimeout(() => setPdfSuccess(false), 3000);
@@ -58,21 +58,21 @@ export function ExportPanel({ totalResponses }: ExportPanelProps) {
     setExcelSuccess(false);
 
     try {
-      // TODO: Call API endpoint /api/research/export/excel
-      // For now, simulate delay
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const response = await fetch("/api/survey/research/export/excel", { method: "GET" });
 
-      // Placeholder: Create a download link
-      // const response = await fetch('/api/research/export/excel', { method: 'POST' });
-      // const blob = await response.blob();
-      // const url = window.URL.createObjectURL(blob);
-      // const a = document.createElement('a');
-      // a.href = url;
-      // a.download = `research-data-${new Date().toISOString().split('T')[0]}.xlsx`;
-      // document.body.appendChild(a);
-      // a.click();
-      // window.URL.revokeObjectURL(url);
-      // document.body.removeChild(a);
+      if (!response.ok) {
+        throw new Error(`Excel export failed: ${response.statusText}`);
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `survey-data-${new Date().toISOString().split("T")[0]}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
 
       setExcelSuccess(true);
       setTimeout(() => setExcelSuccess(false), 3000);

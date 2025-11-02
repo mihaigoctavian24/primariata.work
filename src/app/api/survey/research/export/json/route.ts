@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
 
     // Fetch AI insights
     let insightsQuery = supabase
-      .from("survey_ai_insights")
+      .from("survey_holistic_insights")
       .select("*")
       .order("generated_at", { ascending: false });
 

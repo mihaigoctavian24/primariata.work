@@ -1,0 +1,4 @@
+// DISABLED: Schema incompatibility - needs Phase 5 rewrite
+// Old schema used question_id, respondent_type, themes
+// New schema uses survey_type, key_themes
+// This route will be reimplemented in Phase 5 with correct schema

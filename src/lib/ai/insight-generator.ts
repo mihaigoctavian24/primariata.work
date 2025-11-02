@@ -552,3 +552,182 @@ Returnează JSON:
     return [];
   }
 }
+
+// =====================================================
+// HOLISTIC SURVEY INSIGHTS (Per Survey Type)
+// =====================================================
+
+/**
+ * Generate holistic strategic insights for entire survey type
+ * Input: ALL questions + ALL responses for a survey type (citizen/official)
+ * Output: 10-20 strategic recommendations organized by impact
+ */
+export async function generateHolisticInsights(input: {
+  surveyType: "citizen" | "official";
+  questions: Array<{
+    id: string;
+    questionText: string;
+    questionType: string;
+    questionNumber: string;
+  }>;
+  responses: Array<{
+    questionId: string;
+    answerText?: string;
+    answerChoices?: string[];
+    answerRating?: number;
+  }>;
+  respondentCount: number;
+}): Promise<{
+  surveyType: "citizen" | "official";
+  keyThemes: Array<{ theme: string; frequency: number; sentiment: string }>;
+  sentimentScore: number;
+  sentimentLabel: "positive" | "neutral" | "negative";
+  recommendations: AIRecommendation[];
+  featureRequests: Array<{
+    feature: string;
+    count: number;
+    priority: "high" | "medium" | "low";
+    aiScore: number;
+    roi: number;
+  }>;
+  aiSummary: string;
+  totalQuestions: number;
+  totalResponses: number;
+  modelVersion: string;
+  promptTokens: number;
+  completionTokens: number;
+  confidenceScore: number;
+}> {
+  console.log(`🎯 Generating HOLISTIC insights for ${input.surveyType} survey...`);
+
+  // Prepare comprehensive context for OpenAI
+  const questionContext = input.questions
+    .map((q) => {
+      const questionResponses = input.responses.filter((r) => r.questionId === q.id);
+      const responseCount = questionResponses.length;
+
+      let responseSummary = "";
+      if (q.questionType === "text" || q.questionType === "short_text") {
+        const textSamples = questionResponses
+          .filter((r) => r.answerText)
+          .slice(0, 10)
+          .map((r) => `  - "${r.answerText}"`);
+        responseSummary = `Răspunsuri text (${responseCount}):\n${textSamples.join("\n")}`;
+      } else if (q.questionType === "single_choice" || q.questionType === "multiple_choice") {
+        const choiceCount: Record<string, number> = {};
+        questionResponses.forEach((r) => {
+          if (r.answerChoices) {
+            r.answerChoices.forEach((choice) => {
+              choiceCount[choice] = (choiceCount[choice] || 0) + 1;
+            });
+          }
+        });
+        const topChoices = Object.entries(choiceCount)
+          .sort(([, a], [, b]) => b - a)
+          .slice(0, 5)
+          .map(
+            ([choice, count]) =>
+              `  - ${choice}: ${count} (${((count / responseCount) * 100).toFixed(1)}%)`
+          )
+          .join("\n");
+        responseSummary = `Distribuție opțiuni (${responseCount}):\n${topChoices}`;
+      } else if (q.questionType === "rating") {
+        const ratings = questionResponses.filter((r) => r.answerRating).map((r) => r.answerRating!);
+        const avg = ratings.reduce((sum, r) => sum + r, 0) / ratings.length;
+        responseSummary = `Rating mediu: ${avg.toFixed(2)}/5 (${responseCount} răspunsuri)`;
+      }
+
+      return `\n### ${q.questionNumber}. ${q.questionText}\n${responseSummary}`;
+    })
+    .join("\n");
+
+  const systemPrompt = `Ești un consultant strategic SENIOR pentru digitalizarea serviciilor publice în România.
+
+Analizezi INTEGRAL un chestionar ${input.surveyType === "citizen" ? "pentru CETĂȚENI" : "pentru FUNCȚIONARI PUBLICI"}.
+
+SARCINA TA:
+1. Identifică 5-7 TEME STRATEGICE PRINCIPALE din toate răspunsurile
+2. Evaluează sentiment-ul general (pozitiv/neutru/negativ)
+3. Generează 10-20 RECOMANDĂRI STRATEGICE ACȚIONABILE cu organizare pe impact
+4. Extrage 10-15 FUNCȚIONALITĂȚI DIGITALE CONCRETE dorite de utilizatori
+5. Scrie un sumar executiv (3-5 propoziții)
+
+RECOMANDĂRILE trebuie să fie:
+- STRATEGICE (nu granulare per-întrebare)
+- SINTETICE (combină insights din multiple întrebări)
+- ACȚIONABILE (cu timeline și effort estimat)
+- ORGANIZATE pe impact (high/medium/low)
+
+FUNCȚIONALITĂȚILE trebuie să fie:
+- CONCRETE (feature-uri digitale specifice)
+- PRIORITIZATE (după frecvența menționării și impact)
+- CU ROI ESTIMAT (0-10)
+
+Returnează JSON:
+{
+  "keyThemes": [
+    { "theme": "Nume temă", "frequency": 0.8, "sentiment": "positive/neutral/negative" }
+  ],
+  "sentimentScore": 0.5,
+  "sentimentLabel": "positive/neutral/negative",
+  "recommendations": [
+    {
+      "action": "Recomandare strategică concisă",
+      "priority": "high/medium/low",
+      "impact": "high/medium/low",
+      "effort": "low/medium/high",
+      "timeline": "immediate/short-term/medium-term/long-term",
+      "reasoning": "De ce această recomandare este importantă (2-3 propoziții)"
+    }
+  ],
+  "featureRequests": [
+    {
+      "feature": "Nume funcționalitate concisă",
+      "count": 15,
+      "priority": "high/medium/low",
+      "aiScore": 85,
+      "roi": 8.5
+    }
+  ],
+  "aiSummary": "Sumar executiv al chestionarului (3-5 propoziții)",
+  "confidenceScore": 0.85
+}`;
+
+  const userPrompt = `CHESTIONAR ${input.surveyType.toUpperCase()}
+Total întrebări: ${input.questions.length}
+Total respondenți: ${input.respondentCount}
+
+${questionContext}
+
+Generează analiza strategică holistică.`;
+
+  try {
+    const response = await chatCompletion({
+      ...AI_MODELS.INSIGHTS,
+      systemPrompt,
+      userPrompt,
+      jsonMode: true,
+    });
+
+    const result = JSON.parse(response.content);
+
+    return {
+      surveyType: input.surveyType,
+      keyThemes: result.keyThemes || [],
+      sentimentScore: result.sentimentScore || 0,
+      sentimentLabel: result.sentimentLabel || "neutral",
+      recommendations: (result.recommendations || []).slice(0, 20), // Max 20 recommendations
+      featureRequests: (result.featureRequests || []).slice(0, 15), // Max 15 features
+      aiSummary: result.aiSummary || "",
+      totalQuestions: input.questions.length,
+      totalResponses: input.responses.length,
+      modelVersion: AI_MODELS.INSIGHTS.model,
+      promptTokens: response.usage?.promptTokens || 0,
+      completionTokens: response.usage?.completionTokens || 0,
+      confidenceScore: result.confidenceScore || 0.8,
+    };
+  } catch (error) {
+    console.error(`❌ Holistic insights generation failed for ${input.surveyType}:`, error);
+    throw error;
+  }
+}

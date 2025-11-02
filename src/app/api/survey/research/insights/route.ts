@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
     const sortOrder = (searchParams.get("sortOrder") || "desc") as "asc" | "desc";
 
     // Build query
-    let query = supabase.from("survey_ai_insights").select("*", { count: "exact" });
+    let query = supabase.from("survey_holistic_insights").select("*", { count: "exact" });
 
     // Apply filters
     if (questionId) {
@@ -164,7 +164,10 @@ export async function DELETE() {
     }
 
     // Delete all insights
-    const { error: deleteError } = await supabase.from("survey_ai_insights").delete().neq("id", "");
+    const { error: deleteError } = await supabase
+      .from("survey_holistic_insights")
+      .delete()
+      .neq("id", "");
 
     if (deleteError) {
       throw new Error(`Failed to delete insights: ${deleteError.message}`);

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { generateQuestionInsight } from "@/lib/ai/insight-generator";
-import type { SurveyRespondent, SurveyResponse, SurveyQuestion } from "@/types/survey";
+import type { SurveyRespondent, SurveyResponse } from "@/types/survey";
 
 /**
  * GET /api/survey/research/insights/[id]
@@ -41,7 +41,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     // Fetch insight
     const { data: insight, error: queryError } = await supabase
-      .from("survey_ai_insights")
+      .from("survey_holistic_insights")
       .select("*")
       .eq("id", id)
       .single();
@@ -110,7 +110,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
     // Fetch existing insight
     const { data: existingInsight, error: fetchError } = await supabase
-      .from("survey_ai_insights")
+      .from("survey_holistic_insights")
       .select("*")
       .eq("id", id)
       .single();
@@ -166,7 +166,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
     // Update insight in database
     const { error: updateError } = await supabase
-      .from("survey_ai_insights")
+      .from("survey_holistic_insights")
       .update({
         themes: newInsight.themes as unknown as never,
         sentiment_score: newInsight.sentimentScore,
@@ -195,7 +195,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
     // Fetch updated insight
     const { data: updatedInsight } = await supabase
-      .from("survey_ai_insights")
+      .from("survey_holistic_insights")
       .select("*")
       .eq("id", id)
       .single();
@@ -259,13 +259,16 @@ export async function DELETE(
 
     // Fetch insight to get cache key
     const { data: insight } = await supabase
-      .from("survey_ai_insights")
+      .from("survey_holistic_insights")
       .select("question_id, respondent_type")
       .eq("id", id)
       .single();
 
     // Delete insight
-    const { error: deleteError } = await supabase.from("survey_ai_insights").delete().eq("id", id);
+    const { error: deleteError } = await supabase
+      .from("survey_holistic_insights")
+      .delete()
+      .eq("id", id);
 
     if (deleteError) {
       throw new Error(`Failed to delete insight: ${deleteError.message}`);
