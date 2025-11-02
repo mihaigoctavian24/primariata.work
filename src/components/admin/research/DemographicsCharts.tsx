@@ -100,16 +100,16 @@ export function DemographicsCharts({
             <div>
               <div className="mb-2 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Users className="h-4 w-4 text-blue-600" />
+                  <Users className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                   <span className="font-medium">Cetățeni</span>
                 </div>
                 <span className="text-muted-foreground text-sm">
                   {totalCitizens} ({citizenPercentage.toFixed(1)}%)
                 </span>
               </div>
-              <div className="h-3 w-full overflow-hidden rounded-full bg-gray-200">
+              <div className="bg-muted h-3 w-full overflow-hidden rounded-full">
                 <div
-                  className="h-full rounded-full bg-blue-500"
+                  className="h-full rounded-full bg-blue-500 dark:bg-blue-600"
                   style={{ width: `${citizenPercentage}%` }}
                 />
               </div>
@@ -119,16 +119,16 @@ export function DemographicsCharts({
             <div>
               <div className="mb-2 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Building2 className="h-4 w-4 text-green-600" />
+                  <Building2 className="h-4 w-4 text-green-600 dark:text-green-400" />
                   <span className="font-medium">Funcționari Publici</span>
                 </div>
                 <span className="text-muted-foreground text-sm">
                   {totalOfficials} ({officialPercentage.toFixed(1)}%)
                 </span>
               </div>
-              <div className="h-3 w-full overflow-hidden rounded-full bg-gray-200">
+              <div className="bg-muted h-3 w-full overflow-hidden rounded-full">
                 <div
-                  className="h-full rounded-full bg-green-500"
+                  className="h-full rounded-full bg-green-500 dark:bg-green-600"
                   style={{ width: `${officialPercentage}%` }}
                 />
               </div>
@@ -166,9 +166,9 @@ export function DemographicsCharts({
                       {county.count} ({((county.count / total) * 100).toFixed(1)}%)
                     </span>
                   </div>
-                  <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
+                  <div className="bg-muted h-2 w-full overflow-hidden rounded-full">
                     <div
-                      className="h-full rounded-full bg-gradient-to-r from-blue-500 to-green-500"
+                      className="h-full rounded-full bg-gradient-to-r from-blue-500 to-green-500 dark:from-blue-600 dark:to-green-600"
                       style={{ width: `${(county.count / maxCounty) * 100}%` }}
                     />
                   </div>
@@ -221,7 +221,7 @@ export function DemographicsCharts({
                       {locality.count} ({((locality.count / total) * 100).toFixed(1)}%)
                     </span>
                   </div>
-                  <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
+                  <div className="bg-muted h-2 w-full overflow-hidden rounded-full">
                     <div
                       className="bg-primary h-full rounded-full"
                       style={{ width: `${(locality.count / maxLocality) * 100}%` }}
@@ -229,11 +229,11 @@ export function DemographicsCharts({
                   </div>
                   <div className="text-muted-foreground mt-1 flex gap-3 text-xs">
                     <span className="flex items-center gap-1">
-                      <Users className="h-3 w-3 text-blue-600" />
+                      <Users className="h-3 w-3 text-blue-600 dark:text-blue-400" />
                       {locality.citizenCount}
                     </span>
                     <span className="flex items-center gap-1">
-                      <Building2 className="h-3 w-3 text-green-600" />
+                      <Building2 className="h-3 w-3 text-green-600 dark:text-green-400" />
                       {locality.officialCount}
                     </span>
                   </div>

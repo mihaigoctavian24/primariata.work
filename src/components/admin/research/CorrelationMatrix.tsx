@@ -46,11 +46,15 @@ export function CorrelationMatrix({
   // Get color based on coefficient value
   const getCorrelationColor = (coefficient: number): string => {
     const abs = Math.abs(coefficient);
-    if (abs >= 0.8) return coefficient > 0 ? "bg-green-600" : "bg-red-600";
-    if (abs >= 0.6) return coefficient > 0 ? "bg-green-500" : "bg-red-500";
-    if (abs >= 0.4) return coefficient > 0 ? "bg-green-400" : "bg-red-400";
-    if (abs >= 0.2) return coefficient > 0 ? "bg-green-300" : "bg-red-300";
-    return "bg-gray-300";
+    if (abs >= 0.8)
+      return coefficient > 0 ? "bg-green-600 dark:bg-green-500" : "bg-red-600 dark:bg-red-500";
+    if (abs >= 0.6)
+      return coefficient > 0 ? "bg-green-500 dark:bg-green-600" : "bg-red-500 dark:bg-red-600";
+    if (abs >= 0.4)
+      return coefficient > 0 ? "bg-green-400 dark:bg-green-700" : "bg-red-400 dark:bg-red-700";
+    if (abs >= 0.2)
+      return coefficient > 0 ? "bg-green-300 dark:bg-green-800" : "bg-red-300 dark:bg-red-800";
+    return "bg-gray-300 dark:bg-gray-700";
   };
 
   // Get strength badge variant
@@ -67,9 +71,11 @@ export function CorrelationMatrix({
 
   // Get direction icon
   const getDirectionIcon = (direction: string) => {
-    if (direction === "positive") return <TrendingUp className="h-4 w-4 text-green-600" />;
-    if (direction === "negative") return <TrendingDown className="h-4 w-4 text-red-600" />;
-    return <Minus className="h-4 w-4 text-gray-600" />;
+    if (direction === "positive")
+      return <TrendingUp className="h-4 w-4 text-green-600 dark:text-green-400" />;
+    if (direction === "negative")
+      return <TrendingDown className="h-4 w-4 text-red-600 dark:text-red-400" />;
+    return <Minus className="h-4 w-4 text-gray-600 dark:text-gray-400" />;
   };
 
   return (
@@ -135,7 +141,7 @@ export function CorrelationMatrix({
                       <div className="flex flex-col items-end gap-2">
                         <Badge variant={strengthBadge.variant}>{strengthBadge.label}</Badge>
                         {isSignificant && (
-                          <Badge variant="default" className="bg-blue-500">
+                          <Badge variant="default" className="bg-blue-500 dark:bg-blue-600">
                             Semnificativ
                           </Badge>
                         )}
@@ -285,7 +291,7 @@ export function CorrelationMatrix({
               </div>
 
               {/* Explanation */}
-              <div className="bg-muted rounded-lg p-4">
+              <div className="bg-muted dark:bg-muted/50 rounded-lg p-4">
                 <h4 className="mb-2 text-sm font-medium">💬 Explicație</h4>
                 <p className="text-muted-foreground text-xs">
                   <strong>Coeficientul de corelație Pearson (r)</strong> măsoară forța și direcția
@@ -304,7 +310,7 @@ export function CorrelationMatrix({
       )}
 
       {/* Statistical Note */}
-      <Card className="bg-muted/50">
+      <Card className="bg-muted/50 dark:bg-muted/20">
         <CardContent className="pt-6">
           <div className="flex items-start gap-3">
             <div className="bg-primary/10 text-primary mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full">

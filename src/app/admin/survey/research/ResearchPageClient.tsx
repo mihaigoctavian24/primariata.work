@@ -2,6 +2,7 @@
 
 import { RealtimeProvider } from "./RealtimeProvider";
 import { ResearchTabs } from "./ResearchTabs";
+import { ErrorBoundary } from "@/components/admin/research/ErrorBoundary";
 import { useRouter } from "next/navigation";
 import { useCallback } from "react";
 
@@ -56,8 +57,10 @@ export function ResearchPageClient(props: ResearchPageClientProps) {
   }, [router]);
 
   return (
-    <RealtimeProvider onDataUpdate={handleDataUpdate}>
-      <ResearchTabs {...props} />
-    </RealtimeProvider>
+    <ErrorBoundary>
+      <RealtimeProvider onDataUpdate={handleDataUpdate}>
+        <ResearchTabs {...props} />
+      </RealtimeProvider>
+    </ErrorBoundary>
   );
 }

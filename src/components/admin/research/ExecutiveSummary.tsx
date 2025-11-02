@@ -43,10 +43,26 @@ export function ExecutiveSummary({
 
   // Sentiment display
   const sentimentConfig = {
-    positive: { color: "text-green-600", bg: "bg-green-500/10", label: "Pozitiv" },
-    negative: { color: "text-red-600", bg: "bg-red-500/10", label: "Negativ" },
-    neutral: { color: "text-gray-600", bg: "bg-gray-500/10", label: "Neutru" },
-    mixed: { color: "text-amber-600", bg: "bg-amber-500/10", label: "Mixt" },
+    positive: {
+      color: "text-green-600 dark:text-green-400",
+      bg: "bg-green-500/10 dark:bg-green-500/20",
+      label: "Pozitiv",
+    },
+    negative: {
+      color: "text-red-600 dark:text-red-400",
+      bg: "bg-red-500/10 dark:bg-red-500/20",
+      label: "Negativ",
+    },
+    neutral: {
+      color: "text-gray-600 dark:text-gray-400",
+      bg: "bg-gray-500/10 dark:bg-gray-500/20",
+      label: "Neutru",
+    },
+    mixed: {
+      color: "text-amber-600 dark:text-amber-400",
+      bg: "bg-amber-500/10 dark:bg-amber-500/20",
+      label: "Mixt",
+    },
   };
 
   const sentiment = overallSentiment
@@ -58,15 +74,17 @@ export function ExecutiveSummary({
       {/* Research Validity Badge */}
       <Card
         className={
-          isValidResearch ? "border-green-200 bg-green-50/50" : "border-amber-200 bg-amber-50/50"
+          isValidResearch
+            ? "border-green-200 bg-green-50/50 dark:border-green-800 dark:bg-green-950/30"
+            : "border-amber-200 bg-amber-50/50 dark:border-amber-800 dark:bg-amber-950/30"
         }
       >
         <CardContent className="pt-6">
           <div className="flex items-center gap-3">
             {isValidResearch ? (
-              <CheckCircle2 className="h-10 w-10 text-green-600" />
+              <CheckCircle2 className="h-10 w-10 text-green-600 dark:text-green-400" />
             ) : (
-              <AlertCircle className="h-10 w-10 text-amber-600" />
+              <AlertCircle className="h-10 w-10 text-amber-600 dark:text-amber-400" />
             )}
             <div className="flex-1">
               <h3 className="text-lg font-semibold">
@@ -207,15 +225,15 @@ export function ExecutiveSummary({
                   </span>
                 </div>
                 {/* Sentiment Progress Bar */}
-                <div className="relative h-2 w-full overflow-hidden rounded-full bg-gray-200">
+                <div className="bg-muted relative h-2 w-full overflow-hidden rounded-full">
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-red-500 via-yellow-500 to-green-500"
+                    className="h-full rounded-full bg-gradient-to-r from-red-500 via-yellow-500 to-green-500 dark:from-red-600 dark:via-yellow-600 dark:to-green-600"
                     style={{
                       width: `${((overallSentiment.score + 1) / 2) * 100}%`,
                     }}
                   />
                 </div>
-                <div className="mt-1 flex justify-between text-xs text-gray-500">
+                <div className="text-muted-foreground mt-1 flex justify-between text-xs">
                   <span>Negativ</span>
                   <span>Neutru</span>
                   <span>Pozitiv</span>

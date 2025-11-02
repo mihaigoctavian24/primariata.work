@@ -105,10 +105,26 @@ export function QuestionAnalysis({
  */
 function QuestionCard({ insight }: { insight: QuestionInsight }) {
   const sentimentConfig = {
-    positive: { color: "text-green-600", bg: "bg-green-500/10", label: "Pozitiv" },
-    negative: { color: "text-red-600", bg: "bg-red-500/10", label: "Negativ" },
-    neutral: { color: "text-gray-600", bg: "bg-gray-500/10", label: "Neutru" },
-    mixed: { color: "text-amber-600", bg: "bg-amber-500/10", label: "Mixt" },
+    positive: {
+      color: "text-green-600 dark:text-green-400",
+      bg: "bg-green-500/10 dark:bg-green-500/20",
+      label: "Pozitiv",
+    },
+    negative: {
+      color: "text-red-600 dark:text-red-400",
+      bg: "bg-red-500/10 dark:bg-red-500/20",
+      label: "Negativ",
+    },
+    neutral: {
+      color: "text-gray-600 dark:text-gray-400",
+      bg: "bg-gray-500/10 dark:bg-gray-500/20",
+      label: "Neutru",
+    },
+    mixed: {
+      color: "text-amber-600 dark:text-amber-400",
+      bg: "bg-amber-500/10 dark:bg-amber-500/20",
+      label: "Mixt",
+    },
   };
 
   return (
@@ -133,12 +149,14 @@ function QuestionCard({ insight }: { insight: QuestionInsight }) {
       <CardContent className="space-y-6">
         {/* AI Summary */}
         {insight.aiSummary && (
-          <div className="border-border rounded-lg border bg-blue-50/50 p-4">
+          <div className="border-border rounded-lg border bg-blue-50/50 p-4 dark:bg-blue-950/30">
             <div className="mb-2 flex items-center gap-2">
-              <MessageSquare className="h-4 w-4 text-blue-600" />
-              <span className="text-sm font-medium text-blue-900">Rezumat AI</span>
+              <MessageSquare className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+              <span className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                Rezumat AI
+              </span>
             </div>
-            <p className="text-sm text-blue-900/80">{insight.aiSummary}</p>
+            <p className="text-sm text-blue-900/80 dark:text-blue-100/70">{insight.aiSummary}</p>
           </div>
         )}
 
@@ -156,7 +174,7 @@ function QuestionCard({ insight }: { insight: QuestionInsight }) {
                         {choice.count} ({choice.percentage.toFixed(1)}%)
                       </span>
                     </div>
-                    <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
+                    <div className="bg-muted h-2 w-full overflow-hidden rounded-full">
                       <div
                         className="bg-primary h-full rounded-full"
                         style={{ width: `${choice.percentage}%` }}
@@ -176,7 +194,7 @@ function QuestionCard({ insight }: { insight: QuestionInsight }) {
               <h4 className="text-sm font-semibold">Distribuție rating</h4>
               {insight.averageRating && (
                 <div className="flex items-center gap-2">
-                  <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                  <Star className="h-4 w-4 fill-amber-400 text-amber-400 dark:fill-amber-500 dark:text-amber-500" />
                   <span className="text-sm font-medium">
                     Medie: {insight.averageRating.toFixed(2)} / 5.00
                   </span>
@@ -192,9 +210,9 @@ function QuestionCard({ insight }: { insight: QuestionInsight }) {
                       {rating.rating} {rating.rating === 1 ? "stea" : "stele"}
                     </div>
                     <div className="flex-1">
-                      <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
+                      <div className="bg-muted h-2 w-full overflow-hidden rounded-full">
                         <div
-                          className="h-full rounded-full bg-amber-400"
+                          className="h-full rounded-full bg-amber-400 dark:bg-amber-500"
                           style={{ width: `${rating.percentage}%` }}
                         />
                       </div>
@@ -216,10 +234,10 @@ function QuestionCard({ insight }: { insight: QuestionInsight }) {
               {insight.themes.map((theme, index) => {
                 const sentimentColor =
                   theme.sentiment > 0.3
-                    ? "border-green-200 bg-green-50"
+                    ? "border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950/30"
                     : theme.sentiment < -0.3
-                      ? "border-red-200 bg-red-50"
-                      : "border-gray-200 bg-gray-50";
+                      ? "border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/30"
+                      : "border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/30";
                 return (
                   <div
                     key={index}
