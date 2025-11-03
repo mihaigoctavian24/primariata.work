@@ -130,11 +130,12 @@ Stack tehnologic și development
 
 - **[📖 Overview](./04-Implementare/)** - Introducere implementare
 - **[🛠️ Stack Tehnologic](./04-Implementare/Stack-Tehnologic.md)** - Next.js, React, Supabase
+- **[📊 Research Analysis](./04-Implementare/Research-Analysis.md)** - ✅ AI Dashboard (M7)
 - **[⚙️ Setup Development](./04-Implementare/)** - ⏳ În lucru (M6)
 - **[🔄 Workflow](./04-Implementare/)** - ⏳ În lucru (M6)
 - **[🧪 Testare](./04-Implementare/)** - ⏳ În lucru (M6)
 
-**Status**: 🟡 25% (1/4 documente)
+**Status**: 🟡 40% (2/5 documente)
 **Deadline M6**: 29 noiembrie 2025
 
 </td>
@@ -145,12 +146,13 @@ Stack tehnologic și development
 Ghiduri pentru utilizatori
 
 - **[📖 Overview](./05-Utilizare/)** - Introducere utilizare
+- **[📊 Research Dashboard](./05-Utilizare/Research-Dashboard.md)** - ✅ Ghid AI Analysis (M7)
 - **[👤 Ghid Cetățean](./05-Utilizare/)** - ⏳ În lucru (M6)
 - **[👔 Ghid Funcționar](./05-Utilizare/)** - ⏳ În lucru (M6)
 - **[⚙️ Ghid Administrator](./05-Utilizare/)** - ⏳ În lucru (M6)
 - **[❓ FAQ](./05-Utilizare/)** - ⏳ În lucru (M6)
 
-**Status**: 🔴 0% (0/4 documente)
+**Status**: 🟡 20% (1/5 documente)
 **Deadline M6**: 29 noiembrie 2025
 
 </td>
@@ -179,7 +181,7 @@ Materiale suplimentare
 
 <div align="center">
 
-### Progress General: 18/25 documente (72%)
+### Progress General: 20/27 documente (74%)
 
 </div>
 

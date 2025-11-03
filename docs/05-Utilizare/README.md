@@ -14,7 +14,68 @@ Această secțiune conține ghiduri practice pentru utilizatorii platformei **pr
 
 ## 👥 Ghiduri Disponibile
 
-### 1. 👤 Ghid Cetățean (`Ghid-Cetatean.md`)
+### 1. 📊 Research Dashboard - Ghid Utilizare (`Research-Dashboard.md`)
+
+**Status**: ✅ COMPLET (creat 2 noiembrie 2025)
+
+**Public țintă**: Administratori și funcționari cu rol de **admin** sau **super_admin** care:
+
+- Analizează răspunsurile la chestionare
+- Generează insight-uri AI pentru cercetare
+- Exportă rapoarte și date
+- Monitorizează real-time răspunsurile cetățenilor
+
+**Conținut disponibil:**
+
+#### A. Prezentare Generală
+- ✅ Ce este Research Dashboard?
+- ✅ Cerințe acces (rol admin/super_admin)
+- ✅ Navigare la dashboard (`/admin/survey/research`)
+- ✅ Status real-time connection
+- ✅ Data validity badges
+
+#### B. Taburi Dashboard (7 taburi complete)
+1. **Prezentare Generală**: Summary statistics, AI key findings, sentiment gauge
+2. **Insight-uri AI**: Theme cloud, feature priority matrix, AI recommendations
+3. **Insight-uri Holistice**: Cross-question analysis, executive summary
+4. **Analiză pe Întrebări**: Detailed per-question analysis (Citizens + Officials)
+5. **Corelări**: Statistical correlations (Pearson), significance testing
+6. **Cohorte**: Age/Location/Usage cohort analysis și comparisons
+7. **Demografice**: County distribution, top 10 localities
+8. **Export**: PDF, Excel, CSV, JSON exports
+
+#### C. Funcționalități Avansate
+- ✅ Real-time Updates: Auto-refresh la răspunsuri noi (2s debouncing)
+- ✅ Export Multi-Format:
+  - PDF Executive Report (stakeholder presentations)
+  - Excel Raw Data (5 worksheets, complete analysis)
+  - CSV Simple Export (UTF-8 BOM compatibility)
+  - JSON Structured Data (API integrations)
+- ✅ Correlation Analysis: Pearson coefficients, p-values, AI interpretations
+- ✅ Cohort Analysis: Age, Location, Usage segments with comparisons
+
+#### D. Troubleshooting
+- ✅ Missing AI insights (auto-trigger analysis)
+- ✅ Empty charts (data validation)
+- ✅ Export failures (network/size issues)
+- ✅ Real-time updates not working (WebSocket troubleshooting)
+- ✅ Slow page load (performance optimization)
+
+#### E. Best Practices
+- ✅ Data interpretation (sample size validation)
+- ✅ Export usage (format selection guide)
+- ✅ Decision-making (ROI prioritization)
+- ✅ Keyboard shortcuts
+
+**Link**: [Research-Dashboard.md](./Research-Dashboard.md) (11 secțiuni, 650+ linii)
+
+**Documentație tehnică**: Vezi [docs/04-Implementare/Research-Analysis.md](../04-Implementare/Research-Analysis.md)
+
+**API Reference**: Vezi `.docs/02-technical-specs/research-analysis-api.md`
+
+---
+
+### 2. 👤 Ghid Cetățean (`Ghid-Cetatean.md`)
 
 **Status**: În pregătire (issue #119 - HIGH priority)
 
@@ -82,7 +143,7 @@ Această secțiune conține ghiduri practice pentru utilizatorii platformei **pr
 
 ---
 
-### 2. 🏛️ Ghid Funcționar (`Ghid-Functionar.md`)
+### 3. 🏛️ Ghid Funcționar (`Ghid-Functionar.md`)
 
 **Status**: În pregătire (issue #120 - HIGH priority)
 
@@ -130,7 +191,7 @@ Această secțiune conține ghiduri practice pentru utilizatorii platformei **pr
 
 ---
 
-### 3. 👨‍💼 Ghid Administrator (`Ghid-Administrator.md`)
+### 4. 👨‍💼 Ghid Administrator (`Ghid-Administrator.md`)
 
 **Status**: În pregătire (issue #121 - LOW priority)
 
@@ -178,7 +239,7 @@ Această secțiune conține ghiduri practice pentru utilizatorii platformei **pr
 
 ---
 
-### 4. ❓ FAQ General (`FAQ.md`)
+### 5. ❓ FAQ General (`FAQ.md`)
 
 **Status**: În pregătire (issue #122 - MEDIUM priority)
 
@@ -245,7 +306,9 @@ Această secțiune conține ghiduri practice pentru utilizatorii platformei **pr
 
 - ✅ Chestionar multi-step (5 pași, 25+ întrebări)
 - ✅ Dashboard admin cu analytics
+- ✅ Research Analysis Dashboard (AI insights, 7 taburi)
 - ✅ Export date (CSV, JSON, XLSX, PDF)
+- ✅ Real-time updates (Supabase Realtime)
 
 ### M2: Cereri Module (0% - planned)
 
@@ -263,7 +326,16 @@ Această secțiune conține ghiduri practice pentru utilizatorii platformei **pr
 
 ## 📋 Checklist Documentație Utilizare (M6)
 
-**Status**: 0/4 documente (0%)
+**Status**: 1/5 documente (20%)
+
+- [x] **Research Dashboard** (✅ COMPLET - 2 Nov 2025)
+  - [x] Secțiunea Overview + Features
+  - [x] Walkthrough 7 taburi complete
+  - [x] Export functionality (4 formats)
+  - [x] Real-time updates documentation
+  - [x] Troubleshooting guide
+  - [x] Best practices
+  - [x] Keyboard shortcuts
 
 - [ ] **Ghid Cetățean** (#119 - HIGH)
   - [ ] Secțiunea Înregistrare
