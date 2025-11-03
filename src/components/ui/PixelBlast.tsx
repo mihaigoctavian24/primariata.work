@@ -459,13 +459,23 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
       }
       const canvas = document.createElement("canvas");
       const gl = canvas.getContext("webgl2", { antialias, alpha: true });
-      if (!gl) return;
-      const renderer = new THREE.WebGLRenderer({
-        canvas,
-        context: gl as WebGL2RenderingContext,
-        antialias,
-        alpha: true,
-      });
+      if (!gl) {
+        console.warn("PixelBlast: WebGL2 not available");
+        return;
+      }
+
+      let renderer;
+      try {
+        renderer = new THREE.WebGLRenderer({
+          canvas,
+          context: gl as WebGL2RenderingContext,
+          antialias,
+          alpha: true,
+        });
+      } catch (error) {
+        console.error("PixelBlast: Failed to create WebGL renderer", error);
+        return;
+      }
       renderer.domElement.style.width = "100%";
       renderer.domElement.style.height = "100%";
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -491,15 +501,27 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
       };
       const scene = new THREE.Scene();
       const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
-      const material = new THREE.ShaderMaterial({
-        vertexShader: VERTEX_SRC,
-        fragmentShader: FRAGMENT_SRC,
-        uniforms,
-        transparent: true,
-        glslVersion: THREE.GLSL3,
-        depthTest: false,
-        depthWrite: false,
-      });
+
+      let material;
+      try {
+        material = new THREE.ShaderMaterial({
+          vertexShader: VERTEX_SRC,
+          fragmentShader: FRAGMENT_SRC,
+          uniforms,
+          transparent: true,
+          glslVersion: THREE.GLSL3,
+          depthTest: false,
+          depthWrite: false,
+        });
+      } catch (error) {
+        console.error("PixelBlast: Failed to create shader material", error);
+        renderer.dispose();
+        if (renderer.domElement.parentElement === container) {
+          container.removeChild(renderer.domElement);
+        }
+        return;
+      }
+
       const quadGeom = new THREE.PlaneGeometry(2, 2);
       const quad = new THREE.Mesh(quadGeom, material);
       scene.add(quad);
@@ -736,26 +758,38 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
 
       threeRef.current = null;
     };
+  }, [antialias, liquid, noiseAmount, autoPauseOffscreen]);
+
+  // Update uniforms when props change (without re-initialization)
+  useEffect(() => {
+    if (!threeRef.current) return;
+    const uniforms = threeRef.current.material.uniforms;
+
+    uniforms.uColor.value.set(color);
+    uniforms.uPixelSize.value = pixelSize * threeRef.current.renderer.getPixelRatio();
+    uniforms.uScale.value = patternScale;
+    uniforms.uDensity.value = patternDensity;
+    uniforms.uPixelJitter.value = pixelSizeJitter;
+    uniforms.uEnableRipples.value = enableRipples ? 1 : 0;
+    uniforms.uRippleSpeed.value = rippleSpeed;
+    uniforms.uRippleThickness.value = rippleThickness;
+    uniforms.uRippleIntensity.value = rippleIntensityScale;
+    uniforms.uEdgeFade.value = edgeFade;
+    uniforms.uShapeType.value = SHAPE_MAP[variant] ?? 0;
+
+    speedRef.current = speed;
   }, [
-    antialias,
-    liquid,
-    noiseAmount,
+    color,
     pixelSize,
     patternScale,
     patternDensity,
-    enableRipples,
-    rippleIntensityScale,
-    rippleThickness,
-    rippleSpeed,
     pixelSizeJitter,
+    enableRipples,
+    rippleSpeed,
+    rippleThickness,
+    rippleIntensityScale,
     edgeFade,
-    transparent,
-    liquidStrength,
-    liquidRadius,
-    liquidWobbleSpeed,
-    autoPauseOffscreen,
     variant,
-    color,
     speed,
   ]);
 
