@@ -11,6 +11,7 @@ Proiectul **primariaTa❤️\_** se dezvoltă la intersecția a trei contexte im
 **Universitatea Română-Americană** este o instituție de învățământ superior privată, acreditată, cu focus pe educație practică și orientată către piața muncii.
 
 **Date instituție:**
+
 - **Fondată:** 1991 (prima universitate privată din România)
 - **Locație:** București, România
 - **Acreditare:** ARACIS (nivel de încredere ridicat)
@@ -22,6 +23,7 @@ Proiectul **primariaTa❤️\_** se dezvoltă la intersecția a trei contexte im
 **Focus:** Intersecția dintre tehnologie (IT) și management (business)
 
 **Competențe dezvoltate:**
+
 - Programare și dezvoltare software
 - Sisteme informaționale pentru business
 - Management de proiect IT
@@ -33,12 +35,14 @@ Proiectul **primariaTa❤️\_** se dezvoltă la intersecția a trei contexte im
 **Profesor coordonator:** Andrei Luchici (andrei.luchici@rau.ro)
 
 **Obiective curs:**
+
 1. Dezvoltarea aplicațiilor web moderne (full-stack)
 2. Utilizarea framework-urilor și tehnologiilor actuale
 3. Aplicarea best practices din industrie
 4. Implementarea proiectelor reale cu impact social
 
 **Cerințe proiect:**
+
 - ✅ Aplicație web funcțională (frontend + backend)
 - ✅ Bază de date complexă (>10 tabele)
 - ✅ Autentificare și autorizare
@@ -97,6 +101,7 @@ ROMÂNIA
 ```
 
 **Fiecare UAT are:**
+
 - Consiliu local (legislativ)
 - Primar (executiv)
 - Aparatul primăriei (funcționari publici)
@@ -107,11 +112,13 @@ ROMÂNIA
 #### 1. 🕐 Program Limitat și Cozi Lungi
 
 **Situația actuală:**
+
 - **Program:** Luni - Vineri, 8:00 - 16:00 (sau mai redus)
 - **Realitatea:** Majoritatea cetățenilor lucrează în același program
 - **Rezultat:** Cozi de 1-3 ore la ghișee, aglomerație extremă
 
 **Impactul:**
+
 ```
 Exemplu real (Primăria Sector 3, București):
 ├─ Ghișeu Taxe & Impozite
@@ -129,12 +136,14 @@ Exemplu real (Primăria Sector 3, București):
 #### 2. 📄 Birocrație Excesivă
 
 **Probleme specifice:**
+
 - **Documente multiple:** Același act se cere la mai multe ghișee
 - **Deplasări repetate:** "Domn'e, mai veniți cu formularul completat"
 - **Lipsa ghidare:** Nu știi ce documente sunt necesare exact
 - **Hârtie peste hârtie:** Arhivare fizică costisitoare și ineficientă
 
 **Exemplu flux actual (cerere certificat fiscal):**
+
 ```
 Flux actual (offline):
 1. Deplasare primărie (30-60 min transport)
@@ -149,6 +158,7 @@ TOTAL: 4-6 ore + 2 deplasări + nervi 😤
 ```
 
 **Flux cu primariaTa❤️\_:**
+
 ```
 Flux nou (online):
 1. Acces platformă de pe telefon (1 min)
@@ -164,12 +174,14 @@ TOTAL: 5-10 minute + 0 deplasări + 0 nervi 😊
 #### 3. 🔍 Lipsa Transparenței
 
 **Probleme:**
+
 - **"Black box" processing:** Nu știi ce se întâmplă cu cererea
 - **Termene neclare:** "Mai veniți peste câteva zile"
 - **Comunicare deficitară:** Trebuie să suni/mergi fizic pentru status
 - **Accountability scăzut:** Greu de identificat responsabilii pentru întârzieri
 
 **Consecințe:**
+
 - Frustrare cetățeni
 - Lipsa încrederii în instituții
 - Suspiciuni de corupție/nepotism
@@ -185,7 +197,7 @@ TOTAL: 5-10 minute + 0 deplasări + 0 nervi 😊
 | Copii xerox | 5-10 RON |
 | **TOTAL/cerere** | **155-240 RON** |
 
-*La 3-5 cereri/an → 500-1,200 RON/cetățean/an*
+_La 3-5 cereri/an → 500-1,200 RON/cetățean/an_
 
 **Pentru primării:**
 | Cost | Estimare anuală (primărie medie) |
@@ -200,6 +212,7 @@ TOTAL: 5-10 minute + 0 deplasări + 0 nervi 😊
 #### 5. ♿ Accesibilitate Limitată
 
 **Grupuri afectate:**
+
 - **Persoane cu dizabilități:** Dificultate acces fizic la ghișee
 - **Vârstnici:** Mobilitate redusă, program limitat
 - **Tineri profesioniști:** Conflict program serviciu - primărie
@@ -208,17 +221,18 @@ TOTAL: 5-10 minute + 0 deplasări + 0 nervi 😊
 
 ### Date Statistice România
 
-| Indicator | Valoare | Sursa |
-|-----------|---------|-------|
-| Nr. total UAT-uri | 3,181 | INS 2024 |
-| Populație totală | 19.05M | INS 2024 |
-| Rata urbanizare | 54% | Banca Mondială |
-| Utilizatori internet | 75% (14.3M) | ANCOM 2024 |
-| Smartphone penetration | 85% | Eurostat 2024 |
-| Trust în instituții publice | 32% | Eurobarometru 2024 |
-| Satisfacție servicii publice | 41% | Eurobarometru 2024 |
+| Indicator                    | Valoare     | Sursa              |
+| ---------------------------- | ----------- | ------------------ |
+| Nr. total UAT-uri            | 3,181       | INS 2024           |
+| Populație totală             | 19.05M      | INS 2024           |
+| Rata urbanizare              | 54%         | Banca Mondială     |
+| Utilizatori internet         | 75% (14.3M) | ANCOM 2024         |
+| Smartphone penetration       | 85%         | Eurostat 2024      |
+| Trust în instituții publice  | 32%         | Eurobarometru 2024 |
+| Satisfacție servicii publice | 41%         | Eurobarometru 2024 |
 
 **Concluzii:**
+
 - ✅ **Infrastructură digitală** există (75% internet, 85% smartphone)
 - ❌ **Servicii digitale publice** inexistente sau fragmentate
 - ❌ **Trust și satisfacție** scăzute → Oportunitate pentru îmbunătățire
@@ -229,16 +243,17 @@ TOTAL: 5-10 minute + 0 deplasări + 0 nervi 😊
 
 **Estonia** este lider mondial în digitalizare servicii publice:
 
-| Metric | Estonia | România (actual) |
-|--------|---------|------------------|
-| Servicii publice online | 99% | ~15% |
-| Utilizare servicii digitale | 98% cetățeni | ~5% cetățeni |
-| Timp înființare companie | 15 minute | 2-4 săptămâni |
-| Declarație taxe | 3-5 minute | 2-6 ore |
-| Vot electronic | Da (2005) | Nu |
-| ID digital național | Da (2002) | Parțial (2021+) |
+| Metric                      | Estonia      | România (actual) |
+| --------------------------- | ------------ | ---------------- |
+| Servicii publice online     | 99%          | ~15%             |
+| Utilizare servicii digitale | 98% cetățeni | ~5% cetățeni     |
+| Timp înființare companie    | 15 minute    | 2-4 săptămâni    |
+| Declarație taxe             | 3-5 minute   | 2-6 ore          |
+| Vot electronic              | Da (2005)    | Nu               |
+| ID digital național         | Da (2002)    | Parțial (2021+)  |
 
 **Ce putem învăța:**
+
 1. **Voia politică** + Investiție pe termen lung → Succes
 2. **User experience** excelent → Adopție ridicată
 3. **Interoperabilitate** sisteme → Eficiență maximă
@@ -247,6 +262,7 @@ TOTAL: 5-10 minute + 0 deplasări + 0 nervi 😊
 #### Inițiative România
 
 **Progrese actuale:**
+
 - ✅ **Ghișeul.ro** - Portal național servicii online (2021+)
   - Limitat: ~50 servicii disponibile
   - Probleme: UX slab, adopție redusă, servicii incomplete
@@ -258,6 +274,7 @@ TOTAL: 5-10 minute + 0 deplasări + 0 nervi 😊
   - Succes parțial: Utilizare bună, dar UX îmbunătățibil
 
 **Gaps pe care le acoperă primariaTa❤️\_:**
+
 - ❌ **Nivel local** aproape nedigitalizat (focus național)
 - ❌ **Fragmentare** soluții (fiecare primărie își face sistem propriu)
 - ❌ **UX slab** pe platformele existente
@@ -270,6 +287,7 @@ TOTAL: 5-10 minute + 0 deplasări + 0 nervi 😊
 ### Stack Tehnologic Modern (2025-2026)
 
 Proiectul utilizează tehnologii de vârf din industrie, alese strategic pentru:
+
 - **Performance** (viteza și scalabilitate)
 - **Developer Experience** (productivitate dezvoltare)
 - **Ecosystem maturity** (community, documentație, pachete)
@@ -278,6 +296,7 @@ Proiectul utilizează tehnologii de vârf din industrie, alese strategic pentru:
 #### Frontend Stack
 
 **Next.js 15 (App Router)**
+
 - Framework React cu SSR/SSG
 - File-based routing
 - Server Components și Server Actions
@@ -285,18 +304,21 @@ Proiectul utilizează tehnologii de vârf din industrie, alese strategic pentru:
 - **De ce?** Industry standard pentru producție apps (Netflix, TikTok, Nike)
 
 **React 19**
+
 - Library UI cu Virtual DOM
 - Component-based architecture
 - Hooks pentru state management
 - **De ce?** Cel mai popular library UI (60%+ market share)
 
 **TypeScript 5**
+
 - JavaScript cu type safety
 - Autocomplete și error detection
 - Better maintainability
 - **De ce?** Reduce bugs cu 15% (Microsoft Research), industry standard
 
 **Tailwind CSS**
+
 - Utility-first CSS framework
 - Rapid prototyping
 - Consistent design system
@@ -305,6 +327,7 @@ Proiectul utilizează tehnologii de vârf din industrie, alese strategic pentru:
 #### Backend & Database
 
 **Supabase (PostgreSQL Cloud)**
+
 - Backend-as-a-Service (BaaS)
 - PostgreSQL managed database
 - Row Level Security (RLS) policies
@@ -314,6 +337,7 @@ Proiectul utilizează tehnologii de vârf din industrie, alese strategic pentru:
 - **De ce?** Firebase alternative open-source, scalabil, SQL-based
 
 **Next.js API Routes**
+
 - Serverless functions
 - Co-located cu frontend
 - TypeScript end-to-end
@@ -322,6 +346,7 @@ Proiectul utilizează tehnologii de vârf din industrie, alese strategic pentru:
 #### Infrastructure & DevOps
 
 **Vercel (Hosting & Edge Network)**
+
 - Next.js native platform
 - Global CDN (Edge locations)
 - Auto-scaling
@@ -329,6 +354,7 @@ Proiectul utilizează tehnologii de vârf din industrie, alese strategic pentru:
 - **De ce?** Creators Next.js, best DX, 99.99% uptime
 
 **GitHub (Version Control & CI/CD)**
+
 - Git repository
 - GitHub Actions pentru CI/CD
 - Automated testing și deployment
@@ -337,6 +363,7 @@ Proiectul utilizează tehnologii de vârf din industrie, alese strategic pentru:
 #### Authentication & Security
 
 **Supabase Auth**
+
 - Email/Password authentication
 - OAuth providers (Google, etc.)
 - JWT tokens
@@ -350,50 +377,55 @@ Proiectul utilizează tehnologii de vârf din industrie, alese strategic pentru:
 ### De Ce Acest Stack?
 
 #### 1. **Production-Ready**
+
 Toate tehnologiile sunt folosite de companii Fortune 500:
+
 - Next.js: Netflix, TikTok, Twitch, Nike
 - React: Facebook, Instagram, Airbnb, Uber
 - Supabase: Mozilla, PWC, SquadCast
 - Vercel: McDonald's, GitHub, Auth0
 
 #### 2. **Scalabilitate**
+
 - **Horizontal scaling:** Vercel Edge Network + Supabase read replicas
 - **Serverless:** Auto-scaling fără management servere
 - **Cost-effective:** Pay-per-use (vs. fixed infrastructure costs)
 
 #### 3. **Developer Experience**
+
 - **Hot Module Replacement:** Vezi schimbări instant în browser
 - **TypeScript:** Type safety și autocomplete
 - **Modern tooling:** ESLint, Prettier, Husky pentru quality
 - **Great documentation:** Toate tehnologiile au docs excelente
 
 #### 4. **Security First**
+
 - **Built-in security:** Supabase RLS, Vercel security headers
 - **Industry standards:** JWT, bcrypt, OAuth 2.0
 - **Compliance:** GDPR-ready prin design
 
 ### Alternative Considerate (și De Ce Nu)
 
-| Alternative | De Ce NU Am Ales |
-|-------------|------------------|
-| **WordPress** | Nu scalabil, PHP legacy, security issues |
-| **Laravel (PHP)** | Good, dar DX inferior Next.js, ecosystem mai mic |
-| **Django (Python)** | Monolith, nu cloud-native, frontend separat |
-| **MERN stack** | Express.js mai verbose, preferăm Next.js API routes |
-| **AWS direct** | Over-engineering pentru MVP, costuri management |
+| Alternative         | De Ce NU Am Ales                                    |
+| ------------------- | --------------------------------------------------- |
+| **WordPress**       | Nu scalabil, PHP legacy, security issues            |
+| **Laravel (PHP)**   | Good, dar DX inferior Next.js, ecosystem mai mic    |
+| **Django (Python)** | Monolith, nu cloud-native, frontend separat         |
+| **MERN stack**      | Express.js mai verbose, preferăm Next.js API routes |
+| **AWS direct**      | Over-engineering pentru MVP, costuri management     |
 
 ### Comparație Tehnologii: România vs Proiect
 
-| Aspect | Sisteme Actuale (Primării) | primariaTa❤️\_ |
-|--------|----------------------------|----------------|
-| **Frontend** | PHP templates, jQuery | React 19, Next.js 15 |
-| **Backend** | PHP, Java legacy | TypeScript, Serverless |
-| **Database** | Oracle, SQL Server on-prem | PostgreSQL cloud |
-| **Hosting** | Servere proprii (on-prem) | Cloud (Vercel + Supabase) |
-| **Security** | Custom (vulnerabil) | Industry standards + RLS |
-| **Scalability** | Limited (hardware) | Auto-scaling (cloud) |
-| **Update cycle** | Luni/Ani | Minutes (CI/CD) |
-| **Cost** | €50k-200k/an (hardware+admin) | €500-5k/an (SaaS) |
+| Aspect           | Sisteme Actuale (Primării)    | primariaTa❤️\_            |
+| ---------------- | ----------------------------- | ------------------------- |
+| **Frontend**     | PHP templates, jQuery         | React 19, Next.js 15      |
+| **Backend**      | PHP, Java legacy              | TypeScript, Serverless    |
+| **Database**     | Oracle, SQL Server on-prem    | PostgreSQL cloud          |
+| **Hosting**      | Servere proprii (on-prem)     | Cloud (Vercel + Supabase) |
+| **Security**     | Custom (vulnerabil)           | Industry standards + RLS  |
+| **Scalability**  | Limited (hardware)            | Auto-scaling (cloud)      |
+| **Update cycle** | Luni/Ani                      | Minutes (CI/CD)           |
+| **Cost**         | €50k-200k/an (hardware+admin) | €500-5k/an (SaaS)         |
 
 ---
 
@@ -430,5 +462,5 @@ Proiectul **primariaTa❤️\_** se poziționează la intersecția perfectă:
 
 ---
 
-*"Context = Înțelegerea profundă a PROBLEMEI, SOLUȚIEI și MEDIULUI în care operăm."*
-*- Echipa primariaTa❤️\_*
+_"Context = Înțelegerea profundă a PROBLEMEI, SOLUȚIEI și MEDIULUI în care operăm."_
+\_- Echipa primariaTa❤️\_\_

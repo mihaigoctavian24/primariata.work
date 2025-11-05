@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import {
   Smartphone,
   Search,
@@ -39,10 +40,12 @@ const features = [
     cta: "Explorează",
     background: (
       <>
-        <img
+        <Image
           src="/bento grid/traking real-time.jpg"
           alt="Tracking Real-Time"
-          className="absolute inset-0 h-full w-full object-cover"
+          fill
+          className="object-cover"
+          sizes="(max-width: 1024px) 100vw, 33vw"
         />
         <div className="absolute inset-0 bg-black/40" />
       </>
@@ -57,10 +60,12 @@ const features = [
     cta: "Descoperă",
     background: (
       <>
-        <img
+        <Image
           src="/bento grid/plati digitale.jpg"
           alt="Plăți Digitale"
-          className="absolute inset-0 h-full w-full object-cover"
+          fill
+          className="object-cover"
+          sizes="(max-width: 1024px) 100vw, 33vw"
         />
         <div className="absolute inset-0 bg-black/40" />
       </>
@@ -75,10 +80,12 @@ const features = [
     cta: "Începe chat",
     background: (
       <>
-        <img
+        <Image
           src="/bento grid/chat direct.jpg"
           alt="Chat Direct"
-          className="absolute inset-0 h-full w-full object-cover"
+          fill
+          className="object-cover"
+          sizes="(max-width: 1024px) 100vw, 33vw"
         />
         <div className="absolute inset-0 bg-black/40" />
       </>
@@ -95,10 +102,12 @@ const features = [
     cta: "Află mai mult",
     background: (
       <>
-        <img
+        <Image
           src="/bento grid/cereri online.jpg"
           alt="Cereri Online"
-          className="absolute inset-0 h-full w-full object-cover"
+          fill
+          className="object-cover"
+          sizes="(max-width: 1024px) 100vw, 33vw"
         />
         <div className="absolute inset-0 bg-black/40" />
       </>
@@ -115,10 +124,12 @@ const features = [
     cta: "Citește ghidul",
     background: (
       <>
-        <img
+        <Image
           src="/bento grid/documentatie oficiala.jpg"
           alt="Documentație Oficială"
-          className="absolute inset-0 h-full w-full object-cover"
+          fill
+          className="object-cover"
+          sizes="(max-width: 1024px) 100vw, 33vw"
         />
         <div className="absolute inset-0 bg-black/40" />
       </>
@@ -133,10 +144,12 @@ const features = [
     cta: "Participă",
     background: (
       <>
-        <img
+        <Image
           src="/bento grid/survey platform.jpg"
           alt="Survey Platform"
-          className="absolute inset-0 h-full w-full object-cover"
+          fill
+          className="object-cover"
+          sizes="(max-width: 1024px) 100vw, 33vw"
         />
         <div className="absolute inset-0 bg-black/40" />
       </>
@@ -151,10 +164,12 @@ const features = [
     cta: "Vezi mai mult",
     background: (
       <>
-        <img
+        <Image
           src="/bento grid/documente digitale.jpg"
           alt="Documente Digitale"
-          className="absolute inset-0 h-full w-full object-cover"
+          fill
+          className="object-cover"
+          sizes="(max-width: 1024px) 100vw, 33vw"
         />
         <div className="absolute inset-0 bg-black/40" />
       </>
@@ -169,10 +184,12 @@ const features = [
     cta: "Explorează AI",
     background: (
       <>
-        <img
+        <Image
           src="/bento grid/ai research dashboard.jpg"
           alt="AI Research Dashboard"
-          className="absolute inset-0 h-full w-full object-cover"
+          fill
+          className="object-cover"
+          sizes="(max-width: 1024px) 100vw, 33vw"
         />
         <div className="absolute inset-0 bg-black/40" />
       </>

@@ -9,29 +9,33 @@ Proiectul **primariaTa❤️\_** este dezvoltat de o echipă mică, dar dedicat�
 ## 👨‍💻 Octavian Mihai
 
 ### Informații Contact
+
 - **Email:** mihai.g.octavian24@stud.rau.ro
 - **GitHub:** [@mihaigoctavian24](https://github.com/mihaigoctavian24)
-- **LinkedIn:** [Octavian Mihai](https://linkedin.com/in/octavian-mihai) *(optional)*
+- **LinkedIn:** [Octavian Mihai](https://linkedin.com/in/octavian-mihai) _(optional)_
 
 ### Rol Principal: **Full-Stack Developer** (Frontend, Backend, DevOps, UI/UX, Documentație Tehnică)
 
 **Background:**
+
 - Student Informatică Managerială, Universitatea Română-Americană
 - Dezvoltator full-stack
 - Experiență în development web modern (React, Next.js, TypeScript)
 - Competențe în arhitecturi cloud-native și scalabile
 
-
 ### Responsabilități
 
 #### 1. 🏗️ Arhitectură & Backend Development
+
 **Ce înseamnă:**
+
 - Design-ul structurii generale a aplicației și alegerea tehnologiilor (stack selection)
 - Implementarea logicii server-side și business logic
 - Integrarea cu baza de date (CRUD operations, migrări)
 - Autentificare și autorizare (Auth flow, RLS policies)
 
 **Livrabile concrete:**
+
 - ✅ **Arhitectură Next.js 15** cu App Router
 - ✅ **Schema database PostgreSQL** (13 tabele cu relații)
 - ✅ **Row Level Security (RLS)** policies pentru securitate
@@ -51,18 +55,22 @@ Proiectul **primariaTa❤️\_** este dezvoltat de o echipă mică, dar dedicat�
   - Batch operations pentru data seeding
 
 **Tools utilizate:**
+
 - Next.js 15, React 19, TypeScript
 - Supabase (PostgreSQL, Auth, Storage)
 - Next.js API Routes (Serverless Functions)
 
 #### 2. 💻 Frontend Development & UI/UX
+
 **Ce înseamnă:**
+
 - Implementarea componentelor React și state management
 - Dezvoltarea interfețelor utilizator interactive
 - Integrarea design-ului UI/UX în cod
 - Optimizarea performanței frontend și experiența utilizatorului
 
 **Livrabile concrete:**
+
 - ✅ **Componente React** (60+ components):
   - Form components (`<Input />`, `<Button />`, `<Select />`)
   - Layout components (`<Header />`, `<Footer />`, `<Sidebar />`)
@@ -78,6 +86,7 @@ Proiectul **primariaTa❤️\_** este dezvoltat de o echipă mică, dar dedicat�
   - Context API pentru shared state
 
 **Tools utilizate:**
+
 - React 19 (Hooks, Suspense, Server Components)
 - TypeScript pentru type safety
 - Tailwind CSS 4 + shadcn/ui + Radix UI
@@ -85,13 +94,16 @@ Proiectul **primariaTa❤️\_** este dezvoltat de o echipă mică, dar dedicat�
 - Framer Motion pentru micro-interactions
 
 #### 3. 🚀 DevOps & Deployment
+
 **Ce înseamnă:**
+
 - Configurarea pipeline-urilor CI/CD
 - Automatizarea deployment-urilor
 - Monitoring și debugging în producție
 - Performance optimization
 
 **Livrabile concrete:**
+
 - ✅ **CI/CD Pipeline:**
   - GitHub Actions pentru automated testing
   - Vercel integration pentru auto-deploy
@@ -111,18 +123,22 @@ Proiectul **primariaTa❤️\_** este dezvoltat de o echipă mică, dar dedicat�
   - Uptime monitoring
 
 **Tools utilizate:**
+
 - Vercel (Platform + Edge Network)
 - GitHub Actions (CI/CD)
 - Supabase Dashboard (Monitoring)
 
 #### 4. 📚 Documentație Tehnică & Architecture Decision Records
+
 **Ce înseamnă:**
+
 - Scrierea documentației pentru dezvoltatori
 - Comentarii în cod și docstrings
 - README-uri și ghiduri setup
 - Architecture Decision Records (ADR)
 
 **Livrabile concrete:**
+
 - ✅ **Documentație Tehnică** (`.docs/` - 804KB):
   - Technical specifications (Survey, Admin Dashboard, WebGL)
   - API documentation (endpoints, parameters, responses)
@@ -135,20 +151,21 @@ Proiectul **primariaTa❤️\_** este dezvoltat de o echipă mică, dar dedicat�
   - Inline comments pentru business logic
 
 **Tools utilizate:**
+
 - Markdown pentru documentație
 - JSDoc pentru code comments
 - TypeScript pentru type documentation
 
 ### Skills Tehnice
 
-| Categorie | Tehnologii | Nivel |
-|-----------|------------|-------|
+| Categorie    | Tehnologii                           | Nivel      |
+| ------------ | ------------------------------------ | ---------- |
 | **Frontend** | React, Next.js, TypeScript, Three.js | ⭐⭐⭐⭐⭐ |
-| **Backend** | Node.js, API Design, PostgreSQL | ⭐⭐⭐⭐⭐ |
-| **DevOps** | Vercel, GitHub Actions, CI/CD | ⭐⭐⭐⭐ |
-| **Database** | PostgreSQL, SQL, Supabase, RLS | ⭐⭐⭐⭐ |
-| **UI/UX** | Tailwind CSS, shadcn/ui, Figma | ⭐⭐⭐⭐ |
-| **Tools** | Git, VS Code, Terminal | ⭐⭐⭐⭐⭐ |
+| **Backend**  | Node.js, API Design, PostgreSQL      | ⭐⭐⭐⭐⭐ |
+| **DevOps**   | Vercel, GitHub Actions, CI/CD        | ⭐⭐⭐⭐   |
+| **Database** | PostgreSQL, SQL, Supabase, RLS       | ⭐⭐⭐⭐   |
+| **UI/UX**    | Tailwind CSS, shadcn/ui, Figma       | ⭐⭐⭐⭐   |
+| **Tools**    | Git, VS Code, Terminal               | ⭐⭐⭐⭐⭐ |
 
 ### Contribuții la Proiect (Statistici)
 
@@ -169,13 +186,15 @@ Documentation: 804KB (technical specs)
 ## 👩‍💻 Bianca-Maria Abbasi Pazeyazd
 
 ### Informații Contact
+
 - **Email:** abbasipazeyazd.h.biancamaria24@stud.rau.ro
-- **GitHub:** [@biancaabbasi](https://github.com/biancaabbasi) *(optional)*
-- **Behance/Dribbble:** *(pentru portofoliu design)* *(optional)*
+- **GitHub:** [@biancaabbasi](https://github.com/biancaabbasi) _(optional)_
+- **Behance/Dribbble:** _(pentru portofoliu design)_ _(optional)_
 
 ### Rol Principal: **Frontend Developer & UI/UX Designer**
 
 **Background:**
+
 - Student Informatică Managerială, Universitatea Română-Americană
 - **Frontend Developer** specializat în React și UI/UX design
 - Experiență în React, Tailwind CSS, Figma, component development
@@ -185,7 +204,9 @@ Documentation: 804KB (technical specs)
 ### Responsabilități
 
 #### 1. 🎨 UI/UX Design & Implementare Frontend
+
 **Ce înseamnă:**
+
 - Crearea design-ului vizual și mockup-urilor în Figma
 - Implementarea design-ului în componente React
 - Aplicarea styling cu Tailwind CSS și design system
@@ -193,6 +214,7 @@ Documentation: 804KB (technical specs)
 - Micro-interacțiuni și animații pentru feedback utilizator
 
 **Livrabile concrete:**
+
 - ✅ **Design System:**
   - Paleta de culori și typography
   - Component library (buttons, inputs, cards)
@@ -214,6 +236,7 @@ Documentation: 804KB (technical specs)
   - Charts și data visualization styling
 
 **Tools utilizate:**
+
 - Figma (pentru mockups și design system)
 - Tailwind CSS 4 (pentru implementare)
 - shadcn/ui (component library)
@@ -221,13 +244,16 @@ Documentation: 804KB (technical specs)
 - Framer Motion (animations)
 
 #### 2. ⚛️ Implementare Componente React
+
 **Ce înseamnă:**
+
 - Implementarea componentelor UI în React
 - State management pentru interacțiuni
 - Event handling (click, hover, submit)
 - Componentizare și reusability
 
 **Livrabile concrete:**
+
 - ✅ **Form Components:**
   - `<Input />` - Text inputs cu validare
   - `<RadioGroup />` - Radio button groups
@@ -248,18 +274,22 @@ Documentation: 804KB (technical specs)
   - `<DataTable />` - Sortable/filterable table
 
 **Tools utilizate:**
+
 - React 19 (Hooks: useState, useEffect, useContext)
 - TypeScript (pentru type safety)
 - Radix UI (pentru accessible components)
 
 #### 3. 🧪 Quality Assurance & Testing
+
 **Ce înseamnă:**
+
 - Testarea manuală a tuturor fluxurilor
 - Cross-browser testing (Chrome, Firefox, Safari)
 - Responsive testing (mobile, tablet, desktop)
 - Accessibility testing (keyboard navigation, screen readers)
 
 **Livrabile concrete:**
+
 - ✅ **Manual Testing:**
   - Test case documentation pentru fluxuri principale
   - Bug reporting și tracking (GitHub Issues)
@@ -278,19 +308,23 @@ Documentation: 804KB (technical specs)
   - Focus indicators vizibile
 
 **Tools utilizate:**
+
 - Browser DevTools (Responsive mode)
 - Lighthouse (Accessibility audit)
 - WAVE (Web Accessibility Evaluation Tool)
 - GitHub Issues (Bug tracking)
 
 #### 4. 📚 Documentație Oficială
+
 **Ce înseamnă:**
+
 - Scrierea documentației oficiale în limba română
 - Traducerea și simplificarea specificațiilor tehnice
 - Ghiduri utilizare pentru cetățeni și funcționari
 - Documentație prezentare pentru profesori și evaluatori
 
 **Livrabile concrete:**
+
 - ✅ **Documentație Prezentare** (`docs/01-Prezentare/`):
   - Viziune și misiune (6 fișiere)
   - Contextul proiectului și obiective
@@ -309,20 +343,21 @@ Documentation: 804KB (technical specs)
   - FAQ (în progress)
 
 **Tools utilizate:**
+
 - Markdown pentru documentație
 - Mermaid pentru diagrame
 - GitHub pentru version control
 
 ### Skills Tehnice
 
-| Categorie | Tehnologii | Nivel |
-|-----------|------------|-------|
-| **UI/UX Design** | Figma, Tailwind CSS, Typography, Design Systems | ⭐⭐⭐⭐⭐ |
-| **Frontend** | React, HTML/CSS, TypeScript, JavaScript | ⭐⭐⭐⭐⭐ |
-| **Animations** | Framer Motion, CSS Animations, Three.js | ⭐⭐⭐⭐ |
-| **Testing & QA** | Manual Testing, Accessibility, Cross-browser | ⭐⭐⭐⭐ |
-| **Documentation** | Markdown, Mermaid, Technical Writing | ⭐⭐⭐⭐ |
-| **Tools** | Git, VS Code, Browser DevTools, Figma | ⭐⭐⭐⭐ |
+| Categorie         | Tehnologii                                      | Nivel      |
+| ----------------- | ----------------------------------------------- | ---------- |
+| **UI/UX Design**  | Figma, Tailwind CSS, Typography, Design Systems | ⭐⭐⭐⭐⭐ |
+| **Frontend**      | React, HTML/CSS, TypeScript, JavaScript         | ⭐⭐⭐⭐⭐ |
+| **Animations**    | Framer Motion, CSS Animations, Three.js         | ⭐⭐⭐⭐   |
+| **Testing & QA**  | Manual Testing, Accessibility, Cross-browser    | ⭐⭐⭐⭐   |
+| **Documentation** | Markdown, Mermaid, Technical Writing            | ⭐⭐⭐⭐   |
+| **Tools**         | Git, VS Code, Browser DevTools, Figma           | ⭐⭐⭐⭐   |
 
 ### Contribuții la Proiect (Statistici)
 
@@ -368,26 +403,28 @@ Documentation: ~8,000+ lines (Romanian official docs)
 ### Comunicare
 
 **Tools:**
+
 - **GitHub:** Issues, Pull Requests, Project Board
 - **WhatsApp/Telegram:** Daily sync-ups
 - **Google Meet:** Weekly planning meetings
 - **Email:** Comunicare cu profesorul coordonator
 
 **Frecvență:**
+
 - Daily: Quick text updates (10 min)
 - Weekly: Planning meeting (1-2 ore)
 - Bi-weekly: Sprint review (1 oră)
 
 ### Division of Labor (Cine Face Ce)
 
-| Feature | Octavian (Full-Stack) | Bianca (Frontend & Design) |
-|---------|----------------------|---------------------------|
-| **Landing Page** | WebGL implementation (Three.js) + API routes | Design mockups + UI styling |
-| **Autentificare** | Auth logic, JWT, database, middleware | Login/Register forms UI + UX design |
-| **Chestionar** | API submission, validare backend | Multi-step form UX + design |
-| **Dashboard Admin** | Stats queries, aggregations, exports | Charts, tables, design + QA |
-| **Deployment** | Vercel + Supabase config, CI/CD | Testing & QA, bug reporting |
-| **Documentație** | Technical specs (EN) | Official docs (RO), user guides |
+| Feature             | Octavian (Full-Stack)                        | Bianca (Frontend & Design)          |
+| ------------------- | -------------------------------------------- | ----------------------------------- |
+| **Landing Page**    | WebGL implementation (Three.js) + API routes | Design mockups + UI styling         |
+| **Autentificare**   | Auth logic, JWT, database, middleware        | Login/Register forms UI + UX design |
+| **Chestionar**      | API submission, validare backend             | Multi-step form UX + design         |
+| **Dashboard Admin** | Stats queries, aggregations, exports         | Charts, tables, design + QA         |
+| **Deployment**      | Vercel + Supabase config, CI/CD              | Testing & QA, bug reporting         |
+| **Documentație**    | Technical specs (EN)                         | Official docs (RO), user guides     |
 
 **Princip:** Octavian = "Full-stack: frontend + backend + infrastructure + docs tehnice" | Bianca = "Frontend + design + QA + docs oficiale"
 
@@ -398,16 +435,19 @@ Documentation: ~8,000+ lines (Romanian official docs)
 ### Profesor Coordonator
 
 **Andrei Luchici**
+
 - **Email:** andrei.luchici@rau.ro
 - **Rol:** Profesor curs "Programarea Aplicațiilor Web"
 - **Instituție:** Universitatea Română-Americană
 
 **Responsabilități:**
+
 - Ghidare tehnică și feedback pe parcursul dezvoltării
 - Evaluarea proiectului final (cod, documentație, prezentare)
 - Mentoring pentru best practices și probleme complexe
 
 **Interacțiuni:**
+
 - Weekly office hours (optional)
 - Email support pentru întrebări
 - Milestone reviews (Phase 0, 1, 2)
@@ -420,6 +460,7 @@ Documentation: ~8,000+ lines (Romanian official docs)
 **Origine:** Nume funny/cute care reflectă prietenia și colaborarea noastră 😊
 
 **Filosofie:**
+
 - **Bubu (Octavian):** Backend = "Brain" (logic, structură)
 - **Dudu (Bianca):** Frontend = "Heart" (design, emoție)
 - **Împreună:** Un produs complet și functional ❤️
@@ -446,14 +487,14 @@ TOTAL PROIECT (noiembrie 2024):
 
 ## 🎯 Cum Contribuie Fiecare la Obiectivele Proiectului
 
-| Obiectiv | Octavian Contribuie | Bianca Contribuie |
-|----------|-------------------|-------------------|
-| **Digitalizare 100%** | API & database infrastructure + Frontend components | UI design pentru toate tipurile cereri |
-| **Platform white-label** | Multi-tenant architecture backend | Theming system (culori, logo, design tokens) |
-| **UX excelent** | API response speed + Frontend optimizations | Intuitive UI design, animații, micro-interactions |
-| **Securitate** | Auth, RLS policies, encryption backend | Input validation frontend, secure forms, QA testing |
-| **Scalabilitate** | Database optimization, caching backend | Performance frontend, lazy loading, responsive design |
-| **Documentație** | Technical specs (EN), API docs | Official docs (RO), user guides, QA reports |
+| Obiectiv                 | Octavian Contribuie                                 | Bianca Contribuie                                     |
+| ------------------------ | --------------------------------------------------- | ----------------------------------------------------- |
+| **Digitalizare 100%**    | API & database infrastructure + Frontend components | UI design pentru toate tipurile cereri                |
+| **Platform white-label** | Multi-tenant architecture backend                   | Theming system (culori, logo, design tokens)          |
+| **UX excelent**          | API response speed + Frontend optimizations         | Intuitive UI design, animații, micro-interactions     |
+| **Securitate**           | Auth, RLS policies, encryption backend              | Input validation frontend, secure forms, QA testing   |
+| **Scalabilitate**        | Database optimization, caching backend              | Performance frontend, lazy loading, responsive design |
+| **Documentație**         | Technical specs (EN), API docs                      | Official docs (RO), user guides, QA reports           |
 
 **Concluzie:** Echipa complementară → Produs complet și de calitate! ✨
 
@@ -465,5 +506,5 @@ TOTAL PROIECT (noiembrie 2024):
 
 ---
 
-*"Alone we can do so little; together we can do so much."*
-*- Helen Keller (motto-ul echipei Bubu & Dudu ❤️)*
+_"Alone we can do so little; together we can do so much."_
+_- Helen Keller (motto-ul echipei Bubu & Dudu ❤️)_

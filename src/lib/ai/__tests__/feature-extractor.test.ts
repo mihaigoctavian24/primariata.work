@@ -196,6 +196,7 @@ describe("Feature Extractor Service", () => {
       const result = await extractFeatures(inputWithEmptyText);
 
       expect(mockChatCompletion).not.toHaveBeenCalled();
+      expect(result.features).toHaveLength(0);
     });
 
     it("should handle API errors for implicit features", async () => {

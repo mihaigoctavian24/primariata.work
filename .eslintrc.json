@@ -1,6 +1,7 @@
 {
   "extends": ["next/core-web-vitals", "next/typescript", "prettier"],
   "plugins": ["prettier"],
+  "ignorePatterns": [".next/**", "out/**", "build/**", "dist/**", "node_modules/**", "coverage/**"],
   "rules": {
     "prettier/prettier": "error",
     "@typescript-eslint/no-unused-vars": [

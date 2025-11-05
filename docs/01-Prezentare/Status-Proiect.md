@@ -11,17 +11,18 @@ Această pagină oferă o imagine de ansamblu asupra stadiului actual de dezvolt
 
 ### 📊 Milestones Status (GitHub)
 
-| Milestone | Due Date | Progress | Issues | Status |
-|-----------|----------|----------|--------|--------|
-| **M1: Landing Page & Auth 🚀** | 28 Oct 2025 | 47.6% | 10✅ / 11⏳ (21 total) | 🔄 In Progress |
-| **M7: Survey Platform** | 31 Oct 2025 | 100% | 1✅ / 0⏳ (1 total) | ✅ Complete |
-| **M2: Cereri Module 📋** | 1 Nov 2025 | 0% | 0✅ / 10⏳ (10 total) | ⏳ Planned |
-| **M3: Integrations & Payments 💳** | 7 Nov 2025 | 0% | 0✅ / 8⏳ (8 total) | ⏳ Planned |
-| **M4: Advanced Features ✨** | 15 Nov 2025 | 0% | 0✅ / 14⏳ (14 total) | ⏳ Planned |
-| **M5: Production Launch Prep 🚀** | 22 Nov 2025 | 0% | 0✅ / 13⏳ (13 total) | ⏳ Planned |
-| **M6: Documentation 📚** | 29 Nov 2025 | 0% | 0✅ / 22⏳ (22 total) | ⏳ Planned |
+| Milestone                          | Due Date    | Progress | Issues                 | Status         |
+| ---------------------------------- | ----------- | -------- | ---------------------- | -------------- |
+| **M1: Landing Page & Auth 🚀**     | 28 Oct 2025 | 47.6%    | 10✅ / 11⏳ (21 total) | 🔄 In Progress |
+| **M7: Survey Platform**            | 31 Oct 2025 | 100%     | 1✅ / 0⏳ (1 total)    | ✅ Complete    |
+| **M2: Cereri Module 📋**           | 1 Nov 2025  | 0%       | 0✅ / 10⏳ (10 total)  | ⏳ Planned     |
+| **M3: Integrations & Payments 💳** | 7 Nov 2025  | 0%       | 0✅ / 8⏳ (8 total)    | ⏳ Planned     |
+| **M4: Advanced Features ✨**       | 15 Nov 2025 | 0%       | 0✅ / 14⏳ (14 total)  | ⏳ Planned     |
+| **M5: Production Launch Prep 🚀**  | 22 Nov 2025 | 0%       | 0✅ / 13⏳ (13 total)  | ⏳ Planned     |
+| **M6: Documentation 📚**           | 29 Nov 2025 | 0%       | 0✅ / 22⏳ (22 total)  | ⏳ Planned     |
 
 **Observații critice:**
+
 - ✅ **M7 (Survey Platform)** este complet implementat - chestionar funcțional cu admin dashboard
 - 🔄 **M1 (Landing & Auth)** la jumătate - 10 issues închise, 11 rămase (auth parțial functional)
 - ⚠️ **M2-M6** nu au început oficial - 0% progress pe GitHub
@@ -60,6 +61,7 @@ Legendă:
 **Descriere:** Homepage public cu prezentare platformă și call-to-action pentru înregistrare.
 
 **Componente implementate:**
+
 - ✅ **Hero Section**
   - Titlu principal și subtitle
   - CTA buttons ("Începe Acum", "Află Mai Mult")
@@ -81,6 +83,7 @@ Legendă:
   - Copyright și credits
 
 **Tehnologii:**
+
 - Next.js 15 (App Router)
 - React 19 components
 - Tailwind CSS pentru styling
@@ -90,6 +93,7 @@ Legendă:
 **Demo:** [primariata.work](https://primariata.work)
 
 **Screenshots:**
+
 ```
 Desktop View:          Mobile View:
 ┌──────────────┐      ┌────────┐
@@ -111,6 +115,7 @@ Desktop View:          Mobile View:
 **Status M1 (Landing & Auth): 10 issues ✅ / 11 issues ⏳ = 47.6%**
 
 **Features Implementate:**
+
 - ✅ **Email/Parolă Authentication** (parțial)
   - Înregistrare cu email verification ✅
   - Login basic funcțional ✅
@@ -137,6 +142,7 @@ Desktop View:          Mobile View:
   - ⏳ Role-based access control complet (planificat - issues #62, #63)
 
 **Database Tables:**
+
 ```sql
 - users (id, email, password_hash, role, created_at)
 - sessions (id, user_id, token, expires_at)
@@ -144,6 +150,7 @@ Desktop View:          Mobile View:
 ```
 
 **API Endpoints:**
+
 ```
 POST /api/auth/signup      - Înregistrare email/parolă
 POST /api/auth/login       - Login email/parolă
@@ -158,12 +165,14 @@ GET  /api/auth/callback    - Callback OAuth
 **Descriere:** Permite utilizatorilor să își selecteze locația (județ + localitate) pentru personalizarea experienței.
 
 **Date disponibile:**
+
 - ✅ **13,851 localități** din România (toate din baza de date INS)
   - 41 județe + București
   - 3,181 UAT-uri (orașe + comune)
   - Multiple sate per comună
 
 **Features:**
+
 - ✅ **Dropdown ierarhic:**
   - Nivel 1: Selectează județul (41 opțiuni)
   - Nivel 2: Selectează localitatea (filtrat după județ)
@@ -179,6 +188,7 @@ GET  /api/auth/callback    - Callback OAuth
   - Opțiune schimbare locație oricând
 
 **Database:**
+
 ```sql
 - judete (id, nume, cod_judet)
 - localitati (id, nume, judet_id, tip, cod_siruta)
@@ -186,6 +196,7 @@ GET  /api/auth/callback    - Callback OAuth
 ```
 
 **API:**
+
 ```
 GET /api/locatii/judete              - Lista județe
 GET /api/locatii/localitati?judet=X  - Localități din județ
@@ -193,6 +204,7 @@ POST /api/locatii/salvare            - Salvează selecție user
 ```
 
 **Data seeding:**
+
 - Script Python pentru parsare date INS
 - Import în PostgreSQL (batch insert)
 - Indexing pentru performanță (judet_id, nume)
@@ -210,6 +222,7 @@ Acest feature demonstrează capacitatea platformei de a gestiona formulare compl
 #### 4.1 Formular Multi-Step (Frontend)
 
 **Structură:**
+
 ```
 Step 1/5: Rol și Context
 ├─ Rol (cetățean / funcționar)
@@ -240,12 +253,14 @@ Step 5/5: Feedback și Sugestii
 **Total întrebări:** 25+ (variantă depinde de rol)
 
 **Tehnologii:**
+
 - React Hook Form (form state management)
 - Zod schema validation
 - Multi-step wizard cu progress bar
 - Conditional logic (întrebări diferite pentru cetățeni vs funcționari)
 
 **UX Features:**
+
 - ✅ Progress indicator (Step X/5)
 - ✅ Next/Previous navigation
 - ✅ Validare în timp real
@@ -256,6 +271,7 @@ Step 5/5: Feedback și Sugestii
 #### 4.2 Backend & Database
 
 **Database schema:**
+
 ```sql
 CREATE TABLE chestionar_responses (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -300,6 +316,7 @@ CREATE INDEX idx_chestionar_created ON chestionar_responses(created_at);
 ```
 
 **API Endpoints:**
+
 ```
 POST /api/chestionar/submit     - Submit răspuns complet
 GET  /api/chestionar/my         - Răspunsurile mele
@@ -313,6 +330,7 @@ GET  /api/chestionar/stats      - Statistici (doar admin)
 **Features:**
 
 **1. Overview Statistics (Card-uri)**
+
 ```
 ┌──────────────────────────────────────────────────┐
 │  📊 STATISTICI GENERALE                          │
@@ -339,6 +357,7 @@ GET  /api/chestionar/stats      - Statistici (doar admin)
 - ✅ **Heatmap:** Probleme frecvente (top 10)
 
 **3. Data Table (Sortable & Filterable)**
+
 ```
 ┌────────────────────────────────────────────────────────────────┐
 │  📋 TOATE RĂSPUNSURILE                                         │
@@ -366,6 +385,7 @@ Features:
 - ✅ **PDF:** Pentru rapoarte printabile
 
 **Tehnologii export:**
+
 - `papaparse` pentru CSV
 - `xlsx` library pentru Excel
 - `jsPDF` pentru PDF generation
@@ -388,6 +408,7 @@ Features:
 ```
 
 **Tehnologii Dashboard:**
+
 - Recharts (React charting library)
 - TanStack Table (data table)
 - date-fns (date formatting)
@@ -399,16 +420,16 @@ Features:
 
 ### Code Metrics
 
-| Metric | Valoare | Detalii |
-|--------|---------|---------|
-| **Total Lines of Code** | ~15,000 | TypeScript + React |
-| **Componente React** | 60+ | Reusable components |
-| **API Endpoints** | 15+ | RESTful + Supabase SDK |
-| **Database Tables** | 13 | Cu relații complexe |
-| **Migrations** | 8 | Schema evolution |
-| **Git Commits** | 240+ | Detailed commit history |
-| **Pull Requests** | 50+ | Code review process |
-| **Issues Rezolvate** | 40+ | Bug fixes + features |
+| Metric                  | Valoare | Detalii                 |
+| ----------------------- | ------- | ----------------------- |
+| **Total Lines of Code** | ~15,000 | TypeScript + React      |
+| **Componente React**    | 60+     | Reusable components     |
+| **API Endpoints**       | 15+     | RESTful + Supabase SDK  |
+| **Database Tables**     | 13      | Cu relații complexe     |
+| **Migrations**          | 8       | Schema evolution        |
+| **Git Commits**         | 240+    | Detailed commit history |
+| **Pull Requests**       | 50+     | Code review process     |
+| **Issues Rezolvate**    | 40+     | Bug fixes + features    |
 
 ### Performance Metrics (Lighthouse)
 
@@ -427,6 +448,7 @@ Mobile:
 ```
 
 **Key Performance Indicators:**
+
 - First Contentful Paint (FCP): 0.8s
 - Largest Contentful Paint (LCP): 1.2s
 - Time to Interactive (TTI): 2.1s
@@ -434,11 +456,11 @@ Mobile:
 
 ### Database Performance
 
-| Metric | Valoare | Target |
-|--------|---------|--------|
-| Query response time (avg) | 45ms | <100ms |
-| Concurrent connections | 50 | 100 max |
-| Database size | 250 MB | 10 GB limit |
+| Metric                     | Valoare | Target           |
+| -------------------------- | ------- | ---------------- |
+| Query response time (avg)  | 45ms    | <100ms           |
+| Concurrent connections     | 50      | 100 max          |
+| Database size              | 250 MB  | 10 GB limit      |
 | Row count (toate tabelele) | ~18,000 | Millions capable |
 
 ### Test Coverage
@@ -464,6 +486,7 @@ Test Suite Status:
 **Progress:** 10 issues ✅ / 11 issues ⏳ = 47.6%
 
 **Issues Complete (10):**
+
 - ✅ Landing page setup
 - ✅ Google OAuth integration
 - ✅ Basic email/password auth
@@ -476,6 +499,7 @@ Test Suite Status:
 - ✅ Database setup pentru users
 
 **Issues Remaining (11):**
+
 - ⏳ #58: Footer cu Navigation Links, Contact, Social Media
 - ⏳ #57: Features Section cu Grid Layout & Icons
 - ⏳ #60: Register Page cu Email/Password + Google OAuth + Validation
@@ -489,6 +513,7 @@ Test Suite Status:
 - ⏳ #68: M1 Completion Checklist, Documentation, & Handoff la M2
 
 **Observații:**
+
 - Auth partial funcțional - lipsește password reset și profile management
 - Testing și accessibility audits sunt planificate
 - Deadline: 28 octombrie 2025 (FOARTE APROAPE!)
@@ -500,6 +525,7 @@ Test Suite Status:
 **Progress:** 1 issue ✅ / 0 issues ⏳ = 100%
 
 **Deliverables Complete:**
+
 - ✅ Multi-step survey form (5 steps, 25+ questions)
 - ✅ Admin dashboard cu analytics real-time
 - ✅ Data export (CSV, JSON, XLSX, PDF)
@@ -517,6 +543,7 @@ Test Suite Status:
 **Progress:** 0 issues ✅ / 10 issues ⏳ = 0%
 
 **Issues Planificate (10):**
+
 - ⏳ #69: Database Schema pentru Cereri (tipuri_cereri, cereri, cereri_documente)
 - ⏳ #70: API Routes - Cereri CRUD Operations
 - ⏳ #71: Cereri List Page cu Filters, Search, Pagination
@@ -536,6 +563,7 @@ Test Suite Status:
 **Progress:** 0 issues ✅ / 8 issues ⏳ = 0%
 
 **Key Issues:**
+
 - ⏳ #79: certSIGN API Integration pentru Semnături Digitale (CRITICAL)
 - ⏳ #80: Ghișeul.ro Payment Gateway Integration pentru Taxe (CRITICAL)
 - ⏳ #81: Database Schema pentru Plăți & Taxe Module
@@ -547,6 +575,7 @@ Test Suite Status:
 **Progress:** 0 issues ✅ / 14 issues ⏳ = 0%
 
 **Key Features:**
+
 - Dashboard analytics pentru admini
 - GDPR compliance (data export/deletion)
 - Security audit & penetration testing
@@ -559,6 +588,7 @@ Test Suite Status:
 **Progress:** 0 issues ✅ / 13 issues ⏳ = 0%
 
 **Critical Tasks:**
+
 - Production infrastructure setup
 - Security penetration test
 - Load testing (1000 concurrent users)
@@ -572,6 +602,7 @@ Test Suite Status:
 **Progress Real:** ~15% (documentație parțială existentă)
 
 **Issues Planificate:**
+
 - ⏳ #114-135: Documentație oficială română (toate secțiunile)
 - ⏳ Ghiduri utilizare (cetățean, funcționar, admin)
 - ⏳ Screenshots și diagrame
@@ -583,19 +614,19 @@ Test Suite Status:
 
 ### Issues Rezolvate Recent (Noiembrie 2024)
 
-| ID | Descriere | Severitate | Fix Date |
-|----|-----------|------------|----------|
-| #42 | Memory leak în WebGL background | 🔴 Critical | 10 Nov |
-| #39 | Dashboard stats nu se încarcă pe mobile | 🟡 Medium | 09 Nov |
-| #35 | Typing animation overlap la page reload | 🟡 Medium | 10 Nov |
-| #31 | OAuth Google redirect broken pe localhost | 🟢 Low | 08 Nov |
+| ID  | Descriere                                 | Severitate  | Fix Date |
+| --- | ----------------------------------------- | ----------- | -------- |
+| #42 | Memory leak în WebGL background           | 🔴 Critical | 10 Nov   |
+| #39 | Dashboard stats nu se încarcă pe mobile   | 🟡 Medium   | 09 Nov   |
+| #35 | Typing animation overlap la page reload   | 🟡 Medium   | 10 Nov   |
+| #31 | OAuth Google redirect broken pe localhost | 🟢 Low      | 08 Nov   |
 
 ### Known Issues (Active)
 
-| ID | Descriere | Severitate | Status |
-|----|-----------|------------|--------|
-| #45 | PDF export styling inconsistent | 🟡 Medium | În lucru |
-| #43 | iOS Safari WebGL performance lag | 🟢 Low | Investigating |
+| ID  | Descriere                        | Severitate | Status        |
+| --- | -------------------------------- | ---------- | ------------- |
+| #45 | PDF export styling inconsistent  | 🟡 Medium  | În lucru      |
+| #43 | iOS Safari WebGL performance lag | 🟢 Low     | Investigating |
 
 ### Feature Requests (Backlog)
 
@@ -614,6 +645,7 @@ Test Suite Status:
 **Status:** 🟢 Live (99.9% uptime last 30 days)
 
 **Infrastructure:**
+
 - **Frontend:** Vercel Edge Network
   - Region: Global (auto-optimized)
   - Build time: ~2 minutes
@@ -625,6 +657,7 @@ Test Suite Status:
   - Backups: Daily (30 days retention)
 
 **Monitoring:**
+
 - ✅ Vercel Analytics (page views, performance)
 - ✅ Supabase Dashboard (database health, query performance)
 - ✅ UptimeRobot (uptime monitoring, alerts)
@@ -639,18 +672,21 @@ Test Suite Status:
 ## 🎯 Next Steps (Prioritizate)
 
 ### Immediate (Săptămâna 4, noiembrie)
+
 1. ✅ Fix known bugs (#45, #43)
 2. 🔄 Finalizare testing manual (toate fluxuri)
 3. 🔄 Documentation finală (acest folder)
 4. 🔄 Pregătire demo pentru profesor
 
 ### Short-term (Decembrie 2024)
+
 1. ⏳ Design database schema pentru cereri
 2. ⏳ Implementare prim modul cereri (stare civilă)
 3. ⏳ Testing și validare cereri flow
 4. ⏳ User acceptance testing (UAT) cu beta users
 
 ### Long-term (Q1 2025)
+
 1. ⏳ Semnătură electronică integration
 2. ⏳ Mobile apps (React Native)
 3. ⏳ Marketing și acquisition strategy
@@ -660,20 +696,21 @@ Test Suite Status:
 
 ## 📊 Success Metrics (Actuali vs Target) - ACTUALIZAT OCT 2025
 
-| Metric | Current (Oct 2025) | Target | Status |
-|--------|-------------------|--------|--------|
-| **Milestones Complete** | 1/7 (14.3%) | 7/7 (100%) | ❌ Below target |
-| **Issues Closed** | 11/101 (10.9%) | 101/101 (100%) | ❌ Below target |
-| **M1 Progress** | 47.6% | 100% | ⚠️ În progres |
-| **M7 Progress (Survey)** | 100% ✅ | 100% | ✅ Pass |
-| **Code quality (linting)** | 95% clean | >90% clean | ✅ Pass |
-| **Performance (Lighthouse)** | 95/100 | >90/100 | ✅ Pass |
-| **Test coverage** | ~20% | >50% | ❌ Below target |
-| **Documentation (GitHub)** | 0/22 issues | 22/22 issues | ❌ Not started |
-| **Documentation (Manual)** | ~15% | >80% | ❌ Below target |
-| **Uptime** | 99.9% | >99% | ✅ Pass |
+| Metric                       | Current (Oct 2025) | Target         | Status          |
+| ---------------------------- | ------------------ | -------------- | --------------- |
+| **Milestones Complete**      | 1/7 (14.3%)        | 7/7 (100%)     | ❌ Below target |
+| **Issues Closed**            | 11/101 (10.9%)     | 101/101 (100%) | ❌ Below target |
+| **M1 Progress**              | 47.6%              | 100%           | ⚠️ În progres   |
+| **M7 Progress (Survey)**     | 100% ✅            | 100%           | ✅ Pass         |
+| **Code quality (linting)**   | 95% clean          | >90% clean     | ✅ Pass         |
+| **Performance (Lighthouse)** | 95/100             | >90/100        | ✅ Pass         |
+| **Test coverage**            | ~20%               | >50%           | ❌ Below target |
+| **Documentation (GitHub)**   | 0/22 issues        | 22/22 issues   | ❌ Not started  |
+| **Documentation (Manual)**   | ~15%               | >80%           | ❌ Below target |
+| **Uptime**                   | 99.9%              | >99%           | ✅ Pass         |
 
 **Observații Critice:**
+
 - 🔴 **Deadline M1:** 28 octombrie 2025 - FOARTE APROAPE! 11 issues rămase
 - ✅ **Survey Platform (M7):** Complet funcțional - success story!
 - 🟡 **M2-M6:** 0% progress - risc mare pentru deadline noiembrie
@@ -702,8 +739,8 @@ Test Suite Status:
 
 ---
 
-*"Progress is not achieved by luck or accident, but by working on yourself daily."*
-*- Epictetus (inspirația noastră pentru progres constant ✨)*
+_"Progress is not achieved by luck or accident, but by working on yourself daily."_
+_- Epictetus (inspirația noastră pentru progres constant ✨)_
 
 ---
 
@@ -715,6 +752,7 @@ Test Suite Status:
 ## 🚨 Action Items Critice (Prioritate Maximă)
 
 ### Săptămâna Aceasta (28 Oct - 3 Nov 2025)
+
 1. **🔴 URGENT: Finalizare M1** (11 issues rămase)
    - Password reset flow (#61, #60)
    - User dashboard & profile (#62, #63)
@@ -731,6 +769,7 @@ Test Suite Status:
    - Creare docs/06-Anexe/
 
 ### Luna Noiembrie 2025 (CRITICAL MONTH)
+
 - **Săptămâna 1:** Finalizare M2 (Cereri Module) - 10 issues
 - **Săptămâna 2:** M3 (Integrations) + M4 (Advanced Features) - 22 issues total
 - **Săptămâna 3:** M5 (Production Launch Prep) - 13 issues

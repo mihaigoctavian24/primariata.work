@@ -1,6 +1,6 @@
 # 🎭 Cazuri de Utilizare
 
-Documentația completă a cazurilor de utilizare pentru platforma **primariaTa❤️_**.
+Documentația completă a cazurilor de utilizare pentru platforma **primariaTa❤️\_**.
 
 ## Prezentare Generală
 
@@ -12,15 +12,15 @@ Cazurile de utilizare descriu **scenarii concrete** de interacțiune cu platform
 
 ### Informații Generale
 
-| Atribut | Valoare |
-|---|---|
-| **ID** | UC-01 |
-| **Nume** | Cetățean completează chestionarul despre digitalizare |
-| **Actor Principal** | Cetățean (utilizator public) |
-| **Actor Secundar** | - |
-| **Prioritate** | Critică |
-| **Frecvență** | 100+ ori/zi (estimat) |
-| **Status** | ✅ Implementat |
+| Atribut             | Valoare                                               |
+| ------------------- | ----------------------------------------------------- |
+| **ID**              | UC-01                                                 |
+| **Nume**            | Cetățean completează chestionarul despre digitalizare |
+| **Actor Principal** | Cetățean (utilizator public)                          |
+| **Actor Secundar**  | -                                                     |
+| **Prioritate**      | Critică                                               |
+| **Frecvență**       | 100+ ori/zi (estimat)                                 |
+| **Status**          | ✅ Implementat                                        |
 
 ### Precondiții
 
@@ -31,12 +31,14 @@ Cazurile de utilizare descriu **scenarii concrete** de interacțiune cu platform
 ### Postcondiții
 
 **Succes**:
+
 - Răspunsurile sunt salvate în baza de date (`survey_respondents` + `survey_responses`)
 - Cetățeanul primește ID unic de respondent
 - Email de confirmare este trimis (optional, dacă implementat)
 - Dashboard admin afișează noul răspuns în timp real
 
 **Eșec**:
+
 - Datele nu sunt salvate
 - Utilizatorul vede mesaj de eroare clar
 - Poate reîncerca sau salva progresul local
@@ -105,6 +107,7 @@ sequenceDiagram
 **Trigger**: Date invalide la validare (email greșit, câmpuri obligatorii necompletate)
 
 **Pași**:
+
 1. Utilizatorul completează datele personale
 2. Click "Următorul"
 3. **Validare eșuează**: email invalid (ex: "test@invalid")
@@ -122,6 +125,7 @@ sequenceDiagram
 **Trigger**: Utilizatorul închide tab-ul în mijlocul completării
 
 **Pași**:
+
 1. Utilizatorul completează pașii 1-2 (Date personale + Tip respondent)
 2. **Utilizatorul închide tab-ul** (accidental sau intenționat)
 3. Datele sunt salvate automat în `localStorage`
@@ -141,6 +145,7 @@ sequenceDiagram
 **Trigger**: Supabase DB indisponibil sau timeout
 
 **Pași**:
+
 1. Utilizatorul completează toate cele 5 pașuri
 2. Click "Trimite chestionar"
 3. **Request către DB eșuează** (timeout sau 500 error)
@@ -200,16 +205,16 @@ flowchart TD
 
 ### Scenarii de Test
 
-| ID Test | Scenariu | Input | Output Expected |
-|---|---|---|---|
-| **TC-01.1** | Date valide complete | Toate câmpurile completate corect | ✅ Submit reușit |
-| **TC-01.2** | Email invalid | `test@invalid` | ❌ Eroare validare email |
-| **TC-01.3** | Câmpuri obligatorii goale | Prenume gol | ❌ Eroare "Câmp obligatoriu" |
-| **TC-01.4** | GDPR consent lipsă | Checkbox GDPR nebifetat | ❌ Blocare submit |
-| **TC-01.5** | Județ valid + localitate validă | Cluj, Cluj-Napoca | ✅ Date salvate corect |
-| **TC-01.6** | Răspuns text peste limită | 1500 caractere text | ❌ Eroare "Max 1000 caractere" |
-| **TC-01.7** | Submit cu DB timeout | Timeout 10s | ⚠️ Retry automat → Success |
-| **TC-01.8** | Abandon + revenire | Închide tab → Revine | ✅ Progres restaurat |
+| ID Test     | Scenariu                        | Input                             | Output Expected                |
+| ----------- | ------------------------------- | --------------------------------- | ------------------------------ |
+| **TC-01.1** | Date valide complete            | Toate câmpurile completate corect | ✅ Submit reușit               |
+| **TC-01.2** | Email invalid                   | `test@invalid`                    | ❌ Eroare validare email       |
+| **TC-01.3** | Câmpuri obligatorii goale       | Prenume gol                       | ❌ Eroare "Câmp obligatoriu"   |
+| **TC-01.4** | GDPR consent lipsă              | Checkbox GDPR nebifetat           | ❌ Blocare submit              |
+| **TC-01.5** | Județ valid + localitate validă | Cluj, Cluj-Napoca                 | ✅ Date salvate corect         |
+| **TC-01.6** | Răspuns text peste limită       | 1500 caractere text               | ❌ Eroare "Max 1000 caractere" |
+| **TC-01.7** | Submit cu DB timeout            | Timeout 10s                       | ⚠️ Retry automat → Success     |
+| **TC-01.8** | Abandon + revenire              | Închide tab → Revine              | ✅ Progres restaurat           |
 
 ---
 
@@ -217,15 +222,15 @@ flowchart TD
 
 ### Informații Generale
 
-| Atribut | Valoare |
-|---|---|
-| **ID** | UC-02 |
-| **Nume** | Administrator vizualizează statistici în timp real |
-| **Actor Principal** | Administrator (rol `admin` sau `super_admin`) |
-| **Actor Secundar** | - |
-| **Prioritate** | Critică |
-| **Frecvență** | 20+ ori/zi |
-| **Status** | ✅ Implementat |
+| Atribut             | Valoare                                            |
+| ------------------- | -------------------------------------------------- |
+| **ID**              | UC-02                                              |
+| **Nume**            | Administrator vizualizează statistici în timp real |
+| **Actor Principal** | Administrator (rol `admin` sau `super_admin`)      |
+| **Actor Secundar**  | -                                                  |
+| **Prioritate**      | Critică                                            |
+| **Frecvență**       | 20+ ori/zi                                         |
+| **Status**          | ✅ Implementat                                     |
 
 ### Precondiții
 
@@ -236,6 +241,7 @@ flowchart TD
 ### Postcondiții
 
 **Succes**:
+
 - Dashboard afișează metrici actualizate în timp real
 - Grafice interactive sunt randalizate
 - Administratorul poate filtra și explora datele
@@ -301,6 +307,7 @@ sequenceDiagram
 **Trigger**: Utilizator fără rol admin încearcă să acceseze dashboard
 
 **Pași**:
+
 1. Utilizator autentificat (rol: `cetățean`)
 2. Accesează URL `/admin/survey` direct
 3. **Middleware verifică rol**
@@ -314,14 +321,14 @@ sequenceDiagram
 
 ### Scenarii de Test
 
-| ID Test | Scenariu | Expected Result |
-|---|---|---|
+| ID Test     | Scenariu                               | Expected Result                    |
+| ----------- | -------------------------------------- | ---------------------------------- |
 | **TC-02.1** | Admin autentificat accesează dashboard | ✅ Dashboard se încarcă cu metrici |
-| **TC-02.2** | User fără rol admin | ❌ Redirect la login |
-| **TC-02.3** | Dashboard fără date | ✅ Afișează "0 răspunsuri" |
-| **TC-02.4** | Real-time update | ✅ Metrici actualizate la 5s |
-| **TC-02.5** | Hover pe grafice | ✅ Tooltip afișat |
-| **TC-02.6** | Click pe bar chart | ✅ Filtrare tabel |
+| **TC-02.2** | User fără rol admin                    | ❌ Redirect la login               |
+| **TC-02.3** | Dashboard fără date                    | ✅ Afișează "0 răspunsuri"         |
+| **TC-02.4** | Real-time update                       | ✅ Metrici actualizate la 5s       |
+| **TC-02.5** | Hover pe grafice                       | ✅ Tooltip afișat                  |
+| **TC-02.6** | Click pe bar chart                     | ✅ Filtrare tabel                  |
 
 ---
 
@@ -329,14 +336,14 @@ sequenceDiagram
 
 ### Informații Generale
 
-| Atribut | Valoare |
-|---|---|
-| **ID** | UC-03 |
-| **Nume** | Administrator exportă răspunsuri în format CSV/JSON/XLSX/PDF |
-| **Actor Principal** | Administrator |
-| **Prioritate** | Critică |
-| **Frecvență** | 5+ ori/săptămână |
-| **Status** | ✅ Implementat |
+| Atribut             | Valoare                                                      |
+| ------------------- | ------------------------------------------------------------ |
+| **ID**              | UC-03                                                        |
+| **Nume**            | Administrator exportă răspunsuri în format CSV/JSON/XLSX/PDF |
+| **Actor Principal** | Administrator                                                |
+| **Prioritate**      | Critică                                                      |
+| **Frecvență**       | 5+ ori/săptămână                                             |
+| **Status**          | ✅ Implementat                                               |
 
 ### Precondiții
 
@@ -347,6 +354,7 @@ sequenceDiagram
 ### Postcondiții
 
 **Succes**:
+
 - Fișier exportat cu succes în formatul ales
 - Download automat declanșat
 - Fișier conține toate datele selectate
@@ -395,6 +403,7 @@ sequenceDiagram
 ### Flow Alternativ 1: Export Excel Multi-Sheet
 
 **Pași**:
+
 1. Admin selectează format: **Excel (.xlsx)**
 2. Bifează "Include statistici"
 3. Click "Export"
@@ -409,13 +418,13 @@ sequenceDiagram
 
 ### Scenarii de Test
 
-| ID Test | Format | Coloane | Expected |
-|---|---|---|---|
-| **TC-03.1** | CSV | Toate | ✅ Fișier valid CSV |
-| **TC-03.2** | JSON | Selectate (3) | ✅ JSON cu 3 keys |
-| **TC-03.3** | Excel | Toate + Statistici | ✅ 2 sheets |
-| **TC-03.4** | PDF | Custom | ✅ PDF profesional |
-| **TC-03.5** | CSV | Filtre active (județ) | ✅ Doar județ filtrat |
+| ID Test     | Format | Coloane               | Expected              |
+| ----------- | ------ | --------------------- | --------------------- |
+| **TC-03.1** | CSV    | Toate                 | ✅ Fișier valid CSV   |
+| **TC-03.2** | JSON   | Selectate (3)         | ✅ JSON cu 3 keys     |
+| **TC-03.3** | Excel  | Toate + Statistici    | ✅ 2 sheets           |
+| **TC-03.4** | PDF    | Custom                | ✅ PDF profesional    |
+| **TC-03.5** | CSV    | Filtre active (județ) | ✅ Doar județ filtrat |
 
 ---
 
@@ -423,14 +432,14 @@ sequenceDiagram
 
 ### Informații Generale
 
-| Atribut | Valoare |
-|---|---|
-| **ID** | UC-04 |
-| **Nume** | Funcționar completează chestionar despre nevoi digitalizare |
-| **Actor Principal** | Funcționar public |
-| **Prioritate** | Critică |
-| **Frecvență** | 20+ ori/zi |
-| **Status** | ✅ Implementat |
+| Atribut             | Valoare                                                     |
+| ------------------- | ----------------------------------------------------------- |
+| **ID**              | UC-04                                                       |
+| **Nume**            | Funcționar completează chestionar despre nevoi digitalizare |
+| **Actor Principal** | Funcționar public                                           |
+| **Prioritate**      | Critică                                                     |
+| **Frecvență**       | 20+ ori/zi                                                  |
+| **Status**          | ✅ Implementat                                              |
 
 ### Precondiții
 
@@ -438,16 +447,17 @@ Identice cu UC-01 (Cetățean)
 
 ### Diferențe față de UC-01
 
-| Aspect | Cetățean | Funcționar |
-|---|---|---|
-| **Tip respondent** | Selectează "Cetățean" | Selectează "Funcționar" |
-| **Număr întrebări** | 10 întrebări | 12 întrebări |
-| **Tipuri întrebări** | Focus utilizare servicii | Focus nevoi departament |
+| Aspect                  | Cetățean                        | Funcționar                    |
+| ----------------------- | ------------------------------- | ----------------------------- |
+| **Tip respondent**      | Selectează "Cetățean"           | Selectează "Funcționar"       |
+| **Număr întrebări**     | 10 întrebări                    | 12 întrebări                  |
+| **Tipuri întrebări**    | Focus utilizare servicii        | Focus nevoi departament       |
 | **Întrebări specifice** | "Cât de des mergi la primărie?" | "În ce departament activați?" |
 
 ### Flow Principal
 
 **Identic cu UC-01**, cu excepția:
+
 - **Pas 2**: Selectează "Funcționar"
 - **Pas 3**: Afișează 12 întrebări specifice funcționari
 
@@ -457,14 +467,14 @@ Identice cu UC-01 (Cetățean)
 
 ### Informații Generale
 
-| Atribut | Valoare |
-|---|---|
-| **ID** | UC-05 |
-| **Nume** | Administrator vizualizează și șterge respondenti |
-| **Actor Principal** | Administrator |
-| **Prioritate** | Medie |
-| **Frecvență** | 10 ori/zi |
-| **Status** | ✅ Implementat |
+| Atribut             | Valoare                                          |
+| ------------------- | ------------------------------------------------ |
+| **ID**              | UC-05                                            |
+| **Nume**            | Administrator vizualizează și șterge respondenti |
+| **Actor Principal** | Administrator                                    |
+| **Prioritate**      | Medie                                            |
+| **Frecvență**       | 10 ori/zi                                        |
+| **Status**          | ✅ Implementat                                   |
 
 ### Flow Principal
 
@@ -511,14 +521,14 @@ sequenceDiagram
 
 ### Informații Generale
 
-| Atribut | Valoare |
-|---|---|
-| **ID** | UC-06 |
-| **Nume** | Administrator se autentifică cu email/parolă sau Google |
-| **Actor Principal** | Administrator |
-| **Prioritate** | Critică |
-| **Frecvență** | 50+ ori/zi |
-| **Status** | ✅ Implementat |
+| Atribut             | Valoare                                                 |
+| ------------------- | ------------------------------------------------------- |
+| **ID**              | UC-06                                                   |
+| **Nume**            | Administrator se autentifică cu email/parolă sau Google |
+| **Actor Principal** | Administrator                                           |
+| **Prioritate**      | Critică                                                 |
+| **Frecvență**       | 50+ ori/zi                                              |
+| **Status**          | ✅ Implementat                                          |
 
 ### Flow Principal: Email + Parolă
 
@@ -583,14 +593,14 @@ sequenceDiagram
 
 ### Informații Generale
 
-| Atribut | Valoare |
-|---|---|
-| **ID** | UC-07 |
-| **Nume** | Utilizator explorează landing page interactiv |
-| **Actor Principal** | Vizitator (utilizator neautentificat) |
-| **Prioritate** | Medie |
-| **Frecvență** | 500+ ori/zi |
-| **Status** | ✅ Implementat |
+| Atribut             | Valoare                                       |
+| ------------------- | --------------------------------------------- |
+| **ID**              | UC-07                                         |
+| **Nume**            | Utilizator explorează landing page interactiv |
+| **Actor Principal** | Vizitator (utilizator neautentificat)         |
+| **Prioritate**      | Medie                                         |
+| **Frecvență**       | 500+ ori/zi                                   |
+| **Status**          | ✅ Implementat                                |
 
 ### Flow Principal
 
@@ -631,30 +641,30 @@ flowchart TD
 
 ### Statistici
 
-| Categorie | Count |
-|---|---|
-| **Total cazuri** | 7 |
-| **Prioritate Critică** | 6 |
-| **Prioritate Medie** | 1 |
-| **Implementate** | 7 (100%) |
+| Categorie              | Count    |
+| ---------------------- | -------- |
+| **Total cazuri**       | 7        |
+| **Prioritate Critică** | 6        |
+| **Prioritate Medie**   | 1        |
+| **Implementate**       | 7 (100%) |
 
 ### Acoperire Funcționalități
 
-| Funcționalitate | Cazuri de Utilizare |
-|---|---|
-| **Completare Chestionar** | UC-01, UC-04 |
-| **Dashboard Admin** | UC-02, UC-05 |
-| **Export Date** | UC-03 |
-| **Autentificare** | UC-06 |
-| **Landing Page** | UC-07 |
+| Funcționalitate           | Cazuri de Utilizare |
+| ------------------------- | ------------------- |
+| **Completare Chestionar** | UC-01, UC-04        |
+| **Dashboard Admin**       | UC-02, UC-05        |
+| **Export Date**           | UC-03               |
+| **Autentificare**         | UC-06               |
+| **Landing Page**          | UC-07               |
 
 ### Matrice Actori × Cazuri
 
-| Actor | UC-01 | UC-02 | UC-03 | UC-04 | UC-05 | UC-06 | UC-07 |
-|---|---|---|---|---|---|---|---|
-| **Cetățean** | ✅ | - | - | - | - | - | ✅ |
-| **Funcționar** | - | - | - | ✅ | - | - | ✅ |
-| **Administrator** | - | ✅ | ✅ | - | ✅ | ✅ | - |
+| Actor             | UC-01 | UC-02 | UC-03 | UC-04 | UC-05 | UC-06 | UC-07 |
+| ----------------- | ----- | ----- | ----- | ----- | ----- | ----- | ----- |
+| **Cetățean**      | ✅    | -     | -     | -     | -     | -     | ✅    |
+| **Funcționar**    | -     | -     | -     | ✅    | -     | -     | ✅    |
+| **Administrator** | -     | ✅    | ✅    | -     | ✅    | ✅    | -     |
 
 ---
 

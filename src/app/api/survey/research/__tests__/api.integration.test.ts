@@ -183,7 +183,7 @@ const createMockSupabaseClient = (overrides = {}) => {
     auth: {
       getUser: jest.fn().mockResolvedValue({ data: { user: mockUser }, error: null }),
     },
-    from: jest.fn((table: string) => ({
+    from: jest.fn(() => ({
       select: jest.fn().mockReturnThis(),
       insert: jest.fn().mockReturnThis(),
       update: jest.fn().mockReturnThis(),
@@ -619,7 +619,6 @@ describe("Research API Integration Tests", () => {
 
       mockCreateClient.mockResolvedValue(mockClient as never);
 
-      const request = createMockRequest("/api/survey/research/analyze");
       const response = await analyzeGet();
       const data = await response.json();
 
@@ -640,7 +639,6 @@ describe("Research API Integration Tests", () => {
 
       mockCreateClient.mockResolvedValue(mockClient as never);
 
-      const request = createMockRequest("/api/survey/research/analyze");
       const response = await analyzeGet();
       const data = await response.json();
 
@@ -659,7 +657,6 @@ describe("Research API Integration Tests", () => {
 
       mockCreateClient.mockResolvedValue(mockClient as never);
 
-      const request = createMockRequest("/api/survey/research/analyze");
       const response = await analyzeGet();
       const data = await response.json();
 

@@ -1,6 +1,7 @@
 # 📊 Research Dashboard - User Guide
 
 ## Table of Contents
+
 - [Overview](#overview)
 - [Accessing the Dashboard](#accessing-the-dashboard)
 - [Dashboard Features](#dashboard-features)
@@ -26,11 +27,13 @@ The Research Dashboard provides AI-powered insights and comprehensive analysis o
 ## Accessing the Dashboard
 
 ### Prerequisites
+
 - **Role Required**: Admin or Super Admin access
 - **Authentication**: Must be logged into the platform
 - **Browser**: Modern browser (Chrome, Firefox, Safari, Edge)
 
 ### Navigation Path
+
 1. Log in to the admin panel at `/admin`
 2. Navigate to **Survey Dashboard** (`/admin/survey`)
 3. Click on **"Analiză Cercetare AI"** card
@@ -41,11 +44,13 @@ The Research Dashboard provides AI-powered insights and comprehensive analysis o
 ## Dashboard Features
 
 ### 🎯 Real-time Connection
+
 - **Status Indicator**: Green dot (🟢) shows "Real-time connected" in development
 - **Auto-Refresh**: Dashboard automatically updates when new responses arrive
 - **Auto-Analysis**: Triggers AI analysis 5 minutes after new response submission
 
 ### 📊 Data Validity
+
 - **Minimum Threshold**: Displays warning if <15 responses
 - **Validity Badge**:
   - ✅ Green badge when ≥15 responses (statistically valid)
@@ -62,6 +67,7 @@ The dashboard is organized into **7 tabs**, each providing specific insights:
 **Purpose**: High-level summary of research findings
 
 **Contents**:
+
 - **Summary Statistics**:
   - Total responses count
   - Citizens vs Officials breakdown
@@ -79,6 +85,7 @@ The dashboard is organized into **7 tabs**, each providing specific insights:
   - Sentiment label (Pozitiv/Negativ/Neutru/Mixt)
 
 **Use Cases**:
+
 - Quick executive summary for stakeholders
 - Research validity check before deep analysis
 - Understanding overall sentiment at a glance
@@ -90,6 +97,7 @@ The dashboard is organized into **7 tabs**, each providing specific insights:
 **Purpose**: AI-powered thematic analysis and recommendations
 
 **Contents**:
+
 - **Theme Cloud**:
   - Visual display of extracted themes
   - Size indicates theme prevalence (score)
@@ -122,6 +130,7 @@ The dashboard is organized into **7 tabs**, each providing specific insights:
   - Expandable reasoning (click "Details" to expand)
 
 **Use Cases**:
+
 - Identifying most requested features
 - Prioritizing development roadmap
 - Understanding user pain points
@@ -134,6 +143,7 @@ The dashboard is organized into **7 tabs**, each providing specific insights:
 **Purpose**: Cross-question analysis and synthesis
 
 **Contents**:
+
 - **Executive Summary**:
   - Key findings across all questions
   - Patterns identified by AI
@@ -145,6 +155,7 @@ The dashboard is organized into **7 tabs**, each providing specific insights:
   - Consistency vs inconsistency detection
 
 **Use Cases**:
+
 - Understanding big-picture trends
 - Identifying contradictions in responses
 - Strategic synthesis for decision-making
@@ -156,6 +167,7 @@ The dashboard is organized into **7 tabs**, each providing specific insights:
 **Purpose**: Detailed analysis for each survey question
 
 **Contents**:
+
 - **Tabbed Interface**:
   - **Cetățeni** (Citizens): 10 questions analyzed
   - **Funcționari** (Officials): 12 questions analyzed
@@ -192,6 +204,7 @@ The dashboard is organized into **7 tabs**, each providing specific insights:
   - Recommendations specific to question
 
 **Use Cases**:
+
 - Deep dive into specific questions
 - Understanding response distribution
 - Reading actual citizen/official quotes
@@ -204,6 +217,7 @@ The dashboard is organized into **7 tabs**, each providing specific insights:
 **Purpose**: Statistical relationships between variables
 
 **Contents**:
+
 - **Key Findings Summary**:
   - Count of significant correlations
   - Statistical significance note
@@ -224,6 +238,7 @@ The dashboard is organized into **7 tabs**, each providing specific insights:
   - Demographics × Sentiment scores
 
 **Use Cases**:
+
 - Understanding relationships between demographics and preferences
 - Identifying target audiences for features
 - Data-driven segmentation strategies
@@ -235,6 +250,7 @@ The dashboard is organized into **7 tabs**, each providing specific insights:
 **Purpose**: Group analysis and comparison
 
 **Contents**:
+
 - **Summary Cards**:
   - Total cohorts count
   - Largest cohort
@@ -270,6 +286,7 @@ The dashboard is organized into **7 tabs**, each providing specific insights:
   - Actionable recommendations
 
 **Use Cases**:
+
 - Segmented feature development
 - Targeted communication strategies
 - Understanding generational differences
@@ -282,6 +299,7 @@ The dashboard is organized into **7 tabs**, each providing specific insights:
 **Purpose**: Respondent demographic breakdown
 
 **Contents**:
+
 - **Respondent Type Split**:
   - Citizens vs Officials percentage bars
   - Count display with icons
@@ -300,6 +318,7 @@ The dashboard is organized into **7 tabs**, each providing specific insights:
   - Progress bars scaled to max locality
 
 **Use Cases**:
+
 - Geographic representation analysis
 - Identifying underrepresented areas
 - Planning regional rollouts
@@ -322,6 +341,7 @@ The dashboard is organized into **7 tabs**, each providing specific insights:
 **Description**: Professional summary report for stakeholders
 
 **Contents**:
+
 - Executive Summary
   - Total responses, date range, geographic coverage
   - Research validity badge
@@ -347,6 +367,7 @@ The dashboard is organized into **7 tabs**, each providing specific insights:
 **Filename**: `research-report-YYYY-MM-DD.pdf`
 
 **Use Cases**:
+
 - Presentations to stakeholders
 - Executive briefings
 - Documentation for archives
@@ -358,6 +379,7 @@ The dashboard is organized into **7 tabs**, each providing specific insights:
 **Description**: Comprehensive data export for analysis
 
 **Worksheets**:
+
 1. **Rezumat** (Summary):
    - Overview statistics
    - Geographic coverage
@@ -390,11 +412,13 @@ The dashboard is organized into **7 tabs**, each providing specific insights:
 **Filename**: `survey-data-YYYY-MM-DD.xlsx`
 
 **Features**:
+
 - Auto-sized columns
 - Formatted headers (gray background)
 - Filters enabled on all sheets
 
 **Use Cases**:
+
 - Custom analysis in Excel/PowerBI
 - Data archiving
 - Integration with other tools
@@ -407,6 +431,7 @@ The dashboard is organized into **7 tabs**, each providing specific insights:
 **Description**: Simple comma-separated values export
 
 **Contents**:
+
 - Survey responses with metadata
 - One row per response
 - Columns: Question ID, Question Text, Response Text, Respondent Type, Date
@@ -416,11 +441,13 @@ The dashboard is organized into **7 tabs**, each providing specific insights:
 **Filename**: `survey-responses-YYYY-MM-DD.csv`
 
 **Features**:
+
 - UTF-8 BOM prefix (`\uFEFF`)
 - Proper escaping (commas, quotes, newlines)
 - Compatible with Excel, Google Sheets
 
 **Use Cases**:
+
 - Quick import to spreadsheet software
 - Database imports
 - Scripting and automation
@@ -432,6 +459,7 @@ The dashboard is organized into **7 tabs**, each providing specific insights:
 **Description**: Machine-readable structured data
 
 **Contents**:
+
 - **Metadata**:
   - exportedAt timestamp
   - exportedBy user ID
@@ -454,6 +482,7 @@ The dashboard is organized into **7 tabs**, each providing specific insights:
 **Filename**: `survey-data-YYYY-MM-DD.json`
 
 **Use Cases**:
+
 - API integrations
 - Data pipelines
 - Programmatic analysis
@@ -464,19 +493,23 @@ The dashboard is organized into **7 tabs**, each providing specific insights:
 ### Export Options
 
 **Filters Available**:
+
 - `respondent_type`: Filter by "citizen" or "official"
 - `include_raw_data`: Include/exclude raw survey responses (Excel & JSON only)
 
 **Disabled State**:
+
 - All export buttons are disabled when `totalResponses === 0`
 - Error message: "Nu există răspunsuri pentru export"
 
 **Loading States**:
+
 - Buttons show spinner (Loader2) during generation
 - Success state with checkmark icon (CheckCircle2)
 - Auto-reset after 3 seconds
 
 **GDPR Compliance**:
+
 - Export panel includes GDPR compliance note
 - Warning about personal data handling
 - Reminder to secure exported files
@@ -488,25 +521,30 @@ The dashboard is organized into **7 tabs**, each providing specific insights:
 ### How It Works
 
 **Subscription**:
+
 - Dashboard subscribes to `survey_respondents` table (INSERT events)
 - Dashboard subscribes to `survey_responses` table (INSERT events)
 - WebSocket connection via Supabase Realtime
 
 **Debouncing**:
+
 - 2-second delay prevents excessive refreshes
 - Multiple rapid submissions are batched
 
 **Auto-Analysis**:
+
 - Triggers after 5 minutes of inactivity
 - Background POST to `/api/survey/research/analyze`
 - Updates all AI insights automatically
 
 **User Feedback**:
+
 - Toast notification: "Răspuns nou primit! Actualizare date..." (New response received! Updating data...)
 - Success notification: "Analiză completată cu succes!" (Analysis completed successfully!)
 - Connection indicator: 🟢 Real-time connected (development mode only)
 
 ### Benefits
+
 - No manual refresh needed
 - Always shows latest data
 - Automatic AI analysis when new responses arrive
@@ -523,6 +561,7 @@ The dashboard is organized into **7 tabs**, each providing specific insights:
 **Cause**: AI analysis not yet triggered or failed
 
 **Solution**:
+
 1. Navigate to any tab
 2. AI analysis should auto-trigger if new responses exist
 3. Wait 5 minutes after last response for auto-analysis
@@ -536,11 +575,13 @@ The dashboard is organized into **7 tabs**, each providing specific insights:
 **Problem**: No data displayed in charts
 
 **Cause**:
+
 - No responses yet collected
 - Filter applied with no matching data
 - Cache issue
 
 **Solution**:
+
 1. Check total responses count in Overview tab
 2. Verify filters are correct
 3. Try refreshing the page (Ctrl+R / Cmd+R)
@@ -553,11 +594,13 @@ The dashboard is organized into **7 tabs**, each providing specific insights:
 **Problem**: Export button stuck in loading state
 
 **Cause**:
+
 - Large dataset processing
 - Network timeout
 - Server error
 
 **Solution**:
+
 1. Wait up to 30 seconds for large exports
 2. Check browser console for errors (F12 > Console)
 3. Try exporting with filters to reduce data size
@@ -570,11 +613,13 @@ The dashboard is organized into **7 tabs**, each providing specific insights:
 **Problem**: Dashboard doesn't refresh when new responses arrive
 
 **Cause**:
+
 - WebSocket connection failed
 - Network firewall blocking WebSockets
 - Supabase Realtime not enabled
 
 **Solution**:
+
 1. Check connection indicator (🟢 should be visible in dev mode)
 2. Refresh page to re-establish connection
 3. Verify network allows WebSocket connections
@@ -587,11 +632,13 @@ The dashboard is organized into **7 tabs**, each providing specific insights:
 **Problem**: Dashboard takes long time to load
 
 **Cause**:
+
 - Large number of responses (>100)
 - Slow network connection
 - Server processing time
 
 **Solution**:
+
 1. Check network connection speed
 2. Use filters to reduce data load
 3. Contact admin if consistent across sessions
@@ -628,24 +675,26 @@ The dashboard is organized into **7 tabs**, each providing specific insights:
 
 ## Keyboard Shortcuts
 
-| Key | Action |
-|-----|--------|
-| `Tab` | Navigate between tabs |
-| `Shift + Tab` | Navigate backwards between tabs |
-| `Arrow Keys` | Navigate in sortable tables |
-| `Enter` | Activate focused button/link |
-| `Ctrl/Cmd + R` | Refresh page |
+| Key            | Action                          |
+| -------------- | ------------------------------- |
+| `Tab`          | Navigate between tabs           |
+| `Shift + Tab`  | Navigate backwards between tabs |
+| `Arrow Keys`   | Navigate in sortable tables     |
+| `Enter`        | Activate focused button/link    |
+| `Ctrl/Cmd + R` | Refresh page                    |
 
 ---
 
 ## Support
 
 **For Technical Issues**:
+
 - Check browser console (F12 > Console) for errors
 - Take screenshot of error message
 - Contact system administrator
 
 **For Data Questions**:
+
 - Verify research methodology documentation
 - Check AI model version in insights metadata
 - Contact research team for interpretation assistance
