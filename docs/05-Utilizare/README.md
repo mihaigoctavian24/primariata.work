@@ -28,6 +28,7 @@ Această secțiune conține ghiduri practice pentru utilizatorii platformei **pr
 **Conținut disponibil:**
 
 #### A. Prezentare Generală
+
 - ✅ Ce este Research Dashboard?
 - ✅ Cerințe acces (rol admin/super_admin)
 - ✅ Navigare la dashboard (`/admin/survey/research`)
@@ -35,6 +36,7 @@ Această secțiune conține ghiduri practice pentru utilizatorii platformei **pr
 - ✅ Data validity badges
 
 #### B. Taburi Dashboard (7 taburi complete)
+
 1. **Prezentare Generală**: Summary statistics, AI key findings, sentiment gauge
 2. **Insight-uri AI**: Theme cloud, feature priority matrix, AI recommendations
 3. **Insight-uri Holistice**: Cross-question analysis, executive summary
@@ -45,6 +47,7 @@ Această secțiune conține ghiduri practice pentru utilizatorii platformei **pr
 8. **Export**: PDF, Excel, CSV, JSON exports
 
 #### C. Funcționalități Avansate
+
 - ✅ Real-time Updates: Auto-refresh la răspunsuri noi (2s debouncing)
 - ✅ Export Multi-Format:
   - PDF Executive Report (stakeholder presentations)
@@ -55,6 +58,7 @@ Această secțiune conține ghiduri practice pentru utilizatorii platformei **pr
 - ✅ Cohort Analysis: Age, Location, Usage segments with comparisons
 
 #### D. Troubleshooting
+
 - ✅ Missing AI insights (auto-trigger analysis)
 - ✅ Empty charts (data validation)
 - ✅ Export failures (network/size issues)
@@ -62,6 +66,7 @@ Această secțiune conține ghiduri practice pentru utilizatorii platformei **pr
 - ✅ Slow page load (performance optimization)
 
 #### E. Best Practices
+
 - ✅ Data interpretation (sample size validation)
 - ✅ Export usage (format selection guide)
 - ✅ Decision-making (ROI prioritization)

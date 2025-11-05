@@ -670,33 +670,8 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
         liquidEffect,
         eventHandlers: { onPointerDown, onPointerMove },
       };
-    } else {
-      const t = threeRef.current!;
-      t.uniforms.uShapeType.value = SHAPE_MAP[variant] ?? 0;
-      t.uniforms.uPixelSize.value = pixelSize * t.renderer.getPixelRatio();
-      t.uniforms.uColor.value.set(color);
-      t.uniforms.uScale.value = patternScale;
-      t.uniforms.uDensity.value = patternDensity;
-      t.uniforms.uPixelJitter.value = pixelSizeJitter;
-      t.uniforms.uEnableRipples.value = enableRipples ? 1 : 0;
-      t.uniforms.uRippleIntensity.value = rippleIntensityScale;
-      t.uniforms.uRippleThickness.value = rippleThickness;
-      t.uniforms.uRippleSpeed.value = rippleSpeed;
-      t.uniforms.uEdgeFade.value = edgeFade;
-      if (transparent) t.renderer.setClearAlpha(0);
-      else t.renderer.setClearColor(0x000000, 1);
-      if (t.liquidEffect) {
-        const uStrength = (
-          t.liquidEffect as Effect & { uniforms: Map<string, THREE.Uniform> }
-        ).uniforms.get("uStrength");
-        if (uStrength) uStrength.value = liquidStrength;
-        const uFreq = (
-          t.liquidEffect as Effect & { uniforms: Map<string, THREE.Uniform> }
-        ).uniforms.get("uFreq");
-        if (uFreq) uFreq.value = liquidWobbleSpeed;
-      }
-      if (t.touch) t.touch.radiusScale = liquidRadius;
     }
+    // Note: Updates to uniforms are handled in the separate useEffect below
     prevConfigRef.current = cfg;
     return () => {
       // Always run cleanup to prevent memory leaks
@@ -758,24 +733,49 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
 
       threeRef.current = null;
     };
+    // Only re-initialize when these config options change, not when uniform values change
+    // Uniform updates are handled in the separate useEffect below
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [antialias, liquid, noiseAmount, autoPauseOffscreen]);
 
   // Update uniforms when props change (without re-initialization)
   useEffect(() => {
     if (!threeRef.current) return;
-    const uniforms = threeRef.current.material.uniforms;
+    const t = threeRef.current;
+    const uniforms = t.material.uniforms;
 
-    uniforms.uColor.value.set(color);
-    uniforms.uPixelSize.value = pixelSize * threeRef.current.renderer.getPixelRatio();
-    uniforms.uScale.value = patternScale;
-    uniforms.uDensity.value = patternDensity;
-    uniforms.uPixelJitter.value = pixelSizeJitter;
-    uniforms.uEnableRipples.value = enableRipples ? 1 : 0;
-    uniforms.uRippleSpeed.value = rippleSpeed;
-    uniforms.uRippleThickness.value = rippleThickness;
-    uniforms.uRippleIntensity.value = rippleIntensityScale;
-    uniforms.uEdgeFade.value = edgeFade;
-    uniforms.uShapeType.value = SHAPE_MAP[variant] ?? 0;
+    uniforms.uColor?.value.set(color);
+    if (uniforms.uPixelSize) {
+      uniforms.uPixelSize.value = pixelSize * t.renderer.getPixelRatio();
+    }
+    if (uniforms.uScale) uniforms.uScale.value = patternScale;
+    if (uniforms.uDensity) uniforms.uDensity.value = patternDensity;
+    if (uniforms.uPixelJitter) uniforms.uPixelJitter.value = pixelSizeJitter;
+    if (uniforms.uEnableRipples) uniforms.uEnableRipples.value = enableRipples ? 1 : 0;
+    if (uniforms.uRippleSpeed) uniforms.uRippleSpeed.value = rippleSpeed;
+    if (uniforms.uRippleThickness) uniforms.uRippleThickness.value = rippleThickness;
+    if (uniforms.uRippleIntensity) uniforms.uRippleIntensity.value = rippleIntensityScale;
+    if (uniforms.uEdgeFade) uniforms.uEdgeFade.value = edgeFade;
+    if (uniforms.uShapeType) uniforms.uShapeType.value = SHAPE_MAP[variant] ?? 0;
+
+    // Update transparent rendering
+    if (transparent) t.renderer.setClearAlpha(0);
+    else t.renderer.setClearColor(0x000000, 1);
+
+    // Update liquid effect uniforms
+    if (t.liquidEffect) {
+      const uStrength = (
+        t.liquidEffect as Effect & { uniforms: Map<string, THREE.Uniform> }
+      ).uniforms.get("uStrength");
+      if (uStrength) uStrength.value = liquidStrength;
+      const uFreq = (
+        t.liquidEffect as Effect & { uniforms: Map<string, THREE.Uniform> }
+      ).uniforms.get("uFreq");
+      if (uFreq) uFreq.value = liquidWobbleSpeed;
+    }
+
+    // Update touch texture radius
+    if (t.touch) t.touch.radiusScale = liquidRadius;
 
     speedRef.current = speed;
   }, [
@@ -791,6 +791,10 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
     edgeFade,
     variant,
     speed,
+    transparent,
+    liquidStrength,
+    liquidWobbleSpeed,
+    liquidRadius,
   ]);
 
   return (

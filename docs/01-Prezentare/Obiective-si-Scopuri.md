@@ -30,11 +30,11 @@ Proiectul **primariaTa❤️\_** își propune să atingă cinci obiective funda
 
 #### Indicatori de Succes
 
-| Metric | Țintă | Măsurare |
-|--------|-------|----------|
-| Tipuri cereri digitalizate | 100% | Nr. cereri online / Total cereri posibile |
-| Procesare end-to-end digitală | >95% | Cereri fără interacțiune fizică / Total cereri |
-| Documente eliberate digital | >90% | Documente cu semnătură electronică / Total |
+| Metric                        | Țintă | Măsurare                                       |
+| ----------------------------- | ----- | ---------------------------------------------- |
+| Tipuri cereri digitalizate    | 100%  | Nr. cereri online / Total cereri posibile      |
+| Procesare end-to-end digitală | >95%  | Cereri fără interacțiune fizică / Total cereri |
+| Documente eliberate digital   | >90%  | Documente cu semnătură electronică / Total     |
 
 ### 2. 🎨 Platformă White-Label (Adaptabilă pentru Orice Primărie)
 
@@ -82,11 +82,11 @@ Proiectul **primariaTa❤️\_** își propune să atingă cinci obiective funda
 
 #### Indicatori de Succes
 
-| Metric | Țintă | Măsurare |
-|--------|-------|----------|
-| Timp setup primărie nouă | <4 ore | Timp mediu onboarding complet |
-| Nivel personalizare disponibil | >90% | Features configurabile / Total features |
-| Satisfacție administratori | >85% | Survey feedback după 3 luni |
+| Metric                         | Țintă  | Măsurare                                |
+| ------------------------------ | ------ | --------------------------------------- |
+| Timp setup primărie nouă       | <4 ore | Timp mediu onboarding complet           |
+| Nivel personalizare disponibil | >90%   | Features configurabile / Total features |
+| Satisfacție administratori     | >85%   | Survey feedback după 3 luni             |
 
 ### 3. 😊 Experiență Utilizator Excelentă
 
@@ -95,21 +95,25 @@ Proiectul **primariaTa❤️\_** își propune să atingă cinci obiective funda
 #### Principii de Design UX
 
 **1. Simplitate Radicală**
+
 - Maxim 3 click-uri pentru orice acțiune
 - Limbaj clar, fără jargon birocratic
 - Fluxuri ghidate pas cu pas
 
 **2. Feedback Continuu**
+
 - Mesaje clare pentru fiecare acțiune
 - Loading states și progress indicators
 - Confirmări și previzualizări înainte de submit
 
 **3. Prevenție Erori**
+
 - Validări în timp real
 - Sugestii automate (autocomplete)
 - Mesaje de eroare cu soluții concrete
 
 **4. Accesibilitate (WCAG 2.1 Level AA)**
+
 - Navigare cu tastatură completă
 - Screen reader compatible
 - Contrast ridicat pentru vizibilitate
@@ -125,13 +129,13 @@ Proiectul **primariaTa❤️\_** își propune să atingă cinci obiective funda
 
 #### Indicatori de Succes
 
-| Metric | Țintă | Perioada |
-|--------|-------|----------|
-| Satisfacție utilizatori (CSAT) | >90% | Survey post-utilizare |
-| Task success rate | >95% | % utilizatori care finalizează cereri |
-| Timp mediu depunere cerere | <5 min | Analytics platformă |
-| Rata abandonare formulare | <10% | % formulare începute vs finalizate |
-| Scor accesibilitate (Lighthouse) | 100/100 | Audit automat |
+| Metric                           | Țintă   | Perioada                              |
+| -------------------------------- | ------- | ------------------------------------- |
+| Satisfacție utilizatori (CSAT)   | >90%    | Survey post-utilizare                 |
+| Task success rate                | >95%    | % utilizatori care finalizează cereri |
+| Timp mediu depunere cerere       | <5 min  | Analytics platformă                   |
+| Rata abandonare formulare        | <10%    | % formulare începute vs finalizate    |
+| Scor accesibilitate (Lighthouse) | 100/100 | Audit automat                         |
 
 ### 4. 🔒 Securitate și Conformitate Maximă
 
@@ -140,6 +144,7 @@ Proiectul **primariaTa❤️\_** își propune să atingă cinci obiective funda
 #### Măsuri de Securitate Implementate
 
 **1. Autentificare și Autorizare**
+
 ```
 Multi-Layer Security:
 ├─ Autentificare Multi-Factor (MFA)
@@ -159,6 +164,7 @@ Multi-Layer Security:
 ```
 
 **2. Protecție Date (Data Security)**
+
 - **Encryption at rest**: Toate datele criptate în database (AES-256)
 - **Encryption in transit**: HTTPS/TLS 1.3 obligatoriu
 - **Row Level Security (RLS)**: Politici Supabase pentru izolare date
@@ -166,6 +172,7 @@ Multi-Layer Security:
 - **Audit logging**: Toate acțiunile înregistrate pentru compliance
 
 **3. Conformitate GDPR**
+
 - ✅ **Consimțământ explicit** - Checkbox-uri clare la înregistrare
 - ✅ **Dreptul de acces** - Export toate datele personale
 - ✅ **Dreptul la ștergere** - Delete account funcțional
@@ -174,6 +181,7 @@ Multi-Layer Security:
 - ✅ **Privacy by design** - Securitate built-in, nu addon
 
 **4. Protecție Infrastructure**
+
 - **DDoS protection** (Vercel Edge Network)
 - **Rate limiting** (API endpoints)
 - **Input sanitization** (SQL injection, XSS prevention)
@@ -182,20 +190,20 @@ Multi-Layer Security:
 
 #### Certificări Planificate
 
-| Certificare | Status | Timeline |
-|-------------|--------|----------|
-| ISO 27001 (Information Security) | Planificat | Q4 2025 |
-| SOC 2 Type II (Cloud Security) | Planificat | Q2 2026 |
-| Conformitate GDPR (audit extern) | În progres | Q1 2025 |
+| Certificare                      | Status     | Timeline |
+| -------------------------------- | ---------- | -------- |
+| ISO 27001 (Information Security) | Planificat | Q4 2025  |
+| SOC 2 Type II (Cloud Security)   | Planificat | Q2 2026  |
+| Conformitate GDPR (audit extern) | În progres | Q1 2025  |
 
 #### Indicatori de Succes
 
-| Metric | Țintă | Măsurare |
-|--------|-------|----------|
-| Security incidents | 0 | Nr. breșe securitate / an |
-| Vulnerabilități critice | 0 | Scan automat săptămânal |
-| Compliance score GDPR | 100% | Audit extern |
-| Uptime (availability) | 99.9% | Monitoring 24/7 |
+| Metric                  | Țintă | Măsurare                  |
+| ----------------------- | ----- | ------------------------- |
+| Security incidents      | 0     | Nr. breșe securitate / an |
+| Vulnerabilități critice | 0     | Scan automat săptămânal   |
+| Compliance score GDPR   | 100%  | Audit extern              |
+| Uptime (availability)   | 99.9% | Monitoring 24/7           |
 
 ### 5. 📈 Scalabilitate Națională
 
@@ -231,27 +239,28 @@ Cloud-Native Serverless Architecture:
 
 **Scenarii de utilizare:**
 
-| UAT Utilizatoare | Cetățeni Activi | Cereri/Lună | Load Estimat |
-|------------------|-----------------|-------------|--------------|
-| 10 primării (pilot) | 50,000 | 5,000 | Baseline |
-| 100 primării | 500,000 | 50,000 | 10x baseline |
-| 500 primării | 2,500,000 | 250,000 | 50x baseline |
-| 3,181 primării | 15,000,000 | 1,500,000 | 300x baseline |
+| UAT Utilizatoare    | Cetățeni Activi | Cereri/Lună | Load Estimat  |
+| ------------------- | --------------- | ----------- | ------------- |
+| 10 primării (pilot) | 50,000          | 5,000       | Baseline      |
+| 100 primării        | 500,000         | 50,000      | 10x baseline  |
+| 500 primării        | 2,500,000       | 250,000     | 50x baseline  |
+| 3,181 primării      | 15,000,000      | 1,500,000   | 300x baseline |
 
 **Infrastructură poate scala:**
+
 - **Vertical**: Database size (8GB → 1TB+)
 - **Horizontal**: Edge functions și CDN nodes
 - **Geographic**: Multi-region deployment pentru latency
 
 #### Indicatori de Succes
 
-| Metric | Țintă | Măsurare |
-|--------|-------|----------|
+| Metric                     | Țintă   | Măsurare              |
+| -------------------------- | ------- | --------------------- |
 | Concurrent users supported | 50,000+ | Load testing periodic |
-| Response time (p95) | <500ms | APM monitoring |
-| Database query time (avg) | <100ms | Database analytics |
-| API uptime | 99.9% | Status page tracking |
-| Cost per active user/month | <€0.50 | Usage analytics |
+| Response time (p95)        | <500ms  | APM monitoring        |
+| Database query time (avg)  | <100ms  | Database analytics    |
+| API uptime                 | 99.9%   | Status page tracking  |
+| Cost per active user/month | <€0.50  | Usage analytics       |
 
 ## Scopuri Cuantificabile (KPI-uri)
 
@@ -260,14 +269,17 @@ Succesul platformei se măsoară prin 4 indicatori principali:
 ### 1. ⏱️ Reducere Timp Procesare Cereri: 70%
 
 **Baseline (procese actuale):**
+
 - Timp mediu procesare: 14-21 zile
 - Include: deplasări fizice, documentație, aprobare, eliberare
 
 **Țintă (cu platforma digitală):**
+
 - Timp mediu procesare: 3-5 zile
 - Reducere: 70-80%
 
 **Cum realizăm acest scop?**
+
 - Eliminare deplasări fizice (economie 2-3 zile)
 - Pre-validare automată documente (economie 3-5 zile)
 - Routing automat către departamente (economie 1-2 zile)
@@ -276,6 +288,7 @@ Succesul platformei se măsoară prin 4 indicatori principali:
 ### 2. 😊 Satisfacție Cetățeni: >90%
 
 **Metode de măsurare:**
+
 - Survey post-utilizare (CSAT - Customer Satisfaction Score)
 - NPS (Net Promoter Score): "Ai recomanda primariaTa unui prieten?"
 - Feedback direct în platformă
@@ -293,11 +306,13 @@ Succesul platformei se măsoară prin 4 indicatori principali:
 **Definire:** % funcționari care folosesc activ platforma (vs. procese vechi).
 
 **Bariere de adopție:**
+
 - Rezistență la schimbare
 - Curba de învățare
 - Training insuficient
 
 **Strategii pentru adopție:**
+
 - Training comprehensiv (2 zile + follow-up)
 - Support 24/7 (chatbot + human)
 - Gamification (badges, achievements)
@@ -311,6 +326,7 @@ Succesul platformei se măsoară prin 4 indicatori principali:
 **99.9% uptime = 43.2 minute downtime/lună (maximum)**
 
 **Cum garantăm disponibilitate?**
+
 - Infrastructure managed de Vercel + Supabase (SLA garantat)
 - Multi-region deployment (failover automat)
 - Health monitoring 24/7 (PagerDuty alerts)
@@ -321,6 +337,7 @@ Succesul platformei se măsoară prin 4 indicatori principali:
 Acest proiect îndeplinește obiectivele cursului **Programarea Aplicațiilor Web** prin:
 
 ### 1. Aplicare Concepte Avansate Web
+
 - ✅ Framework modern (Next.js 15, React 19)
 - ✅ Server-side rendering (SSR) și Static generation (SSG)
 - ✅ API design (RESTful + Supabase SDK)
@@ -328,11 +345,13 @@ Acest proiect îndeplinește obiectivele cursului **Programarea Aplicațiilor We
 - ✅ Autentificare și autorizare complexă
 
 ### 2. Rezolvare Problemă Reală
+
 - ✅ Impact social direct (3,181 UAT-uri potențiale)
 - ✅ User research real (chestionar cu 25+ întrebări)
 - ✅ Stakeholder engagement (cetățeni + funcționari)
 
 ### 3. Best Practices Industrie
+
 - ✅ Version control (Git, GitHub)
 - ✅ CI/CD (Vercel auto-deploy)
 - ✅ Testing (unit + integration tests)
@@ -340,6 +359,7 @@ Acest proiect îndeplinește obiectivele cursului **Programarea Aplicațiilor We
 - ✅ Security-first approach
 
 ### 4. Scalabilitate și Arhitectură
+
 - ✅ Cloud-native design
 - ✅ Microservices approach (Next.js API routes)
 - ✅ Database design (13 tabele, RLS policies)
@@ -353,5 +373,5 @@ Acest proiect îndeplinește obiectivele cursului **Programarea Aplicațiilor We
 
 ---
 
-*"Obiective clare → Execuție focusată → Rezultate măsurabile"*
-*- Principiul fundamental al proiectului primariaTa❤️\_*
+_"Obiective clare → Execuție focusată → Rezultate măsurabile"_
+\_- Principiul fundamental al proiectului primariaTa❤️\_\_

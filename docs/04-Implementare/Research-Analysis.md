@@ -12,15 +12,15 @@ Modulul de **Analiză Cercetare** transformă răspunsurile brute la chestionare
 
 ### Caracteristici Principale
 
-| Funcționalitate | Descriere | Status |
-|----------------|-----------|--------|
-| **🤖 Analiză AI Automată** | Procesare automată a răspunsurilor cu GPT-4o-mini | ✅ Implementat |
-| **📊 Vizualizări Interactive** | 7 taburi specializate cu grafice și tabele | ✅ Implementat |
-| **📈 Analiză Demografică** | Segmentare după vârstă, locație, tip respondent | ✅ Implementat |
-| **🔗 Analiză Corelații** | Identificare relații statistice (Pearson) | ✅ Implementat |
-| **👥 Analiză Cohorte** | Comparații între grupuri de utilizatori | ✅ Implementat |
-| **📥 Export Multi-Format** | PDF, Excel, CSV, JSON | ✅ Implementat |
-| **⚡ Real-time Updates** | Actualizare automată la răspunsuri noi | ✅ Implementat |
+| Funcționalitate                | Descriere                                         | Status         |
+| ------------------------------ | ------------------------------------------------- | -------------- |
+| **🤖 Analiză AI Automată**     | Procesare automată a răspunsurilor cu GPT-4o-mini | ✅ Implementat |
+| **📊 Vizualizări Interactive** | 7 taburi specializate cu grafice și tabele        | ✅ Implementat |
+| **📈 Analiză Demografică**     | Segmentare după vârstă, locație, tip respondent   | ✅ Implementat |
+| **🔗 Analiză Corelații**       | Identificare relații statistice (Pearson)         | ✅ Implementat |
+| **👥 Analiză Cohorte**         | Comparații între grupuri de utilizatori           | ✅ Implementat |
+| **📥 Export Multi-Format**     | PDF, Excel, CSV, JSON                             | ✅ Implementat |
+| **⚡ Real-time Updates**       | Actualizare automată la răspunsuri noi            | ✅ Implementat |
 
 ---
 
@@ -79,6 +79,7 @@ Modulul de **Analiză Cercetare** transformă răspunsurile brute la chestionare
 ### Componente Principale
 
 #### 1. Frontend UI (Next.js + React)
+
 - **ResearchTabs**: Componentă principală cu 7 taburi
 - **ExecutiveSummary**: Rezumat executiv cu KPI-uri
 - **AIInsightsPanel**: Vizualizare teme și recomandări
@@ -89,6 +90,7 @@ Modulul de **Analiză Cercetare** transformă răspunsurile brute la chestionare
 - **ExportPanel**: Butoane export
 
 #### 2. API Routes (App Router)
+
 - `POST /api/survey/research/analyze` - Declanșare analiză AI
 - `GET /api/survey/research/insights` - Obținere insight-uri
 - `GET /api/survey/research/correlations` - Corelații statistice
@@ -96,6 +98,7 @@ Modulul de **Analiză Cercetare** transformă răspunsurile brute la chestionare
 - `GET /api/survey/research/export/*` - Export PDF/Excel/CSV/JSON
 
 #### 3. AI Analysis Engine
+
 - **text-analyzer.ts**: Sentiment, teme, fraze cheie
 - **feature-extractor.ts**: Identificare cerințe funcționale
 - **demographic-analyzer.ts**: Statistici demografice
@@ -154,7 +157,9 @@ Modulul de **Analiză Cercetare** transformă răspunsurile brute la chestionare
 ### Tabele Noi Create
 
 #### `survey_ai_insights`
+
 Stochează insight-uri AI pentru fiecare întrebare:
+
 - `themes` (JSONB): Teme extrase cu scoruri
 - `sentiment_score` (NUMERIC): -1.00 la 1.00
 - `sentiment_label` (VARCHAR): positive/negative/neutral/mixed
@@ -165,23 +170,30 @@ Stochează insight-uri AI pentru fiecare întrebare:
 - `recommendations` (JSONB): Recomandări acționabile
 
 #### `survey_analysis_cache`
+
 Cache pentru rezultate AI (24h TTL):
+
 - `cache_key`: Identificator unic (question_id + hash)
 - `result` (JSONB): Rezultat AI stocat
 - `expires_at`: Data expirare
 
 #### `survey_correlation_analysis`
+
 Corelații statistice calculate:
+
 - `correlations` (JSONB): Array de corelații cu coeficienți
 
 #### `survey_cohort_analysis`
+
 Segmentare utilizatori:
+
 - `cohorts` (JSONB): Definiție cohorte
 - `comparisons` (JSONB): Comparații perechi
 
 ### Row Level Security (RLS)
 
 Toate tabelele au politici RLS:
+
 - **SELECT**: Doar `super_admin` și `admin`
 - **INSERT/UPDATE**: Doar `super_admin`
 - **DELETE**: Doar `super_admin`
@@ -212,13 +224,13 @@ Toate tabelele au politici RLS:
 
 ### Metrici Cheie
 
-| Metric | Țintă | Realizat | Status |
-|--------|-------|----------|--------|
-| Timp încărcare pagină | <2s | ~1.5s | ✅ |
-| Timp generare PDF | <5s | ~3s | ✅ |
-| Timp analiză AI completă | <30s | ~12s (20 răspunsuri) | ✅ |
-| Cost per analiză | - | $0.01 (20 răspunsuri) | ✅ |
-| Acoperire teste | >80% | 96% (158 teste) | ✅ |
+| Metric                   | Țintă | Realizat              | Status |
+| ------------------------ | ----- | --------------------- | ------ |
+| Timp încărcare pagină    | <2s   | ~1.5s                 | ✅     |
+| Timp generare PDF        | <5s   | ~3s                   | ✅     |
+| Timp analiză AI completă | <30s  | ~12s (20 răspunsuri)  | ✅     |
+| Cost per analiză         | -     | $0.01 (20 răspunsuri) | ✅     |
+| Acoperire teste          | >80%  | 96% (158 teste)       | ✅     |
 
 ### Optimizări Implementate
 
@@ -237,12 +249,14 @@ Toate tabelele au politici RLS:
 **Tehnologie**: Supabase Realtime (WebSockets)
 
 **Comportament**:
+
 - Subscribe la `survey_respondents` și `survey_responses` (INSERT events)
 - Debouncing: 2 secunde (evită refresh-uri excesive)
 - Auto-analiză: Trigger după 5 minute de inactivitate
 - Notificări: Toast messages în română
 
 **Beneficii**:
+
 - Dashboard-ul se actualizează automat la răspunsuri noi
 - Nu necesită refresh manual
 - Experiență utilizator seamless
@@ -250,6 +264,7 @@ Toate tabelele au politici RLS:
 ### 2. Export Multi-Format
 
 #### PDF Executive Report
+
 - Overview cu statistici cheie
 - Demografice (județe, localități)
 - Insight-uri AI (teme, features, recomandări)
@@ -257,6 +272,7 @@ Toate tabelele au politici RLS:
 - Format: A4, portrait, ~500KB-2MB
 
 #### Excel Comprehensive Data
+
 - 5 worksheets:
   1. Rezumat
   2. Respondenți
@@ -268,11 +284,13 @@ Toate tabelele au politici RLS:
 - Filtre activate
 
 #### CSV Simple Export
+
 - UTF-8 BOM pentru compatibilitate Excel
 - Escaping corecte (virgule, ghilimele, newlines)
 - O linie per răspuns
 
 #### JSON Structured Data
+
 - Pretty-printed (2-space indentation)
 - Metadata completă (exportedAt, exportedBy, filters)
 - Summary statistics
@@ -283,17 +301,20 @@ Toate tabelele au politici RLS:
 **Metoda**: Pearson Correlation Coefficient
 
 **Formula**:
+
 ```
 r = Σ[(Xi - X̄)(Yi - Ȳ)] / √[Σ(Xi - X̄)² × Σ(Yi - Ȳ)²]
 ```
 
 **Interpretare**:
+
 - r > 0.7: Corelație puternică pozitivă
 - r 0.4-0.7: Corelație moderată
 - r < 0.4: Corelație slabă
 - p < 0.05: Semnificativ statistic
 
 **Corelații Analizate**:
+
 - Vârstă ↔ Pregătire digitală
 - Frecvență utilizare ↔ Rating utilitate
 - Locație (urban/rural) ↔ Preferințe features
@@ -304,20 +325,24 @@ r = Σ[(Xi - X̄)(Yi - Ȳ)] / √[Σ(Xi - X̄)² × Σ(Yi - Ȳ)²]
 **Tipuri Cohorte**:
 
 **Age Cohorts**:
+
 - Tineri Nativi Digitali (18-35): Tech-savvy, high adoption
 - Maturi Activi (36-60): Moderate adoption
 - Seniori (60+): Lower adoption, need simplicity
 
 **Location Cohorts**:
+
 - Urban: Orașe mari >20,000 locuitori
 - Rural/Localități Mici: Sate și orașe mici
 
 **Usage Cohorts**:
+
 - Utilizatori Frecvenți: Zilnic sau săptămânal
 - Ocazionali: Lunar
 - Rari: Mai rar de o dată pe lună
 
 **Metrici per Cohort**:
+
 - Dimensiune (count + %)
 - Pregătire digitală (1-5)
 - Scor sentiment (-1 to 1)
@@ -328,7 +353,9 @@ r = Σ[(Xi - X̄)(Yi - Ȳ)] / √[Σ(Xi - X̄)² × Σ(Yi - Ȳ)²]
 ## 📚 Documentație Completă
 
 ### Pentru Utilizatori
+
 📖 **[Ghid Utilizare Research Dashboard](../05-Utilizare/Research-Dashboard.md)**
+
 - Cum să accesezi dashboard-ul
 - Walkthrough complet pentru toate tab-urile
 - Ghid export (PDF, Excel, CSV, JSON)
@@ -336,7 +363,9 @@ r = Σ[(Xi - X̄)(Yi - Ȳ)] / √[Σ(Xi - X̄)² × Σ(Yi - Ȳ)²]
 - Best practices
 
 ### Pentru Dezvoltatori
+
 🔧 **Documentație Tehnică** (`.docs/`):
+
 - **[API Reference](../../.docs/02-technical-specs/research-analysis-api.md)**: Endpoint-uri complete, exemple curl
 - **[Research Methodology](../../.docs/02-technical-specs/research-methodology.md)**: Metodologia științifică, limitări
 - **[Implementation Details](../../.docs/03-implementation/research-dashboard-implementation.md)**: Detalii implementare, task tracking
@@ -349,14 +378,15 @@ r = Σ[(Xi - X̄)(Yi - Ȳ)] / √[Σ(Xi - X̄)² × Σ(Yi - Ȳ)²]
 
 ### Acoperire Teste
 
-| Tip Test | Fișiere | Teste | Acoperire | Status |
-|----------|---------|-------|-----------|--------|
-| Unit Tests | 5 | 158 | 96% | ✅ |
-| Integration Tests | 1 | 34 | N/A | ⚠️ Jest compatibility issue |
-| E2E Tests (Playwright) | 1 | 30+ | N/A | ✅ |
-| **Total** | **7** | **222+** | **96%** | ✅ |
+| Tip Test               | Fișiere | Teste    | Acoperire | Status                      |
+| ---------------------- | ------- | -------- | --------- | --------------------------- |
+| Unit Tests             | 5       | 158      | 96%       | ✅                          |
+| Integration Tests      | 1       | 34       | N/A       | ⚠️ Jest compatibility issue |
+| E2E Tests (Playwright) | 1       | 30+      | N/A       | ✅                          |
+| **Total**              | **7**   | **222+** | **96%**   | ✅                          |
 
 ### Unit Tests (Jest)
+
 - `text-analyzer.test.ts`: 37 teste, 100% coverage
 - `feature-extractor.test.ts`: 38 teste, 96.61% coverage
 - `demographic-analyzer.test.ts`: 38 teste, 92% coverage
@@ -364,6 +394,7 @@ r = Σ[(Xi - X̄)(Yi - Ȳ)] / √[Σ(Xi - X̄)² × Σ(Yi - Ȳ)²]
 - `cohort-analyzer.test.ts`: 35 teste, 80.85% coverage
 
 ### E2E Tests (Playwright)
+
 - Page loading și navigation
 - Tab switching (toate 7 taburile)
 - Keyboard navigation (ArrowRight, Home, End)
@@ -380,18 +411,21 @@ r = Σ[(Xi - X̄)(Yi - Ȳ)] / √[Σ(Xi - X̄)² × Σ(Yi - Ȳ)²]
 ### Funcționalități Planificate
 
 #### Q1 2025
+
 - [ ] Export PowerPoint (`.pptx`) pentru prezentări
 - [ ] Filtrare avansată (date range, județe multiple)
 - [ ] Grafice interactive (zoom, pan, export SVG)
 - [ ] Comparații temporale (month-over-month)
 
 #### Q2 2025
+
 - [ ] Integrare GPT-4 Turbo pentru analiză mai profundă
 - [ ] Machine Learning pentru predicții (trend forecasting)
 - [ ] Dashboard customizabil (drag-and-drop widgets)
 - [ ] Alerting sistem (email notifications pentru threshold-uri)
 
 #### Q3 2025
+
 - [ ] Multi-language support (EN, DE, FR)
 - [ ] API public pentru integrări terțe
 - [ ] Webhook-uri pentru evenimente (new responses, analysis complete)

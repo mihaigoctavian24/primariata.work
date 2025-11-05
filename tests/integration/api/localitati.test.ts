@@ -142,7 +142,7 @@ describe("GET /api/localitati", () => {
     expect(response.status).toBe(200);
     expect(data.success).toBe(true);
     expect(data.data).toHaveLength(1);
-    expect(data.data[0].nume).toBe("Alba Iulia");
+    expect(data.data[0]?.nume).toBe("Alba Iulia");
 
     // Verify ILIKE was called with search pattern
     expect(mockSupabase.ilike).toHaveBeenCalledWith("nume", "%alba%");
@@ -166,7 +166,7 @@ describe("GET /api/localitati", () => {
     expect(response.status).toBe(200);
     expect(data.success).toBe(true);
     expect(data.data).toHaveLength(1);
-    expect(data.data[0].tip).toBe("Municipiu");
+    expect(data.data[0]?.tip).toBe("Municipiu");
 
     // Verify eq was called twice (judet_id and tip)
     expect(mockSupabase.eq).toHaveBeenCalledWith("judet_id", 1);

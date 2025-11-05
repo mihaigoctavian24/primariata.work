@@ -11,7 +11,13 @@ export const AI_MODELS = {
 };
 
 export const getOpenAIClient = jest.fn();
-export const estimateTokens = jest.fn((_text: string) => Math.ceil(_text.length / 2.5));
-export const isWithinTokenLimit = jest.fn((_text: string, _maxTokens: number) => true);
-export const truncateToTokenLimit = jest.fn((_text: string, _maxTokens: number) => _text);
+export const estimateTokens = jest.fn((text: string) => Math.ceil(text.length / 2.5));
+export const isWithinTokenLimit = jest.fn(
+  (text: string, maxTokens: number) => estimateTokens(text) <= maxTokens
+);
+export const truncateToTokenLimit = jest.fn((text: string, maxTokens: number) => {
+  if (isWithinTokenLimit(text, maxTokens)) return text;
+  const avgCharsPerToken = 2.5;
+  return text.substring(0, Math.floor(maxTokens * avgCharsPerToken));
+});
 export const testOpenAIConnection = jest.fn();
