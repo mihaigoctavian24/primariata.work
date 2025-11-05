@@ -15,7 +15,7 @@ import { saveLocation } from "@/lib/location-storage";
 // Dynamic import for PixelBlast to prevent SSR issues and reduce initial bundle
 const PixelBlast = dynamic(() => import("@/components/ui/PixelBlast"), {
   ssr: false,
-  loading: () => <div className="absolute inset-0 bg-black" />,
+  loading: () => <div className="bg-background absolute inset-0" />,
 });
 
 /**
@@ -292,9 +292,9 @@ export function HeroSection() {
         <ThemeToggle />
       </div>
 
-      {/* PixelBlast animated background */}
+      {/* PixelBlast animated background - FIXED position, stays in place */}
       <div
-        className="absolute top-0 left-0 h-screen w-screen"
+        className="fixed top-0 left-0 h-screen w-screen"
         style={{
           zIndex: 0,
         }}
@@ -321,7 +321,7 @@ export function HeroSection() {
       <div className="relative h-full w-full">
         {/* Logo blur wrapper (Layer 1: Background z-10) - responds to step */}
         <motion.div
-          className="fixed top-[38%] left-[50%] z-10 -translate-x-1/2 -translate-y-1/2 sm:left-1/2"
+          className="absolute top-[38%] left-[50%] z-10 -translate-x-1/2 -translate-y-1/2 sm:left-1/2"
           initial={{ opacity: 1, filter: "blur(0px)" }}
           animate={
             step === 2
@@ -615,7 +615,7 @@ export function HeroSection() {
 
         {/* STEP 2: Location Selection (Layer 3: Foreground z-30, centered in viewport) */}
         <motion.div
-          className="fixed top-0 left-0 z-30 flex h-screen w-full items-center justify-center px-4"
+          className="absolute top-0 left-0 z-30 flex h-screen w-full items-center justify-center px-4"
           initial={{ opacity: 0, filter: "blur(20px)", scale: 0.95, y: 0 }}
           animate={
             step === 2
