@@ -3,6 +3,7 @@
 import { useEffect, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { HeroSection } from "@/components/landing/HeroSection";
+import { FeaturesSection } from "@/components/landing/FeaturesSection";
 import { getLocation } from "@/lib/location-storage";
 
 /**
@@ -49,10 +50,16 @@ export default function LandingPage() {
   }, [router]);
 
   return (
-    <main id="main-content" className="min-h-screen">
-      <Suspense fallback={<div className="min-h-screen bg-black" />}>
-        <HeroSection />
-      </Suspense>
+    <main id="main-content">
+      {/* Hero Section - Full Screen */}
+      <div className="min-h-screen">
+        <Suspense fallback={<div className="min-h-screen bg-black" />}>
+          <HeroSection />
+        </Suspense>
+      </div>
+
+      {/* Features Section - Below hero, scrollable */}
+      <FeaturesSection />
     </main>
   );
 }
