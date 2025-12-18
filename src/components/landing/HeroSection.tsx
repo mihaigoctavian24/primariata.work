@@ -2,150 +2,67 @@
 
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { useState, useEffect, useMemo, useRef } from "react";
-import { useTheme } from "next-themes";
-import dynamic from "next/dynamic";
-import TextType from "@/components/TextType";
-import { MorphingText } from "@/components/ui/morphing-text";
+import React, { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 import CountUp from "@/components/ui/CountUp";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LocationWheelPickerForm } from "@/components/location/LocationWheelPickerForm";
 import { saveLocation } from "@/lib/location-storage";
-
-// Dynamic import for PixelBlast to prevent SSR issues and reduce initial bundle
-const PixelBlast = dynamic(() => import("@/components/ui/PixelBlast"), {
-  ssr: false,
-  loading: () => <div className="bg-background absolute inset-0" />,
-});
+import { GridOverlay } from "@/components/ui/GridOverlay";
+import { HyperText } from "@/components/ui/HyperText";
 
 /**
  * Hero Section Component for Landing Page - Multi-Step Flow
  *
- * STEP 1: Welcome screen with animated logo, subtitle, stats
+ * STEP 1: Welcome screen with static logo, subtitle, button, stats (all visible immediately)
  * STEP 2: Location selection with wheel pickers
  * → After STEP 2: Redirect to /auth/login (auth required)
  *
  * Features:
- * - Animated logo with typing effect and pulsating heart emoticon
- * - Multi-phase animation: center → typing → shrink & move up → content reveal
- * - Staggered fade-in subtitle
+ * - Static logo "primariaTa❤️" with "Ta" colored
+ * - Immediate display of subtitle, CTA button, and stats (no cascade)
+ * - CountUp animations for stats (start immediately)
  * - Hover/tap animations on CTA button
- * - Stats section with key metrics
  * - Blur animations between steps
  * - Fully responsive (375px - 1920px)
  * - WCAG 2.1 AA accessible
  * - 60 FPS animations
  * - Zero layout shifts (CLS = 0)
  */
-export function HeroSection() {
+
+interface HeroSectionProps {
+  scrollContainer?: React.RefObject<HTMLElement>;
+}
+
+export function HeroSection({ scrollContainer }: HeroSectionProps = {}) {
   const router = useRouter();
-  const { resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
   const [step, setStep] = useState<1 | 2>(1);
-  const [animationPhase, setAnimationPhase] = useState<"typing" | "shrinking" | "complete">(
-    "typing"
-  );
-  const [showSubtitle, setShowSubtitle] = useState(false);
-  const [showButton, setShowButton] = useState(false);
-  const [showStats, setShowStats] = useState(false);
-  const [heartbeatActive, setHeartbeatActive] = useState(false);
-  const [showHeart, setShowHeart] = useState(false);
-  const [typingScale, setTypingScale] = useState(1.5);
   const [step2HeartbeatActive, setStep2HeartbeatActive] = useState(false);
   const [searchInputLength, setSearchInputLength] = useState(0);
+
+  // State for Ta/Mea/Noastră cycling animation
+  const [taText, setTaText] = useState<"Ta" | "Mea" | "Noastră">("Ta");
+  const [triggerAnimation, setTriggerAnimation] = useState(0);
+  const [heartTargetX, setHeartTargetX] = useState<number | null>(null);
+  const [finalTextWidths, setFinalTextWidths] = useState<Record<"Ta" | "Mea" | "Noastră", number>>({
+    Ta: 0,
+    Mea: 0,
+    Noastră: 0,
+  });
+  const [scrambleMaxWidths, setScrambleMaxWidths] = useState<
+    Record<"Ta" | "Mea" | "Noastră", number>
+  >({
+    Ta: 0,
+    Mea: 0,
+    Noastră: 0,
+  });
 
   // Refs for dynamic button positioning
   const statsRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLDivElement>(null);
   const [buttonTargetY, setButtonTargetY] = useState(200); // Default placeholder
-
-  // Wait for client-side mount to prevent hydration mismatch
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // Get PixelBlast color based on theme
-  const pixelBlastColor = mounted && resolvedTheme === "dark" ? "#90a1b9" : "#e2e8f0";
-
-  // Get stats box colors based on theme
-  const statsBoxBg = mounted && resolvedTheme === "dark" ? "#1d293d" : "rgba(255, 255, 255, 0.85)";
-  const statsTextColor = mounted && resolvedTheme === "dark" ? "#f0bf17" : "#2563eb";
-
-  // Update typing scale after mount to avoid hydration mismatch
-  useEffect(() => {
-    const updateScale = () => {
-      setTypingScale(window.innerWidth < 640 ? 1.5 : 1.8);
-    };
-    updateScale();
-    window.addEventListener("resize", updateScale);
-    return () => window.removeEventListener("resize", updateScale);
-  }, []);
-
-  // Character styler for custom coloring
-  const charStyler = (_char: string, index: number) => {
-    // "primariaTa   " - indices 8 and 9 are "Ta"
-    if (index === 8 || index === 9) {
-      return { color: "oklch(0.712 0.194 13.428)" };
-    }
-    return {};
-  };
-
-  // Calculate typing duration and trigger phase transitions
-  useEffect(() => {
-    const textBeforeHeart = "primariaTa"; // 10 characters
-    const typingSpeed = 75;
-    const typingDuration = textBeforeHeart.length * typingSpeed + 500; // +500ms buffer
-    const pauseDuration = 8000; // 8s pause after typing for heartbeat
-    const shrinkDuration = 800; // 0.8s for shrink animation
-    const cascadeDelay = 400; // 400ms between each element
-
-    // Show heart after "primariaTa" finishes typing
-    const showHeartTimer = setTimeout(() => {
-      setShowHeart(true);
-    }, typingDuration);
-
-    // After heart appears, start heartbeat animation
-    const heartbeatTimer = setTimeout(() => {
-      setHeartbeatActive(true);
-    }, typingDuration + 100); // Small delay after heart appears
-
-    // After typing completes + 2s pause, trigger shrink animation
-    const typingTimer = setTimeout(() => {
-      setAnimationPhase("shrinking");
-      setHeartbeatActive(false); // Stop heartbeat when shrinking starts
-    }, typingDuration + pauseDuration);
-
-    // After shrinking completes, trigger cascade
-    const baseTime = typingDuration + pauseDuration + shrinkDuration;
-
-    const subtitleTimer = setTimeout(() => {
-      setShowSubtitle(true);
-    }, baseTime + cascadeDelay);
-
-    const buttonTimer = setTimeout(
-      () => {
-        setShowButton(true);
-      },
-      baseTime + cascadeDelay * 2
-    );
-
-    const statsTimer = setTimeout(
-      () => {
-        setShowStats(true);
-        setAnimationPhase("complete");
-      },
-      baseTime + cascadeDelay * 3
-    );
-
-    return () => {
-      clearTimeout(showHeartTimer);
-      clearTimeout(heartbeatTimer);
-      clearTimeout(typingTimer);
-      clearTimeout(subtitleTimer);
-      clearTimeout(buttonTimer);
-      clearTimeout(statsTimer);
-    };
-  }, []);
+  const taTextRef = useRef<HTMLDivElement>(null);
+  const hyperTextRef = useRef<HTMLDivElement>(null);
 
   // Calculate dynamic button position to move to stats zone + 40px extra
   useEffect(() => {
@@ -155,7 +72,7 @@ export function HeroSection() {
       const targetY = statsRect.top - buttonRect.top + 40; // +40px extra offset
       setButtonTargetY(targetY);
     }
-  }, [step, showStats]);
+  }, [step]);
 
   // Trigger heartbeat for STEP 2 title
   useEffect(() => {
@@ -174,44 +91,90 @@ export function HeroSection() {
     }
   }, [step]);
 
-  // Logo animation variants - stays in center, only shrinks
-  const logoVariants = useMemo(
-    () => ({
-      typing: {
-        scale: typingScale,
-        transition: {
-          duration: 0,
-        },
-      },
-      shrinking: {
-        scale: 1,
-        transition: {
-          type: "spring" as const,
-          stiffness: 120,
-          damping: 20,
-          mass: 0.8,
-        },
-      },
-      complete: {
-        scale: 1,
-        transition: {
-          duration: 0,
-        },
-      },
-    }),
-    [typingScale]
-  );
+  // PRE-CALCULATE all text widths ONCE on mount (after fonts load)
+  useEffect(() => {
+    // Wait for fonts to load
+    const timer = setTimeout(() => {
+      if (!hyperTextRef.current) return;
+
+      const measureText = (text: string, uppercase = false) => {
+        const measureSpan = document.createElement("span");
+        measureSpan.style.visibility = "hidden";
+        measureSpan.style.position = "absolute";
+        measureSpan.style.whiteSpace = "nowrap";
+        measureSpan.style.fontSize = getComputedStyle(hyperTextRef.current!).fontSize;
+        measureSpan.style.fontFamily = getComputedStyle(hyperTextRef.current!).fontFamily;
+        measureSpan.style.fontWeight = getComputedStyle(hyperTextRef.current!).fontWeight;
+        measureSpan.textContent = uppercase ? text.toUpperCase() : text;
+
+        document.body.appendChild(measureSpan);
+        const width = measureSpan.getBoundingClientRect().width;
+        document.body.removeChild(measureSpan);
+
+        return width;
+      };
+
+      const SCRAMBLE_PADDING = 20;
+
+      // Calculate FINAL widths (lowercase, as they appear after scramble)
+      const finalWidths = {
+        Ta: measureText("Ta", false),
+        Mea: measureText("Mea", false),
+        Noastră: measureText("Noastră", false),
+      };
+
+      // Calculate MAX widths during scramble (uppercase + padding)
+      const maxWidths = {
+        Ta: measureText("Ta", true) + SCRAMBLE_PADDING,
+        Mea: measureText("Mea", true) + SCRAMBLE_PADDING,
+        Noastră: measureText("Noastră", true) + SCRAMBLE_PADDING,
+      };
+
+      setFinalTextWidths(finalWidths);
+      setScrambleMaxWidths(maxWidths);
+
+      // Set initial position for "Ta"
+      setHeartTargetX(finalWidths.Ta);
+    }, 200); // Wait for fonts
+
+    return () => clearTimeout(timer);
+  }, []); // Run ONCE on mount
+
+  // Cycling Ta → Mea → Noastră animation with choreographed sequence
+  useEffect(() => {
+    if (step !== 1) return;
+    if (Object.values(finalTextWidths).some((w) => w === 0)) return; // Wait for calculations
+
+    const cycleInterval = setInterval(() => {
+      setTaText((current) => {
+        const nextText = current === "Ta" ? "Mea" : current === "Mea" ? "Noastră" : "Ta";
+
+        // Phase 1: Move heart to SCRAMBLE position (max width + padding)
+        setHeartTargetX(scrambleMaxWidths[nextText]);
+
+        // Phase 2: Start scramble after short delay (200ms)
+        setTimeout(() => {
+          setTaText(nextText);
+          setTriggerAnimation((prev) => prev + 1);
+
+          // Phase 3: After scramble completes (~800ms), retract heart to CALCULATED final position
+          setTimeout(() => {
+            setHeartTargetX(finalTextWidths[nextText]);
+          }, 800); // Duration of scramble animation
+        }, 200);
+
+        return current; // Keep current text for now
+      });
+    }, 5000); // Change every 5 seconds
+
+    return () => clearInterval(cycleInterval);
+  }, [step, finalTextWidths, scrambleMaxWidths]);
 
   const stats = [
     {
       value: "13,851",
       label: "Localități",
       countUp: { from: 0, to: 13851, direction: "up" as const, separator: "," },
-    },
-    {
-      value: "0",
-      label: "Cozi",
-      countUp: { from: 0, to: 100, direction: "down" as const },
     },
     {
       value: "24/7",
@@ -223,6 +186,11 @@ export function HeroSection() {
           { from: 0, to: 7, type: "countup" as const },
         ],
       },
+    },
+    {
+      value: "0",
+      label: "Cozi",
+      countUp: { from: 0, to: 100, direction: "down" as const },
     },
   ];
 
@@ -284,44 +252,25 @@ export function HeroSection() {
 
   return (
     <section
-      className="bg-background relative flex h-screen items-center justify-center overflow-hidden px-4 py-16 sm:px-6 lg:px-8"
+      className="relative flex h-screen items-center justify-center overflow-hidden px-4 py-16 sm:px-6 lg:px-8"
       aria-label="Hero section - Pagina principală Primăriata"
     >
+      {/* Grid Overlay - Development tool */}
+      <GridOverlay scrollContainer={scrollContainer} />
+
       {/* Theme Toggle - fixed in top right */}
       <div className="fixed top-4 right-4 z-50 sm:top-6 sm:right-6">
         <ThemeToggle />
       </div>
 
-      {/* PixelBlast animated background - FIXED position, stays in place */}
-      <div
-        className="fixed top-0 left-0 h-screen w-screen"
-        style={{
-          zIndex: 0,
-        }}
-      >
-        <PixelBlast
-          variant="triangle"
-          pixelSize={6}
-          color={pixelBlastColor}
-          patternScale={1.75}
-          patternDensity={1}
-          pixelSizeJitter={0}
-          enableRipples
-          rippleSpeed={0.3}
-          rippleThickness={0.1}
-          rippleIntensityScale={1}
-          liquid={false}
-          speed={0.5}
-          edgeFade={0.25}
-          transparent={true}
-        />
-      </div>
+      {/* PixelBlast background now handled by GlobalPixelBlast in app/layout.tsx */}
 
       {/* Multi-Step Flow - All elements present, controlled by animations */}
-      <div className="relative h-full w-full">
-        {/* Logo blur wrapper (Layer 1: Background z-10) - responds to step */}
+      <div className="grid-container relative h-full">
+        {/* Logo "primaria" blur wrapper (Layer 1: Background z-10) - responds to step - ALIGNED TO COL 6 */}
         <motion.div
-          className="absolute top-[38%] left-[50%] z-10 -translate-x-1/2 -translate-y-1/2 sm:left-1/2"
+          className="absolute top-[38%] z-10 col-start-6 -translate-y-1/2"
+          style={{ marginLeft: "-8px" }}
           initial={{ opacity: 1, filter: "blur(0px)" }}
           animate={
             step === 2
@@ -330,129 +279,124 @@ export function HeroSection() {
           }
           transition={{ duration: 0.5, ease: "easeInOut" }}
         >
-          {/* Logo - animated by logoVariants (typing, shrinking, complete) */}
-          <motion.div variants={logoVariants} initial="typing" animate={animationPhase}>
-            <h1
-              className="text-foreground text-3xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl"
-              style={{ filter: "drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4))" }}
-            >
-              <span className="inline-block whitespace-nowrap">
-                <TextType
-                  text={["primariaTa"]}
-                  as="span"
-                  typingSpeed={75}
-                  pauseDuration={1500}
-                  showCursor={false}
-                  loop={false}
-                  className="inline"
-                  charStyler={charStyler}
-                />
-                {showHeart && (
-                  <motion.span
-                    className="inline-block"
-                    initial={{ opacity: 0, scale: 0.5 }}
-                    animate={
-                      heartbeatActive
-                        ? {
-                            opacity: 1,
-                            scale: [
-                              1, 1.12, 1, 1.08, 1, 1, 1.12, 1, 1.08, 1, 1, 1.12, 1, 1.08, 1, 1,
-                              1.12, 1, 1.08, 1,
-                            ],
-                          }
-                        : { opacity: 1, scale: 1 }
-                    }
-                    transition={
-                      heartbeatActive
-                        ? {
-                            scale: {
-                              duration: 8,
-                              times: [
-                                0, 0.01, 0.02, 0.03, 0.04, 0.25, 0.26, 0.27, 0.28, 0.29, 0.5, 0.51,
-                                0.52, 0.53, 0.54, 0.75, 0.76, 0.77, 0.78, 0.79,
-                              ],
-                              ease: [0.4, 0, 0.6, 1],
-                              repeat: 0,
-                            },
-                            opacity: {
-                              duration: 0.3,
-                            },
-                          }
-                        : {
-                            duration: 0.3,
-                            ease: "easeOut" as const,
-                          }
-                    }
-                  >
-                    ❤️
-                  </motion.span>
-                )}
-                <motion.span
-                  className="inline"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: [0, 1, 1, 0] }}
-                  transition={{
-                    delay: 1.2,
-                    duration: 1.2,
-                    repeat: Infinity,
-                    repeatType: "loop",
-                    times: [0, 0.1, 0.9, 1],
-                  }}
-                >
-                  _
-                </motion.span>
-              </span>
-            </h1>
-
-            {/* Morphing text below logo during heartbeat (Layer 1: Background z-10) */}
-            {heartbeatActive && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.5 }}
-                className="text-foreground absolute top-full left-1/2 z-10 mt-4 w-[280px] -translate-x-1/2 sm:mt-6 sm:w-[400px] md:mt-8 md:w-[500px]"
-              >
-                <MorphingText texts={["rapidă", "transparentă", "accesibilă"]} />
-              </motion.div>
-            )}
-          </motion.div>
+          <HyperText
+            className="text-foreground text-[4.5rem] font-medium sm:text-[7.5rem] md:text-[9rem] lg:text-[10.5rem]"
+            style={{ filter: "drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4))" }}
+            duration={1000}
+            delay={300}
+            startOnView={false}
+            animateOnHover={false}
+          >
+            primaria
+          </HyperText>
         </motion.div>
 
-        {/* Content container - appears below fixed logo */}
-        <div className="relative mx-auto max-w-4xl pt-[40vh] text-center">
-          {/* Subtitle (Layer 2: Middle z-20) */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={
-              !showSubtitle
-                ? { opacity: 0, y: 30 } // Initial cascade - hidden
-                : step === 2
-                  ? { opacity: 0, y: 0 } // Fade out on STEP 2
-                  : { opacity: 1, y: 0 } // Visible on STEP 1
-            }
-            transition={{ duration: 0.5, ease: "easeInOut" }}
-            className="relative z-20 mb-8"
-            style={{ filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))" }}
+        {/* Logo "Ta❤️" blur wrapper (Layer 1: Background z-10) - responds to step - ALIGNED TO COL 6 */}
+        <motion.div
+          className="absolute top-[38%] z-10 col-start-6"
+          style={{
+            marginTop: "5rem",
+            marginLeft: taText === "Ta" ? "-1px" : "-10px",
+          }}
+          initial={{ opacity: 1, filter: "blur(0px)" }}
+          animate={
+            step === 2
+              ? { opacity: 0.3, filter: "blur(20px)" }
+              : { opacity: 1, filter: "blur(0px)" }
+          }
+          transition={{ duration: 0.5, ease: "easeInOut" }}
+        >
+          <div
+            className="leading-none font-medium tracking-tight"
+            style={{
+              filter: "drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4))",
+              position: "relative",
+              display: "inline-block",
+            }}
           >
-            <p className="text-muted-foreground text-lg sm:text-xl md:text-2xl lg:text-3xl">
-              Bine ai venit la Primăria ta digitală.
-            </p>
-            <p className="text-muted-foreground mt-2 text-base opacity-90 sm:text-lg md:text-xl">
-              Servicii publice online, fără cozi, 24/7.
-            </p>
-          </motion.div>
+            <span
+              ref={taTextRef}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                position: "relative",
+              }}
+            >
+              <span ref={hyperTextRef} style={{ display: "inline-block" }}>
+                <HyperText
+                  key={triggerAnimation}
+                  className="text-[4.5rem] sm:text-[7.5rem] md:text-[9rem] lg:text-[10.5rem]"
+                  style={{ color: "#BE3144" }}
+                  duration={800}
+                  delay={0}
+                  startOnView={false}
+                  animateOnHover={false}
+                >
+                  {taText}
+                </HyperText>
+              </span>
+              {heartTargetX !== null && (
+                <motion.span
+                  className="text-[4.5rem] sm:text-[7.5rem] md:text-[9rem] lg:text-[10.5rem]"
+                  style={{
+                    display: "inline-block",
+                  }}
+                  initial={{ opacity: 0 }}
+                  animate={{
+                    opacity: 1,
+                  }}
+                  transition={{
+                    opacity: { duration: 0.3 },
+                  }}
+                >
+                  <Image
+                    src="/vector_heart.svg"
+                    alt="❤️"
+                    width={72}
+                    height={72}
+                    className="inline-block"
+                    style={{ width: "1em", height: "1em" }}
+                  />
+                </motion.span>
+              )}
+            </span>
+          </div>
+        </motion.div>
 
+        {/* Subtitle (Layer 2: Middle z-20) - ALIGNED TO COL 6 */}
+        <motion.div
+          initial={{ opacity: 1, y: 0 }}
+          animate={
+            step === 2
+              ? { opacity: 0, y: 0 } // Fade out on STEP 2
+              : { opacity: 1, y: 0 } // Visible on STEP 1
+          }
+          transition={{ duration: 0.5, ease: "easeInOut" }}
+          className="absolute top-[66%] z-20 col-start-6"
+          style={{ filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))" }}
+        >
+          <p className="text-muted-foreground font-montreal text-[0.9rem] font-medium sm:text-[1rem] md:text-[1.2rem] lg:text-[1.44rem]">
+            Bine ai venit la Primăria ta digitală.
+          </p>
+          <p className="text-muted-foreground font-montreal mt-2 text-[0.8rem] font-medium opacity-90 sm:text-[0.9rem] md:text-[1rem]">
+            Servicii publice online,
+            <br />
+            fără cozi,
+            <br />
+            24/7.
+          </p>
+        </motion.div>
+
+        {/* Content container - appears below logo and subtitle */}
+        <div className="relative col-span-12 pt-[80vh] text-center">
           {/* CTA Button (Layer 4: Top z-40) - moves down in STEP 2, always clickable */}
           <motion.div
             ref={buttonRef}
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 1, y: 0 }}
             animate={
-              !showButton
-                ? { opacity: 0, y: 30 } // Initial cascade - hidden
-                : step === 2
-                  ? { opacity: 1, y: buttonTargetY } // Move down to stats zone + 40px
-                  : { opacity: 1, y: 0 } // Visible at original position in STEP 1
+              step === 2
+                ? { opacity: 1, y: buttonTargetY } // Move down to stats zone + 40px
+                : { opacity: 1, y: 0 } // Visible at original position in STEP 1
             }
             transition={{
               type: "spring",
@@ -463,12 +407,15 @@ export function HeroSection() {
             className="relative z-40 mb-16"
           >
             <motion.button
-              className="ring-offset-background inline-flex h-12 min-w-[200px] items-center justify-center rounded-full px-8 text-base font-semibold text-white shadow-lg transition-colors focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 sm:h-14 sm:px-10 sm:text-lg"
+              className="ring-offset-background font-montreal inline-flex h-12 min-w-[200px] items-center justify-center rounded-full px-8 text-base font-normal shadow-lg transition-colors focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 sm:h-14 sm:px-10 sm:text-lg"
               style={{
-                backgroundColor: "oklch(0.712 0.194 13.428)",
+                backgroundColor: "#BE3144",
+                color: "#FFFFFF",
                 textShadow:
                   "3px 3px 6px rgba(0, 0, 0, 0.6), -3px -3px 6px rgba(255, 255, 255, 0.3)",
                 filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))",
+                colorScheme: "dark",
+                opacity: 1,
               }}
               onClick={handleButtonClick}
               aria-label="Continuă"
@@ -501,7 +448,7 @@ export function HeroSection() {
             >
               <motion.button
                 onClick={() => setStep(1)}
-                className="text-muted-foreground text-sm"
+                className="font-montreal text-muted-foreground text-sm"
                 animate={{ fontWeight: 400 }}
                 whileHover={{
                   color: "#ED5C46",
@@ -522,85 +469,132 @@ export function HeroSection() {
             </motion.div>
           </motion.div>
 
-          {/* Stats Section (Layer 2: Middle z-20) */}
+          {/* Stats Section (Layer 2: Middle z-20) - Positioned in column 1 */}
           <motion.div
             ref={statsRef}
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 1, y: 0 }}
             animate={
-              !showStats
-                ? { opacity: 0, y: 30, filter: "blur(0px)", scale: 1 } // Initial cascade - hidden
-                : step === 2
-                  ? { opacity: 0, y: 0, filter: "blur(20px)", scale: 0.8 } // Blur out and disappear on STEP 2
-                  : { opacity: 1, y: 0, filter: "blur(0px)", scale: 1 } // Visible on STEP 1
+              step === 2
+                ? { opacity: 0, y: 0, filter: "blur(20px)", scale: 0.8 } // Blur out and disappear on STEP 2
+                : { opacity: 1, y: 0, filter: "blur(0px)", scale: 1 } // Visible on STEP 1
             }
             transition={{ duration: 0.5, ease: "easeInOut" }}
-            className="relative z-20 flex justify-center gap-2 sm:gap-3 md:gap-4"
+            className="absolute top-0 z-20 col-start-1 flex flex-col"
+            style={{
+              display: "grid",
+              gridTemplateColumns: "auto auto auto",
+              rowGap: "4px",
+              columnGap: "0",
+              marginLeft: "-8.33%",
+              marginTop: "3rem",
+            }}
           >
             {stats.map((stat) => (
-              <div key={stat.label} className="flex flex-col items-center">
-                <div
-                  className="mb-1.5 flex w-[64px] items-center justify-center rounded-lg px-2 py-1.5 shadow-[inset_0_3px_12px_0_rgba(0,0,0,0.25)] sm:mb-2 sm:w-[110px] sm:px-3 sm:py-2 md:w-[136px]"
-                  style={{ backgroundColor: statsBoxBg }}
+              <React.Fragment key={stat.label}>
+                <span
+                  className="font-montreal text-foreground text-[0.7rem] font-normal uppercase sm:text-[0.75rem] md:text-[0.8rem]"
+                  style={{
+                    filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))",
+                    justifySelf: "end",
+                    letterSpacing: "1em",
+                    marginRight: "calc(0.6rem - 1em)",
+                  }}
                 >
-                  {stat.countUp ? (
-                    // Check if countUp has parts (for 24/7 case)
-                    "parts" in stat.countUp && stat.countUp.parts ? (
-                      <span
-                        className="text-xs font-bold sm:text-2xl md:text-3xl"
-                        style={{
-                          color: statsTextColor,
-                          filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))",
-                        }}
-                      >
-                        {stat.countUp.parts.map((part, idx) => {
-                          if (part.type === "static") {
-                            return <span key={idx}>{part.value}</span>;
-                          }
-                          return (
-                            <CountUp
-                              key={idx}
-                              from={part.from}
-                              to={part.to}
-                              direction="up"
-                              duration={2}
-                              delay={0.5}
-                              startWhen={showStats}
-                            />
-                          );
-                        })}
-                      </span>
-                    ) : (
-                      <CountUp
-                        from={stat.countUp.from}
-                        to={stat.countUp.to}
-                        direction={stat.countUp.direction}
-                        separator={stat.countUp.separator}
-                        duration={2}
-                        delay={0.5}
-                        className="text-xs font-bold sm:text-2xl md:text-3xl"
-                        style={{
-                          color: statsTextColor,
-                          filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))",
-                        }}
-                        startWhen={showStats}
-                      />
-                    )
-                  ) : (
-                    <span
-                      className="text-xs font-bold sm:text-2xl md:text-3xl"
-                      style={{
-                        color: statsTextColor,
-                        filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))",
-                      }}
-                    >
-                      {stat.value}
-                    </span>
-                  )}
-                </div>
-                <span className="text-muted-foreground text-[10px] font-bold sm:text-xs md:text-sm">
                   {stat.label}
                 </span>
-              </div>
+                <span
+                  className="text-foreground text-[0.7rem] sm:text-[0.75rem] md:text-[0.8rem]"
+                  style={{
+                    filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))",
+                    justifySelf: "end",
+                  }}
+                >
+                  :
+                </span>
+                {stat.countUp ? (
+                  // Check if countUp has parts (for 24/7 case)
+                  "parts" in stat.countUp && stat.countUp.parts ? (
+                    <span
+                      className="font-montreal text-foreground text-[0.7rem] font-normal sm:text-[0.75rem] md:text-[0.8rem]"
+                      style={{
+                        filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))",
+                        justifySelf: "start",
+                        display: "inline-flex",
+                        gap: "0",
+                        marginLeft: "0.5rem",
+                      }}
+                    >
+                      <span style={{ minWidth: "2ch", textAlign: "right" }}>
+                        {
+                          stat.countUp.parts.map((part, idx) => {
+                            if (part.type === "static") {
+                              return null; // Skip static parts in first group
+                            }
+                            return (
+                              <CountUp
+                                key={idx}
+                                from={part.from}
+                                to={part.to}
+                                direction="up"
+                                duration={2}
+                                delay={0}
+                                startWhen={true}
+                              />
+                            );
+                          })[0]
+                        }
+                      </span>
+                      {stat.countUp.parts
+                        .filter((p) => p.type === "static")
+                        .map((part, idx) => (
+                          <span key={`static-${idx}`}>{part.value}</span>
+                        ))}
+                      {stat.countUp.parts.map((part, idx) => {
+                        if (part.type === "static" || idx === 0) {
+                          return null; // Skip static and first countup
+                        }
+                        return (
+                          <CountUp
+                            key={idx}
+                            from={part.from}
+                            to={part.to}
+                            direction="up"
+                            duration={2}
+                            delay={0}
+                            startWhen={true}
+                          />
+                        );
+                      })}
+                    </span>
+                  ) : (
+                    <CountUp
+                      from={stat.countUp.from}
+                      to={stat.countUp.to}
+                      direction={stat.countUp.direction}
+                      separator={stat.countUp.separator}
+                      duration={2}
+                      delay={0}
+                      className="font-montreal text-foreground text-[0.7rem] font-normal sm:text-[0.75rem] md:text-[0.8rem]"
+                      style={{
+                        filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))",
+                        justifySelf: "start",
+                        marginLeft: "0.5rem",
+                      }}
+                      startWhen={true}
+                    />
+                  )
+                ) : (
+                  <span
+                    className="text-foreground text-sm font-normal sm:text-base md:text-lg"
+                    style={{
+                      filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))",
+                      justifySelf: "start",
+                    }}
+                  >
+                    {stat.value}
+                  </span>
+                )}
+              </React.Fragment>
             ))}
           </motion.div>
 
@@ -687,7 +681,7 @@ export function HeroSection() {
                     }
                     transition={{ delay: 0.2, duration: 0.6 }}
                   >
-                    primaria<span style={{ color: "oklch(0.712 0.194 13.428)" }}>Ta</span>
+                    primaria<span style={{ color: "#BE3144" }}>Ta</span>
                   </motion.span>
                   <motion.span
                     className="inline-block"
@@ -728,7 +722,14 @@ export function HeroSection() {
                           }
                     }
                   >
-                    ❤️
+                    <Image
+                      src="/vector_heart.svg"
+                      alt="❤️"
+                      width={36}
+                      height={36}
+                      className="inline-block"
+                      style={{ width: "1em", height: "1em" }}
+                    />
                   </motion.span>
                   <motion.span
                     className="inline"

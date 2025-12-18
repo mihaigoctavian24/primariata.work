@@ -1,54 +1,55 @@
 @import "tailwindcss";
+@import "../styles/grid.css";
 
 @layer base {
   :root {
     /* Color Variables - Light Mode */
-    --background: oklch(0.929 0.013 255.508);
+    --background: #f8f6f2;
     --foreground: #333333;
 
-    --card: oklch(0.985 0.002 247.839);
+    --card: #f5f7f6;
     --card-foreground: #333333;
 
-    --primary: #5e30eb;
+    --primary: #be3144;
     --primary-foreground: #d6d6d6;
 
-    --secondary: #ed719e;
+    --secondary: #535858;
     --secondary-foreground: #ffffff;
 
     --muted: #f9fafb;
-    --muted-foreground: #6b7280;
+    --muted-foreground: #535858;
 
-    --accent: #d9cafe;
-    --accent-foreground: #4d22b3;
+    --accent: #e0e1de;
+    --accent-foreground: #535858;
 
-    --destructive: #ef4444;
+    --destructive: #dc4444;
     --destructive-foreground: #ffffff;
 
-    --border: #e5e7eb;
-    --input: #e5e7eb;
-    --ring: #5e30eb;
+    --border: #f8f6f2;
+    --input: #e0e1de;
+    --ring: #2c2c2c;
 
     --popover: #ffffff;
     --popover-foreground: #333333;
 
-    --sidebar-background: oklch(0.929 0.013 255.508);
+    --sidebar-background: #f8f6f2;
     --sidebar-foreground: #333333;
-    --sidebar-primary: oklch(0.702 0.183 293.541);
-    --sidebar-primary-foreground: #ffffff;
-    --sidebar-accent: #ffffff;
-    --sidebar-accent-foreground: #ed719e;
-    --sidebar-border: #e5e7eb;
-    --sidebar-ring: oklch(0.702 0.183 293.541);
+    --sidebar-primary: #be3144;
+    --sidebar-primary-foreground: #f8f6f2;
+    --sidebar-accent: #f8f6f2;
+    --sidebar-accent-foreground: #be3144;
+    --sidebar-border: #f8f6f2;
+    --sidebar-ring: #f8f6f2;
 
     /* Border Radius */
     --radius: 0.375rem;
 
-    /* Chart Colors - Diverse oklch Colors */
-    --chart-1: oklch(0.855 0.138 181.071);
-    --chart-2: oklch(0.511 0.262 276.966);
-    --chart-3: oklch(0.491 0.27 292.581);
-    --chart-4: oklch(0.591 0.293 322.896);
-    --chart-5: oklch(0.712 0.194 13.428);
+    /* Chart Colors */
+    --chart-1: #46ecd5;
+    --chart-2: #4f39f6;
+    --chart-3: #7008e7;
+    --chart-4: #c800de;
+    --chart-5: #ff637e;
 
     /* Typography Scale */
     --font-size-xs: 0.75rem; /* 12px */
@@ -88,49 +89,159 @@
 
   .dark {
     /* Color Variables - Dark Mode */
-    --background: oklch(0.372 0.044 257.287);
-    --foreground: #e5e5e5;
+    --background: #000000;
+    --foreground: #f8f6f2;
 
-    --card: oklch(0.278 0.033 256.848);
+    --card: #111318;
     --card-foreground: #e5e5e5;
 
-    --primary: #5e30eb;
-    --primary-foreground: #d6d6d6;
+    --primary: #be3144;
+    --primary-foreground: #f8f6f2;
 
-    --secondary: #ed719e;
+    --secondary: #535858;
     --secondary-foreground: #ffffff;
 
     --muted: #1f1f1f;
     --muted-foreground: #a3a3a3;
 
-    --accent: #4d22b3;
-    --accent-foreground: #d9cafe;
+    --accent: #1f1f1f;
+    --accent-foreground: #aaaaaa;
 
     --destructive: #ef4444;
     --destructive-foreground: #ffffff;
 
-    --border: #404040;
-    --input: #404040;
-    --ring: #3b82f6;
+    --border: #000000;
+    --input: #e0e1de;
+    --ring: #2c2c2c;
 
     --popover: #262626;
     --popover-foreground: #e5e5e5;
 
-    --sidebar-background: #1f1f1f;
-    --sidebar-foreground: #e5e5e5;
-    --sidebar-primary: #60a5fa;
-    --sidebar-primary-foreground: #0f172a;
-    --sidebar-accent: #1e3a8a;
-    --sidebar-accent-foreground: #bfdbfe;
-    --sidebar-border: #404040;
-    --sidebar-ring: #60a5fa;
+    --sidebar-background: #000000;
+    --sidebar-foreground: #f8f6f2;
+    --sidebar-primary: #f8f6f2;
+    --sidebar-primary-foreground: #f8f6f2;
+    --sidebar-accent: #000000;
+    --sidebar-accent-foreground: #be3144;
+    --sidebar-border: #000000;
+    --sidebar-ring: #000000;
 
-    /* Chart Colors - Dark Mode - Blue Gradient */
-    --chart-1: #60a5fa;
-    --chart-2: #3b82f6;
-    --chart-3: #2563eb;
-    --chart-4: #1d4ed8;
-    --chart-5: #1e40af;
+    /* Chart Colors - Dark Mode */
+    --chart-1: #46ecd5;
+    --chart-2: #4f39f6;
+    --chart-3: #7008e7;
+    --chart-4: #c800de;
+    --chart-5: #ff637e;
+  }
+
+  /* Inverse Mode Overrides for Timeline Section */
+
+  /* When Features section is in LIGHT mode (inverse of dark theme) */
+  .light {
+    color-scheme: light;
+  }
+
+  /* Timeline title in light wrapper (dark mode global) - needs black text */
+  div.snap-start.light h2.text-white,
+  div.light > div h2.text-white {
+    color: rgb(0, 0, 0) !important;
+  }
+
+  /* Feature card headers in light wrapper (dark mode global) - needs dark text */
+  div.snap-start.light h4.text-white,
+  div.light > div h4.text-white,
+  div.light h4.text-white {
+    color: rgb(17, 24, 39) !important; /* gray-900 */
+  }
+
+  div.snap-start.light .text-gray-400,
+  div.light > div .text-gray-400,
+  div.light .text-gray-400 {
+    color: rgb(75, 85, 99) !important;
+  }
+
+  div.snap-start.light .text-gray-300,
+  div.light > div .text-gray-300,
+  div.light .text-gray-300 {
+    color: rgb(55, 65, 81) !important;
+  }
+
+  div.snap-start.light .text-neutral-500,
+  div.light > div .text-neutral-500,
+  div.light .text-neutral-500 {
+    color: rgb(64, 64, 64) !important;
+  }
+
+  /* Footer in light wrapper (DARK MODE GLOBAL) - dark background, WHITE text */
+  div.light > footer,
+  div.light footer {
+    background-color: rgb(9, 9, 11) !important; /* zinc-950 - dark background */
+  }
+
+  /* Footer logo must be WHITE on dark background (dark mode global) */
+  div.snap-start.light footer h2,
+  div.snap-start.light footer h2.text-white,
+  div.snap-start.light footer .text-white,
+  div.light > footer h2,
+  div.light > footer .text-white {
+    color: rgb(255, 255, 255) !important; /* WHITE text on dark background */
+  }
+
+  /* When Features section is in DARK mode (inverse of light theme) */
+  /* Timeline title in dark wrapper (light mode global) - needs white text */
+  div.snap-start.dark h2.text-white,
+  div.dark > div h2.text-white {
+    color: rgb(255, 255, 255) !important;
+  }
+
+  /* Feature card headers in dark wrapper (light mode global) - needs white text */
+  div.snap-start.dark h4.text-white,
+  div.dark > div h4.text-white,
+  div.dark h4.text-white {
+    color: rgb(255, 255, 255) !important;
+  }
+
+  div.snap-start.dark .text-gray-400,
+  div.dark > div .text-gray-400,
+  div.dark .text-gray-400 {
+    color: rgb(156, 163, 175) !important;
+  }
+
+  div.snap-start.dark .text-gray-300,
+  div.dark > div .text-gray-300,
+  div.dark .text-gray-300 {
+    color: rgb(209, 213, 219) !important;
+  }
+
+  div.snap-start.dark .text-neutral-500,
+  div.dark > div .text-neutral-500,
+  div.dark .text-neutral-500 {
+    color: rgb(163, 163, 163) !important;
+  }
+
+  /* Footer in dark wrapper (LIGHT MODE GLOBAL) - light background, BLACK text */
+  div.dark > footer,
+  div.dark footer {
+    background-color: rgb(249, 250, 251) !important; /* gray-50 - light background */
+  }
+
+  /* Footer logo must be BLACK on light background (light mode global) */
+  div.snap-start.dark footer h2,
+  div.snap-start.dark footer h2.text-white,
+  div.snap-start.dark footer .text-white,
+  div.dark > footer h2,
+  div.dark > footer .text-white {
+    color: rgb(17, 24, 39) !important; /* BLACK text on light background */
+  }
+
+  /* Timeline dots in light wrapper (DARK MODE GLOBAL) - dark gray background */
+  div.light .timeline-dot-outer {
+    background-color: rgb(39, 39, 42) !important; /* zinc-800 */
+  }
+
+  /* Timeline dots in dark wrapper (LIGHT MODE GLOBAL) - white background */
+  div.dark .timeline-dot-outer {
+    background-color: rgb(255, 255, 255) !important; /* white */
   }
 
   /* Accessibility: Reduced Motion */
@@ -192,7 +303,7 @@
   --color-chart-5: var(--chart-5);
 
   /* Fonts */
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-montreal), var(--font-inter), var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 
   /* Breakpoints */
@@ -248,8 +359,20 @@
   }
 }
 
+html {
+  background: transparent;
+}
+
 body {
-  background: var(--background);
+  background: transparent; /* Transparent to allow TheInfiniteGrid (z-index: 0) to be visible */
   color: var(--foreground);
-  font-family: var(--font-sans, Arial, Helvetica, sans-serif);
+  font-family:
+    var(--font-montreal),
+    var(--font-inter),
+    var(--font-geist-sans),
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Arial,
+    sans-serif;
 }
