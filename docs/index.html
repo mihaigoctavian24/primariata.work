@@ -1,1112 +1,1132 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ro">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Documentation - primariaTa❤️_</title>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        :root {
-            --bg-primary: #ffffff;
-            --bg-secondary: #f6f8fa;
-            --bg-tertiary: #ffffff;
-            --text-primary: #1f2328;
-            --text-secondary: #636c76;
-            --text-link: #0969da;
-            --border-default: #d0d7de;
-            --border-muted: #e6ebf1;
-            --accent-emphasis: #0969da;
-            --success: #1a7f37;
-            --warning: #bf8700;
-            --danger: #cf222e;
-        }
+      :root {
+        --bg-primary: #ffffff;
+        --bg-secondary: #f6f8fa;
+        --bg-tertiary: #ffffff;
+        --text-primary: #1f2328;
+        --text-secondary: #636c76;
+        --text-link: #0969da;
+        --border-default: #d0d7de;
+        --border-muted: #e6ebf1;
+        --accent-emphasis: #0969da;
+        --success: #1a7f37;
+        --warning: #bf8700;
+        --danger: #cf222e;
+      }
 
-        [data-theme="dark"] {
-            --bg-primary: #0d1117;
-            --bg-secondary: #161b22;
-            --bg-tertiary: #1c2128;
-            --text-primary: #e6edf3;
-            --text-secondary: #8d96a0;
-            --text-link: #4493f8;
-            --border-default: #30363d;
-            --border-muted: #21262d;
-            --accent-emphasis: #4493f8;
-        }
+      [data-theme="dark"] {
+        --bg-primary: #0d1117;
+        --bg-secondary: #161b22;
+        --bg-tertiary: #1c2128;
+        --text-primary: #e6edf3;
+        --text-secondary: #8d96a0;
+        --text-link: #4493f8;
+        --border-default: #30363d;
+        --border-muted: #21262d;
+        --accent-emphasis: #4493f8;
+      }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            line-height: 1.5;
-        }
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        line-height: 1.5;
+      }
 
-        /* Header */
-        .header {
-            background: var(--bg-primary);
-            border-bottom: 1px solid var(--border-default);
-            padding: 16px 32px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
+      /* Header */
+      .header {
+        background: var(--bg-primary);
+        border-bottom: 1px solid var(--border-default);
+        padding: 16px 32px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
 
-        .logo {
-            font-size: 20px;
-            font-weight: 600;
-            color: var(--text-primary);
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 0;
-        }
+      .logo {
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--text-primary);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0;
+      }
 
-        .logo-normal {
-            color: var(--text-primary);
-        }
+      .logo-normal {
+        color: var(--text-primary);
+      }
 
-        .logo-ta {
-            color: oklch(0.712 0.194 13.428);
-            font-weight: 700;
-        }
+      .logo-ta {
+        color: oklch(0.712 0.194 13.428);
+        font-weight: 700;
+      }
 
-        .logo-heart {
-            color: #e74c3c;
-            animation: heartbeat 1.5s ease-in-out infinite;
-            display: inline-block;
-        }
+      .logo-heart {
+        color: #e74c3c;
+        animation: heartbeat 1.5s ease-in-out infinite;
+        display: inline-block;
+      }
 
-        @keyframes heartbeat {
-            0%, 100% {
-                transform: scale(1);
-            }
-            10%, 30% {
-                transform: scale(1.2);
-            }
-            20%, 40% {
-                transform: scale(1);
-            }
+      @keyframes heartbeat {
+        0%,
+        100% {
+          transform: scale(1);
         }
-
-        .logo-underscore {
-            color: var(--text-primary);
-            animation: blink 1s step-end infinite;
+        10%,
+        30% {
+          transform: scale(1.2);
         }
-
-        @keyframes blink {
-            0%, 50% {
-                opacity: 1;
-            }
-            51%, 100% {
-                opacity: 0;
-            }
+        20%,
+        40% {
+          transform: scale(1);
         }
+      }
 
-        .header-nav {
-            display: flex;
-            gap: 24px;
-            align-items: center;
+      .logo-underscore {
+        color: var(--text-primary);
+        animation: blink 1s step-end infinite;
+      }
+
+      @keyframes blink {
+        0%,
+        50% {
+          opacity: 1;
         }
-
-        .header-nav a {
-            color: var(--text-primary);
-            text-decoration: none;
-            font-size: 14px;
-            padding: 8px 12px;
-            border-radius: 6px;
-            transition: background 0.2s;
+        51%,
+        100% {
+          opacity: 0;
         }
+      }
 
-        .header-nav a:hover {
-            background: var(--bg-secondary);
-        }
+      .header-nav {
+        display: flex;
+        gap: 24px;
+        align-items: center;
+      }
 
-        .theme-toggle {
-            background: none;
-            border: 1px solid var(--border-default);
-            color: var(--text-primary);
-            padding: 8px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-        }
+      .header-nav a {
+        color: var(--text-primary);
+        text-decoration: none;
+        font-size: 14px;
+        padding: 8px 12px;
+        border-radius: 6px;
+        transition: background 0.2s;
+      }
 
-        .theme-toggle:hover {
-            background: var(--bg-secondary);
-        }
+      .header-nav a:hover {
+        background: var(--bg-secondary);
+      }
 
-        .theme-toggle svg.hidden {
-            display: none !important;
-        }
+      .theme-toggle {
+        background: none;
+        border: 1px solid var(--border-default);
+        color: var(--text-primary);
+        padding: 8px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+      }
 
-        /* Main Container */
-        .container {
-            max-width: 1280px;
-            margin: 0 auto;
-            padding: 40px 32px;
-        }
+      .theme-toggle:hover {
+        background: var(--bg-secondary);
+      }
 
-        /* Hero Section */
-        .hero {
-            text-align: center;
-            padding: 60px 0;
-            border-bottom: 1px solid var(--border-default);
-            margin-bottom: 48px;
-        }
+      .theme-toggle svg.hidden {
+        display: none !important;
+      }
 
-        .hero h1 {
-            font-size: 48px;
-            font-weight: 600;
-            margin-bottom: 16px;
-            color: var(--text-primary);
-        }
+      /* Main Container */
+      .container {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 40px 32px;
+      }
 
-        .hero p {
-            font-size: 20px;
-            color: var(--text-secondary);
-            max-width: 700px;
-            margin: 0 auto 32px;
-        }
+      /* Hero Section */
+      .hero {
+        text-align: center;
+        padding: 60px 0;
+        border-bottom: 1px solid var(--border-default);
+        margin-bottom: 48px;
+      }
 
-        .hero-actions {
-            display: flex;
-            gap: 16px;
-            justify-content: center;
-        }
+      .hero h1 {
+        font-size: 48px;
+        font-weight: 600;
+        margin-bottom: 16px;
+        color: var(--text-primary);
+      }
 
-        .btn {
-            padding: 12px 24px;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 500;
-            text-decoration: none;
-            transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
+      .hero p {
+        font-size: 20px;
+        color: var(--text-secondary);
+        max-width: 700px;
+        margin: 0 auto 32px;
+      }
 
-        .btn-primary {
-            background: var(--accent-emphasis);
-            color: white;
-            border: 1px solid transparent;
-        }
+      .hero-actions {
+        display: flex;
+        gap: 16px;
+        justify-content: center;
+      }
 
-        .btn-primary:hover {
-            background: #0860ca;
-        }
+      .btn {
+        padding: 12px 24px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
 
-        .btn-secondary {
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            border: 1px solid var(--border-default);
-        }
+      .btn-primary {
+        background: var(--accent-emphasis);
+        color: white;
+        border: 1px solid transparent;
+      }
 
-        .btn-secondary:hover {
-            background: var(--bg-tertiary);
-            border-color: var(--text-secondary);
-        }
+      .btn-primary:hover {
+        background: #0860ca;
+      }
 
-        /* Stats Grid */
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-            margin-bottom: 48px;
-        }
+      .btn-secondary {
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+        border: 1px solid var(--border-default);
+      }
 
-        .stat-card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-default);
-            border-radius: 6px;
-            padding: 16px 20px;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-        }
+      .btn-secondary:hover {
+        background: var(--bg-tertiary);
+        border-color: var(--text-secondary);
+      }
 
-        .stat-icon {
-            width: 24px;
-            height: 24px;
-            color: var(--accent-emphasis);
-        }
+      /* Stats Grid */
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 48px;
+      }
 
-        .stat-value {
-            font-size: 24px;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
+      .stat-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-default);
+        border-radius: 6px;
+        padding: 16px 20px;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+      }
 
-        .stat-label {
-            font-size: 13px;
-            color: var(--text-secondary);
-        }
+      .stat-icon {
+        width: 24px;
+        height: 24px;
+        color: var(--accent-emphasis);
+      }
 
-        /* Timeline */
-        .timeline {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-default);
-            border-radius: 6px;
-            padding: 32px;
-            margin-bottom: 48px;
-        }
+      .stat-value {
+        font-size: 24px;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
 
-        .timeline-title {
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 32px;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+      .stat-label {
+        font-size: 13px;
+        color: var(--text-secondary);
+      }
 
+      /* Timeline */
+      .timeline {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-default);
+        border-radius: 6px;
+        padding: 32px;
+        margin-bottom: 48px;
+      }
+
+      .timeline-title {
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 32px;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .timeline-items {
+        position: relative;
+        display: flex;
+        gap: 0;
+        margin: 24px 0;
+      }
+
+      .timeline-item {
+        flex: 1;
+        position: relative;
+        padding: 12px 16px;
+        border-right: 1px solid var(--border-default);
+        transition: all 0.2s;
+      }
+
+      .timeline-item:last-child {
+        border-right: none;
+      }
+
+      .timeline-item:hover {
+        background: var(--bg-secondary);
+      }
+
+      .timeline-item.completed::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: var(--accent-emphasis);
+      }
+
+      .timeline-label {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 4px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .timeline-label i {
+        width: 14px;
+        height: 14px;
+      }
+
+      .timeline-status {
+        font-size: 12px;
+        color: var(--text-secondary);
+      }
+
+      .timeline-status.completed {
+        color: var(--accent-emphasis);
+        font-weight: 500;
+      }
+
+      @media (max-width: 768px) {
         .timeline-items {
-            position: relative;
-            display: flex;
-            gap: 0;
-            margin: 24px 0;
+          flex-direction: column;
         }
 
         .timeline-item {
-            flex: 1;
-            position: relative;
-            padding: 12px 16px;
-            border-right: 1px solid var(--border-default);
-            transition: all 0.2s;
+          border-right: none;
+          border-bottom: 1px solid var(--border-default);
         }
 
         .timeline-item:last-child {
-            border-right: none;
-        }
-
-        .timeline-item:hover {
-            background: var(--bg-secondary);
+          border-bottom: none;
         }
 
         .timeline-item.completed::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: var(--accent-emphasis);
+          top: 0;
+          bottom: 0;
+          left: 0;
+          right: auto;
+          width: 3px;
+          height: auto;
+        }
+      }
+
+      /* Heatmap */
+      .heatmap {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-default);
+        border-radius: 6px;
+        padding: 24px;
+        margin-bottom: 48px;
+      }
+
+      .heatmap-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 16px;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .heatmap-title i {
+        width: 18px;
+        height: 18px;
+      }
+
+      .heatmap-wrapper {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        grid-template-rows: auto 1fr auto;
+        gap: 16px;
+        min-height: 240px;
+      }
+
+      .heatmap-title-area {
+        grid-column: 1 / -1;
+      }
+
+      .heatmap-legend-left {
+        grid-row: 2;
+        grid-column: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        gap: 8px;
+        font-size: 12px;
+        color: var(--text-secondary);
+        font-weight: 500;
+        padding-right: 12px;
+      }
+
+      .heatmap-container {
+        grid-row: 2;
+        grid-column: 2;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        flex: 1;
+      }
+
+      .heatmap-week {
+        display: flex;
+        gap: 8px;
+        flex: 1;
+      }
+
+      .heatmap-cell {
+        flex: 1;
+        min-height: 60px;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-default);
+        border-radius: 6px;
+        transition: all 0.2s;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-secondary);
+      }
+
+      .heatmap-cell:hover {
+        transform: scale(1.15);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        z-index: 10;
+      }
+
+      .heatmap-cell.level-1 {
+        background: #fef3c7;
+        border-color: #fde68a;
+      }
+
+      .heatmap-cell.level-2 {
+        background: #fde047;
+        border-color: #facc15;
+      }
+
+      .heatmap-cell.level-3 {
+        background: #fb923c;
+        border-color: #f97316;
+      }
+
+      .heatmap-cell.level-4 {
+        background: #f87171;
+        border-color: #ef4444;
+      }
+
+      .heatmap-cell.level-5 {
+        background: #c026d3;
+        border-color: #a21caf;
+      }
+
+      .heatmap-cell.level-6 {
+        background: #7c3aed;
+        border-color: #6d28d9;
+      }
+
+      .heatmap-footer {
+        grid-row: 3;
+        grid-column: 1 / -1;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 12px;
+        color: var(--text-secondary);
+      }
+
+      .heatmap-legend {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .heatmap-summary {
+        font-weight: 500;
+      }
+
+      .heatmap-legend-item {
+        width: 12px;
+        height: 12px;
+        border-radius: 2px;
+        border: 1px solid var(--border-default);
+      }
+
+      .heatmap-legend-item.level-0 {
+        background: var(--bg-tertiary);
+      }
+
+      .heatmap-legend-item.level-1 {
+        background: #fef3c7;
+      }
+
+      .heatmap-legend-item.level-2 {
+        background: #fde047;
+      }
+
+      .heatmap-legend-item.level-3 {
+        background: #fb923c;
+      }
+
+      .heatmap-legend-item.level-4 {
+        background: #f87171;
+      }
+
+      .heatmap-legend-item.level-5 {
+        background: #c026d3;
+      }
+
+      .heatmap-legend-item.level-6 {
+        background: #7c3aed;
+      }
+
+      /* Section */
+      .section {
+        margin-bottom: 48px;
+      }
+
+      .section-title {
+        font-size: 24px;
+        font-weight: 600;
+        margin-bottom: 16px;
+        color: var(--text-primary);
+        padding-bottom: 8px;
+        border-bottom: 1px solid var(--border-muted);
+      }
+
+      /* Cards Grid */
+      .cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 16px;
+      }
+
+      .doc-card {
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-default);
+        border-radius: 6px;
+        padding: 24px;
+        transition: all 0.2s;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+      }
+
+      .doc-card:hover {
+        border-color: var(--accent-emphasis);
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+      }
+
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 12px;
+      }
+
+      .card-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 4px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .card-title i {
+        width: 18px;
+        height: 18px;
+        flex-shrink: 0;
+      }
+
+      .card-status {
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 500;
+      }
+
+      .status-complete {
+        background: #dafbe1;
+        color: var(--success);
+      }
+
+      .status-partial {
+        background: #fff8c5;
+        color: var(--warning);
+      }
+
+      .status-todo {
+        background: #ffebe9;
+        color: var(--danger);
+      }
+
+      [data-theme="dark"] .status-complete {
+        background: #033a16;
+        color: #3fb950;
+      }
+
+      [data-theme="dark"] .status-partial {
+        background: #3d2b00;
+        color: #d29922;
+      }
+
+      [data-theme="dark"] .status-todo {
+        background: #490202;
+        color: #ff7b72;
+      }
+
+      .card-description {
+        font-size: 14px;
+        color: var(--text-secondary);
+        margin-bottom: 16px;
+      }
+
+      .card-links {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        font-size: 14px;
+      }
+
+      .card-link {
+        color: var(--text-link);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .card-link i {
+        width: 14px !important;
+        height: 14px !important;
+        flex-shrink: 0;
+      }
+
+      .card-link svg {
+        width: 14px !important;
+        height: 14px !important;
+      }
+
+      .card-link:hover {
+        text-decoration: underline;
+      }
+
+      /* Footer */
+      .footer {
+        border-top: 1px solid var(--border-default);
+        margin-top: 80px;
+        padding: 40px 0;
+        text-align: center;
+        color: var(--text-secondary);
+        font-size: 14px;
+      }
+
+      .footer a {
+        color: var(--text-link);
+        text-decoration: none;
+      }
+
+      .footer a:hover {
+        text-decoration: underline;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .header {
+          padding: 12px 16px;
         }
 
-        .timeline-label {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 4px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+        .header-nav {
+          gap: 12px;
         }
 
-        .timeline-label i {
-            width: 14px;
-            height: 14px;
+        .container {
+          padding: 24px 16px;
         }
 
-        .timeline-status {
-            font-size: 12px;
-            color: var(--text-secondary);
+        .hero h1 {
+          font-size: 32px;
         }
 
-        .timeline-status.completed {
-            color: var(--accent-emphasis);
-            font-weight: 500;
+        .hero p {
+          font-size: 16px;
         }
 
-        @media (max-width: 768px) {
-            .timeline-items {
-                flex-direction: column;
-            }
-
-            .timeline-item {
-                border-right: none;
-                border-bottom: 1px solid var(--border-default);
-            }
-
-            .timeline-item:last-child {
-                border-bottom: none;
-            }
-
-            .timeline-item.completed::before {
-                top: 0;
-                bottom: 0;
-                left: 0;
-                right: auto;
-                width: 3px;
-                height: auto;
-            }
-        }
-
-        /* Heatmap */
-        .heatmap {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-default);
-            border-radius: 6px;
-            padding: 24px;
-            margin-bottom: 48px;
-        }
-
-        .heatmap-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 16px;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .heatmap-title i {
-            width: 18px;
-            height: 18px;
-        }
-
-        .heatmap-wrapper {
-            display: grid;
-            grid-template-columns: auto 1fr;
-            grid-template-rows: auto 1fr auto;
-            gap: 16px;
-            min-height: 240px;
-        }
-
-        .heatmap-title-area {
-            grid-column: 1 / -1;
-        }
-
-        .heatmap-legend-left {
-            grid-row: 2;
-            grid-column: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-around;
-            gap: 8px;
-            font-size: 12px;
-            color: var(--text-secondary);
-            font-weight: 500;
-            padding-right: 12px;
-        }
-
-        .heatmap-container {
-            grid-row: 2;
-            grid-column: 2;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            flex: 1;
-        }
-
-        .heatmap-week {
-            display: flex;
-            gap: 8px;
-            flex: 1;
-        }
-
-        .heatmap-cell {
-            flex: 1;
-            min-height: 60px;
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-default);
-            border-radius: 6px;
-            transition: all 0.2s;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-secondary);
-        }
-
-        .heatmap-cell:hover {
-            transform: scale(1.15);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-            z-index: 10;
-        }
-
-        .heatmap-cell.level-1 {
-            background: #FEF3C7;
-            border-color: #FDE68A;
-        }
-
-        .heatmap-cell.level-2 {
-            background: #FDE047;
-            border-color: #FACC15;
-        }
-
-        .heatmap-cell.level-3 {
-            background: #FB923C;
-            border-color: #F97316;
-        }
-
-        .heatmap-cell.level-4 {
-            background: #F87171;
-            border-color: #EF4444;
-        }
-
-        .heatmap-cell.level-5 {
-            background: #C026D3;
-            border-color: #A21CAF;
-        }
-
-        .heatmap-cell.level-6 {
-            background: #7C3AED;
-            border-color: #6D28D9;
-        }
-
-        .heatmap-footer {
-            grid-row: 3;
-            grid-column: 1 / -1;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 12px;
-            color: var(--text-secondary);
-        }
-
-        .heatmap-legend {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .heatmap-summary {
-            font-weight: 500;
-        }
-
-        .heatmap-legend-item {
-            width: 12px;
-            height: 12px;
-            border-radius: 2px;
-            border: 1px solid var(--border-default);
-        }
-
-        .heatmap-legend-item.level-0 {
-            background: var(--bg-tertiary);
-        }
-
-        .heatmap-legend-item.level-1 {
-            background: #FEF3C7;
-        }
-
-        .heatmap-legend-item.level-2 {
-            background: #FDE047;
-        }
-
-        .heatmap-legend-item.level-3 {
-            background: #FB923C;
-        }
-
-        .heatmap-legend-item.level-4 {
-            background: #F87171;
-        }
-
-        .heatmap-legend-item.level-5 {
-            background: #C026D3;
-        }
-
-        .heatmap-legend-item.level-6 {
-            background: #7C3AED;
-        }
-
-        /* Section */
-        .section {
-            margin-bottom: 48px;
-        }
-
-        .section-title {
-            font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 16px;
-            color: var(--text-primary);
-            padding-bottom: 8px;
-            border-bottom: 1px solid var(--border-muted);
-        }
-
-        /* Cards Grid */
         .cards-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 16px;
+          grid-template-columns: 1fr;
         }
-
-        .doc-card {
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-default);
-            border-radius: 6px;
-            padding: 24px;
-            transition: all 0.2s;
-            text-decoration: none;
-            color: inherit;
-            display: block;
-        }
-
-        .doc-card:hover {
-            border-color: var(--accent-emphasis);
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: start;
-            margin-bottom: 12px;
-        }
-
-        .card-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 4px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .card-title i {
-            width: 18px;
-            height: 18px;
-            flex-shrink: 0;
-        }
-
-        .card-status {
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-
-        .status-complete {
-            background: #dafbe1;
-            color: var(--success);
-        }
-
-        .status-partial {
-            background: #fff8c5;
-            color: var(--warning);
-        }
-
-        .status-todo {
-            background: #ffebe9;
-            color: var(--danger);
-        }
-
-        [data-theme="dark"] .status-complete {
-            background: #033a16;
-            color: #3fb950;
-        }
-
-        [data-theme="dark"] .status-partial {
-            background: #3d2b00;
-            color: #d29922;
-        }
-
-        [data-theme="dark"] .status-todo {
-            background: #490202;
-            color: #ff7b72;
-        }
-
-        .card-description {
-            font-size: 14px;
-            color: var(--text-secondary);
-            margin-bottom: 16px;
-        }
-
-        .card-links {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            font-size: 14px;
-        }
-
-        .card-link {
-            color: var(--text-link);
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .card-link i {
-            width: 14px !important;
-            height: 14px !important;
-            flex-shrink: 0;
-        }
-
-        .card-link svg {
-            width: 14px !important;
-            height: 14px !important;
-        }
-
-        .card-link:hover {
-            text-decoration: underline;
-        }
-
-        /* Footer */
-        .footer {
-            border-top: 1px solid var(--border-default);
-            margin-top: 80px;
-            padding: 40px 0;
-            text-align: center;
-            color: var(--text-secondary);
-            font-size: 14px;
-        }
-
-        .footer a {
-            color: var(--text-link);
-            text-decoration: none;
-        }
-
-        .footer a:hover {
-            text-decoration: underline;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .header {
-                padding: 12px 16px;
-            }
-
-            .header-nav {
-                gap: 12px;
-            }
-
-            .container {
-                padding: 24px 16px;
-            }
-
-            .hero h1 {
-                font-size: 32px;
-            }
-
-            .hero p {
-                font-size: 16px;
-            }
-
-            .cards-grid {
-                grid-template-columns: 1fr;
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <!-- Header -->
     <header class="header">
-        <a href="index.html" class="logo">
-            <span class="logo-normal">primăria</span><span class="logo-ta">Ta</span><span class="logo-heart">❤️</span><span class="logo-underscore">_</span>
-        </a>
-        <nav class="header-nav">
-            <a href="https://github.com/mihaigoctavian24/primariata.work" target="_blank">GitHub</a>
-            <a href="https://primariata.work" target="_blank">Live Demo</a>
-            <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
-                <i id="theme-icon-moon" data-lucide="moon"></i>
-                <i id="theme-icon-sun" data-lucide="sun"></i>
-            </button>
-        </nav>
+      <a href="index.html" class="logo">
+        <span class="logo-normal">primăria</span><span class="logo-ta">Ta</span
+        ><span class="logo-heart">❤️</span><span class="logo-underscore">_</span>
+      </a>
+      <nav class="header-nav">
+        <a href="https://github.com/mihaigoctavian24/primariata.work" target="_blank">GitHub</a>
+        <a href="https://primariata.work" target="_blank">Live Demo</a>
+        <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+          <i id="theme-icon-moon" data-lucide="moon"></i>
+          <i id="theme-icon-sun" data-lucide="sun"></i>
+        </button>
+      </nav>
     </header>
 
     <!-- Main Container -->
     <div class="container">
-        <!-- Hero -->
-        <section class="hero">
-            <h1>Documentation Hub</h1>
-            <p>Ghid complet pentru prezentare, evaluare și utilizare a platformei primăria<span style="color: oklch(0.712 0.194 13.428); font-weight: 700;">Ta</span>❤️<span style="opacity: 0.7;">_</span></p>
-            <div class="hero-actions">
-                <a href="viewer.html?doc=01-Prezentare/README.md" class="btn btn-primary">
-                    📖 Start Reading
-                </a>
-                <a href="https://github.com/mihaigoctavian24/primariata.work" class="btn btn-secondary" target="_blank">
-                    💻 View on GitHub
-                </a>
-            </div>
-        </section>
-
-        <!-- Stats -->
-        <div class="stats">
-            <div class="stat-card">
-                <i data-lucide="check-circle" class="stat-icon"></i>
-                <div class="stat-value">72%</div>
-                <div class="stat-label">Documentation Complete</div>
-            </div>
-            <div class="stat-card">
-                <i data-lucide="file-text" class="stat-icon"></i>
-                <div class="stat-value">18/25</div>
-                <div class="stat-label">Documents</div>
-            </div>
-            <div class="stat-card">
-                <i data-lucide="folder" class="stat-icon"></i>
-                <div class="stat-value">6</div>
-                <div class="stat-label">Categories</div>
-            </div>
-            <div class="stat-card">
-                <i data-lucide="flag" class="stat-icon"></i>
-                <div class="stat-value">Phase 4</div>
-                <div class="stat-label">Current Milestone</div>
-            </div>
+      <!-- Hero -->
+      <section class="hero">
+        <h1>Documentation Hub</h1>
+        <p>
+          Ghid complet pentru prezentare, evaluare și utilizare a platformei primăria<span
+            style="color: oklch(0.712 0.194 13.428); font-weight: 700"
+            >Ta</span
+          >❤️<span style="opacity: 0.7">_</span>
+        </p>
+        <div class="hero-actions">
+          <a href="viewer.html?doc=01-Prezentare/README.md" class="btn btn-primary">
+            📖 Start Reading
+          </a>
+          <a
+            href="https://github.com/mihaigoctavian24/primariata.work"
+            class="btn btn-secondary"
+            target="_blank"
+          >
+            💻 View on GitHub
+          </a>
         </div>
+      </section>
 
-        <!-- Documentation Timeline -->
-        <div class="timeline">
-            <h3 class="timeline-title">
-                <i data-lucide="book-open"></i>
-                Documentation Milestones
+      <!-- Stats -->
+      <div class="stats">
+        <div class="stat-card">
+          <i data-lucide="check-circle" class="stat-icon"></i>
+          <div class="stat-value">72%</div>
+          <div class="stat-label">Documentation Complete</div>
+        </div>
+        <div class="stat-card">
+          <i data-lucide="file-text" class="stat-icon"></i>
+          <div class="stat-value">18/25</div>
+          <div class="stat-label">Documents</div>
+        </div>
+        <div class="stat-card">
+          <i data-lucide="folder" class="stat-icon"></i>
+          <div class="stat-value">6</div>
+          <div class="stat-label">Categories</div>
+        </div>
+        <div class="stat-card">
+          <i data-lucide="flag" class="stat-icon"></i>
+          <div class="stat-value">Phase 4</div>
+          <div class="stat-label">Current Milestone</div>
+        </div>
+      </div>
+
+      <!-- Documentation Timeline -->
+      <div class="timeline">
+        <h3 class="timeline-title">
+          <i data-lucide="book-open"></i>
+          Documentation Milestones
+        </h3>
+        <div class="timeline-items">
+          <div class="timeline-item completed">
+            <div class="timeline-label">
+              <i data-lucide="file-text"></i>
+              Prezentare
+            </div>
+            <div class="timeline-status completed">✓ Complete · 6/6 docs</div>
+          </div>
+          <div class="timeline-item completed">
+            <div class="timeline-label">
+              <i data-lucide="clipboard-list"></i>
+              Cerințe
+            </div>
+            <div class="timeline-status completed">✓ Complete · 5/5 docs</div>
+          </div>
+          <div class="timeline-item completed">
+            <div class="timeline-label">
+              <i data-lucide="box"></i>
+              Arhitectură
+            </div>
+            <div class="timeline-status completed">✓ Complete · 6/6 docs</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-label">
+              <i data-lucide="code"></i>
+              Implementare
+            </div>
+            <div class="timeline-status">In Progress · 1/4 docs</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-label">
+              <i data-lucide="users"></i>
+              Utilizare
+            </div>
+            <div class="timeline-status">Nov 29, 2025 · 0/4 docs</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-label">
+              <i data-lucide="paperclip"></i>
+              Anexe
+            </div>
+            <div class="timeline-status">Nov 29, 2025 · 0/4 docs</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Documentation Sections -->
+      <section class="section">
+        <h2 class="section-title">Documentation Sections</h2>
+        <div class="cards-grid">
+          <!-- 01-Prezentare -->
+          <a href="viewer.html?doc=01-Prezentare/README.md" class="doc-card">
+            <div class="card-header">
+              <div class="card-title"><i data-lucide="file-text"></i> 01-Prezentare</div>
+              <span class="card-status status-complete">100%</span>
+            </div>
+            <p class="card-description">Viziunea și contextul proiectului</p>
+            <div class="card-links">
+              <span class="card-link"><i data-lucide="target"></i> Viziune & Misiune</span>
+              <span class="card-link"><i data-lucide="flag"></i> Obiective & Scopuri</span>
+              <span class="card-link"><i data-lucide="activity"></i> Status Proiect</span>
+              <span class="card-link">+3 more documents</span>
+            </div>
+          </a>
+
+          <!-- 02-Cerinte -->
+          <a href="viewer.html?doc=02-Cerinte/README.md" class="doc-card">
+            <div class="card-header">
+              <div class="card-title"><i data-lucide="clipboard-list"></i> 02-Cerinte</div>
+              <span class="card-status status-complete">100%</span>
+            </div>
+            <p class="card-description">Specificații funcționale și tehnice</p>
+            <div class="card-links">
+              <span class="card-link"><i data-lucide="check-square"></i> Cerințe Funcționale</span>
+              <span class="card-link"
+                ><i data-lucide="shield-check"></i> Cerințe Nefuncționale</span
+              >
+              <span class="card-link"><i data-lucide="workflow"></i> Cazuri de Utilizare</span>
+              <span class="card-link">+2 more documents</span>
+            </div>
+          </a>
+
+          <!-- 03-Arhitectura -->
+          <a href="viewer.html?doc=03-Arhitectura/README.md" class="doc-card">
+            <div class="card-header">
+              <div class="card-title"><i data-lucide="layout"></i> 03-Arhitectura</div>
+              <span class="card-status status-complete">100%</span>
+            </div>
+            <p class="card-description">Design sistem și infrastructură</p>
+            <div class="card-links">
+              <span class="card-link"><i data-lucide="box"></i> Arhitectură Generală</span>
+              <span class="card-link"><i data-lucide="database"></i> Bază de Date</span>
+              <span class="card-link"><i data-lucide="shield"></i> Securitate</span>
+              <span class="card-link">+3 more documents</span>
+            </div>
+          </a>
+
+          <!-- 04-Implementare -->
+          <a href="viewer.html?doc=04-Implementare/README.md" class="doc-card">
+            <div class="card-header">
+              <div class="card-title"><i data-lucide="code"></i> 04-Implementare</div>
+              <span class="card-status status-partial">25%</span>
+            </div>
+            <p class="card-description">Stack tehnologic și development</p>
+            <div class="card-links">
+              <span class="card-link"><i data-lucide="layers"></i> Stack Tehnologic</span>
+              <span class="card-link"><i data-lucide="settings"></i> Setup Development (WIP)</span>
+              <span class="card-link"><i data-lucide="git-branch"></i> Workflow (WIP)</span>
+              <span class="card-link">Deadline: Nov 29, 2025</span>
+            </div>
+          </a>
+
+          <!-- 05-Utilizare -->
+          <a href="viewer.html?doc=05-Utilizare/README.md" class="doc-card">
+            <div class="card-header">
+              <div class="card-title"><i data-lucide="book"></i> 05-Utilizare</div>
+              <span class="card-status status-todo">0%</span>
+            </div>
+            <p class="card-description">Ghiduri pentru utilizatori</p>
+            <div class="card-links">
+              <span class="card-link"><i data-lucide="user"></i> Ghid Cetățean (TODO)</span>
+              <span class="card-link"><i data-lucide="briefcase"></i> Ghid Funcționar (TODO)</span>
+              <span class="card-link"
+                ><i data-lucide="settings"></i> Ghid Administrator (TODO)</span
+              >
+              <span class="card-link">Deadline: Nov 29, 2025</span>
+            </div>
+          </a>
+
+          <!-- 06-Anexe -->
+          <a href="viewer.html?doc=06-Anexe/README.md" class="doc-card">
+            <div class="card-header">
+              <div class="card-title"><i data-lucide="paperclip"></i> 06-Anexe</div>
+              <span class="card-status status-todo">0%</span>
+            </div>
+            <p class="card-description">Materiale suplimentare</p>
+            <div class="card-links">
+              <span class="card-link"><i data-lucide="book-open"></i> Glossar (TODO)</span>
+              <span class="card-link"><i data-lucide="link"></i> Referințe (TODO)</span>
+              <span class="card-link"><i data-lucide="users"></i> Contributori (TODO)</span>
+              <span class="card-link">Deadline: Nov 29, 2025</span>
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <!-- Quick Links -->
+      <section class="section">
+        <h2 class="section-title">Quick Links</h2>
+        <div class="cards-grid">
+          <a href="https://primariata.work" class="doc-card" target="_blank">
+            <div class="card-title"><i data-lucide="rocket"></i> Live Demo</div>
+            <p class="card-description">Try the live application</p>
+          </a>
+          <a
+            href="https://github.com/mihaigoctavian24/primariata.work"
+            class="doc-card"
+            target="_blank"
+          >
+            <div class="card-title"><i data-lucide="github"></i> GitHub Repository</div>
+            <p class="card-description">View source code</p>
+          </a>
+          <a href="viewer.html?doc=01-Prezentare/Echipa-si-Roluri.md" class="doc-card">
+            <div class="card-title"><i data-lucide="users"></i> Team & Roles</div>
+            <p class="card-description">Meet the development team</p>
+          </a>
+        </div>
+      </section>
+
+      <!-- Contribution Heatmap -->
+      <div class="heatmap">
+        <div class="heatmap-wrapper">
+          <!-- Title -->
+          <div class="heatmap-title-area">
+            <h3 class="heatmap-title">
+              <i data-lucide="activity"></i>
+              Development Activity (Last 2 Weeks)
             </h3>
-            <div class="timeline-items">
-                <div class="timeline-item completed">
-                    <div class="timeline-label">
-                        <i data-lucide="file-text"></i>
-                        Prezentare
-                    </div>
-                    <div class="timeline-status completed">✓ Complete · 6/6 docs</div>
-                </div>
-                <div class="timeline-item completed">
-                    <div class="timeline-label">
-                        <i data-lucide="clipboard-list"></i>
-                        Cerințe
-                    </div>
-                    <div class="timeline-status completed">✓ Complete · 5/5 docs</div>
-                </div>
-                <div class="timeline-item completed">
-                    <div class="timeline-label">
-                        <i data-lucide="box"></i>
-                        Arhitectură
-                    </div>
-                    <div class="timeline-status completed">✓ Complete · 6/6 docs</div>
-                </div>
-                <div class="timeline-item">
-                    <div class="timeline-label">
-                        <i data-lucide="code"></i>
-                        Implementare
-                    </div>
-                    <div class="timeline-status">In Progress · 1/4 docs</div>
-                </div>
-                <div class="timeline-item">
-                    <div class="timeline-label">
-                        <i data-lucide="users"></i>
-                        Utilizare
-                    </div>
-                    <div class="timeline-status">Nov 29, 2025 · 0/4 docs</div>
-                </div>
-                <div class="timeline-item">
-                    <div class="timeline-label">
-                        <i data-lucide="paperclip"></i>
-                        Anexe
-                    </div>
-                    <div class="timeline-status">Nov 29, 2025 · 0/4 docs</div>
-                </div>
+          </div>
+
+          <!-- Left Labels -->
+          <div class="heatmap-legend-left">
+            <div>Week 1</div>
+            <div>Week 2</div>
+          </div>
+
+          <!-- Heatmap Grid -->
+          <div class="heatmap-container">
+            <div class="heatmap-week" id="heatmap-week-1">
+              <!-- Generated by JavaScript -->
             </div>
+            <div class="heatmap-week" id="heatmap-week-2">
+              <!-- Generated by JavaScript -->
+            </div>
+          </div>
+
+          <!-- Footer with Legend and Stats -->
+          <div class="heatmap-footer">
+            <div class="heatmap-legend">
+              <span>Less</span>
+              <div class="heatmap-legend-item level-0"></div>
+              <div class="heatmap-legend-item level-1"></div>
+              <div class="heatmap-legend-item level-2"></div>
+              <div class="heatmap-legend-item level-3"></div>
+              <div class="heatmap-legend-item level-4"></div>
+              <div class="heatmap-legend-item level-5"></div>
+              <div class="heatmap-legend-item level-6"></div>
+              <span>More</span>
+            </div>
+            <div class="heatmap-summary" id="heatmap-summary">Loading...</div>
+          </div>
         </div>
-
-        <!-- Documentation Sections -->
-        <section class="section">
-            <h2 class="section-title">Documentation Sections</h2>
-            <div class="cards-grid">
-                <!-- 01-Prezentare -->
-                <a href="viewer.html?doc=01-Prezentare/README.md" class="doc-card">
-                    <div class="card-header">
-                        <div class="card-title">
-                            <i data-lucide="file-text"></i> 01-Prezentare
-                        </div>
-                        <span class="card-status status-complete">100%</span>
-                    </div>
-                    <p class="card-description">Viziunea și contextul proiectului</p>
-                    <div class="card-links">
-                        <span class="card-link"><i data-lucide="target"></i> Viziune & Misiune</span>
-                        <span class="card-link"><i data-lucide="flag"></i> Obiective & Scopuri</span>
-                        <span class="card-link"><i data-lucide="activity"></i> Status Proiect</span>
-                        <span class="card-link">+3 more documents</span>
-                    </div>
-                </a>
-
-                <!-- 02-Cerinte -->
-                <a href="viewer.html?doc=02-Cerinte/README.md" class="doc-card">
-                    <div class="card-header">
-                        <div class="card-title">
-                            <i data-lucide="clipboard-list"></i> 02-Cerinte
-                        </div>
-                        <span class="card-status status-complete">100%</span>
-                    </div>
-                    <p class="card-description">Specificații funcționale și tehnice</p>
-                    <div class="card-links">
-                        <span class="card-link"><i data-lucide="check-square"></i> Cerințe Funcționale</span>
-                        <span class="card-link"><i data-lucide="shield-check"></i> Cerințe Nefuncționale</span>
-                        <span class="card-link"><i data-lucide="workflow"></i> Cazuri de Utilizare</span>
-                        <span class="card-link">+2 more documents</span>
-                    </div>
-                </a>
-
-                <!-- 03-Arhitectura -->
-                <a href="viewer.html?doc=03-Arhitectura/README.md" class="doc-card">
-                    <div class="card-header">
-                        <div class="card-title">
-                            <i data-lucide="layout"></i> 03-Arhitectura
-                        </div>
-                        <span class="card-status status-complete">100%</span>
-                    </div>
-                    <p class="card-description">Design sistem și infrastructură</p>
-                    <div class="card-links">
-                        <span class="card-link"><i data-lucide="box"></i> Arhitectură Generală</span>
-                        <span class="card-link"><i data-lucide="database"></i> Bază de Date</span>
-                        <span class="card-link"><i data-lucide="shield"></i> Securitate</span>
-                        <span class="card-link">+3 more documents</span>
-                    </div>
-                </a>
-
-                <!-- 04-Implementare -->
-                <a href="viewer.html?doc=04-Implementare/README.md" class="doc-card">
-                    <div class="card-header">
-                        <div class="card-title">
-                            <i data-lucide="code"></i> 04-Implementare
-                        </div>
-                        <span class="card-status status-partial">25%</span>
-                    </div>
-                    <p class="card-description">Stack tehnologic și development</p>
-                    <div class="card-links">
-                        <span class="card-link"><i data-lucide="layers"></i> Stack Tehnologic</span>
-                        <span class="card-link"><i data-lucide="settings"></i> Setup Development (WIP)</span>
-                        <span class="card-link"><i data-lucide="git-branch"></i> Workflow (WIP)</span>
-                        <span class="card-link">Deadline: Nov 29, 2025</span>
-                    </div>
-                </a>
-
-                <!-- 05-Utilizare -->
-                <a href="viewer.html?doc=05-Utilizare/README.md" class="doc-card">
-                    <div class="card-header">
-                        <div class="card-title">
-                            <i data-lucide="book"></i> 05-Utilizare
-                        </div>
-                        <span class="card-status status-todo">0%</span>
-                    </div>
-                    <p class="card-description">Ghiduri pentru utilizatori</p>
-                    <div class="card-links">
-                        <span class="card-link"><i data-lucide="user"></i> Ghid Cetățean (TODO)</span>
-                        <span class="card-link"><i data-lucide="briefcase"></i> Ghid Funcționar (TODO)</span>
-                        <span class="card-link"><i data-lucide="settings"></i> Ghid Administrator (TODO)</span>
-                        <span class="card-link">Deadline: Nov 29, 2025</span>
-                    </div>
-                </a>
-
-                <!-- 06-Anexe -->
-                <a href="viewer.html?doc=06-Anexe/README.md" class="doc-card">
-                    <div class="card-header">
-                        <div class="card-title">
-                            <i data-lucide="paperclip"></i> 06-Anexe
-                        </div>
-                        <span class="card-status status-todo">0%</span>
-                    </div>
-                    <p class="card-description">Materiale suplimentare</p>
-                    <div class="card-links">
-                        <span class="card-link"><i data-lucide="book-open"></i> Glossar (TODO)</span>
-                        <span class="card-link"><i data-lucide="link"></i> Referințe (TODO)</span>
-                        <span class="card-link"><i data-lucide="users"></i> Contributori (TODO)</span>
-                        <span class="card-link">Deadline: Nov 29, 2025</span>
-                    </div>
-                </a>
-            </div>
-        </section>
-
-        <!-- Quick Links -->
-        <section class="section">
-            <h2 class="section-title">Quick Links</h2>
-            <div class="cards-grid">
-                <a href="https://primariata.work" class="doc-card" target="_blank">
-                    <div class="card-title"><i data-lucide="rocket"></i> Live Demo</div>
-                    <p class="card-description">Try the live application</p>
-                </a>
-                <a href="https://github.com/mihaigoctavian24/primariata.work" class="doc-card" target="_blank">
-                    <div class="card-title"><i data-lucide="github"></i> GitHub Repository</div>
-                    <p class="card-description">View source code</p>
-                </a>
-                <a href="viewer.html?doc=01-Prezentare/Echipa-si-Roluri.md" class="doc-card">
-                    <div class="card-title"><i data-lucide="users"></i> Team & Roles</div>
-                    <p class="card-description">Meet the development team</p>
-                </a>
-            </div>
-        </section>
-
-        <!-- Contribution Heatmap -->
-        <div class="heatmap">
-            <div class="heatmap-wrapper">
-                <!-- Title -->
-                <div class="heatmap-title-area">
-                    <h3 class="heatmap-title">
-                        <i data-lucide="activity"></i>
-                        Development Activity (Last 2 Weeks)
-                    </h3>
-                </div>
-
-                <!-- Left Labels -->
-                <div class="heatmap-legend-left">
-                    <div>Week 1</div>
-                    <div>Week 2</div>
-                </div>
-
-                <!-- Heatmap Grid -->
-                <div class="heatmap-container">
-                    <div class="heatmap-week" id="heatmap-week-1">
-                        <!-- Generated by JavaScript -->
-                    </div>
-                    <div class="heatmap-week" id="heatmap-week-2">
-                        <!-- Generated by JavaScript -->
-                    </div>
-                </div>
-
-                <!-- Footer with Legend and Stats -->
-                <div class="heatmap-footer">
-                    <div class="heatmap-legend">
-                        <span>Less</span>
-                        <div class="heatmap-legend-item level-0"></div>
-                        <div class="heatmap-legend-item level-1"></div>
-                        <div class="heatmap-legend-item level-2"></div>
-                        <div class="heatmap-legend-item level-3"></div>
-                        <div class="heatmap-legend-item level-4"></div>
-                        <div class="heatmap-legend-item level-5"></div>
-                        <div class="heatmap-legend-item level-6"></div>
-                        <span>More</span>
-                    </div>
-                    <div class="heatmap-summary" id="heatmap-summary">Loading...</div>
-                </div>
-            </div>
-        </div>
+      </div>
     </div>
 
     <!-- Footer -->
     <footer class="footer">
-        <p>© 2025-2026 Bubu & Dudu Dev Team • <a href="https://github.com/mihaigoctavian24/primariata.work">GitHub</a> • Made with ❤️ for the community</p>
-        <p style="margin-top: 8px;">Last updated: October 30, 2025 • Next milestone: November 29, 2025</p>
+      <p>
+        © 2025-2026 Bubu & Dudu Dev Team •
+        <a href="https://github.com/mihaigoctavian24/primariata.work">GitHub</a> • Made with ❤️ for
+        the community
+      </p>
+      <p style="margin-top: 8px">
+        Last updated: October 30, 2025 • Next milestone: November 29, 2025
+      </p>
     </footer>
 
     <script>
-        // Theme Toggle - setup BEFORE Lucide initialization
-        const html = document.documentElement;
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        html.setAttribute('data-theme', savedTheme);
+      // Theme Toggle - setup BEFORE Lucide initialization
+      const html = document.documentElement;
+      const savedTheme = localStorage.getItem("theme") || "light";
+      html.setAttribute("data-theme", savedTheme);
 
-        // Initialize Lucide icons
-        lucide.createIcons();
+      // Initialize Lucide icons
+      lucide.createIcons();
 
-        // Get SVG elements created by Lucide (they replace the <i> tags)
-        const moonSvg = document.querySelector('svg[data-lucide="moon"]');
-        const sunSvg = document.querySelector('svg[data-lucide="sun"]');
+      // Get SVG elements created by Lucide (they replace the <i> tags)
+      const moonSvg = document.querySelector('svg[data-lucide="moon"]');
+      const sunSvg = document.querySelector('svg[data-lucide="sun"]');
 
-        // Show correct icon based on saved theme
-        // If dark theme, show sun icon (to switch to light)
-        // If light theme, show moon icon (to switch to dark)
-        if (savedTheme === 'dark') {
-            moonSvg.classList.add('hidden');
-            sunSvg.classList.remove('hidden');
+      // Show correct icon based on saved theme
+      // If dark theme, show sun icon (to switch to light)
+      // If light theme, show moon icon (to switch to dark)
+      if (savedTheme === "dark") {
+        moonSvg.classList.add("hidden");
+        sunSvg.classList.remove("hidden");
+      } else {
+        sunSvg.classList.add("hidden");
+        moonSvg.classList.remove("hidden");
+      }
+
+      function toggleTheme() {
+        const current = html.getAttribute("data-theme");
+        const next = current === "dark" ? "light" : "dark";
+        html.setAttribute("data-theme", next);
+        localStorage.setItem("theme", next);
+
+        // Toggle icon visibility
+        // If switching to dark, show sun icon (to switch back to light)
+        // If switching to light, show moon icon (to switch back to dark)
+        if (next === "dark") {
+          moonSvg.classList.add("hidden");
+          sunSvg.classList.remove("hidden");
         } else {
-            sunSvg.classList.add('hidden');
-            moonSvg.classList.remove('hidden');
+          sunSvg.classList.add("hidden");
+          moonSvg.classList.remove("hidden");
+        }
+      }
+
+      // Generate Heatmap from Git data (Last 2 weeks)
+      async function generateHeatmap() {
+        const week1Grid = document.getElementById("heatmap-week-1");
+        const week2Grid = document.getElementById("heatmap-week-2");
+        const summary = document.getElementById("heatmap-summary");
+        const today = new Date();
+        const startDate = new Date(today);
+        startDate.setDate(startDate.getDate() - 13); // Last 14 days
+
+        const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+        let activityData = {};
+        let totalCommits = 0;
+
+        try {
+          // Fetch git commit data from GitHub API
+          const response = await fetch(
+            "https://api.github.com/repos/mihaigoctavian24/primariata.work/commits?per_page=100"
+          );
+          const commits = await response.json();
+
+          // Process commits into daily activity (last 2 weeks only)
+          commits.forEach((commit) => {
+            const date = new Date(commit.commit.author.date);
+            const dateStr = date.toISOString().split("T")[0];
+
+            // Only count if within last 14 days
+            const commitDate = new Date(dateStr);
+            if (commitDate >= startDate && commitDate <= today) {
+              activityData[dateStr] = (activityData[dateStr] || 0) + 1;
+              totalCommits++;
+            }
+          });
+        } catch (error) {
+          console.warn("Could not fetch git data:", error);
+          summary.textContent = "Unable to load activity data";
         }
 
-        function toggleTheme() {
-            const current = html.getAttribute('data-theme');
-            const next = current === 'dark' ? 'light' : 'dark';
-            html.setAttribute('data-theme', next);
-            localStorage.setItem('theme', next);
+        // Normalize activity levels to 0-6 scale (more granular colors)
+        const maxActivity = Math.max(...Object.values(activityData), 1);
+        const normalizedData = {};
+        Object.keys(activityData).forEach((date) => {
+          const rawLevel = activityData[date];
+          normalizedData[date] = Math.min(Math.ceil((rawLevel / maxActivity) * 6), 6);
+        });
 
-            // Toggle icon visibility
-            // If switching to dark, show sun icon (to switch back to light)
-            // If switching to light, show moon icon (to switch back to dark)
-            if (next === 'dark') {
-                moonSvg.classList.add('hidden');
-                sunSvg.classList.remove('hidden');
-            } else {
-                sunSvg.classList.add('hidden');
-                moonSvg.classList.remove('hidden');
-            }
+        // Create cells for 14 days (2 weeks) - 7 days per week
+        for (let i = 0; i < 14; i++) {
+          const date = new Date(startDate);
+          date.setDate(date.getDate() + i);
+          const dateStr = date.toISOString().split("T")[0];
+          const level = normalizedData[dateStr] || 0;
+          const count = activityData[dateStr] || 0;
+          const dayName = dayNames[date.getDay()];
+
+          const cell = document.createElement("div");
+          cell.className = `heatmap-cell level-${level}`;
+          cell.title = `${dayName}, ${dateStr}: ${count} commit${count !== 1 ? "s" : ""}`;
+          cell.textContent = dayName.substring(0, 1); // First letter (S, M, T, W, T, F, S)
+
+          // First 7 days go to week 1, next 7 to week 2
+          if (i < 7) {
+            week1Grid.appendChild(cell);
+          } else {
+            week2Grid.appendChild(cell);
+          }
         }
 
-        // Generate Heatmap from Git data (Last 2 weeks)
-        async function generateHeatmap() {
-            const week1Grid = document.getElementById('heatmap-week-1');
-            const week2Grid = document.getElementById('heatmap-week-2');
-            const summary = document.getElementById('heatmap-summary');
-            const today = new Date();
-            const startDate = new Date(today);
-            startDate.setDate(startDate.getDate() - 13); // Last 14 days
+        // Update summary
+        const activeDays = Object.keys(activityData).length;
+        summary.textContent = `${totalCommits} commits in ${activeDays} active days`;
+      }
 
-            const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
-            let activityData = {};
-            let totalCommits = 0;
-
-            try {
-                // Fetch git commit data from GitHub API
-                const response = await fetch('https://api.github.com/repos/mihaigoctavian24/primariata.work/commits?per_page=100');
-                const commits = await response.json();
-
-                // Process commits into daily activity (last 2 weeks only)
-                commits.forEach(commit => {
-                    const date = new Date(commit.commit.author.date);
-                    const dateStr = date.toISOString().split('T')[0];
-
-                    // Only count if within last 14 days
-                    const commitDate = new Date(dateStr);
-                    if (commitDate >= startDate && commitDate <= today) {
-                        activityData[dateStr] = (activityData[dateStr] || 0) + 1;
-                        totalCommits++;
-                    }
-                });
-            } catch (error) {
-                console.warn('Could not fetch git data:', error);
-                summary.textContent = 'Unable to load activity data';
-            }
-
-            // Normalize activity levels to 0-6 scale (more granular colors)
-            const maxActivity = Math.max(...Object.values(activityData), 1);
-            const normalizedData = {};
-            Object.keys(activityData).forEach(date => {
-                const rawLevel = activityData[date];
-                normalizedData[date] = Math.min(Math.ceil((rawLevel / maxActivity) * 6), 6);
-            });
-
-            // Create cells for 14 days (2 weeks) - 7 days per week
-            for (let i = 0; i < 14; i++) {
-                const date = new Date(startDate);
-                date.setDate(date.getDate() + i);
-                const dateStr = date.toISOString().split('T')[0];
-                const level = normalizedData[dateStr] || 0;
-                const count = activityData[dateStr] || 0;
-                const dayName = dayNames[date.getDay()];
-
-                const cell = document.createElement('div');
-                cell.className = `heatmap-cell level-${level}`;
-                cell.title = `${dayName}, ${dateStr}: ${count} commit${count !== 1 ? 's' : ''}`;
-                cell.textContent = dayName.substring(0, 1); // First letter (S, M, T, W, T, F, S)
-
-                // First 7 days go to week 1, next 7 to week 2
-                if (i < 7) {
-                    week1Grid.appendChild(cell);
-                } else {
-                    week2Grid.appendChild(cell);
-                }
-            }
-
-            // Update summary
-            const activeDays = Object.keys(activityData).length;
-            summary.textContent = `${totalCommits} commits in ${activeDays} active days`;
-        }
-
-        // Initialize
-        generateHeatmap();
+      // Initialize
+      generateHeatmap();
     </script>
-</body>
+  </body>
 </html>

@@ -4,6 +4,10 @@ import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { EffectComposer, EffectPass, RenderPass, Effect } from "postprocessing";
 
+// Singleton tracker to prevent multiple simultaneous instances in React Strict Mode
+let activeInstanceCount = 0;
+const MAX_INSTANCES = 1;
+
 type PixelBlastVariant = "square" | "circle" | "triangle" | "diamond";
 
 type PixelBlastProps = {
@@ -343,27 +347,27 @@ void main(){
 const MAX_CLICKS = 10;
 
 const PixelBlast: React.FC<PixelBlastProps> = ({
-  variant = "square",
-  pixelSize = 3,
+  variant = "circle",
+  pixelSize = 6,
   color = "#B19EEF",
   className,
   style,
   antialias = true,
-  patternScale = 2,
-  patternDensity = 1,
+  patternScale = 3,
+  patternDensity = 1.2,
   liquid = false,
-  liquidStrength = 0.1,
-  liquidRadius = 1,
-  pixelSizeJitter = 0,
+  liquidStrength = 0.12,
+  liquidRadius = 1.2,
+  pixelSizeJitter = 0.5,
   enableRipples = true,
-  rippleIntensityScale = 1,
-  rippleThickness = 0.1,
-  rippleSpeed = 0.3,
-  liquidWobbleSpeed = 4.5,
+  rippleIntensityScale = 1.5,
+  rippleThickness = 0.12,
+  rippleSpeed = 0.4,
+  liquidWobbleSpeed = 5,
   autoPauseOffscreen = true,
-  speed = 0.5,
+  speed = 0.6,
   transparent = true,
-  edgeFade = 0.5,
+  edgeFade = 0.25,
   noiseAmount = 0,
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -427,10 +431,19 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
       console.log("PixelBlast: No container found");
       return;
     }
+
+    // Singleton protection: prevent multiple instances in React Strict Mode
+    if (activeInstanceCount >= MAX_INSTANCES) {
+      console.log("PixelBlast: Skipping initialization - instance already active");
+      return;
+    }
+
+    activeInstanceCount++;
     console.log("PixelBlast: Initializing with dimensions:", {
       width: container.clientWidth,
       height: container.clientHeight,
       rect: container.getBoundingClientRect(),
+      instanceCount: activeInstanceCount,
     });
     speedRef.current = speed;
     const needsReinitKeys = ["antialias", "liquid", "noiseAmount"];
@@ -476,8 +489,9 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
         console.error("PixelBlast: Failed to create WebGL renderer", error);
         return;
       }
-      renderer.domElement.style.width = "100%";
-      renderer.domElement.style.height = "100%";
+      renderer.domElement.style.position = "absolute";
+      renderer.domElement.style.top = "0";
+      renderer.domElement.style.left = "0";
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
       container.appendChild(renderer.domElement);
       const uniforms = {
@@ -674,6 +688,12 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
     // Note: Updates to uniforms are handled in the separate useEffect below
     prevConfigRef.current = cfg;
     return () => {
+      // Decrement instance counter
+      if (activeInstanceCount > 0) {
+        activeInstanceCount--;
+        console.log("PixelBlast: Cleanup - instance count:", activeInstanceCount);
+      }
+
       // Always run cleanup to prevent memory leaks
       if (!threeRef.current) return;
       const t = threeRef.current;

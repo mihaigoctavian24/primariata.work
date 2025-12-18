@@ -1,10 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useTheme } from "next-themes";
-import { useState, useEffect } from "react";
 import TextType from "@/components/TextType";
-import PixelBlast from "@/components/ui/PixelBlast";
 
 /**
  * AuthLayout Component
@@ -117,39 +114,9 @@ export function AuthLayout({
   heroContent,
   className = "",
 }: AuthLayoutProps) {
-  const { resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // Get PixelBlast color based on theme
-  const pixelBlastColor = mounted && resolvedTheme === "dark" ? "#90a1b9" : "#e2e8f0";
-
   return (
     <div className={`relative min-h-screen ${className}`}>
-      {/* PixelBlast Animated Background - client-side only */}
-      {mounted && (
-        <div className="fixed inset-0 -z-10" aria-hidden="true">
-          <PixelBlast
-            variant="triangle"
-            pixelSize={6}
-            color={pixelBlastColor}
-            patternScale={1.75}
-            patternDensity={1}
-            pixelSizeJitter={0}
-            enableRipples
-            rippleSpeed={0.3}
-            rippleThickness={0.1}
-            rippleIntensityScale={1}
-            liquid={false}
-            speed={0.5}
-            edgeFade={0.25}
-            transparent={true}
-          />
-        </div>
-      )}
+      {/* PixelBlast background now handled by GlobalPixelBlast in app/layout.tsx */}
 
       {/* Main Content Area */}
       <main className="relative z-10 flex min-h-screen items-center justify-center px-4 py-8">

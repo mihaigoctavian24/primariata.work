@@ -64,6 +64,7 @@ const config: Config = {
         },
       },
       fontFamily: {
+        montreal: ["var(--font-montreal)", "Inter", "system-ui", "sans-serif"],
         sans: [
           "var(--font-geist-sans)",
           "Inter",
