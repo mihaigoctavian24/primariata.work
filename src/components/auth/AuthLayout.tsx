@@ -116,8 +116,6 @@ export function AuthLayout({
 }: AuthLayoutProps) {
   return (
     <div className={`relative min-h-screen ${className}`}>
-      {/* PixelBlast background now handled by GlobalPixelBlast in app/layout.tsx */}
-
       {/* Main Content Area */}
       <main className="relative z-10 flex min-h-screen items-center justify-center px-4 py-8">
         <div className="grid w-full max-w-7xl gap-8 lg:grid-cols-5">

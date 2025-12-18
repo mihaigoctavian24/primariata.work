@@ -263,8 +263,6 @@ export function HeroSection({ scrollContainer }: HeroSectionProps = {}) {
         <ThemeToggle />
       </div>
 
-      {/* PixelBlast background now handled by GlobalPixelBlast in app/layout.tsx */}
-
       {/* Multi-Step Flow - All elements present, controlled by animations */}
       <div className="grid-container relative h-full">
         {/* Logo "primaria" blur wrapper (Layer 1: Background z-10) - responds to step - ALIGNED TO COL 6 */}
