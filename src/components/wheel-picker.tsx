@@ -110,6 +110,29 @@ function WheelPicker({
           color: ${textColor} !important;
           text-shadow: ${TEXT_SHADOW} !important;
         }
+
+        /* Increased vertical spacing on mobile for flip animation */
+        @media (max-width: 640px) {
+          [data-rwp-item] {
+            height: 60px !important;
+            line-height: 60px !important;
+            font-size: 1.125rem !important;
+          }
+          [data-rwp-highlight-wrapper] {
+            height: 60px !important;
+          }
+        }
+
+        /* Default spacing on tablet and desktop */
+        @media (min-width: 641px) {
+          [data-rwp-item] {
+            height: 48px !important;
+            line-height: 48px !important;
+          }
+          [data-rwp-highlight-wrapper] {
+            height: 48px !important;
+          }
+        }
       `}</style>
     );
   }, [selectorBg, textColor]);
