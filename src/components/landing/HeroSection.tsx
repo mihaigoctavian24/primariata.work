@@ -40,6 +40,15 @@ export function HeroSection({ scrollContainer }: HeroSectionProps = {}) {
   const [step2HeartbeatActive, setStep2HeartbeatActive] = useState(false);
   const [searchInputLength, setSearchInputLength] = useState(0);
 
+  // Mobile detection for responsive layout
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
   // State for Ta/Mea/Noastră cycling animation
   const [taText, setTaText] = useState<"Ta" | "Mea" | "Noastră">("Ta");
   const [triggerAnimation, setTriggerAnimation] = useState(0);
@@ -265,10 +274,13 @@ export function HeroSection({ scrollContainer }: HeroSectionProps = {}) {
 
       {/* Multi-Step Flow - All elements present, controlled by animations */}
       <div className="grid-container relative h-full">
-        {/* Logo "primaria" blur wrapper (Layer 1: Background z-10) - responds to step - ALIGNED TO COL 6 */}
+        {/* Logo "primaria" blur wrapper (Layer 1: Background z-10) - responds to step - LEFT ON MOBILE, CENTERED ON DESKTOP */}
         <motion.div
-          className="absolute top-[38%] z-10 col-start-6 -translate-y-1/2"
-          style={{ marginLeft: "-8px" }}
+          className="absolute z-10 -translate-y-1/2"
+          style={{
+            top: isMobile ? "38%" : "32%",
+            marginLeft: isMobile ? "0" : "41.67%",
+          }}
           initial={{ opacity: 1, filter: "blur(0px)" }}
           animate={
             step === 2
@@ -289,12 +301,13 @@ export function HeroSection({ scrollContainer }: HeroSectionProps = {}) {
           </HyperText>
         </motion.div>
 
-        {/* Logo "Ta❤️" blur wrapper (Layer 1: Background z-10) - responds to step - ALIGNED TO COL 6 */}
+        {/* Logo "Ta❤️" blur wrapper (Layer 1: Background z-10) - responds to step - LEFT ON MOBILE, CENTERED ON DESKTOP */}
         <motion.div
-          className="absolute top-[38%] z-10 col-start-6"
+          className="absolute z-10"
           style={{
-            marginTop: "5rem",
-            marginLeft: taText === "Ta" ? "-1px" : "-10px",
+            top: isMobile ? "38%" : "32%",
+            marginLeft: isMobile ? "0" : "41.67%",
+            marginTop: isMobile ? "3rem" : "5rem",
           }}
           initial={{ opacity: 1, filter: "blur(0px)" }}
           animate={
@@ -361,7 +374,7 @@ export function HeroSection({ scrollContainer }: HeroSectionProps = {}) {
           </div>
         </motion.div>
 
-        {/* Subtitle (Layer 2: Middle z-20) - ALIGNED TO COL 6 */}
+        {/* Subtitle (Layer 2: Middle z-20) - LEFT ON MOBILE, CENTERED ON DESKTOP */}
         <motion.div
           initial={{ opacity: 1, y: 0 }}
           animate={
@@ -370,8 +383,12 @@ export function HeroSection({ scrollContainer }: HeroSectionProps = {}) {
               : { opacity: 1, y: 0 } // Visible on STEP 1
           }
           transition={{ duration: 0.5, ease: "easeInOut" }}
-          className="absolute top-[66%] z-20 col-start-6"
-          style={{ filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))" }}
+          className="absolute z-20"
+          style={{
+            top: isMobile ? "58%" : "60%",
+            marginLeft: isMobile ? "0" : "41.67%",
+            filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))",
+          }}
         >
           <p className="text-muted-foreground font-montreal text-[0.9rem] font-medium sm:text-[1rem] md:text-[1.2rem] lg:text-[1.44rem]">
             Bine ai venit la Primăria ta digitală.
@@ -386,7 +403,7 @@ export function HeroSection({ scrollContainer }: HeroSectionProps = {}) {
         </motion.div>
 
         {/* Content container - appears below logo and subtitle */}
-        <div className="relative col-span-12 pt-[80vh] text-center">
+        <div className="relative col-span-12 pt-[70vh] text-center">
           {/* CTA Button (Layer 4: Top z-40) - moves down in STEP 2, always clickable */}
           <motion.div
             ref={buttonRef}
@@ -467,7 +484,7 @@ export function HeroSection({ scrollContainer }: HeroSectionProps = {}) {
             </motion.div>
           </motion.div>
 
-          {/* Stats Section (Layer 2: Middle z-20) - Positioned in column 1 */}
+          {/* Stats Section (Layer 2: Middle z-20) - RIGHT ON MOBILE, LEFT ON DESKTOP */}
           <motion.div
             ref={statsRef}
             initial={{ opacity: 1, y: 0 }}
@@ -477,14 +494,15 @@ export function HeroSection({ scrollContainer }: HeroSectionProps = {}) {
                 : { opacity: 1, y: 0, filter: "blur(0px)", scale: 1 } // Visible on STEP 1
             }
             transition={{ duration: 0.5, ease: "easeInOut" }}
-            className="absolute top-0 z-20 col-start-1 flex flex-col"
+            className="absolute top-0 z-20 flex flex-col"
             style={{
               display: "grid",
               gridTemplateColumns: "auto auto auto",
               rowGap: "4px",
               columnGap: "0",
-              marginLeft: "-8.33%",
               marginTop: "3rem",
+              right: isMobile ? "0" : "auto",
+              left: isMobile ? "auto" : "0",
             }}
           >
             {stats.map((stat) => (

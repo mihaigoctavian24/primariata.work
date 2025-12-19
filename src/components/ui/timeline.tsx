@@ -24,31 +24,52 @@ function TimelineItemContent({
   scrollContainer?: React.RefObject<HTMLElement>;
 }) {
   const itemRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect mobile (< 768px) on mount and resize
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   const { scrollYProgress } = useScroll({
     target: itemRef,
     container: scrollContainer,
-    offset: ["start end", "end start"],
+    offset: isMobile ? ["start 70%", "end start"] : ["start end", "end start"],
   });
 
-  // Phase 1: rotateX 90deg → 0deg (flat to upright) - delayed to 40-70%
-  const rotateX = useTransform(scrollYProgress, [0.4, 0.7], [90, 0]);
+  // Phase 1: rotateX 90deg → 0deg (flat to upright) - earlier on MOBILE ONLY
+  const rotateX = useTransform(scrollYProgress, isMobile ? [0.2, 0.5] : [0.4, 0.7], [90, 0]);
 
-  // Phase 2: scale up - happens after flip starts (limited to 1.16 max, shrinks to 0.936)
-  const scale = useTransform(scrollYProgress, [0.5, 0.75, 0.85], [0.8, 1.16, 1]);
+  // Phase 2: scale up - happens after flip starts (limited to 1.16 max, shrinks to 0.936) - earlier on MOBILE ONLY
+  const scale = useTransform(
+    scrollYProgress,
+    isMobile ? [0.3, 0.55, 0.65] : [0.5, 0.75, 0.85],
+    [0.8, 1.16, 1]
+  );
 
-  // Phase 3: translateY (move up) - at the end
-  const translateY = useTransform(scrollYProgress, [0.8, 1], [0, -50]);
+  // Phase 3: translateY (move up) - earlier on MOBILE ONLY
+  const translateY = useTransform(scrollYProgress, isMobile ? [0.6, 0.8] : [0.8, 1], [0, -50]);
 
-  // Header animation - emerges as image reaches full expansion
-  const headerOpacity = useTransform(scrollYProgress, [0.5, 0.75], [0, 1]);
-  const headerTranslateY = useTransform(scrollYProgress, [0.5, 0.75], [20, 0]);
+  // Header animation - emerges as image reaches full expansion - earlier on MOBILE ONLY
+  const headerOpacity = useTransform(scrollYProgress, isMobile ? [0.3, 0.55] : [0.5, 0.75], [0, 1]);
+  const headerTranslateY = useTransform(
+    scrollYProgress,
+    isMobile ? [0.3, 0.55] : [0.5, 0.75],
+    [20, 0]
+  );
 
-  // Description opacity (appears together with header)
-  const descriptionOpacity = useTransform(scrollYProgress, [0.5, 0.75], [0, 1]);
+  // Description opacity (appears together with header) - earlier on MOBILE ONLY
+  const descriptionOpacity = useTransform(
+    scrollYProgress,
+    isMobile ? [0.3, 0.55] : [0.5, 0.75],
+    [0, 1]
+  );
 
-  // Image fade-in effect (starts earlier, smooth appearance)
-  const imageOpacity = useTransform(scrollYProgress, [0.3, 0.6], [0, 1]);
+  // Image fade-in effect (starts earlier, smooth appearance) - earlier on MOBILE ONLY
+  const imageOpacity = useTransform(scrollYProgress, isMobile ? [0.1, 0.4] : [0.3, 0.6], [0, 1]);
 
   return (
     <div ref={itemRef} className="relative w-full pr-4 pl-20 md:pl-4">
@@ -110,10 +131,28 @@ export const Timeline = ({
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
+    const updateHeight = () => {
+      if (ref.current) {
+        const rect = ref.current.getBoundingClientRect();
+        setHeight(rect.height);
+      }
+    };
+
+    updateHeight();
+
+    // Recalculate height on window resize
+    window.addEventListener("resize", updateHeight);
+
+    // Use ResizeObserver to detect content changes
+    const resizeObserver = new ResizeObserver(updateHeight);
     if (ref.current) {
-      const rect = ref.current.getBoundingClientRect();
-      setHeight(rect.height);
+      resizeObserver.observe(ref.current);
     }
+
+    return () => {
+      window.removeEventListener("resize", updateHeight);
+      resizeObserver.disconnect();
+    };
   }, [ref]);
 
   const { scrollYProgress } = useScroll({
@@ -155,7 +194,7 @@ export const Timeline = ({
         {data.map((item, index) => {
           const isActive = activeIndex >= index;
           return (
-            <div key={index} className="flex justify-start pt-10 md:gap-10 md:pt-40">
+            <div key={index} className="flex justify-start pt-48 md:gap-10 md:pt-40">
               <div className="sticky top-40 z-40 flex max-w-xs flex-col items-center self-start md:w-full md:flex-row lg:max-w-sm">
                 <div className="timeline-dot-outer absolute left-3 flex h-10 w-10 items-center justify-center rounded-full bg-white md:left-3 dark:bg-black">
                   <motion.div
