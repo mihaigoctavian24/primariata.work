@@ -66,8 +66,8 @@ const timelineData = [
       </div>
     ),
     images: (
-      <div className="grid grid-cols-2 gap-4">
-        <div className="relative h-32 overflow-hidden rounded-lg md:h-44">
+      <div>
+        <div className="relative h-64 overflow-hidden rounded-lg md:h-80">
           <Image
             src="/bento grid/cereri online.jpg"
             alt="Cereri Online"
@@ -112,8 +112,8 @@ const timelineData = [
       </div>
     ),
     images: (
-      <div className="grid grid-cols-2 gap-4">
-        <div className="relative h-32 overflow-hidden rounded-lg md:h-44">
+      <div>
+        <div className="relative h-64 overflow-hidden rounded-lg md:h-80">
           <Image
             src="/bento grid/traking real-time.jpg"
             alt="Tracking Real-Time"
@@ -158,8 +158,8 @@ const timelineData = [
       </div>
     ),
     images: (
-      <div className="grid grid-cols-2 gap-4">
-        <div className="relative h-32 overflow-hidden rounded-lg md:h-44">
+      <div>
+        <div className="relative h-64 overflow-hidden rounded-lg md:h-80">
           <Image
             src="/bento grid/plati digitale.jpg"
             alt="Plăți Digitale"
@@ -204,8 +204,8 @@ const timelineData = [
       </div>
     ),
     images: (
-      <div className="grid grid-cols-2 gap-4">
-        <div className="relative h-32 overflow-hidden rounded-lg md:h-44">
+      <div>
+        <div className="relative h-64 overflow-hidden rounded-lg md:h-80">
           <Image
             src="/bento grid/chat direct.jpg"
             alt="Chat Direct"
@@ -250,8 +250,8 @@ const timelineData = [
       </div>
     ),
     images: (
-      <div className="grid grid-cols-2 gap-4">
-        <div className="relative h-32 overflow-hidden rounded-lg md:h-44">
+      <div>
+        <div className="relative h-64 overflow-hidden rounded-lg md:h-80">
           <Image
             src="/bento grid/documente digitale.jpg"
             alt="Documente Digitale"
@@ -296,8 +296,8 @@ const timelineData = [
       </div>
     ),
     images: (
-      <div className="grid grid-cols-2 gap-4">
-        <div className="relative h-32 overflow-hidden rounded-lg md:h-44">
+      <div>
+        <div className="relative h-64 overflow-hidden rounded-lg md:h-80">
           <Image
             src="/bento grid/survey platform.jpg"
             alt="Survey Platform"
@@ -342,8 +342,8 @@ const timelineData = [
       </div>
     ),
     images: (
-      <div className="grid grid-cols-2 gap-4">
-        <div className="relative h-32 overflow-hidden rounded-lg md:h-44">
+      <div>
+        <div className="relative h-64 overflow-hidden rounded-lg md:h-80">
           <Image
             src="/bento grid/documentatie oficiala.jpg"
             alt="Documentație Oficială"
@@ -388,8 +388,8 @@ const timelineData = [
       </div>
     ),
     images: (
-      <div className="grid grid-cols-2 gap-4">
-        <div className="relative h-32 overflow-hidden rounded-lg md:h-44">
+      <div>
+        <div className="relative h-64 overflow-hidden rounded-lg md:h-80">
           <Image
             src="/bento grid/ai research dashboard.jpg"
             alt="AI Research Dashboard"
