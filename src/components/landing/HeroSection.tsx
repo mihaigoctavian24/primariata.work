@@ -265,10 +265,10 @@ export function HeroSection({ scrollContainer }: HeroSectionProps = {}) {
 
       {/* Multi-Step Flow - All elements present, controlled by animations */}
       <div className="grid-container relative h-full">
-        {/* Logo "primaria" blur wrapper (Layer 1: Background z-10) - responds to step - ALIGNED TO COL 6 */}
+        {/* Logo "primaria" blur wrapper (Layer 1: Background z-10) - responds to step - LEFT ALIGNED ON MOBILE, COL 6 ON DESKTOP */}
         <motion.div
-          className="absolute top-[38%] z-10 col-start-6 -translate-y-1/2"
-          style={{ marginLeft: "-8px" }}
+          className="absolute top-[38%] z-10 col-start-1 -translate-y-1/2 sm:col-start-6"
+          style={{ marginLeft: "0" }}
           initial={{ opacity: 1, filter: "blur(0px)" }}
           animate={
             step === 2
@@ -289,12 +289,12 @@ export function HeroSection({ scrollContainer }: HeroSectionProps = {}) {
           </HyperText>
         </motion.div>
 
-        {/* Logo "Ta❤️" blur wrapper (Layer 1: Background z-10) - responds to step - ALIGNED TO COL 6 */}
+        {/* Logo "Ta❤️" blur wrapper (Layer 1: Background z-10) - responds to step - LEFT ALIGNED ON MOBILE, COL 6 ON DESKTOP */}
         <motion.div
-          className="absolute top-[38%] z-10 col-start-6"
+          className="absolute top-[38%] z-10 col-start-1 sm:col-start-6"
           style={{
             marginTop: "5rem",
-            marginLeft: taText === "Ta" ? "-1px" : "-10px",
+            marginLeft: "0",
           }}
           initial={{ opacity: 1, filter: "blur(0px)" }}
           animate={
@@ -361,7 +361,7 @@ export function HeroSection({ scrollContainer }: HeroSectionProps = {}) {
           </div>
         </motion.div>
 
-        {/* Subtitle (Layer 2: Middle z-20) - ALIGNED TO COL 6 */}
+        {/* Subtitle (Layer 2: Middle z-20) - LEFT ALIGNED ON MOBILE, COL 6 ON DESKTOP */}
         <motion.div
           initial={{ opacity: 1, y: 0 }}
           animate={
@@ -370,7 +370,7 @@ export function HeroSection({ scrollContainer }: HeroSectionProps = {}) {
               : { opacity: 1, y: 0 } // Visible on STEP 1
           }
           transition={{ duration: 0.5, ease: "easeInOut" }}
-          className="absolute top-[66%] z-20 col-start-6"
+          className="absolute top-[66%] z-20 col-start-1 sm:col-start-6"
           style={{ filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))" }}
         >
           <p className="text-muted-foreground font-montreal text-[0.9rem] font-medium sm:text-[1rem] md:text-[1.2rem] lg:text-[1.44rem]">
@@ -467,7 +467,7 @@ export function HeroSection({ scrollContainer }: HeroSectionProps = {}) {
             </motion.div>
           </motion.div>
 
-          {/* Stats Section (Layer 2: Middle z-20) - Positioned in column 1 */}
+          {/* Stats Section (Layer 2: Middle z-20) - RIGHT ALIGNED ON MOBILE, COL 1 ON DESKTOP */}
           <motion.div
             ref={statsRef}
             initial={{ opacity: 1, y: 0 }}
@@ -477,13 +477,12 @@ export function HeroSection({ scrollContainer }: HeroSectionProps = {}) {
                 : { opacity: 1, y: 0, filter: "blur(0px)", scale: 1 } // Visible on STEP 1
             }
             transition={{ duration: 0.5, ease: "easeInOut" }}
-            className="absolute top-0 z-20 col-start-1 flex flex-col"
+            className="absolute top-0 right-0 z-20 flex flex-col sm:right-auto sm:left-0 sm:col-start-1"
             style={{
               display: "grid",
               gridTemplateColumns: "auto auto auto",
               rowGap: "4px",
               columnGap: "0",
-              marginLeft: "-8.33%",
               marginTop: "3rem",
             }}
           >

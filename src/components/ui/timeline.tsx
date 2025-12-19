@@ -28,27 +28,27 @@ function TimelineItemContent({
   const { scrollYProgress } = useScroll({
     target: itemRef,
     container: scrollContainer,
-    offset: ["start end", "end start"],
+    offset: ["start 70%", "end start"],
   });
 
-  // Phase 1: rotateX 90deg → 0deg (flat to upright) - delayed to 40-70%
-  const rotateX = useTransform(scrollYProgress, [0.4, 0.7], [90, 0]);
+  // Phase 1: rotateX 90deg → 0deg (flat to upright) - starts earlier on mobile
+  const rotateX = useTransform(scrollYProgress, [0.2, 0.5], [90, 0]);
 
   // Phase 2: scale up - happens after flip starts (limited to 1.16 max, shrinks to 0.936)
-  const scale = useTransform(scrollYProgress, [0.5, 0.75, 0.85], [0.8, 1.16, 1]);
+  const scale = useTransform(scrollYProgress, [0.3, 0.55, 0.65], [0.8, 1.16, 1]);
 
-  // Phase 3: translateY (move up) - at the end
-  const translateY = useTransform(scrollYProgress, [0.8, 1], [0, -50]);
+  // Phase 3: translateY (move up) - starts earlier
+  const translateY = useTransform(scrollYProgress, [0.6, 0.8], [0, -50]);
 
   // Header animation - emerges as image reaches full expansion
-  const headerOpacity = useTransform(scrollYProgress, [0.5, 0.75], [0, 1]);
-  const headerTranslateY = useTransform(scrollYProgress, [0.5, 0.75], [20, 0]);
+  const headerOpacity = useTransform(scrollYProgress, [0.3, 0.55], [0, 1]);
+  const headerTranslateY = useTransform(scrollYProgress, [0.3, 0.55], [20, 0]);
 
   // Description opacity (appears together with header)
-  const descriptionOpacity = useTransform(scrollYProgress, [0.5, 0.75], [0, 1]);
+  const descriptionOpacity = useTransform(scrollYProgress, [0.3, 0.55], [0, 1]);
 
   // Image fade-in effect (starts earlier, smooth appearance)
-  const imageOpacity = useTransform(scrollYProgress, [0.3, 0.6], [0, 1]);
+  const imageOpacity = useTransform(scrollYProgress, [0.1, 0.4], [0, 1]);
 
   return (
     <div ref={itemRef} className="relative w-full pr-4 pl-20 md:pl-4">
@@ -155,7 +155,7 @@ export const Timeline = ({
         {data.map((item, index) => {
           const isActive = activeIndex >= index;
           return (
-            <div key={index} className="flex justify-start pt-10 md:gap-10 md:pt-40">
+            <div key={index} className="flex justify-start pt-48 md:gap-10 md:pt-40">
               <div className="sticky top-40 z-40 flex max-w-xs flex-col items-center self-start md:w-full md:flex-row lg:max-w-sm">
                 <div className="timeline-dot-outer absolute left-3 flex h-10 w-10 items-center justify-center rounded-full bg-white md:left-3 dark:bg-black">
                   <motion.div
