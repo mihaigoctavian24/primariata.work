@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, useMotionTemplate } from "framer-motion";
 
 /**
  * Grid Overlay Component - 12 Column Development Grid
@@ -27,6 +27,7 @@ export function GridOverlay({ scrollContainer }: GridOverlayProps = {}) {
     container: scrollContainer,
   });
   const lineGap = useTransform(scrollY, [0, 4000], [8, 40]);
+  const lineGapPx = useMotionTemplate`${lineGap}px`;
 
   return (
     <div className="pointer-events-none fixed inset-0 z-[1] flex opacity-40">
@@ -41,7 +42,7 @@ export function GridOverlay({ scrollContainer }: GridOverlayProps = {}) {
             {/* Double dashed line separator with scroll animation */}
             <motion.div
               className="absolute top-0 right-0 flex h-full justify-between"
-              style={{ width: lineGap }}
+              style={{ width: lineGapPx, willChange: "width" }}
             >
               <div className="h-full border-r-[1px] border-dashed border-gray-600 opacity-60 dark:border-gray-400"></div>
               <div className="h-full border-r-[1px] border-dashed border-gray-600 opacity-60 dark:border-gray-400"></div>
@@ -57,7 +58,7 @@ export function GridOverlay({ scrollContainer }: GridOverlayProps = {}) {
               {/* Double dashed line separator with scroll animation */}
               <motion.div
                 className="absolute top-0 right-0 flex h-full justify-between"
-                style={{ width: lineGap }}
+                style={{ width: lineGapPx, willChange: "width" }}
               >
                 <div className="h-full border-r-[1px] border-dashed border-gray-600 opacity-60 dark:border-gray-400"></div>
                 <div className="h-full border-r-[1px] border-dashed border-gray-600 opacity-60 dark:border-gray-400"></div>
