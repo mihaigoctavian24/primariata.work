@@ -126,7 +126,7 @@ function LandingPageContent({
       {/* Hero Section - Uses current theme */}
       <div className="min-h-screen snap-start snap-always">
         <Suspense fallback={<div className="min-h-screen bg-black dark:bg-white" />}>
-          <HeroSection scrollContainer={mainRef} />
+          <HeroSection scrollContainer={mainRef} isInFeaturesSection={isInFeaturesSection} />
         </Suspense>
       </div>
 

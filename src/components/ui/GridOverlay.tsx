@@ -22,11 +22,12 @@ interface GridOverlayProps {
 }
 
 export function GridOverlay({ scrollContainer }: GridOverlayProps = {}) {
-  // Scroll-based spacing for double lines
+  // Scroll-based spacing for double lines (8px → 120px - much more visible)
+  // Use large pixel values to cover full page height (~10000px)
   const { scrollY } = useScroll({
     container: scrollContainer,
   });
-  const lineGap = useTransform(scrollY, [0, 4000], [8, 40]);
+  const lineGap = useTransform(scrollY, [0, 10000], [8, 120]);
   const lineGapPx = useMotionTemplate`${lineGap}px`;
 
   return (
