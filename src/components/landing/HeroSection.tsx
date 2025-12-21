@@ -32,9 +32,13 @@ import { HyperText } from "@/components/ui/HyperText";
 
 interface HeroSectionProps {
   scrollContainer?: React.RefObject<HTMLElement>;
+  isInFeaturesSection?: boolean;
 }
 
-export function HeroSection({ scrollContainer }: HeroSectionProps = {}) {
+export function HeroSection({
+  scrollContainer,
+  isInFeaturesSection = false,
+}: HeroSectionProps = {}) {
   const router = useRouter();
   const [step, setStep] = useState<1 | 2>(1);
   const [step2HeartbeatActive, setStep2HeartbeatActive] = useState(false);
@@ -269,7 +273,7 @@ export function HeroSection({ scrollContainer }: HeroSectionProps = {}) {
 
       {/* Theme Toggle - fixed in top right */}
       <div className="fixed top-4 right-4 z-50 sm:top-6 sm:right-6">
-        <ThemeToggle />
+        <ThemeToggle isInFeaturesSection={isInFeaturesSection} />
       </div>
 
       {/* Multi-Step Flow - All elements present, controlled by animations */}

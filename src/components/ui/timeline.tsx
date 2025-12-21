@@ -72,7 +72,7 @@ function TimelineItemContent({
   const imageOpacity = useTransform(scrollYProgress, isMobile ? [0.1, 0.4] : [0.3, 0.6], [0, 1]);
 
   return (
-    <div ref={itemRef} className="relative w-full pr-4 pl-20 md:pl-4">
+    <div ref={itemRef} className="relative z-10 w-full pr-4 pl-20 md:pl-4">
       {/* Animated wrapper for images and content */}
       <motion.div
         style={{

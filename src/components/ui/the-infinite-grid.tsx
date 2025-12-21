@@ -35,12 +35,12 @@ export const TheInfiniteGrid = ({ scrollContainer }: TheInfiniteGridProps = {}) 
   const gridOffsetX = useMotionValue(0);
   const gridOffsetY = useMotionValue(0);
 
-  // Scroll-based scale for grid squares (40px → 80px effect)
+  // Scroll-based scale for grid squares (40px → 160px effect - 4x larger)
+  // Use large pixel values to cover full page height (~10000px for typical long pages)
   const { scrollY } = useScroll({
     container: scrollContainer,
   });
-  const gridScale = useTransform(scrollY, [0, 1000], [1, 2]);
-  const gridScaleValue = useMotionTemplate`${gridScale}`;
+  const gridScale = useTransform(scrollY, [0, 10000], [1, 4]);
 
   // Animate offset - MotionValue updates don't trigger React re-renders
   useAnimationFrame(() => {
@@ -48,8 +48,13 @@ export const TheInfiniteGrid = ({ scrollContainer }: TheInfiniteGridProps = {}) 
     gridOffsetY.set((gridOffsetY.get() + speedY) % spacing);
   });
 
-  // Convert MotionValue to CSS transform template with -spacing offset to hide first row/column
-  const gridTransform = useMotionTemplate`translate(calc(${gridOffsetX}px - ${spacing}px), calc(${gridOffsetY}px - ${spacing}px)) scale(${gridScaleValue})`;
+  // ✅ SEPARATE transforms to avoid conflicts:
+  // - Translate: Updates every frame (diagonal animation)
+  // - Scale: Updates on scroll (zoom effect)
+  // Pre-calculate offset to avoid calc() overhead
+  const offsetX = -spacing;
+  const offsetY = -spacing;
+  const gridTranslate = useMotionTemplate`translate(calc(${gridOffsetX}px + ${offsetX}px), calc(${gridOffsetY}px + ${offsetY}px))`;
 
   const maskImage = useMotionTemplate`radial-gradient(300px circle at ${mouseX}px ${mouseY}px, black, transparent)`;
 
@@ -62,22 +67,33 @@ export const TheInfiniteGrid = ({ scrollContainer }: TheInfiniteGridProps = {}) 
       )}
       style={{ background: "transparent" }}
     >
+      {/* ✅ Nested divs: Outer (scale) + Inner (translate) = No conflict */}
       <motion.div
         className="absolute inset-0 z-0 opacity-20"
-        style={{ transform: gridTransform, willChange: "transform" }}
+        style={{ scale: gridScale, willChange: "transform" }}
       >
-        <GridPattern />
+        <motion.div
+          className="absolute inset-0"
+          style={{ transform: gridTranslate, willChange: "transform" }}
+        >
+          <GridPattern />
+        </motion.div>
       </motion.div>
       <motion.div
         className="absolute inset-0 z-0 opacity-50"
         style={{
           maskImage,
           WebkitMaskImage: maskImage,
-          transform: gridTransform,
+          scale: gridScale,
           willChange: "transform",
         }}
       >
-        <GridPattern />
+        <motion.div
+          className="absolute inset-0"
+          style={{ transform: gridTranslate, willChange: "transform" }}
+        >
+          <GridPattern />
+        </motion.div>
       </motion.div>
 
       <div className="pointer-events-none absolute inset-0 z-0">
