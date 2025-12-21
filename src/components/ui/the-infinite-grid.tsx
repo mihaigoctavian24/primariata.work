@@ -9,7 +9,6 @@ import {
   useAnimationFrame,
   useScroll,
   useTransform,
-  type MotionValue,
 } from "framer-motion";
 
 interface TheInfiniteGridProps {
@@ -28,25 +27,29 @@ export const TheInfiniteGrid = ({ scrollContainer }: TheInfiniteGridProps = {}) 
     mouseY.set(e.clientY - top);
   };
 
+  // ✅ Animate entire SVG with CSS transform - no React re-renders
+  const speedX = 0.5;
+  const speedY = 0.5;
+  const spacing = 40; // Static spacing
+
   const gridOffsetX = useMotionValue(0);
   const gridOffsetY = useMotionValue(0);
 
-  // Scroll-based spacing
+  // Scroll-based scale for grid squares (40px → 80px effect)
   const { scrollY } = useScroll({
     container: scrollContainer,
   });
-  const gridSpacing = useTransform(scrollY, [0, 1000], [40, 80]);
+  const gridScale = useTransform(scrollY, [0, 1000], [1, 2]);
+  const gridScaleValue = useMotionTemplate`${gridScale}`;
 
-  const speedX = 0.5;
-  const speedY = 0.5;
-
+  // Animate offset - MotionValue updates don't trigger React re-renders
   useAnimationFrame(() => {
-    const currentX = gridOffsetX.get();
-    const currentY = gridOffsetY.get();
-    const spacing = gridSpacing.get();
-    gridOffsetX.set((currentX + speedX) % spacing);
-    gridOffsetY.set((currentY + speedY) % spacing);
+    gridOffsetX.set((gridOffsetX.get() + speedX) % spacing);
+    gridOffsetY.set((gridOffsetY.get() + speedY) % spacing);
   });
+
+  // Convert MotionValue to CSS transform template with -spacing offset to hide first row/column
+  const gridTransform = useMotionTemplate`translate(calc(${gridOffsetX}px - ${spacing}px), calc(${gridOffsetY}px - ${spacing}px)) scale(${gridScaleValue})`;
 
   const maskImage = useMotionTemplate`radial-gradient(300px circle at ${mouseX}px ${mouseY}px, black, transparent)`;
 
@@ -59,14 +62,22 @@ export const TheInfiniteGrid = ({ scrollContainer }: TheInfiniteGridProps = {}) 
       )}
       style={{ background: "transparent" }}
     >
-      <div className="absolute inset-0 z-0 opacity-20">
-        <GridPattern offsetX={gridOffsetX} offsetY={gridOffsetY} spacing={gridSpacing} />
-      </div>
+      <motion.div
+        className="absolute inset-0 z-0 opacity-20"
+        style={{ transform: gridTransform, willChange: "transform" }}
+      >
+        <GridPattern />
+      </motion.div>
       <motion.div
         className="absolute inset-0 z-0 opacity-50"
-        style={{ maskImage, WebkitMaskImage: maskImage }}
+        style={{
+          maskImage,
+          WebkitMaskImage: maskImage,
+          transform: gridTransform,
+          willChange: "transform",
+        }}
       >
-        <GridPattern offsetX={gridOffsetX} offsetY={gridOffsetY} spacing={gridSpacing} />
+        <GridPattern />
       </motion.div>
 
       <div className="pointer-events-none absolute inset-0 z-0">
@@ -78,34 +89,23 @@ export const TheInfiniteGrid = ({ scrollContainer }: TheInfiniteGridProps = {}) 
   );
 };
 
-const GridPattern = ({
-  offsetX,
-  offsetY,
-  spacing,
-}: {
-  offsetX: MotionValue<number>;
-  offsetY: MotionValue<number>;
-  spacing: MotionValue<number>;
-}) => {
+const GridPattern = () => {
+  // ✅ Static pattern - animation handled by CSS transform on parent
+  const spacing = 40;
+  const pathD = `M ${spacing} 0 L 0 0 0 ${spacing}`;
+
   return (
     <svg className="h-full w-full">
       <defs>
-        <motion.pattern
-          id="grid-pattern"
-          width={spacing}
-          height={spacing}
-          patternUnits="userSpaceOnUse"
-          x={offsetX}
-          y={offsetY}
-        >
-          <motion.path
-            d={useTransform(spacing, (s) => `M ${s} 0 L 0 0 0 ${s}`)}
+        <pattern id="grid-pattern" width={spacing} height={spacing} patternUnits="userSpaceOnUse">
+          <path
+            d={pathD}
             fill="none"
             stroke="currentColor"
             strokeWidth="1"
             className="text-muted-foreground"
           />
-        </motion.pattern>
+        </pattern>
       </defs>
       <rect width="100%" height="100%" fill="url(#grid-pattern)" />
     </svg>
