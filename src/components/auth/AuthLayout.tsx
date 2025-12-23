@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import TextType from "@/components/TextType";
+import { TheInfiniteGrid } from "@/components/ui/the-infinite-grid";
 
 /**
  * AuthLayout Component
@@ -9,7 +10,9 @@ import TextType from "@/components/TextType";
  * Layout wrapper for all authentication pages with:
  * - Split-screen layout (40% hero / 60% form) on desktop
  * - Stacked layout on tablet/mobile
- * - Animated background (gradient mesh)
+ * - Infinite animated grid background with scroll effects
+ * - Mouse-based radial gradient mask
+ * - Colored blur orbs
  * - Responsive breakpoints
  *
  * @example
@@ -116,6 +119,9 @@ export function AuthLayout({
 }: AuthLayoutProps) {
   return (
     <div className={`relative min-h-screen ${className}`}>
+      {/* The Infinite Grid - Animated diagonal grid with scroll zoom, mouse mask, and blur orbs */}
+      <TheInfiniteGrid />
+
       {/* Main Content Area */}
       <main className="relative z-10 flex min-h-screen items-center justify-center px-4 py-8">
         <div className="grid w-full max-w-7xl gap-8 lg:grid-cols-5">

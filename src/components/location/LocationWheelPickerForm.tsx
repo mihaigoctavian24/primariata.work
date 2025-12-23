@@ -86,7 +86,18 @@ export function LocationWheelPickerForm({
   const selectedJudetId = form.watch("judetId");
   const [localitateSearch, setLocalitateSearch] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [isUserInteracting, setIsUserInteracting] = useState(false);
   const scrollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const interactionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Cleanup interaction timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (interactionTimeoutRef.current) {
+        clearTimeout(interactionTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Fetch județe
   const {
@@ -146,8 +157,18 @@ export function LocationWheelPickerForm({
       scrollIntervalRef.current = null;
     }
 
+    // Don't search if user is manually interacting with wheel picker
+    if (isUserInteracting) {
+      console.log("🔍 Search: User is interacting, skipping search");
+      return;
+    }
+
     // Only search if we have 3+ characters and localități are loaded
     if (localitateSearch.length < 3 || localitatiOptions.length === 0) {
+      console.log("🔍 Search: Not enough chars or no options", {
+        searchLength: localitateSearch.length,
+        optionsLength: localitatiOptions.length,
+      });
       return;
     }
 
@@ -155,6 +176,11 @@ export function LocationWheelPickerForm({
     // This ensures progressive refinement as user types each letter
     // Normalize search term (remove diacritics)
     const searchNormalized = normalizeDiacritics(localitateSearch);
+    console.log("🔍 Search triggered:", {
+      original: localitateSearch,
+      normalized: searchNormalized,
+      totalOptions: localitatiOptions.length,
+    });
 
     // Advanced scoring algorithm with progressive refinement
     const matches = localitatiOptions.map((option, index) => {
@@ -198,7 +224,18 @@ export function LocationWheelPickerForm({
         return a.index - b.index;
       });
 
+    console.log(
+      "🔍 Matches found:",
+      validMatches.length,
+      validMatches.slice(0, 3).map((m) => ({
+        label: m.option.label,
+        score: m.score,
+        type: m.matchType,
+      }))
+    );
+
     if (validMatches.length === 0) {
+      console.log("🔍 No matches found");
       return; // No match found
     }
 
@@ -207,6 +244,13 @@ export function LocationWheelPickerForm({
     if (!bestMatch) return;
     const targetIndex = bestMatch.index;
     const targetValue = bestMatch.option.value;
+    console.log("🔍 Best match:", {
+      label: bestMatch.option.label,
+      score: bestMatch.score,
+      type: bestMatch.matchType,
+      targetIndex,
+      targetValue,
+    });
 
     // Get current position
     const currentValue = form.getValues("localitateId");
@@ -237,6 +281,13 @@ export function LocationWheelPickerForm({
     // Calculate direction and distance
     const distance = Math.abs(targetIndex - currentIndex);
     const direction = targetIndex > currentIndex ? 1 : -1;
+
+    console.log("🔍 Starting scroll animation:", {
+      from: currentIndex,
+      to: targetIndex,
+      distance,
+      direction,
+    });
 
     // Smooth scroll animation with spring effect
     let step = 0;
@@ -276,7 +327,7 @@ export function LocationWheelPickerForm({
         scrollIntervalRef.current = null;
       }
     };
-  }, [localitateSearch, localitatiOptions, form]);
+  }, [localitateSearch, localitatiOptions, form, isUserInteracting]);
 
   const onSubmit = (values: FormSchema) => {
     if (onSubmitProp) {
@@ -450,7 +501,24 @@ export function LocationWheelPickerForm({
                         <WheelPicker
                           options={localitatiOptions}
                           value={field.value || localitatiOptions[0]?.value || ""}
-                          onValueChange={field.onChange}
+                          onValueChange={(value) => {
+                            // User is manually scrolling - stop search animation
+                            setIsUserInteracting(true);
+
+                            // Clear previous timeout
+                            if (interactionTimeoutRef.current) {
+                              clearTimeout(interactionTimeoutRef.current);
+                            }
+
+                            // Set timeout to clear interaction flag after user stops
+                            interactionTimeoutRef.current = setTimeout(() => {
+                              setIsUserInteracting(false);
+                              interactionTimeoutRef.current = null;
+                            }, 500); // 500ms delay after last scroll
+
+                            // Call the form's onChange
+                            field.onChange(value);
+                          }}
                           infinite
                           aria-label="Selectează localitatea"
                         />
