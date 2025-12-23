@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { MapPin, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getLocation } from "@/lib/location-storage";
@@ -108,8 +109,17 @@ export function LocationBadge({
           {locationData.localitateNume}, Jud. {locationData.judetNume}
         </span>
       ) : (
-        <span className="text-sm font-medium">
-          Primăria {locationData.localitateNume}, Jud. {locationData.judetNume}
+        <span className="flex items-center gap-1 text-sm font-medium">
+          Primăria
+          <Image
+            src="/vector_heart.svg"
+            alt="❤️"
+            width={14}
+            height={14}
+            className="inline-block"
+            style={{ width: "0.875em", height: "0.875em" }}
+          />
+          {locationData.localitateNume}, Jud. {locationData.judetNume}
         </span>
       )}
 
@@ -134,8 +144,8 @@ export function LocationBadge({
         variant="secondary"
         className="flex cursor-pointer items-center gap-2 px-4 py-2 text-white transition-all hover:scale-105"
         style={{
-          backgroundColor: "oklch(0.712 0.194 13.428)",
-          borderColor: "oklch(0.712 0.194 13.428)",
+          backgroundColor: "#be3144",
+          borderColor: "#be3144",
           textShadow: "1px 1px 2px rgba(0, 0, 0, 0.3)",
           filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4))",
         }}
