@@ -176,6 +176,7 @@ export function LoginForm({
           animate={{ opacity: 1, y: 0 }}
           className="mb-6 rounded-md bg-green-50 p-4 dark:bg-green-950"
           role="alert"
+          aria-live="polite"
         >
           <p className="text-sm font-medium text-green-800 dark:text-green-200">
             Autentificare reușită! Redirecționare...

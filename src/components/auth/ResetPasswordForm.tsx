@@ -134,7 +134,11 @@ export function ResetPasswordForm({ className = "" }: ResetPasswordFormProps) {
       <form onSubmit={form.handleSubmit(onSubmit)} className={`space-y-6 ${className}`}>
         {/* Error Message */}
         {error && (
-          <div className="bg-destructive/10 text-destructive rounded-lg border border-red-200 p-3 text-sm dark:border-red-900">
+          <div
+            className="bg-destructive/10 text-destructive rounded-lg border border-red-200 p-3 text-sm dark:border-red-900"
+            role="alert"
+            aria-live="assertive"
+          >
             {error}
           </div>
         )}
