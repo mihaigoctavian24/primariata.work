@@ -72,6 +72,7 @@ const timelineData = [
             src="/bento grid/cereri online.jpg"
             alt="Cereri Online"
             fill
+            sizes="(max-width: 768px) 100vw, 50vw"
             className="object-cover shadow-[0_0_20px_rgba(190,49,68,0.15)]"
           />
         </div>
@@ -118,6 +119,7 @@ const timelineData = [
             src="/bento grid/traking real-time.jpg"
             alt="Tracking Real-Time"
             fill
+            sizes="(max-width: 768px) 100vw, 50vw"
             className="object-cover shadow-[0_0_20px_rgba(190,49,68,0.15)]"
           />
         </div>
@@ -164,6 +166,7 @@ const timelineData = [
             src="/bento grid/plati digitale.jpg"
             alt="Plăți Digitale"
             fill
+            sizes="(max-width: 768px) 100vw, 50vw"
             className="object-cover shadow-[0_0_20px_rgba(190,49,68,0.15)]"
           />
         </div>
@@ -210,6 +213,7 @@ const timelineData = [
             src="/bento grid/chat direct.jpg"
             alt="Chat Direct"
             fill
+            sizes="(max-width: 768px) 100vw, 50vw"
             className="object-cover shadow-[0_0_20px_rgba(190,49,68,0.15)]"
           />
         </div>
@@ -256,6 +260,7 @@ const timelineData = [
             src="/bento grid/documente digitale.jpg"
             alt="Documente Digitale"
             fill
+            sizes="(max-width: 768px) 100vw, 50vw"
             className="object-cover shadow-[0_0_20px_rgba(190,49,68,0.15)]"
           />
         </div>
@@ -302,6 +307,7 @@ const timelineData = [
             src="/bento grid/survey platform.jpg"
             alt="Survey Platform"
             fill
+            sizes="(max-width: 768px) 100vw, 50vw"
             className="object-cover shadow-[0_0_20px_rgba(190,49,68,0.15)]"
           />
         </div>
@@ -348,6 +354,7 @@ const timelineData = [
             src="/bento grid/documentatie oficiala.jpg"
             alt="Documentație Oficială"
             fill
+            sizes="(max-width: 768px) 100vw, 50vw"
             className="object-cover shadow-[0_0_20px_rgba(190,49,68,0.15)]"
           />
         </div>
@@ -394,6 +401,7 @@ const timelineData = [
             src="/bento grid/ai research dashboard.jpg"
             alt="AI Research Dashboard"
             fill
+            sizes="(max-width: 768px) 100vw, 50vw"
             className="object-cover shadow-[0_0_20px_rgba(190,49,68,0.15)]"
           />
         </div>
