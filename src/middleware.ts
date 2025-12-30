@@ -59,7 +59,7 @@ export async function middleware(request: NextRequest) {
   // Redirect authenticated users away from auth pages
   if (isAuthRoute && user) {
     // Try to get user's saved location from cookies or default
-    const savedLocation = request.cookies.get("user-location")?.value;
+    const savedLocation = request.cookies.get("selected_location")?.value;
     let redirectPath = "/app/bucuresti/sector-1"; // Default
 
     if (savedLocation) {

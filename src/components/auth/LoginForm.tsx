@@ -111,9 +111,7 @@ export function LoginForm({
         } else {
           const savedLocation = getLocation();
           if (savedLocation) {
-            router.push(
-              `/app/${savedLocation.judetSlug}/${savedLocation.localitateSlug}/dashboard`
-            );
+            router.push(`/app/${savedLocation.judetSlug}/${savedLocation.localitateSlug}`);
           } else {
             router.push("/");
           }

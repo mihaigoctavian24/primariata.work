@@ -4,71 +4,84 @@
 
 import * as Sentry from "@sentry/nextjs";
 
-Sentry.init({
-  dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+// Extend Window interface for Sentry initialization flag
+interface WindowWithSentry extends Window {
+  __SENTRY_INITIALIZED__?: boolean;
+}
 
-  // Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.
-  tracesSampleRate: 1,
+// Prevent duplicate initialization in development (HMR)
+if (typeof window !== "undefined" && !(window as WindowWithSentry).__SENTRY_INITIALIZED__) {
+  (window as WindowWithSentry).__SENTRY_INITIALIZED__ = true;
 
-  // Setting this option to true will print useful information to the console while you're setting up Sentry.
-  debug: false,
+  Sentry.init({
+    dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
 
-  // Note: if you want to override the automatic release value, do not set a
-  // `release` value here - use the environment variable `SENTRY_RELEASE`, so
-  // that it will also get attached to your source maps
+    // Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.
+    tracesSampleRate: 1,
 
-  environment: process.env.NODE_ENV,
+    // Setting this option to true will print useful information to the console while you're setting up Sentry.
+    debug: false,
 
-  // Automatically replay sessions on errors
-  replaysSessionSampleRate: 0.1, // 10% of sessions
-  replaysOnErrorSampleRate: 1.0, // 100% of sessions with errors
+    // Note: if you want to override the automatic release value, do not set a
+    // `release` value here - use the environment variable `SENTRY_RELEASE`, so
+    // that it will also get attached to your source maps
 
-  // Integrations for better client-side tracking
-  integrations: [
-    Sentry.replayIntegration({
-      maskAllText: true,
-      blockAllMedia: true,
-    }),
-  ],
+    environment: process.env.NODE_ENV,
 
-  // Ignore specific browser errors
-  ignoreErrors: [
-    // Random plugins/extensions
-    "top.GLOBALS",
-    // See: http://blog.errorception.com/2012/03/tale-of-unfindable-js-error.html
-    "originalCreateNotification",
-    "canvas.contentDocument",
-    "MyApp_RemoveAllHighlights",
-    "http://tt.epicplay.com",
-    "Can't find variable: ZiteReader",
-    "jigsaw is not defined",
-    "ComboSearch is not defined",
-    "http://loading.retry.widdit.com/",
-    "atomicFindClose",
-    // Facebook borked
-    "fb_xd_fragment",
-    // ISP "optimizing" proxy - `Cache-Control: no-transform` seems to reduce this. (thanks @acdha)
-    // See http://stackoverflow.com/questions/4113268/how-to-stop-javascript-injection-from-vodafone-proxy
-    "bmi_SafeAddOnload",
-    "EBCallBackMessageReceived",
-    // See http://toolbar.conduit.com/Developer/HtmlAndGadget/Methods/JSInjection.aspx
-    "conduitPage",
-    // Generic error code from errors outside the security sandbox
-    // You can delete this if using raven.js > 1.0, which ignores these automatically.
-    "Script error.",
-    // Network errors
-    "NetworkError",
-    "Network request failed",
-    // ResizeObserver errors (non-critical)
-    "ResizeObserver loop limit exceeded",
-  ],
+    // Automatically replay sessions on errors (disabled in development to prevent HMR conflicts)
+    replaysSessionSampleRate: process.env.NODE_ENV === "production" ? 0.1 : 0,
+    replaysOnErrorSampleRate: process.env.NODE_ENV === "production" ? 1.0 : 0,
 
-  beforeSend(event, hint) {
-    // Don't send events for development
-    if (process.env.NODE_ENV === "development") {
-      console.error(hint.originalException || hint.syntheticException);
-      return null;
-    }
-    return event;
-  },
-});
+    // Integrations for better client-side tracking (Replay disabled in development)
+    integrations:
+      process.env.NODE_ENV === "production"
+        ? [
+            Sentry.replayIntegration({
+              maskAllText: true,
+              blockAllMedia: true,
+            }),
+          ]
+        : [],
+
+    // Ignore specific browser errors
+    ignoreErrors: [
+      // Random plugins/extensions
+      "top.GLOBALS",
+      // See: http://blog.errorception.com/2012/03/tale-of-unfindable-js-error.html
+      "originalCreateNotification",
+      "canvas.contentDocument",
+      "MyApp_RemoveAllHighlights",
+      "http://tt.epicplay.com",
+      "Can't find variable: ZiteReader",
+      "jigsaw is not defined",
+      "ComboSearch is not defined",
+      "http://loading.retry.widdit.com/",
+      "atomicFindClose",
+      // Facebook borked
+      "fb_xd_fragment",
+      // ISP "optimizing" proxy - `Cache-Control: no-transform` seems to reduce this. (thanks @acdha)
+      // See http://stackoverflow.com/questions/4113268/how-to-stop-javascript-injection-from-vodafone-proxy
+      "bmi_SafeAddOnload",
+      "EBCallBackMessageReceived",
+      // See http://toolbar.conduit.com/Developer/HtmlAndGadget/Methods/JSInjection.aspx
+      "conduitPage",
+      // Generic error code from errors outside the security sandbox
+      // You can delete this if using raven.js > 1.0, which ignores these automatically.
+      "Script error.",
+      // Network errors
+      "NetworkError",
+      "Network request failed",
+      // ResizeObserver errors (non-critical)
+      "ResizeObserver loop limit exceeded",
+    ],
+
+    beforeSend(event, hint) {
+      // Don't send events for development
+      if (process.env.NODE_ENV === "development") {
+        console.error(hint.originalException || hint.syntheticException);
+        return null;
+      }
+      return event;
+    },
+  });
+}

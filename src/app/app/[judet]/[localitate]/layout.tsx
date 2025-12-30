@@ -4,6 +4,7 @@ import { use, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
+import { QueryProvider } from "@/components/providers/query-provider";
 
 /**
  * Dashboard Layout
@@ -73,47 +74,49 @@ export default function DashboardLayout({ children, params }: DashboardLayoutPro
   };
 
   return (
-    <div className="relative flex h-screen overflow-hidden">
-      {/* Skip to main content link (accessibility) */}
-      <a
-        href="#main-content"
-        className="focus:bg-primary focus:text-primary-foreground sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:px-4 focus:py-2 focus:font-medium"
-      >
-        Skip to main content
-      </a>
+    <QueryProvider>
+      <div className="relative flex h-screen overflow-hidden">
+        {/* Skip to main content link (accessibility) */}
+        <a
+          href="#main-content"
+          className="focus:bg-primary focus:text-primary-foreground sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:px-4 focus:py-2 focus:font-medium"
+        >
+          Skip to main content
+        </a>
 
-      {/* Sidebar */}
-      <DashboardSidebar
-        open={sidebarOpen}
-        onToggle={toggleSidebar}
-        isMobile={isMobile}
-        judet={judet}
-        localitate={localitate}
-      />
-
-      {/* Mobile overlay */}
-      {isMobile && sidebarOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-
-      {/* Main content */}
-      <div className="flex flex-1 flex-col overflow-hidden">
-        {/* Header */}
-        <DashboardHeader
-          onMenuClick={toggleSidebar}
+        {/* Sidebar */}
+        <DashboardSidebar
+          open={sidebarOpen}
+          onToggle={toggleSidebar}
           isMobile={isMobile}
           judet={judet}
           localitate={localitate}
         />
 
-        {/* Page content - scrollable */}
-        <main id="main-content" className="flex flex-1 flex-col overflow-hidden" tabIndex={-1}>
-          {children}
-        </main>
+        {/* Mobile overlay */}
+        {isMobile && sidebarOpen && (
+          <div
+            className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+
+        {/* Main content */}
+        <div className="flex flex-1 flex-col overflow-hidden">
+          {/* Header */}
+          <DashboardHeader
+            onMenuClick={toggleSidebar}
+            isMobile={isMobile}
+            judet={judet}
+            localitate={localitate}
+          />
+
+          {/* Page content - scrollable */}
+          <main id="main-content" className="flex flex-1 flex-col overflow-hidden" tabIndex={-1}>
+            {children}
+          </main>
+        </div>
       </div>
-    </div>
+    </QueryProvider>
   );
 }
