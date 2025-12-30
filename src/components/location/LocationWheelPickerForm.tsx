@@ -329,7 +329,7 @@ export function LocationWheelPickerForm({
     };
   }, [localitateSearch, localitatiOptions, form, isUserInteracting]);
 
-  const onSubmit = (values: FormSchema) => {
+  const onSubmit = async (values: FormSchema) => {
     if (onSubmitProp) {
       onSubmitProp(values);
       return;
@@ -362,6 +362,26 @@ export function LocationWheelPickerForm({
       localitateId: localitate.id.toString(),
       localitateSlug: localitate.slug,
     });
+
+    // Set user's primarie_id in database
+    try {
+      const response = await fetch("/api/location/set", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ localitateId: localitate.id.toString() }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error?.message || "Eroare la salvarea locației");
+      }
+    } catch (error) {
+      console.error("Failed to set primarie_id:", error);
+      toast.error("Eroare la salvarea locației", {
+        description: error instanceof Error ? error.message : "Te rugăm să încerci din nou.",
+      });
+      return;
+    }
 
     // Show success toast
     toast.success("Locație salvată!", {

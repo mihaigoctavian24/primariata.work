@@ -12,6 +12,7 @@ export interface ApiResponse<T> {
   meta?: {
     timestamp?: string;
     version?: string;
+    expiresAt?: string; // For signed URLs and temporary resources
   };
 }
 
@@ -76,4 +77,66 @@ export interface PaginatedResponse<T> {
     items: T[];
     pagination: PaginationMeta;
   };
+}
+
+/**
+ * Tip Cerere (Request Type) for API responses
+ */
+export interface TipCerere {
+  id: string;
+  cod: string;
+  nume: string;
+  descriere: string | null;
+  campuri_formular: Record<string, unknown>;
+  documente_necesare: string[] | null;
+  termen_legal_zile: number | null;
+  necesita_taxa: boolean;
+  valoare_taxa: number | null;
+  departament_responsabil: string | null;
+  activ: boolean;
+  ordine_afisare: number;
+}
+
+/**
+ * Cerere (Request) for API responses
+ */
+export interface Cerere {
+  id: string;
+  primarie_id: string;
+  tip_cerere_id: string;
+  solicitant_id: string;
+  preluat_de_id: string | null;
+  numar_inregistrare: string;
+  date_formular: Record<string, unknown>;
+  observatii_solicitant: string | null;
+  status: string;
+  raspuns: string | null;
+  motiv_respingere: string | null;
+  necesita_plata: boolean;
+  valoare_plata: number | null;
+  plata_efectuata: boolean;
+  plata_efectuata_la: string | null;
+  data_termen: string | null;
+  data_finalizare: string | null;
+  created_at: string;
+  updated_at: string;
+  // Joined data (optional)
+  tip_cerere?: TipCerere;
+}
+
+/**
+ * Document for API responses
+ */
+export interface Document {
+  id: string;
+  cerere_id: string;
+  nume_fisier: string;
+  tip_fisier: string;
+  marime_bytes: number;
+  storage_path: string;
+  tip_document: string;
+  descriere: string | null;
+  este_generat: boolean;
+  este_semnat: boolean;
+  created_at: string;
 }
