@@ -92,10 +92,14 @@ export function CereriTable({
         case "created_at":
         case "data_termen":
         case "numar_inregistrare":
-          // These are sorted by API, so just return the original array
-          return cereri;
+          // These are sorted by API, so maintain original order
+          aValue = 0;
+          bValue = 0;
+          break;
         default:
-          return cereri;
+          aValue = 0;
+          bValue = 0;
+          break;
       }
 
       // Numeric comparison

@@ -270,8 +270,8 @@ pnpm format:write
 
 ## 📊 Project Status & Roadmap
 
-**Status actual**: Decembrie 2025 (An universitar 2025-2026)
-**Progres general**: 21 issues închise din 101 totale = **20.8%**
+**Status actual**: Ianuarie 2026 (An universitar 2025-2026)
+**Progres general**: 30 issues închise din 101 totale = **29.7%**
 
 ### 📈 Milestones Overview (GitHub)
 
@@ -279,7 +279,7 @@ pnpm format:write
 | ---------------------------- | --------------- | ----------- | ----------- | ----------- |
 | **M1: Landing & Auth 🚀**    | 21✅ / 21 total | ✅ **100%** | 28 Oct 2025 | 26 Dec 2025 |
 | **M7: Survey Platform**      | 1✅ / 1 total   | ✅ **100%** | 31 Oct 2025 | -           |
-| **M2: Cereri Module 📋**     | 0✅ / 10 total  | ⏳ 0%       | 1 Nov 2025  | -           |
+| **M2: Cereri Module 📋**     | 9✅ / 9 total   | ✅ **100%** | 1 Nov 2025  | 1 Jan 2026  |
 | **M3: Integrations 💳**      | 0✅ / 8 total   | ⏳ 0%       | 8 Nov 2025  | -           |
 | **M4: Advanced Features ✨** | 0✅ / 14 total  | ⏳ 0%       | 15 Nov 2025 | -           |
 | **M5: Production Launch 🚀** | 0✅ / 13 total  | ⏳ 0%       | 22 Nov 2025 | -           |
@@ -337,14 +337,37 @@ pnpm format:write
 - [x] Admin dashboard cu analytics
 - [x] Export date (CSV, JSON, XLSX, PDF)
 
-### ⏳ M2-M6: Următoarele Faze (Planificate)
+### ✅ M2: Cereri Module (100% - COMPLETE ✅)
 
-**M2: Cereri Module** (0% - Due 1 Nov):
+**Completed Date:** 1 January 2026
+**All Tasks (9/9) - 100% Complete:**
 
-- Request submission flow
-- Document upload & management
-- Request tracking & status updates
-- Admin approval workflow
+**Core Features:**
+
+- [x] Database schema pentru cereri (15+ tipuri cereri, RLS policies)
+- [x] API Routes - CRUD operations cu validare Zod
+- [x] Cereri List Page cu filters, search, pagination
+- [x] Create New Cerere - Multi-step wizard form
+- [x] Cerere Details Page cu status timeline
+- [x] Document Upload/Download Management (Supabase Storage)
+- [x] Real-Time Notifications pentru status updates
+- [x] Email Notifications (SendGrid + Edge Functions)
+- [x] Playwright E2E Tests pentru Cereri Flow (11 scenarios)
+
+**📄 Documentation:**
+
+- ✅ See [M2 Completion Report](docs/M2_COMPLETION_REPORT.md) for details
+- ✅ See [M3 Handoff Document](docs/M3_HANDOFF.md) for next steps
+
+**📊 Quality Metrics:**
+
+- ✅ 11 E2E test scenarios passing
+- ✅ Full email notification system operational
+- ✅ Real-time updates implemented
+- ✅ Document management with Supabase Storage
+- ✅ Efficiency: 51 actual hours vs 74 estimated (31% gain)
+
+### ⏳ M3-M6: Următoarele Faze (Planificate)
 
 **M3: Integrations** (0% - Due 8 Nov):
 

@@ -6,20 +6,18 @@
 -- Author: ATLAS
 -- =====================================================
 
--- Create the 'documents' storage bucket
+-- Create the 'cereri-documente' storage bucket
 INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 VALUES (
-  'documents',
-  'documents',
+  'cereri-documente',
+  'cereri-documente',
   false, -- Private bucket, requires authentication
-  10485760, -- 10MB max file size
+  5242880, -- 5MB max file size
   ARRAY[
     'application/pdf',
     'image/jpeg',
     'image/jpg',
-    'image/png',
-    'application/msword',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    'image/png'
   ]
 );
 
@@ -34,7 +32,7 @@ ON storage.objects
 FOR INSERT
 TO authenticated
 WITH CHECK (
-  bucket_id = 'documents'
+  bucket_id = 'cereri-documente'
   AND (storage.foldername(name))[2] IN (
     SELECT c.id::text
     FROM cereri c
@@ -48,7 +46,7 @@ ON storage.objects
 FOR SELECT
 TO authenticated
 USING (
-  bucket_id = 'documents'
+  bucket_id = 'cereri-documente'
   AND (storage.foldername(name))[2] IN (
     SELECT c.id::text
     FROM cereri c
@@ -62,7 +60,7 @@ ON storage.objects
 FOR SELECT
 TO authenticated
 USING (
-  bucket_id = 'documents'
+  bucket_id = 'cereri-documente'
   AND (storage.foldername(name))[1] IN (
     SELECT u.primarie_id::text
     FROM utilizatori u
@@ -77,7 +75,7 @@ ON storage.objects
 FOR INSERT
 TO authenticated
 WITH CHECK (
-  bucket_id = 'documents'
+  bucket_id = 'cereri-documente'
   AND (storage.foldername(name))[1] IN (
     SELECT u.primarie_id::text
     FROM utilizatori u
@@ -92,7 +90,7 @@ ON storage.objects
 FOR DELETE
 TO authenticated
 USING (
-  bucket_id = 'documents'
+  bucket_id = 'cereri-documente'
   AND (storage.foldername(name))[2] IN (
     SELECT c.id::text
     FROM cereri c
@@ -106,7 +104,7 @@ ON storage.objects
 FOR DELETE
 TO authenticated
 USING (
-  bucket_id = 'documents'
+  bucket_id = 'cereri-documente'
   AND (storage.foldername(name))[1] IN (
     SELECT u.primarie_id::text
     FROM utilizatori u
