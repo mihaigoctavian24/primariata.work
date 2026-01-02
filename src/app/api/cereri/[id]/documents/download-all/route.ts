@@ -107,8 +107,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       try {
         // Generate signed URL
         const { data: signedUrlData, error: signedUrlError } = await supabase.storage
-          .from("documents")
-          .createSignedUrl(doc.storage_path, 300); // 5 minutes validity
+          .from("cereri-documente")
+          .createSignedUrl(doc.storage_path, 3600); // 1 hour validity
 
         if (signedUrlError || !signedUrlData) {
           console.error(`Failed to generate signed URL for ${doc.nume_fisier}:`, signedUrlError);

@@ -88,10 +88,10 @@ export async function GET(
       return NextResponse.json(errorResponse, { status: 404 });
     }
 
-    // Generate signed URL (valid for 60 seconds)
+    // Generate signed URL (valid for 1 hour)
     const { data: signedUrlData, error: signedUrlError } = await supabase.storage
-      .from("documents")
-      .createSignedUrl(document.storage_path, 60);
+      .from("cereri-documente")
+      .createSignedUrl(document.storage_path, 3600);
 
     if (signedUrlError || !signedUrlData) {
       console.error("Signed URL generation error:", signedUrlError);
@@ -116,7 +116,7 @@ export async function GET(
       meta: {
         timestamp: new Date().toISOString(),
         version: "1.0",
-        expiresAt: new Date(Date.now() + 60 * 1000).toISOString(), // 60 seconds
+        expiresAt: new Date(Date.now() + 3600 * 1000).toISOString(), // 1 hour
       },
     };
 
@@ -172,7 +172,7 @@ export async function DELETE(
     // Verify cerere ownership
     const { data: cerere, error: cerereError } = await supabase
       .from("cereri")
-      .select("id, solicitant_id")
+      .select("id, solicitant_id, status")
       .eq("id", cerereId)
       .single();
 
@@ -194,6 +194,19 @@ export async function DELETE(
         error: {
           code: "FORBIDDEN",
           message: "Nu aveți permisiunea de a șterge acest document",
+        },
+        meta: { timestamp: new Date().toISOString() },
+      };
+      return NextResponse.json(errorResponse, { status: 403 });
+    }
+
+    // Only allow deletion for draft cereri
+    if (cerere.status !== "draft") {
+      const errorResponse: ApiErrorResponse = {
+        success: false,
+        error: {
+          code: "FORBIDDEN",
+          message: "Documentele pot fi șterse doar pentru cererile în draft",
         },
         meta: { timestamp: new Date().toISOString() },
       };

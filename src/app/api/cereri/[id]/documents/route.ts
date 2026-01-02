@@ -87,8 +87,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       return NextResponse.json(errorResponse, { status: 400 });
     }
 
-    // Validate file size (max 10MB)
-    const maxSizeBytes = 10 * 1024 * 1024;
+    // Validate file size (max 5MB)
+    const maxSizeBytes = 5 * 1024 * 1024;
     if (file.size > maxSizeBytes) {
       const errorResponse: ApiErrorResponse = {
         success: false,
@@ -102,21 +102,14 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // Validate file type
-    const allowedTypes = [
-      "application/pdf",
-      "image/jpeg",
-      "image/png",
-      "image/jpg",
-      "application/msword",
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    ];
+    const allowedTypes = ["application/pdf", "image/jpeg", "image/png", "image/jpg"];
 
     if (!allowedTypes.includes(file.type)) {
       const errorResponse: ApiErrorResponse = {
         success: false,
         error: {
           code: "INVALID_FILE_TYPE",
-          message: "Tip de fișier invalid. Sunt permise: PDF, JPEG, PNG, DOC, DOCX",
+          message: "Tip de fișier invalid. Sunt permise: PDF, JPEG, PNG",
         },
         meta: { timestamp: new Date().toISOString() },
       };
@@ -131,7 +124,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     // Upload to Supabase Storage
     const fileBuffer = await file.arrayBuffer();
     const { data: uploadData, error: uploadError } = await supabase.storage
-      .from("documents")
+      .from("cereri-documente")
       .upload(storagePath, fileBuffer, {
         contentType: file.type,
         upsert: false,

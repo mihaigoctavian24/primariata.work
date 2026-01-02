@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -17,6 +17,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import TextType from "@/components/TextType";
+import { createClient } from "@/lib/supabase/client";
+import { useUnreadNotifications } from "@/hooks/use-unread-notifications";
 
 /**
  * Dashboard Sidebar Component
@@ -53,6 +55,18 @@ export function DashboardSidebar({
 }: DashboardSidebarProps) {
   const pathname = usePathname();
   const baseHref = `/app/${judet}/${localitate}`;
+  const [userId, setUserId] = useState<string | null>(null);
+
+  // Get current user for notifications
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUserId(user?.id || null);
+    });
+  }, []);
+
+  // Get unread notifications count
+  const unreadCount = useUnreadNotifications(userId);
 
   const navigationLinks: NavigationLink[] = [
     { href: `${baseHref}`, label: "Dashboard", icon: Home },
@@ -211,7 +225,18 @@ export function DashboardSidebar({
                           : "text-muted-foreground group-hover:text-foreground"
                       )}
                     />
-                    <span>{link.label}</span>
+                    <span className="flex-1">{link.label}</span>
+
+                    {/* Notification badge */}
+                    {link.label === "Notificări" && unreadCount > 0 && (
+                      <motion.span
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="bg-primary text-primary-foreground flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-xs font-semibold"
+                      >
+                        {unreadCount > 99 ? "99+" : unreadCount}
+                      </motion.span>
+                    )}
                   </Link>
                 );
               })}

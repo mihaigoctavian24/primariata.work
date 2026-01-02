@@ -2,9 +2,11 @@
 
 import { use, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { QueryProvider } from "@/components/providers/query-provider";
+import { useCereriNotifications } from "@/hooks/use-cereri-notifications";
 
 /**
  * Dashboard Layout
@@ -33,7 +35,19 @@ export default function DashboardLayout({ children, params }: DashboardLayoutPro
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
   const pathname = usePathname();
+
+  // Get current user for notifications
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUserId(user?.id || null);
+    });
+  }, []);
+
+  // Subscribe to real-time cereri status notifications
+  useCereriNotifications(userId);
 
   // Load sidebar state from localStorage
   useEffect(() => {
