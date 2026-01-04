@@ -31,13 +31,14 @@ jest.mock("@/lib/pdf/signature-watermark", () => ({
 }));
 
 describe("Signature Integration Tests", () => {
+  // ✅ Fixed: Using valid UUID format for all IDs
   const mockUser = {
-    id: "user-123",
+    id: "550e8400-e29b-41d4-a716-446655440001",
     email: "test@example.com",
   };
 
   const mockCertificate = {
-    id: "cert-123",
+    id: "550e8400-e29b-41d4-a716-446655440005",
     user_name: "Ion Popescu",
     cnp: "1234567890123",
     certificate_serial: "CERT-2025-001",
@@ -48,13 +49,12 @@ describe("Signature Integration Tests", () => {
   };
 
   const mockCerere = {
-    id: "cerere-123",
-    primarie_id: "primarie-123",
+    id: "550e8400-e29b-41d4-a716-446655440003",
+    primarie_id: "550e8400-e29b-41d4-a716-446655440002",
     numar_inregistrare: "CER-2025-001",
   };
 
-  const mockDocumentUrl =
-    "https://example.com/storage/v1/object/public/documents/primarie-123/cereri/cerere-123/document.pdf";
+  const mockDocumentUrl = `https://example.com/storage/v1/object/public/documents/${mockCerere.primarie_id}/cereri/${mockCerere.id}/document.pdf`;
 
   const mockSignatureAudit = {
     transaction_id: "MOCK-SIG-12345",
@@ -302,8 +302,8 @@ describe("Signature Integration Tests", () => {
         from: jest.fn().mockReturnValue({
           select: jest.fn().mockReturnValue({
             eq: jest.fn().mockReturnValue({
-              order: jest.fn().mockResolvedValue({
-                data: [mockCertificate],
+              single: jest.fn().mockResolvedValue({
+                data: mockCertificate,
                 error: null,
               }),
             }),
@@ -319,12 +319,12 @@ describe("Signature Integration Tests", () => {
 
       const response = await getCertificates(request, { params: { cnp: "1234567890123" } });
       const json = await response.json();
-      const data = json as ApiResponse<unknown[]>;
+      const data = json as ApiResponse<{ certificate: unknown }>;
 
       expect(response.status).toBe(200);
       expect(data.success).toBe(true);
-      expect(Array.isArray(data.data)).toBe(true);
-      expect(data.data.length).toBeGreaterThan(0);
+      expect(data.data.certificate).toBeDefined();
+      expect((data.data.certificate as typeof mockCertificate).cnp).toBe("1234567890123");
     });
 
     it("should reject invalid CNP format", async () => {
@@ -379,19 +379,23 @@ describe("Signature Integration Tests", () => {
         {
           method: "POST",
           body: JSON.stringify({
-            certificate_serial: mockCertificate.certificate_serial,
+            cnp: mockCertificate.cnp,
           }),
         }
       );
 
       const response = await validateCertificate(request);
       const json = await response.json();
-      const data = json as ApiResponse<{ valid: boolean; status: string }>;
+      const data = json as ApiResponse<{
+        valid: boolean;
+        certificate_serial: string;
+        holder_name: string;
+      }>;
 
       expect(response.status).toBe(200);
       expect(data.success).toBe(true);
       expect(data.data.valid).toBe(true);
-      expect(data.data.status).toBe("active");
+      expect(data.data.certificate_serial).toBe(mockCertificate.certificate_serial);
     });
 
     it("should reject expired certificate", async () => {
@@ -427,19 +431,19 @@ describe("Signature Integration Tests", () => {
         {
           method: "POST",
           body: JSON.stringify({
-            certificate_serial: mockCertificate.certificate_serial,
+            cnp: expiredCertificate.cnp,
           }),
         }
       );
 
       const response = await validateCertificate(request);
       const json = await response.json();
-      const data = json as ApiResponse<{ valid: boolean; status: string; reason?: string }>;
+      const data = json as ApiResponse<{ valid: boolean; reason: string }>;
 
       expect(response.status).toBe(200);
       expect(data.success).toBe(true);
       expect(data.data.valid).toBe(false);
-      expect(data.data.status).toBe("expired");
+      expect(data.data.reason).toContain("expirat");
     });
   });
 
@@ -452,15 +456,30 @@ describe("Signature Integration Tests", () => {
             error: null,
           }),
         },
-        from: jest.fn().mockReturnValue({
-          select: jest.fn().mockReturnValue({
-            eq: jest.fn().mockReturnValue({
-              single: jest.fn().mockResolvedValue({
-                data: mockSignatureAudit,
-                error: null,
+        from: jest.fn((tableName: string) => {
+          if (tableName === "signature_audit_log") {
+            return {
+              select: jest.fn().mockReturnValue({
+                eq: jest.fn().mockReturnValue({
+                  single: jest.fn().mockResolvedValue({
+                    data: mockSignatureAudit,
+                    error: null,
+                  }),
+                }),
               }),
-            }),
-          }),
+            };
+          } else if (tableName === "mock_certificates") {
+            return {
+              select: jest.fn().mockReturnValue({
+                eq: jest.fn().mockReturnValue({
+                  single: jest.fn().mockResolvedValue({
+                    data: mockCertificate,
+                    error: null,
+                  }),
+                }),
+              }),
+            };
+          }
         }),
       };
 
@@ -474,15 +493,17 @@ describe("Signature Integration Tests", () => {
         params: { transactionId: mockSignatureAudit.transaction_id },
       });
       const json = await response.json();
-      const data = json as ApiResponse<{ valid: boolean; signature: unknown }>;
+      const data = json as ApiResponse<{ is_valid: boolean; signature: unknown }>;
 
       expect(response.status).toBe(200);
       expect(data.success).toBe(true);
-      expect(data.data.valid).toBe(true);
+      expect(data.data.is_valid).toBe(true);
       expect(data.data.signature).toBeTruthy();
     });
 
     it("should return not found for invalid transaction ID", async () => {
+      const invalidTxnId = "MOCK-SIG-99999"; // Valid format but doesn't exist
+
       const mockSupabase = {
         auth: {
           getUser: jest.fn().mockResolvedValue({
@@ -504,9 +525,11 @@ describe("Signature Integration Tests", () => {
 
       (createClient as jest.Mock).mockResolvedValue(mockSupabase);
 
-      const request = new NextRequest("http://localhost:3000/api/mock-certsign/verify/invalid-txn");
+      const request = new NextRequest(
+        `http://localhost:3000/api/mock-certsign/verify/${invalidTxnId}`
+      );
 
-      const response = await verifySignature(request, { params: { transactionId: "invalid-txn" } });
+      const response = await verifySignature(request, { params: { transactionId: invalidTxnId } });
       const json = await response.json();
       const data = json as ApiErrorResponse;
 
@@ -529,8 +552,8 @@ describe("Signature Integration Tests", () => {
         from: jest.fn().mockReturnValue({
           select: jest.fn().mockReturnValue({
             eq: jest.fn().mockReturnValue({
-              order: jest.fn().mockResolvedValue({
-                data: [mockCertificate],
+              single: jest.fn().mockResolvedValue({
+                data: mockCertificate,
                 error: null,
               }),
             }),
@@ -579,7 +602,7 @@ describe("Signature Integration Tests", () => {
         {
           method: "POST",
           body: JSON.stringify({
-            certificate_serial: mockCertificate.certificate_serial,
+            cnp: mockCertificate.cnp,
           }),
         }
       );

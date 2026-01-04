@@ -21,29 +21,30 @@ jest.mock("next/headers", () => ({
 }));
 
 describe("Payment Integration Tests", () => {
+  // ✅ Fixed: Using valid UUID format for all IDs
   const mockUser = {
-    id: "user-123",
+    id: "550e8400-e29b-41d4-a716-446655440001",
     email: "test@example.com",
   };
 
   const mockPrimarie = {
-    id: "primarie-123",
+    id: "550e8400-e29b-41d4-a716-446655440002",
   };
 
   const mockCerere = {
-    id: "cerere-123",
+    id: "550e8400-e29b-41d4-a716-446655440003",
     numar_inregistrare: "CER-2025-001",
-    solicitant_id: "user-123",
+    solicitant_id: "550e8400-e29b-41d4-a716-446655440001",
     necesita_plata: true,
     valoare_plata: 150.0,
     plata_efectuata: false,
   };
 
   const mockPlata = {
-    id: "plata-123",
-    primarie_id: "primarie-123",
-    cerere_id: "cerere-123",
-    utilizator_id: "user-123",
+    id: "550e8400-e29b-41d4-a716-446655440004",
+    primarie_id: "550e8400-e29b-41d4-a716-446655440002",
+    cerere_id: "550e8400-e29b-41d4-a716-446655440003",
+    utilizator_id: "550e8400-e29b-41d4-a716-446655440001",
     suma: 150.0,
     status: PlataStatus.PENDING,
     transaction_id: "txn-123",
@@ -135,12 +136,24 @@ describe("Payment Integration Tests", () => {
 
       (createClient as jest.Mock).mockResolvedValue(mockSupabase);
 
+      // Mock service role client for transaction_id update
+      const mockServiceSupabase = {
+        from: jest.fn().mockReturnValue({
+          update: jest.fn().mockReturnValue({
+            eq: jest.fn().mockResolvedValue({
+              error: null,
+            }),
+          }),
+        }),
+      };
+      (createServiceRoleClient as jest.Mock).mockReturnValue(mockServiceSupabase);
+
       const request = new NextRequest("http://localhost:3000/api/plati", {
         method: "POST",
         body: JSON.stringify({
           cerere_id: mockCerere.id,
           suma: 150.0,
-          return_url: "http://localhost:3000/app/cereri/cerere-123",
+          return_url: `http://localhost:3000/app/cereri/${mockCerere.id}`,
         }),
       });
 
@@ -151,7 +164,9 @@ describe("Payment Integration Tests", () => {
       expect(response.status).toBe(201);
       expect(data.success).toBe(true);
       expect(data.data.plata_id).toBe(mockPlata.id);
-      expect(data.data.redirect_url).toContain(mockPlata.id);
+      // Redirect URL should point to payment gateway checkout
+      expect(data.data.redirect_url).toContain("/api/payments/ghiseul-mock/checkout");
+      expect(data.data.redirect_url).toContain("transaction_id=");
     });
 
     it("should reject unauthorized requests", async () => {
@@ -169,7 +184,7 @@ describe("Payment Integration Tests", () => {
       const request = new NextRequest("http://localhost:3000/api/plati", {
         method: "POST",
         body: JSON.stringify({
-          cerere_id: "cerere-123",
+          cerere_id: mockCerere.id,
           suma: 150.0,
         }),
       });
@@ -509,6 +524,18 @@ describe("Payment Integration Tests", () => {
       };
 
       (createClient as jest.Mock).mockResolvedValue(createMockSupabase);
+
+      // Mock service role client for transaction_id update
+      const mockServiceSupabase = {
+        from: jest.fn().mockReturnValue({
+          update: jest.fn().mockReturnValue({
+            eq: jest.fn().mockResolvedValue({
+              error: null,
+            }),
+          }),
+        }),
+      };
+      (createServiceRoleClient as jest.Mock).mockReturnValue(mockServiceSupabase);
 
       const createRequest = new NextRequest("http://localhost:3000/api/plati", {
         method: "POST",
