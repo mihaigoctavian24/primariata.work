@@ -164,3 +164,4 @@ scripts/gh/*
 /playwright-report/
 /playwright/.cache/
 .playwright-mcp/
+test-email-webhook.js
