@@ -122,16 +122,14 @@ export default defineConfig({
   // =============================================================================
   // WEB SERVER - Start Next.js dev server for testing
   // =============================================================================
-  webServer: isCI
-    ? undefined // Don't start server in CI (deploy preview is used)
-    : {
-        command: "pnpm dev",
-        url: baseURL,
-        reuseExistingServer: !isCI,
-        timeout: 120000, // 2 minutes for server startup
-        stdout: "pipe",
-        stderr: "pipe",
-      },
+  webServer: {
+    command: "pnpm dev",
+    url: baseURL,
+    reuseExistingServer: !isCI, // Don't reuse in CI, always start fresh
+    timeout: 120000, // 2 minutes for server startup
+    stdout: "pipe",
+    stderr: "pipe",
+  },
 
   // =============================================================================
   // TIMEOUTS
