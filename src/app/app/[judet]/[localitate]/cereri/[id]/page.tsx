@@ -2,7 +2,16 @@
 
 import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Download, X, AlertCircle, FileText, User, Calendar } from "lucide-react";
+import {
+  ArrowLeft,
+  Download,
+  X,
+  AlertCircle,
+  FileText,
+  User,
+  Calendar,
+  CreditCard,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -33,6 +42,7 @@ export default function CerereDetailsPage({ params }: CerereDetailsPageProps) {
   const [loadingDocuments, setLoadingDocuments] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [initiatingPayment, setInitiatingPayment] = useState(false);
 
   useEffect(() => {
     fetchCerereDetails();
@@ -125,6 +135,36 @@ export default function CerereDetailsPage({ params }: CerereDetailsPageProps) {
     }
   }
 
+  async function handleInitiatePayment() {
+    if (!cerere || !cerere.valoare_plata) return;
+
+    try {
+      setInitiatingPayment(true);
+
+      const response = await fetch("/api/plati", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          cerere_id: cerere.id,
+          suma: cerere.valoare_plata,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error?.message || "Eroare la inițializarea plății");
+      }
+
+      const data = await response.json();
+
+      // Redirect to checkout page
+      window.location.href = data.data.redirect_url;
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Eroare la inițializarea plății");
+      setInitiatingPayment(false);
+    }
+  }
+
   async function handleDownloadAll() {
     if (!cerere) return;
 
@@ -195,6 +235,12 @@ export default function CerereDetailsPage({ params }: CerereDetailsPageProps) {
   };
   const canCancel =
     cerere.status === "draft" || cerere.status === "trimisa" || cerere.status === "depusa";
+
+  const canPay =
+    cerere.necesita_plata &&
+    !cerere.plata_efectuata &&
+    cerere.status !== "anulata" &&
+    cerere.status !== "respinsa";
 
   return (
     <div className="flex h-[calc(100vh-4rem)] flex-col">
@@ -536,6 +582,18 @@ export default function CerereDetailsPage({ params }: CerereDetailsPageProps) {
 
           {/* Actions */}
           <div className="flex items-center justify-end gap-3 pt-4">
+            {canPay && (
+              <Button
+                onClick={handleInitiatePayment}
+                disabled={initiatingPayment}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                <CreditCard className="mr-2 h-4 w-4" />
+                {initiatingPayment
+                  ? "Inițializare..."
+                  : `Plătește ${cerere.valoare_plata?.toFixed(2)} RON`}
+              </Button>
+            )}
             {canCancel && (
               <Button variant="destructive" onClick={() => setShowCancelDialog(true)}>
                 <X className="mr-2 h-4 w-4" />

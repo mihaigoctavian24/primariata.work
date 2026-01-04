@@ -140,3 +140,32 @@ export interface Document {
   este_semnat: boolean;
   created_at: string;
 }
+
+/**
+ * Plata (Payment) for API responses
+ */
+export interface Plata {
+  id: string;
+  primarie_id: string;
+  cerere_id: string;
+  utilizator_id: string;
+  suma: number;
+  status: string; // 'pending' | 'processing' | 'success' | 'failed' | 'refunded'
+  metoda_plata: string | null; // 'card' | 'bank_transfer' | 'cash'
+  transaction_id: string | null;
+  gateway_response: Record<string, unknown> | null;
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * Chitanta (Receipt) for API responses
+ */
+export interface Chitanta {
+  id: string;
+  plata_id: string;
+  numar_chitanta: string;
+  pdf_url: string;
+  data_emitere: string;
+  created_at: string;
+}

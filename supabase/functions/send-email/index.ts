@@ -10,10 +10,24 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
 
 // Types
 interface EmailRequest {
-  type: "cerere_submitted" | "status_changed" | "cerere_finalizata" | "cerere_respinsa";
-  cerereId: string;
+  type:
+    | "cerere_submitted"
+    | "status_changed"
+    | "cerere_finalizata"
+    | "cerere_respinsa"
+    | "payment_initiated"
+    | "payment_completed"
+    | "payment_failed"
+    | "document_signed"
+    | "batch_signature_completed";
+  cerereId?: string;
   toEmail: string;
   toName: string;
+  // Payment-specific fields
+  plataId?: string;
+  // Signature-specific fields
+  transactionId?: string;
+  sessionId?: string; // For batch signatures
 }
 
 interface CerereData {
@@ -26,6 +40,27 @@ interface CerereData {
   raspuns?: string;
   motiv_respingere?: string;
   solicitant_id: string;
+}
+
+interface PlataData {
+  id: string;
+  suma: number;
+  status: string;
+  created_at: string;
+  metoda_plata?: string;
+  numar_chitanta?: string;
+  cerere_id?: string;
+}
+
+interface SignatureData {
+  transaction_id: string;
+  signer_name: string;
+  signer_cnp: string;
+  document_url: string;
+  signed_document_url: string;
+  created_at: string;
+  certificate_serial: string;
+  is_mock: boolean;
 }
 
 interface SendGridMessage {
@@ -62,14 +97,14 @@ serve(async (req: Request) => {
   try {
     // Parse request
     const body = (await req.json()) as EmailRequest;
-    const { type, cerereId, toEmail, toName } = body;
+    const { type, cerereId, plataId, transactionId, sessionId, toEmail, toName } = body;
 
     // Validate request
-    if (!type || !cerereId || !toEmail) {
-      return new Response(
-        JSON.stringify({ error: "Missing required fields: type, cerereId, toEmail" }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
-      );
+    if (!type || !toEmail) {
+      return new Response(JSON.stringify({ error: "Missing required fields: type, toEmail" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
     if (!SENDGRID_API_KEY) {
@@ -79,52 +114,106 @@ serve(async (req: Request) => {
       });
     }
 
-    // Fetch cerere data (without join to avoid issues)
-    const { data: cerere, error: cerereError } = await supabase
-      .from("cereri")
-      .select(
-        `
-        id,
-        numar_inregistrare,
-        status,
-        created_at,
-        data_termen,
-        raspuns,
-        motiv_respingere,
-        solicitant_id,
-        tip_cerere_id
-      `
-      )
-      .eq("id", cerereId)
-      .single();
+    // Determine which data to fetch based on email type
+    const isPaymentEmail = ["payment_initiated", "payment_completed", "payment_failed"].includes(
+      type
+    );
+    const isSignatureEmail = ["document_signed", "batch_signature_completed"].includes(type);
+    const isCerereEmail = !isPaymentEmail && !isSignatureEmail;
 
-    // Fetch tip_cerere separately if cerere exists
+    // Initialize data variables
+    let cerere: CerereData | null = null;
+    let plata: PlataData | null = null;
+    let signature: SignatureData | null = null;
     let tipCerereNume = "Cerere";
-    if (cerere && cerere.tip_cerere_id) {
-      const { data: tipCerere } = await supabase
-        .from("tipuri_cereri")
-        .select("nume")
-        .eq("id", cerere.tip_cerere_id)
-        .single();
-      if (tipCerere) {
-        tipCerereNume = tipCerere.nume;
-      }
-    }
 
-    if (cerereError || !cerere) {
-      return new Response(JSON.stringify({ error: "Cerere not found" }), {
-        status: 404,
+    // Fetch appropriate data based on email type
+    if (isCerereEmail && cerereId) {
+      const { data: cerereData, error: cerereError } = await supabase
+        .from("cereri")
+        .select(
+          `
+          id,
+          numar_inregistrare,
+          status,
+          created_at,
+          data_termen,
+          raspuns,
+          motiv_respingere,
+          solicitant_id,
+          tip_cerere_id
+        `
+        )
+        .eq("id", cerereId)
+        .single();
+
+      if (cerereError || !cerereData) {
+        return new Response(JSON.stringify({ error: "Cerere not found" }), {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      cerere = cerereData as unknown as CerereData;
+
+      // Fetch tip_cerere separately
+      if (cerere.tip_cerere_id) {
+        const { data: tipCerere } = await supabase
+          .from("tipuri_cereri")
+          .select("nume")
+          .eq("id", cerere.tip_cerere_id)
+          .single();
+        if (tipCerere) {
+          tipCerereNume = tipCerere.nume;
+        }
+      }
+    } else if (isPaymentEmail && plataId) {
+      const { data: plataData, error: plataError } = await supabase
+        .from("plati")
+        .select("*")
+        .eq("id", plataId)
+        .single();
+
+      if (plataError || !plataData) {
+        return new Response(JSON.stringify({ error: "Plata not found" }), {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      plata = plataData as unknown as PlataData;
+    } else if (isSignatureEmail && transactionId) {
+      const { data: signatureData, error: signatureError } = await supabase
+        .from("signature_audit_log")
+        .select("*")
+        .eq("transaction_id", transactionId)
+        .single();
+
+      if (signatureError || !signatureData) {
+        return new Response(JSON.stringify({ error: "Signature not found" }), {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      signature = signatureData as unknown as SignatureData;
+    } else {
+      return new Response(JSON.stringify({ error: "Missing required ID for email type" }), {
+        status: 400,
         headers: { "Content-Type": "application/json" },
       });
     }
 
-    // Build email message with tip cerere name
+    // Build email message
     const message = buildEmailMessage(
       type,
-      cerere as unknown as CerereData,
       toEmail,
       toName,
-      tipCerereNume
+      cerere,
+      tipCerereNume,
+      plata,
+      signature,
+      sessionId
     );
 
     // Send via SendGrid
@@ -177,15 +266,14 @@ serve(async (req: Request) => {
 
 function buildEmailMessage(
   type: EmailRequest["type"],
-  cerere: CerereData,
   toEmail: string,
   toName: string,
-  tipCerereNume: string
+  cerere: CerereData | null = null,
+  tipCerereNume: string = "Cerere",
+  plata: PlataData | null = null,
+  signature: SignatureData | null = null,
+  sessionId?: string
 ): SendGridMessage {
-  const cerereLink = `${APP_URL}/app/cereri/${cerere.id}`;
-  const tipCerere = tipCerereNume || "Cerere";
-  const numarCerere = cerere.numar_inregistrare || "Fără număr";
-
   // Status labels in Romanian
   const statusLabels: Record<string, string> = {
     depusa: "Depusă",
@@ -198,10 +286,20 @@ function buildEmailMessage(
     finalizata: "Finalizată",
   };
 
-  const statusLabel = statusLabels[cerere.status] || cerere.status;
+  const paymentStatusLabels: Record<string, string> = {
+    pending: "În așteptare",
+    completed: "Finalizată",
+    failed: "Eșuată",
+    cancelled: "Anulată",
+  };
 
   switch (type) {
-    case "cerere_submitted":
+    case "cerere_submitted": {
+      if (!cerere) throw new Error("Cerere data required for cerere_submitted email");
+      const cerereLink = `${APP_URL}/app/cereri/${cerere.id}`;
+      const tipCerere = tipCerereNume || "Cerere";
+      const numarCerere = cerere.numar_inregistrare || "Fără număr";
+
       return {
         to: { email: toEmail, name: toName },
         from: { email: SENDGRID_FROM_EMAIL, name: SENDGRID_FROM_NAME },
@@ -219,8 +317,15 @@ function buildEmailMessage(
           cerereLink,
         }),
       };
+    }
 
-    case "status_changed":
+    case "status_changed": {
+      if (!cerere) throw new Error("Cerere data required for status_changed email");
+      const cerereLink = `${APP_URL}/app/cereri/${cerere.id}`;
+      const tipCerere = tipCerereNume || "Cerere";
+      const numarCerere = cerere.numar_inregistrare || "Fără număr";
+      const statusLabel = statusLabels[cerere.status] || cerere.status;
+
       return {
         to: { email: toEmail, name: toName },
         from: { email: SENDGRID_FROM_EMAIL, name: SENDGRID_FROM_NAME },
@@ -240,8 +345,14 @@ function buildEmailMessage(
           cerereLink,
         }),
       };
+    }
 
-    case "cerere_finalizata":
+    case "cerere_finalizata": {
+      if (!cerere) throw new Error("Cerere data required for cerere_finalizata email");
+      const cerereLink = `${APP_URL}/app/cereri/${cerere.id}`;
+      const tipCerere = tipCerereNume || "Cerere";
+      const numarCerere = cerere.numar_inregistrare || "Fără număr";
+
       return {
         to: { email: toEmail, name: toName },
         from: { email: SENDGRID_FROM_EMAIL, name: SENDGRID_FROM_NAME },
@@ -259,8 +370,14 @@ function buildEmailMessage(
           cerereLink,
         }),
       };
+    }
 
-    case "cerere_respinsa":
+    case "cerere_respinsa": {
+      if (!cerere) throw new Error("Cerere data required for cerere_respinsa email");
+      const cerereLink = `${APP_URL}/app/cereri/${cerere.id}`;
+      const tipCerere = tipCerereNume || "Cerere";
+      const numarCerere = cerere.numar_inregistrare || "Fără număr";
+
       return {
         to: { email: toEmail, name: toName },
         from: { email: SENDGRID_FROM_EMAIL, name: SENDGRID_FROM_NAME },
@@ -280,6 +397,120 @@ function buildEmailMessage(
           cerereLink,
         }),
       };
+    }
+
+    case "payment_initiated": {
+      if (!plata) throw new Error("Plata data required for payment_initiated email");
+      const plataLink = `${APP_URL}/app/plati/${plata.id}`;
+      const suma = `${plata.suma.toFixed(2)} RON`;
+
+      return {
+        to: { email: toEmail, name: toName },
+        from: { email: SENDGRID_FROM_EMAIL, name: SENDGRID_FROM_NAME },
+        subject: `Plată inițiată: ${suma}`,
+        text: buildTextTemplate("payment_initiated", {
+          toName,
+          suma,
+          plataLink,
+        }),
+        html: buildHtmlTemplate("payment_initiated", {
+          toName,
+          suma,
+          plataLink,
+        }),
+      };
+    }
+
+    case "payment_completed": {
+      if (!plata) throw new Error("Plata data required for payment_completed email");
+      const plataLink = `${APP_URL}/app/plati/${plata.id}`;
+      const suma = `${plata.suma.toFixed(2)} RON`;
+      const numarChitanta = plata.numar_chitanta || "Se va genera în curând";
+
+      return {
+        to: { email: toEmail, name: toName },
+        from: { email: SENDGRID_FROM_EMAIL, name: SENDGRID_FROM_NAME },
+        subject: `✅ Plată confirmată: ${suma}`,
+        text: buildTextTemplate("payment_completed", {
+          toName,
+          suma,
+          numarChitanta,
+          plataLink,
+        }),
+        html: buildHtmlTemplate("payment_completed", {
+          toName,
+          suma,
+          numarChitanta,
+          plataLink,
+        }),
+      };
+    }
+
+    case "payment_failed": {
+      if (!plata) throw new Error("Plata data required for payment_failed email");
+      const plataLink = `${APP_URL}/app/plati/${plata.id}`;
+      const suma = `${plata.suma.toFixed(2)} RON`;
+
+      return {
+        to: { email: toEmail, name: toName },
+        from: { email: SENDGRID_FROM_EMAIL, name: SENDGRID_FROM_NAME },
+        subject: `❌ Plată eșuată: ${suma}`,
+        text: buildTextTemplate("payment_failed", {
+          toName,
+          suma,
+          plataLink,
+        }),
+        html: buildHtmlTemplate("payment_failed", {
+          toName,
+          suma,
+          plataLink,
+        }),
+      };
+    }
+
+    case "document_signed": {
+      if (!signature) throw new Error("Signature data required for document_signed email");
+      const documentName = signature.document_url.split("/").pop() || "document.pdf";
+      const signerName = signature.signer_name;
+      const signedDocLink = signature.signed_document_url;
+
+      return {
+        to: { email: toEmail, name: toName },
+        from: { email: SENDGRID_FROM_EMAIL, name: SENDGRID_FROM_NAME },
+        subject: `✍️ Document semnat: ${documentName}`,
+        text: buildTextTemplate("document_signed", {
+          toName,
+          documentName,
+          signerName,
+          signedDocLink,
+        }),
+        html: buildHtmlTemplate("document_signed", {
+          toName,
+          documentName,
+          signerName,
+          signedDocLink,
+        }),
+      };
+    }
+
+    case "batch_signature_completed": {
+      if (!sessionId) throw new Error("Session ID required for batch_signature_completed email");
+      const batchLink = `${APP_URL}/app/semnaturi/${sessionId}`;
+
+      return {
+        to: { email: toEmail, name: toName },
+        from: { email: SENDGRID_FROM_EMAIL, name: SENDGRID_FROM_NAME },
+        subject: `✍️ Semnare lot finalizată`,
+        text: buildTextTemplate("batch_signature_completed", {
+          toName,
+          batchLink,
+        }),
+        html: buildHtmlTemplate("batch_signature_completed", {
+          toName,
+          batchLink,
+        }),
+      };
+    }
 
     default:
       throw new Error(`Unknown email type: ${type}`);
@@ -343,6 +574,71 @@ Pentru mai multe informații, accesați: ${data.cerereLink}
 Cu stimă,
 Echipa Primăriata
     `.trim(),
+
+    payment_initiated: `
+Bună ziua ${data.toName},
+
+Plata dumneavoastră în valoare de ${data.suma} a fost inițiată cu succes.
+
+Statusul plății va fi actualizat automat după confirmarea de la procesatorul de plăți.
+
+Pentru mai multe detalii, accesați: ${data.plataLink}
+
+Cu stimă,
+Echipa Primăriata
+    `.trim(),
+
+    payment_completed: `
+Bună ziua ${data.toName},
+
+Plata dumneavoastră în valoare de ${data.suma} a fost finalizată cu succes!
+
+Număr chitanță: ${data.numarChitanta}
+
+Puteți descărca chitanța accesând: ${data.plataLink}
+
+Cu stimă,
+Echipa Primăriata
+    `.trim(),
+
+    payment_failed: `
+Bună ziua ${data.toName},
+
+Din păcate, plata dumneavoastră în valoare de ${data.suma} a eșuat.
+
+Vă rugăm să încercați din nou sau să contactați banca emitentă pentru mai multe detalii.
+
+Pentru a reîncerca plata, accesați: ${data.plataLink}
+
+Cu stimă,
+Echipa Primăriata
+    `.trim(),
+
+    document_signed: `
+Bună ziua ${data.toName},
+
+Documentul "${data.documentName}" a fost semnat digital cu succes de către ${data.signerName}.
+
+Puteți descărca documentul semnat accesând: ${data.signedDocLink}
+
+Documentul semnat conține toate informațiile despre semnătura digitală aplicată.
+
+Cu stimă,
+Echipa Primăriata
+    `.trim(),
+
+    batch_signature_completed: `
+Bună ziua ${data.toName},
+
+Procesul de semnare în lot a fost finalizat cu succes!
+
+Toate documentele au fost semnate digital și sunt disponibile pentru descărcare.
+
+Pentru mai multe detalii, accesați: ${data.batchLink}
+
+Cu stimă,
+Echipa Primăriata
+    `.trim(),
   };
 
   return templates[type] || "";
@@ -400,6 +696,117 @@ function buildHtmlTemplate(type: string, data: Record<string, string>): string {
 </body>
 </html>
   `.trim();
+
+  // Payment and signature templates
+  const paymentInitiatedTemplate = layout(`
+    <h2 style="margin: 0 0 20px 0; color: #18181b; font-size: 24px; font-weight: 600;">Plată inițiată</h2>
+    <p style="margin: 0 0 15px 0; color: #52525b; font-size: 16px; line-height: 1.5;">Bună ziua <strong>${"${data.toName}"}</strong>,</p>
+    <p style="margin: 0 0 15px 0; color: #52525b; font-size: 16px; line-height: 1.5;">
+      Plata dumneavoastră a fost inițiată cu succes.
+    </p>
+    <div style="background-color: #f4f4f5; padding: 20px; border-radius: 6px; margin: 25px 0;">
+      <p style="margin: 0 0 10px 0; color: #71717a; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Sumă</p>
+      <p style="margin: 0; color: #18181b; font-size: 20px; font-weight: bold;">${"${data.suma}"}</p>
+    </div>
+    <p style="margin: 0 0 25px 0; color: #52525b; font-size: 16px; line-height: 1.5;">
+      Statusul plății va fi actualizat automat după confirmarea de la procesatorul de plăți.
+    </p>
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="${"${data.plataLink}"}" style="display: inline-block; background-color: #be3144; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-size: 16px; font-weight: 600;">Vezi detalii plată</a>
+    </div>
+    <p style="margin: 30px 0 0 0; color: #71717a; font-size: 14px; line-height: 1.5;">
+      Cu stimă,<br>
+      <strong>Echipa Primăriata</strong>
+    </p>
+  `);
+
+  const paymentCompletedTemplate = layout(`
+    <h2 style="margin: 0 0 20px 0; color: #059669; font-size: 24px; font-weight: 600;">✅ Plată confirmată!</h2>
+    <p style="margin: 0 0 15px 0; color: #52525b; font-size: 16px; line-height: 1.5;">Bună ziua <strong>${"${data.toName}"}</strong>,</p>
+    <p style="margin: 0 0 15px 0; color: #52525b; font-size: 16px; line-height: 1.5;">
+      Vă confirmăm că plata dumneavoastră a fost finalizată cu succes!
+    </p>
+    <div style="background-color: #d1fae5; padding: 20px; border-radius: 6px; border-left: 4px solid #059669; margin: 25px 0;">
+      <p style="margin: 0 0 10px 0; color: #065f46; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Sumă plătită</p>
+      <p style="margin: 0 0 15px 0; color: #047857; font-size: 20px; font-weight: bold;">${"${data.suma}"}</p>
+      <p style="margin: 0 0 5px 0; color: #065f46; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Număr chitanță</p>
+      <p style="margin: 0; color: #047857; font-size: 16px; font-weight: 600;">${"${data.numarChitanta}"}</p>
+    </div>
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="${"${data.plataLink}"}" style="display: inline-block; background-color: #059669; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-size: 16px; font-weight: 600;">Descarcă chitanță</a>
+    </div>
+    <p style="margin: 30px 0 0 0; color: #71717a; font-size: 14px; line-height: 1.5;">
+      Cu stimă,<br>
+      <strong>Echipa Primăriata</strong>
+    </p>
+  `);
+
+  const paymentFailedTemplate = layout(`
+    <h2 style="margin: 0 0 20px 0; color: #dc2626; font-size: 24px; font-weight: 600;">❌ Plată eșuată</h2>
+    <p style="margin: 0 0 15px 0; color: #52525b; font-size: 16px; line-height: 1.5;">Bună ziua <strong>${"${data.toName}"}</strong>,</p>
+    <p style="margin: 0 0 15px 0; color: #52525b; font-size: 16px; line-height: 1.5;">
+      Din păcate, plata dumneavoastră nu a putut fi procesată.
+    </p>
+    <div style="background-color: #fee2e2; padding: 20px; border-radius: 6px; border-left: 4px solid #dc2626; margin: 25px 0;">
+      <p style="margin: 0 0 10px 0; color: #991b1b; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Sumă</p>
+      <p style="margin: 0; color: #7f1d1d; font-size: 20px; font-weight: bold;">${"${data.suma}"}</p>
+    </div>
+    <p style="margin: 0 0 25px 0; color: #52525b; font-size: 16px; line-height: 1.5;">
+      Vă rugăm să încercați din nou sau să contactați banca emitentă pentru mai multe detalii despre eșecul tranzacției.
+    </p>
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="${"${data.plataLink}"}" style="display: inline-block; background-color: #be3144; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-size: 16px; font-weight: 600;">Reîncearcă plata</a>
+    </div>
+    <p style="margin: 30px 0 0 0; color: #71717a; font-size: 14px; line-height: 1.5;">
+      Cu stimă,<br>
+      <strong>Echipa Primăriata</strong>
+    </p>
+  `);
+
+  const documentSignedTemplate = layout(`
+    <h2 style="margin: 0 0 20px 0; color: #059669; font-size: 24px; font-weight: 600;">✍️ Document semnat digital</h2>
+    <p style="margin: 0 0 15px 0; color: #52525b; font-size: 16px; line-height: 1.5;">Bună ziua <strong>${"${data.toName}"}</strong>,</p>
+    <p style="margin: 0 0 15px 0; color: #52525b; font-size: 16px; line-height: 1.5;">
+      Documentul dumneavoastră a fost semnat digital cu succes!
+    </p>
+    <div style="background-color: #d1fae5; padding: 20px; border-radius: 6px; border-left: 4px solid #059669; margin: 25px 0;">
+      <p style="margin: 0 0 10px 0; color: #065f46; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Document</p>
+      <p style="margin: 0 0 15px 0; color: #047857; font-size: 18px; font-weight: bold;">${"${data.documentName}"}</p>
+      <p style="margin: 0 0 5px 0; color: #065f46; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Semnat de</p>
+      <p style="margin: 0; color: #047857; font-size: 16px; font-weight: 600;">${"${data.signerName}"}</p>
+    </div>
+    <p style="margin: 0 0 25px 0; color: #52525b; font-size: 16px; line-height: 1.5;">
+      Documentul semnat conține toate informațiile despre semnătura digitală aplicată și poate fi verificat în orice moment.
+    </p>
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="${"${data.signedDocLink}"}" style="display: inline-block; background-color: #059669; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-size: 16px; font-weight: 600;">Descarcă document semnat</a>
+    </div>
+    <p style="margin: 30px 0 0 0; color: #71717a; font-size: 14px; line-height: 1.5;">
+      Cu stimă,<br>
+      <strong>Echipa Primăriata</strong>
+    </p>
+  `);
+
+  const batchSignatureCompletedTemplate = layout(`
+    <h2 style="margin: 0 0 20px 0; color: #059669; font-size: 24px; font-weight: 600;">✍️ Semnare lot finalizată!</h2>
+    <p style="margin: 0 0 15px 0; color: #52525b; font-size: 16px; line-height: 1.5;">Bună ziua <strong>${"${data.toName}"}</strong>,</p>
+    <p style="margin: 0 0 15px 0; color: #52525b; font-size: 16px; line-height: 1.5;">
+      Procesul de semnare digitală în lot a fost finalizat cu succes!
+    </p>
+    <div style="background-color: #d1fae5; padding: 20px; border-radius: 6px; border-left: 4px solid #059669; margin: 25px 0;">
+      <p style="margin: 0; color: #065f46; font-size: 16px; font-weight: 600;">✓ Toate documentele au fost semnate digital și sunt disponibile pentru descărcare.</p>
+    </div>
+    <p style="margin: 0 0 25px 0; color: #52525b; font-size: 16px; line-height: 1.5;">
+      Fiecare document semnat conține informațiile complete despre semnătura digitală aplicată.
+    </p>
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="${"${data.batchLink}"}" style="display: inline-block; background-color: #059669; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-size: 16px; font-weight: 600;">Vezi toate documentele</a>
+    </div>
+    <p style="margin: 30px 0 0 0; color: #71717a; font-size: 14px; line-height: 1.5;">
+      Cu stimă,<br>
+      <strong>Echipa Primăriata</strong>
+    </p>
+  `);
 
   const templates: Record<string, string> = {
     cerere_submitted: layout(`
@@ -482,6 +889,12 @@ function buildHtmlTemplate(type: string, data: Record<string, string>): string {
         <strong>Echipa Primăriata</strong>
       </p>
     `),
+
+    payment_initiated: paymentInitiatedTemplate,
+    payment_completed: paymentCompletedTemplate,
+    payment_failed: paymentFailedTemplate,
+    document_signed: documentSignedTemplate,
+    batch_signature_completed: batchSignatureCompletedTemplate,
   };
 
   return templates[type] || "";

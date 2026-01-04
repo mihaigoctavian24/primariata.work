@@ -68,6 +68,62 @@ export type Database = {
           },
         ];
       };
+      batch_signature_log: {
+        Row: {
+          batch_reason: string | null;
+          created_at: string | null;
+          created_by: string | null;
+          duration_ms: number;
+          failed_count: number;
+          id: string;
+          is_mock: boolean | null;
+          primarie_id: string | null;
+          session_id: string;
+          signer_cnp: string;
+          signer_name: string;
+          succeeded_count: number;
+          total_documents: number;
+        };
+        Insert: {
+          batch_reason?: string | null;
+          created_at?: string | null;
+          created_by?: string | null;
+          duration_ms: number;
+          failed_count: number;
+          id?: string;
+          is_mock?: boolean | null;
+          primarie_id?: string | null;
+          session_id: string;
+          signer_cnp: string;
+          signer_name: string;
+          succeeded_count: number;
+          total_documents: number;
+        };
+        Update: {
+          batch_reason?: string | null;
+          created_at?: string | null;
+          created_by?: string | null;
+          duration_ms?: number;
+          failed_count?: number;
+          id?: string;
+          is_mock?: boolean | null;
+          primarie_id?: string | null;
+          session_id?: string;
+          signer_cnp?: string;
+          signer_name?: string;
+          succeeded_count?: number;
+          total_documents?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "batch_signature_log_primarie_id_fkey";
+            columns: ["primarie_id"];
+            isOneToOne: false;
+            referencedRelation: "primarii";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       cereri: {
         Row: {
           created_at: string | null;
@@ -162,6 +218,41 @@ export type Database = {
             columns: ["tip_cerere_id"];
             isOneToOne: false;
             referencedRelation: "tipuri_cereri";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      chitante: {
+        Row: {
+          created_at: string;
+          data_emitere: string;
+          id: string;
+          numar_chitanta: string;
+          pdf_url: string;
+          plata_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          data_emitere?: string;
+          id?: string;
+          numar_chitanta: string;
+          pdf_url: string;
+          plata_id: string;
+        };
+        Update: {
+          created_at?: string;
+          data_emitere?: string;
+          id?: string;
+          numar_chitanta?: string;
+          pdf_url?: string;
+          plata_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "chitante_plata_id_fkey";
+            columns: ["plata_id"];
+            isOneToOne: true;
+            referencedRelation: "plati";
             referencedColumns: ["id"];
           },
         ];
@@ -393,6 +484,74 @@ export type Database = {
           },
         ];
       };
+      mock_certificates: {
+        Row: {
+          certificate_serial: string;
+          certificate_type: string | null;
+          cnp: string;
+          created_at: string | null;
+          email: string | null;
+          id: string;
+          is_mock: boolean | null;
+          issuer: string | null;
+          mock_pin: string | null;
+          phone: string | null;
+          primarie_id: string | null;
+          status: string | null;
+          updated_at: string | null;
+          user_id: string | null;
+          user_name: string;
+          valid_from: string;
+          valid_until: string;
+        };
+        Insert: {
+          certificate_serial: string;
+          certificate_type?: string | null;
+          cnp: string;
+          created_at?: string | null;
+          email?: string | null;
+          id?: string;
+          is_mock?: boolean | null;
+          issuer?: string | null;
+          mock_pin?: string | null;
+          phone?: string | null;
+          primarie_id?: string | null;
+          status?: string | null;
+          updated_at?: string | null;
+          user_id?: string | null;
+          user_name: string;
+          valid_from?: string;
+          valid_until?: string;
+        };
+        Update: {
+          certificate_serial?: string;
+          certificate_type?: string | null;
+          cnp?: string;
+          created_at?: string | null;
+          email?: string | null;
+          id?: string;
+          is_mock?: boolean | null;
+          issuer?: string | null;
+          mock_pin?: string | null;
+          phone?: string | null;
+          primarie_id?: string | null;
+          status?: string | null;
+          updated_at?: string | null;
+          user_id?: string | null;
+          user_name?: string;
+          valid_from?: string;
+          valid_until?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "mock_certificates_primarie_id_fkey";
+            columns: ["primarie_id"];
+            isOneToOne: false;
+            referencedRelation: "primarii";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       notificari: {
         Row: {
           citita: boolean | null;
@@ -471,57 +630,42 @@ export type Database = {
       plati: {
         Row: {
           cerere_id: string | null;
-          created_at: string | null;
-          data_finalizare: string | null;
-          data_scadenta: string | null;
-          descriere: string | null;
-          gateway: string | null;
+          created_at: string;
           gateway_response: Json | null;
-          gateway_transaction_id: string | null;
           id: string;
-          moneda: string | null;
-          primarie_id: string | null;
+          metoda_plata: string | null;
+          primarie_id: string;
           status: string;
-          tip_plata: string;
-          updated_at: string | null;
+          suma: number;
+          transaction_id: string | null;
+          updated_at: string;
           utilizator_id: string | null;
-          valoare: number;
         };
         Insert: {
           cerere_id?: string | null;
-          created_at?: string | null;
-          data_finalizare?: string | null;
-          data_scadenta?: string | null;
-          descriere?: string | null;
-          gateway?: string | null;
+          created_at?: string;
           gateway_response?: Json | null;
-          gateway_transaction_id?: string | null;
           id?: string;
-          moneda?: string | null;
-          primarie_id?: string | null;
+          metoda_plata?: string | null;
+          primarie_id: string;
           status?: string;
-          tip_plata: string;
-          updated_at?: string | null;
+          suma: number;
+          transaction_id?: string | null;
+          updated_at?: string;
           utilizator_id?: string | null;
-          valoare: number;
         };
         Update: {
           cerere_id?: string | null;
-          created_at?: string | null;
-          data_finalizare?: string | null;
-          data_scadenta?: string | null;
-          descriere?: string | null;
-          gateway?: string | null;
+          created_at?: string;
           gateway_response?: Json | null;
-          gateway_transaction_id?: string | null;
           id?: string;
-          moneda?: string | null;
-          primarie_id?: string | null;
+          metoda_plata?: string | null;
+          primarie_id?: string;
           status?: string;
-          tip_plata?: string;
-          updated_at?: string | null;
+          suma?: number;
+          transaction_id?: string | null;
+          updated_at?: string;
           utilizator_id?: string | null;
-          valoare?: number;
         };
         Relationships: [
           {
@@ -617,6 +761,83 @@ export type Database = {
             columns: ["localitate_id"];
             isOneToOne: true;
             referencedRelation: "localitati";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      signature_audit_log: {
+        Row: {
+          algorithm: string | null;
+          cerere_id: string | null;
+          certificate_serial: string;
+          created_at: string | null;
+          created_by: string | null;
+          document_url: string;
+          error_message: string | null;
+          id: string;
+          ip_address: string | null;
+          is_mock: boolean | null;
+          primarie_id: string | null;
+          session_id: string | null;
+          signature_reason: string | null;
+          signed_document_url: string;
+          signer_cnp: string;
+          signer_name: string;
+          status: string | null;
+          timestamp: string;
+          transaction_id: string;
+          user_agent: string | null;
+        };
+        Insert: {
+          algorithm?: string | null;
+          cerere_id?: string | null;
+          certificate_serial: string;
+          created_at?: string | null;
+          created_by?: string | null;
+          document_url: string;
+          error_message?: string | null;
+          id?: string;
+          ip_address?: string | null;
+          is_mock?: boolean | null;
+          primarie_id?: string | null;
+          session_id?: string | null;
+          signature_reason?: string | null;
+          signed_document_url: string;
+          signer_cnp: string;
+          signer_name: string;
+          status?: string | null;
+          timestamp: string;
+          transaction_id: string;
+          user_agent?: string | null;
+        };
+        Update: {
+          algorithm?: string | null;
+          cerere_id?: string | null;
+          certificate_serial?: string;
+          created_at?: string | null;
+          created_by?: string | null;
+          document_url?: string;
+          error_message?: string | null;
+          id?: string;
+          ip_address?: string | null;
+          is_mock?: boolean | null;
+          primarie_id?: string | null;
+          session_id?: string | null;
+          signature_reason?: string | null;
+          signed_document_url?: string;
+          signer_cnp?: string;
+          signer_name?: string;
+          status?: string | null;
+          timestamp?: string;
+          transaction_id?: string;
+          user_agent?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "signature_audit_log_primarie_id_fkey";
+            columns: ["primarie_id"];
+            isOneToOne: false;
+            referencedRelation: "primarii";
             referencedColumns: ["id"];
           },
         ];
