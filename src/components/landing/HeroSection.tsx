@@ -43,10 +43,13 @@ export function HeroSection({
   const [step, setStep] = useState<1 | 2>(1);
   const [step2HeartbeatActive, setStep2HeartbeatActive] = useState(false);
   const [searchInputLength, setSearchInputLength] = useState(0);
+  const [mounted, setMounted] = useState(false);
 
-  // Mobile detection for responsive layout
+  // Mobile detection for responsive layout - prevent hydration mismatch
   const [isMobile, setIsMobile] = useState(false);
+
   useEffect(() => {
+    setMounted(true);
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
     window.addEventListener("resize", checkMobile);
@@ -262,6 +265,11 @@ export function HeroSection({
       console.error("Error saving location:", error);
     }
   };
+
+  // Prevent hydration mismatch - wait for client-side mount
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <section
