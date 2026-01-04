@@ -842,6 +842,47 @@ export type Database = {
           },
         ];
       };
+      sms_logs: {
+        Row: {
+          created_at: string;
+          error_message: string | null;
+          id: string;
+          message_type: string;
+          phone_number: string;
+          success: boolean;
+          twilio_sid: string | null;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          error_message?: string | null;
+          id?: string;
+          message_type: string;
+          phone_number: string;
+          success?: boolean;
+          twilio_sid?: string | null;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          error_message?: string | null;
+          id?: string;
+          message_type?: string;
+          phone_number?: string;
+          success?: boolean;
+          twilio_sid?: string | null;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "sms_logs_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "utilizatori";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       statistici_publice: {
         Row: {
           calculat_la: string | null;
@@ -1380,6 +1421,7 @@ export type Database = {
           prenume: string;
           primarie_id: string | null;
           rol: string;
+          sms_notifications_enabled: boolean | null;
           telefon: string | null;
           telefon_verificat: boolean | null;
           timezone: string | null;
@@ -1406,6 +1448,7 @@ export type Database = {
           prenume: string;
           primarie_id?: string | null;
           rol: string;
+          sms_notifications_enabled?: boolean | null;
           telefon?: string | null;
           telefon_verificat?: boolean | null;
           timezone?: string | null;
@@ -1432,6 +1475,7 @@ export type Database = {
           prenume?: string;
           primarie_id?: string | null;
           rol?: string;
+          sms_notifications_enabled?: boolean | null;
           telefon?: string | null;
           telefon_verificat?: boolean | null;
           timezone?: string | null;
