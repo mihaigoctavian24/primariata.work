@@ -384,7 +384,7 @@ export async function POST(request: NextRequest) {
       card_number: body.card_number,
       card_holder: body.card_holder,
       expiry_month: body.expiry_month,
-      expiry_year: parseInt(body.expiry_year),
+      expiry_year: body.expiry_year,
       cvv: body.cvv,
     };
 
