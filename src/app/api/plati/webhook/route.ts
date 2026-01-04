@@ -4,6 +4,8 @@ import { webhookPlataUpdateSchema, PlataStatus } from "@/lib/validations/plati";
 import type { ApiResponse, ApiErrorResponse } from "@/types/api";
 import type { Json } from "@/types/database.types";
 import { ZodError } from "zod";
+import { sendPaymentCompletedEmail, sendPaymentFailedEmail } from "@/lib/email";
+import { sendStatusChangedSMS } from "@/lib/sms";
 
 /**
  * POST /api/plati/webhook
@@ -57,10 +59,10 @@ export async function POST(request: NextRequest) {
     // TODO Phase 2: Verify webhook signature from Ghișeul.ro
     // TODO Phase 2: Check IP whitelist
 
-    // Find plata by transaction_id
+    // Find plata by transaction_id (with user info for email)
     const { data: plata, error: findError } = await supabase
       .from("plati")
-      .select("id, status, cerere_id, suma")
+      .select("id, status, cerere_id, suma, utilizator_id")
       .eq("transaction_id", transaction_id)
       .single();
 
@@ -164,8 +166,61 @@ export async function POST(request: NextRequest) {
         console.log(`Chitanță created: ${chitanta.numar_chitanta} for plata ${plata.id}`);
       }
 
-      // TODO Phase 2: Send email notification to user
-      // TODO Phase 2: Send SMS notification (optional)
+      // Send email notification to user
+      if (plata.utilizator_id) {
+        try {
+          // Get user email and name
+          const { data: user } = await supabase
+            .from("utilizatori")
+            .select("email, nume, prenume")
+            .eq("id", plata.utilizator_id)
+            .single();
+
+          if (user && user.email) {
+            // Send payment completed email
+            const fullName =
+              user.prenume && user.nume ? `${user.prenume} ${user.nume}` : "Utilizator";
+            const emailResult = await sendPaymentCompletedEmail(user.email, fullName, plata.id);
+
+            if (!emailResult.success) {
+              console.error("Failed to send payment email:", emailResult.error);
+              // Don't fail webhook - payment was successful
+            } else {
+              console.log(`Payment confirmation email sent to ${user.email}`);
+            }
+          }
+        } catch (emailError) {
+          console.error("Error sending payment email:", emailError);
+          // Don't fail webhook - payment was successful
+        }
+
+        // Send SMS notification if user has it enabled
+        try {
+          const { data: utilizator } = await supabase
+            .from("utilizatori")
+            .select("telefon, sms_notifications_enabled")
+            .eq("id", plata.utilizator_id)
+            .single();
+
+          if (utilizator?.sms_notifications_enabled && utilizator?.telefon && plata.cerere_id) {
+            const smsResult = await sendStatusChangedSMS(
+              utilizator.telefon,
+              plata.cerere_id,
+              plata.utilizator_id
+            );
+
+            if (!smsResult.success) {
+              console.error("Failed to send payment SMS:", smsResult.error);
+              // Don't fail webhook - payment was successful
+            } else {
+              console.log(`SMS sent to ${utilizator.telefon} for payment ${plata.id}`);
+            }
+          }
+        } catch (smsError) {
+          console.error("Error sending payment SMS:", smsError);
+          // Don't fail webhook - payment was successful
+        }
+      }
     }
 
     console.log(`Webhook processed: transaction ${transaction_id} → status ${status}`);

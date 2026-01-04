@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { AvatarUpload } from "@/components/profile/AvatarUpload";
 import { PersonalInfoForm } from "@/components/profile/PersonalInfoForm";
 import { PasswordChangeForm } from "@/components/profile/PasswordChangeForm";
+import { NotificationPreferencesForm } from "@/components/profile/NotificationPreferencesForm";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { AlertCircle, ArrowLeft } from "lucide-react";
@@ -145,6 +146,19 @@ export default function ProfilePage() {
               </CardHeader>
               <CardContent>
                 <PersonalInfoForm onError={handleError} />
+              </CardContent>
+            </Card>
+
+            {/* Notification Preferences Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Preferințe notificări</CardTitle>
+                <CardDescription>
+                  Gestionează modul în care primești notificări despre cereri și plăți
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <NotificationPreferencesForm onError={handleError} />
               </CardContent>
             </Card>
 

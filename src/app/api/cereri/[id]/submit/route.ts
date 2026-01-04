@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { CerereStatus } from "@/lib/validations/cereri";
 import type { ApiResponse, ApiErrorResponse, Cerere } from "@/types/api";
+import { sendCerereSubmittedSMS } from "@/lib/sms";
 
 /**
  * POST /api/cereri/[id]/submit
@@ -130,7 +131,33 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       return NextResponse.json(errorResponse, { status: 500 });
     }
 
-    // TODO: Create notification for user
+    // Send SMS notification to user if enabled
+    try {
+      const { data: utilizator } = await supabase
+        .from("utilizatori")
+        .select("telefon, sms_notifications_enabled")
+        .eq("id", user.id)
+        .single();
+
+      if (utilizator?.sms_notifications_enabled && utilizator?.telefon) {
+        const smsResult = await sendCerereSubmittedSMS(
+          utilizator.telefon,
+          updatedCerere.id,
+          user.id
+        );
+
+        if (!smsResult.success) {
+          console.error("Failed to send cerere submitted SMS:", smsResult.error);
+          // Don't fail the request - cerere was submitted successfully
+        } else {
+          console.log(`SMS sent to ${utilizator.telefon} for cerere ${updatedCerere.id}`);
+        }
+      }
+    } catch (smsError) {
+      console.error("Error sending cerere submitted SMS:", smsError);
+      // Don't fail the request - cerere was submitted successfully
+    }
+
     // TODO: Create notification for primarie staff (funcționari)
     // This will be implemented when notification system is added
 

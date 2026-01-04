@@ -124,3 +124,18 @@ export function getPasswordStrengthColor(strength: number): string {
       return "bg-gray-300";
   }
 }
+
+/**
+ * Notification Preferences Form Validation
+ */
+export const notificationPreferencesSchema = z.object({
+  sms_notifications_enabled: z.boolean(),
+
+  telefon: z
+    .string()
+    .regex(/^\+[1-9]\d{1,14}$/, "Număr de telefon invalid (format E.164: +40712345678)")
+    .optional()
+    .or(z.literal("")),
+});
+
+export type NotificationPreferencesFormData = z.infer<typeof notificationPreferencesSchema>;

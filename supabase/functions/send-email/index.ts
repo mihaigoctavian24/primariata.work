@@ -19,7 +19,10 @@ interface EmailRequest {
     | "payment_completed"
     | "payment_failed"
     | "document_signed"
-    | "batch_signature_completed";
+    | "batch_signature_completed"
+    | "welcome"
+    | "password_reset"
+    | "weekly_digest";
   cerereId?: string;
   toEmail: string;
   toName: string;
@@ -28,6 +31,11 @@ interface EmailRequest {
   // Signature-specific fields
   transactionId?: string;
   sessionId?: string; // For batch signatures
+  // Auth-specific fields
+  resetLink?: string;
+  // Weekly digest fields
+  cererePending?: number;
+  cerereInProgress?: number;
 }
 
 interface CerereData {
@@ -182,6 +190,19 @@ serve(async (req: Request) => {
       }
 
       plata = plataData as unknown as PlataData;
+
+      // For payment_completed, fetch chitanta to get numar_chitanta
+      if (type === "payment_completed") {
+        const { data: chitantaData } = await supabase
+          .from("chitante")
+          .select("numar_chitanta")
+          .eq("plata_id", plataId)
+          .single();
+
+        if (chitantaData) {
+          plata.numar_chitanta = chitantaData.numar_chitanta;
+        }
+      }
     } else if (isSignatureEmail && transactionId) {
       const { data: signatureData, error: signatureError } = await supabase
         .from("signature_audit_log")
@@ -700,19 +721,19 @@ function buildHtmlTemplate(type: string, data: Record<string, string>): string {
   // Payment and signature templates
   const paymentInitiatedTemplate = layout(`
     <h2 style="margin: 0 0 20px 0; color: #18181b; font-size: 24px; font-weight: 600;">Plată inițiată</h2>
-    <p style="margin: 0 0 15px 0; color: #52525b; font-size: 16px; line-height: 1.5;">Bună ziua <strong>${"${data.toName}"}</strong>,</p>
+    <p style="margin: 0 0 15px 0; color: #52525b; font-size: 16px; line-height: 1.5;">Bună ziua <strong>${data.toName}</strong>,</p>
     <p style="margin: 0 0 15px 0; color: #52525b; font-size: 16px; line-height: 1.5;">
       Plata dumneavoastră a fost inițiată cu succes.
     </p>
     <div style="background-color: #f4f4f5; padding: 20px; border-radius: 6px; margin: 25px 0;">
       <p style="margin: 0 0 10px 0; color: #71717a; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Sumă</p>
-      <p style="margin: 0; color: #18181b; font-size: 20px; font-weight: bold;">${"${data.suma}"}</p>
+      <p style="margin: 0; color: #18181b; font-size: 20px; font-weight: bold;">${data.suma}</p>
     </div>
     <p style="margin: 0 0 25px 0; color: #52525b; font-size: 16px; line-height: 1.5;">
       Statusul plății va fi actualizat automat după confirmarea de la procesatorul de plăți.
     </p>
     <div style="text-align: center; margin: 30px 0;">
-      <a href="${"${data.plataLink}"}" style="display: inline-block; background-color: #be3144; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-size: 16px; font-weight: 600;">Vezi detalii plată</a>
+      <a href="${data.plataLink}" style="display: inline-block; background-color: #be3144; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-size: 16px; font-weight: 600;">Vezi detalii plată</a>
     </div>
     <p style="margin: 30px 0 0 0; color: #71717a; font-size: 14px; line-height: 1.5;">
       Cu stimă,<br>
@@ -722,18 +743,18 @@ function buildHtmlTemplate(type: string, data: Record<string, string>): string {
 
   const paymentCompletedTemplate = layout(`
     <h2 style="margin: 0 0 20px 0; color: #059669; font-size: 24px; font-weight: 600;">✅ Plată confirmată!</h2>
-    <p style="margin: 0 0 15px 0; color: #52525b; font-size: 16px; line-height: 1.5;">Bună ziua <strong>${"${data.toName}"}</strong>,</p>
+    <p style="margin: 0 0 15px 0; color: #52525b; font-size: 16px; line-height: 1.5;">Bună ziua <strong>${data.toName}</strong>,</p>
     <p style="margin: 0 0 15px 0; color: #52525b; font-size: 16px; line-height: 1.5;">
       Vă confirmăm că plata dumneavoastră a fost finalizată cu succes!
     </p>
     <div style="background-color: #d1fae5; padding: 20px; border-radius: 6px; border-left: 4px solid #059669; margin: 25px 0;">
       <p style="margin: 0 0 10px 0; color: #065f46; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Sumă plătită</p>
-      <p style="margin: 0 0 15px 0; color: #047857; font-size: 20px; font-weight: bold;">${"${data.suma}"}</p>
+      <p style="margin: 0 0 15px 0; color: #047857; font-size: 20px; font-weight: bold;">${data.suma}</p>
       <p style="margin: 0 0 5px 0; color: #065f46; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Număr chitanță</p>
-      <p style="margin: 0; color: #047857; font-size: 16px; font-weight: 600;">${"${data.numarChitanta}"}</p>
+      <p style="margin: 0; color: #047857; font-size: 16px; font-weight: 600;">${data.numarChitanta}</p>
     </div>
     <div style="text-align: center; margin: 30px 0;">
-      <a href="${"${data.plataLink}"}" style="display: inline-block; background-color: #059669; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-size: 16px; font-weight: 600;">Descarcă chitanță</a>
+      <a href="${data.plataLink}" style="display: inline-block; background-color: #059669; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-size: 16px; font-weight: 600;">Descarcă chitanță</a>
     </div>
     <p style="margin: 30px 0 0 0; color: #71717a; font-size: 14px; line-height: 1.5;">
       Cu stimă,<br>
@@ -743,19 +764,19 @@ function buildHtmlTemplate(type: string, data: Record<string, string>): string {
 
   const paymentFailedTemplate = layout(`
     <h2 style="margin: 0 0 20px 0; color: #dc2626; font-size: 24px; font-weight: 600;">❌ Plată eșuată</h2>
-    <p style="margin: 0 0 15px 0; color: #52525b; font-size: 16px; line-height: 1.5;">Bună ziua <strong>${"${data.toName}"}</strong>,</p>
+    <p style="margin: 0 0 15px 0; color: #52525b; font-size: 16px; line-height: 1.5;">Bună ziua <strong>${data.toName}</strong>,</p>
     <p style="margin: 0 0 15px 0; color: #52525b; font-size: 16px; line-height: 1.5;">
       Din păcate, plata dumneavoastră nu a putut fi procesată.
     </p>
     <div style="background-color: #fee2e2; padding: 20px; border-radius: 6px; border-left: 4px solid #dc2626; margin: 25px 0;">
       <p style="margin: 0 0 10px 0; color: #991b1b; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Sumă</p>
-      <p style="margin: 0; color: #7f1d1d; font-size: 20px; font-weight: bold;">${"${data.suma}"}</p>
+      <p style="margin: 0; color: #7f1d1d; font-size: 20px; font-weight: bold;">${data.suma}</p>
     </div>
     <p style="margin: 0 0 25px 0; color: #52525b; font-size: 16px; line-height: 1.5;">
       Vă rugăm să încercați din nou sau să contactați banca emitentă pentru mai multe detalii despre eșecul tranzacției.
     </p>
     <div style="text-align: center; margin: 30px 0;">
-      <a href="${"${data.plataLink}"}" style="display: inline-block; background-color: #be3144; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-size: 16px; font-weight: 600;">Reîncearcă plata</a>
+      <a href="${data.plataLink}" style="display: inline-block; background-color: #be3144; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-size: 16px; font-weight: 600;">Reîncearcă plata</a>
     </div>
     <p style="margin: 30px 0 0 0; color: #71717a; font-size: 14px; line-height: 1.5;">
       Cu stimă,<br>
@@ -765,21 +786,21 @@ function buildHtmlTemplate(type: string, data: Record<string, string>): string {
 
   const documentSignedTemplate = layout(`
     <h2 style="margin: 0 0 20px 0; color: #059669; font-size: 24px; font-weight: 600;">✍️ Document semnat digital</h2>
-    <p style="margin: 0 0 15px 0; color: #52525b; font-size: 16px; line-height: 1.5;">Bună ziua <strong>${"${data.toName}"}</strong>,</p>
+    <p style="margin: 0 0 15px 0; color: #52525b; font-size: 16px; line-height: 1.5;">Bună ziua <strong>${data.toName}</strong>,</p>
     <p style="margin: 0 0 15px 0; color: #52525b; font-size: 16px; line-height: 1.5;">
       Documentul dumneavoastră a fost semnat digital cu succes!
     </p>
     <div style="background-color: #d1fae5; padding: 20px; border-radius: 6px; border-left: 4px solid #059669; margin: 25px 0;">
       <p style="margin: 0 0 10px 0; color: #065f46; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Document</p>
-      <p style="margin: 0 0 15px 0; color: #047857; font-size: 18px; font-weight: bold;">${"${data.documentName}"}</p>
+      <p style="margin: 0 0 15px 0; color: #047857; font-size: 18px; font-weight: bold;">${data.documentName}</p>
       <p style="margin: 0 0 5px 0; color: #065f46; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Semnat de</p>
-      <p style="margin: 0; color: #047857; font-size: 16px; font-weight: 600;">${"${data.signerName}"}</p>
+      <p style="margin: 0; color: #047857; font-size: 16px; font-weight: 600;">${data.signerName}</p>
     </div>
     <p style="margin: 0 0 25px 0; color: #52525b; font-size: 16px; line-height: 1.5;">
       Documentul semnat conține toate informațiile despre semnătura digitală aplicată și poate fi verificat în orice moment.
     </p>
     <div style="text-align: center; margin: 30px 0;">
-      <a href="${"${data.signedDocLink}"}" style="display: inline-block; background-color: #059669; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-size: 16px; font-weight: 600;">Descarcă document semnat</a>
+      <a href="${data.signedDocLink}" style="display: inline-block; background-color: #059669; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-size: 16px; font-weight: 600;">Descarcă document semnat</a>
     </div>
     <p style="margin: 30px 0 0 0; color: #71717a; font-size: 14px; line-height: 1.5;">
       Cu stimă,<br>
@@ -789,7 +810,7 @@ function buildHtmlTemplate(type: string, data: Record<string, string>): string {
 
   const batchSignatureCompletedTemplate = layout(`
     <h2 style="margin: 0 0 20px 0; color: #059669; font-size: 24px; font-weight: 600;">✍️ Semnare lot finalizată!</h2>
-    <p style="margin: 0 0 15px 0; color: #52525b; font-size: 16px; line-height: 1.5;">Bună ziua <strong>${"${data.toName}"}</strong>,</p>
+    <p style="margin: 0 0 15px 0; color: #52525b; font-size: 16px; line-height: 1.5;">Bună ziua <strong>${data.toName}</strong>,</p>
     <p style="margin: 0 0 15px 0; color: #52525b; font-size: 16px; line-height: 1.5;">
       Procesul de semnare digitală în lot a fost finalizat cu succes!
     </p>
@@ -800,7 +821,80 @@ function buildHtmlTemplate(type: string, data: Record<string, string>): string {
       Fiecare document semnat conține informațiile complete despre semnătura digitală aplicată.
     </p>
     <div style="text-align: center; margin: 30px 0;">
-      <a href="${"${data.batchLink}"}" style="display: inline-block; background-color: #059669; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-size: 16px; font-weight: 600;">Vezi toate documentele</a>
+      <a href="${data.batchLink}" style="display: inline-block; background-color: #059669; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-size: 16px; font-weight: 600;">Vezi toate documentele</a>
+    </div>
+    <p style="margin: 30px 0 0 0; color: #71717a; font-size: 14px; line-height: 1.5;">
+      Cu stimă,<br>
+      <strong>Echipa Primăriata</strong>
+    </p>
+  `);
+
+  const welcomeTemplate = layout(`
+    <h2 style="margin: 0 0 20px 0; color: #059669; font-size: 24px; font-weight: 600;">🎉 Bun venit la Primăriata!</h2>
+    <p style="margin: 0 0 15px 0; color: #52525b; font-size: 16px; line-height: 1.5;">Bună ziua <strong>${data.toName}</strong>,</p>
+    <p style="margin: 0 0 15px 0; color: #52525b; font-size: 16px; line-height: 1.5;">
+      Vă mulțumim că v-ați creat cont pe platforma Primăriata! Acum puteți gestiona toate cererile dumneavoastră online, rapid și simplu.
+    </p>
+    <div style="background-color: #d1fae5; padding: 20px; border-radius: 6px; border-left: 4px solid #059669; margin: 25px 0;">
+      <p style="margin: 0 0 15px 0; color: #065f46; font-size: 16px; font-weight: 600;">Ce puteți face:</p>
+      <ul style="margin: 0; padding-left: 20px; color: #047857;">
+        <li style="margin-bottom: 8px;">Depuneți cereri online fără să vizitați primăria</li>
+        <li style="margin-bottom: 8px;">Urmăriți statusul cererilor în timp real</li>
+        <li style="margin-bottom: 8px;">Plătiți taxele online cu cardul</li>
+        <li style="margin-bottom: 8px;">Descărcați documentele semnate digital</li>
+      </ul>
+    </div>
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="${process.env.FRONTEND_URL}/app" style="display: inline-block; background-color: #059669; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-size: 16px; font-weight: 600;">Acces în cont</a>
+    </div>
+    <p style="margin: 30px 0 0 0; color: #71717a; font-size: 14px; line-height: 1.5;">
+      Cu stimă,<br>
+      <strong>Echipa Primăriata</strong>
+    </p>
+  `);
+
+  const passwordResetTemplate = layout(`
+    <h2 style="margin: 0 0 20px 0; color: #be3144; font-size: 24px; font-weight: 600;">🔐 Resetare parolă</h2>
+    <p style="margin: 0 0 15px 0; color: #52525b; font-size: 16px; line-height: 1.5;">Bună ziua <strong>${data.toName}</strong>,</p>
+    <p style="margin: 0 0 15px 0; color: #52525b; font-size: 16px; line-height: 1.5;">
+      Am primit o cerere de resetare a parolei pentru contul dumneavoastră Primăriata.
+    </p>
+    <div style="background-color: #fef3c7; padding: 20px; border-radius: 6px; border-left: 4px solid #f59e0b; margin: 25px 0;">
+      <p style="margin: 0 0 10px 0; color: #92400e; font-size: 14px; font-weight: 600;">⚠️ IMPORTANT</p>
+      <p style="margin: 0; color: #78350f; font-size: 14px; line-height: 1.5;">
+        Linkul de resetare este valabil doar 1 oră. Dacă nu ați solicitat resetarea parolei, vă rugăm să ignorați acest email.
+      </p>
+    </div>
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="${data.resetLink}" style="display: inline-block; background-color: #be3144; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-size: 16px; font-weight: 600;">Resetează parola</a>
+    </div>
+    <p style="margin: 30px 0 0 0; color: #71717a; font-size: 14px; line-height: 1.5;">
+      Cu stimă,<br>
+      <strong>Echipa Primăriata</strong>
+    </p>
+  `);
+
+  const weeklyDigestTemplate = layout(`
+    <h2 style="margin: 0 0 20px 0; color: #be3144; font-size: 24px; font-weight: 600;">📊 Raport săptămânal cereri</h2>
+    <p style="margin: 0 0 15px 0; color: #52525b; font-size: 16px; line-height: 1.5;">Bună ziua <strong>${data.toName}</strong>,</p>
+    <p style="margin: 0 0 15px 0; color: #52525b; font-size: 16px; line-height: 1.5;">
+      Iată un rezumat al cererilor dumneavoastră active în această săptămână:
+    </p>
+    <div style="background-color: #f4f4f5; padding: 20px; border-radius: 6px; margin: 25px 0;">
+      <div style="margin-bottom: 15px;">
+        <p style="margin: 0 0 5px 0; color: #71717a; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">În așteptare</p>
+        <p style="margin: 0; color: #f59e0b; font-size: 24px; font-weight: bold;">${data.cererePending || 0}</p>
+      </div>
+      <div>
+        <p style="margin: 0 0 5px 0; color: #71717a; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">În procesare</p>
+        <p style="margin: 0; color: #3b82f6; font-size: 24px; font-weight: bold;">${data.cerereInProgress || 0}</p>
+      </div>
+    </div>
+    <p style="margin: 0 0 25px 0; color: #52525b; font-size: 16px; line-height: 1.5;">
+      Pentru a vedea detalii complete despre fiecare cerere, accesați contul dumneavoastră.
+    </p>
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="${process.env.FRONTEND_URL}/app/cereri" style="display: inline-block; background-color: #be3144; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-size: 16px; font-weight: 600;">Vezi toate cererile</a>
     </div>
     <p style="margin: 30px 0 0 0; color: #71717a; font-size: 14px; line-height: 1.5;">
       Cu stimă,<br>
@@ -895,6 +989,9 @@ function buildHtmlTemplate(type: string, data: Record<string, string>): string {
     payment_failed: paymentFailedTemplate,
     document_signed: documentSignedTemplate,
     batch_signature_completed: batchSignatureCompletedTemplate,
+    welcome: welcomeTemplate,
+    password_reset: passwordResetTemplate,
+    weekly_digest: weeklyDigestTemplate,
   };
 
   return templates[type] || "";
