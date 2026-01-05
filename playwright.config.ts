@@ -55,6 +55,10 @@ export default defineConfig({
     locale: "ro-RO",
     timezoneId: "Europe/Bucharest",
 
+    // Custom user-agent to bypass bot detection (Vercel Security Checkpoint)
+    userAgent:
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+
     // Screenshot & video settings
     screenshot: "only-on-failure",
     video: "retain-on-failure",

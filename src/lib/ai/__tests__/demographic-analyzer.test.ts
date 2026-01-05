@@ -531,6 +531,9 @@ describe("Demographic Analyzer Service", () => {
     });
 
     it("should handle AI interpretation errors", async () => {
+      // Suppress console.error for this test to avoid CI failures
+      const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+
       mockChatCompletion.mockRejectedValue(new Error("API Error"));
 
       const input: DemographicAnalysisInput = {
@@ -544,6 +547,10 @@ describe("Demographic Analyzer Service", () => {
       result.correlations.forEach((corr) => {
         expect(corr.interpretation).toBeDefined();
       });
+
+      // Verify console.error was called (but suppressed)
+      expect(consoleErrorSpy).toHaveBeenCalled();
+      consoleErrorSpy.mockRestore();
     });
   });
 
