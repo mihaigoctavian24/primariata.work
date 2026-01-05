@@ -103,7 +103,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Run unit tests
-        run: pnpm test --ci --coverage --maxWorkers=2 --passWithNoTests
+        run: pnpm test:ci
         env:
           # Test environment variables (mock values)
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
@@ -111,7 +111,7 @@ jobs:
           NODE_ENV: test
 
       - name: Run integration tests
-        run: pnpm test:integration --ci --maxWorkers=2
+        run: pnpm test:integration
         env:
           # Test environment variables (mock values)
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}

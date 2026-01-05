@@ -12,6 +12,7 @@ import { defineConfig, devices } from "@playwright/test";
 
 const baseURL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 const isCI = !!process.env.CI;
+const isProductionURL = baseURL.includes("vercel.app") || baseURL.includes("primariata.work");
 
 export default defineConfig({
   // =============================================================================
@@ -122,14 +123,16 @@ export default defineConfig({
   // =============================================================================
   // WEB SERVER - Start Next.js dev server for testing
   // =============================================================================
-  webServer: {
-    command: "pnpm dev",
-    url: baseURL,
-    reuseExistingServer: !isCI, // Don't reuse in CI, always start fresh
-    timeout: 120000, // 2 minutes for server startup
-    stdout: "pipe",
-    stderr: "pipe",
-  },
+  webServer: isProductionURL
+    ? undefined // Don't start server when testing against production URL
+    : {
+        command: "pnpm dev",
+        url: baseURL,
+        reuseExistingServer: !isCI, // Don't reuse in CI, always start fresh
+        timeout: 120000, // 2 minutes for server startup
+        stdout: "pipe",
+        stderr: "pipe",
+      },
 
   // =============================================================================
   // TIMEOUTS
