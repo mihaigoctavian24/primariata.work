@@ -22,10 +22,15 @@ global.TextDecoder = TextDecoder;
 if (typeof global.Request === "undefined") {
   global.Request = class Request {
     constructor(url, options = {}) {
-      this.url = url;
+      this._url = url;
       this.method = options.method || "GET";
-      this.headers = options.headers || {};
+      this.headers = new global.Headers(options.headers || {});
       this.body = options.body || null;
+    }
+
+    // url must be a getter to match NextRequest behavior
+    get url() {
+      return this._url;
     }
   };
 }
@@ -36,7 +41,8 @@ if (typeof global.Response === "undefined") {
       this.body = body;
       this.status = options.status || 200;
       this.statusText = options.statusText || "OK";
-      this.headers = options.headers || {};
+      // headers must be a Headers object with .get() method
+      this.headers = new global.Headers(options.headers || {});
       this.ok = this.status >= 200 && this.status < 300;
     }
 

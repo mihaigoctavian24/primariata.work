@@ -68,6 +68,16 @@ export default defineConfig({
     actionTimeout: 10000,
     navigationTimeout: 30000,
 
+    // Browser launch options to bypass Vercel bot detection
+    launchOptions: {
+      args: [
+        "--disable-blink-features=AutomationControlled", // Remove automation flags
+        "--disable-dev-shm-usage", // Overcome limited resource problems
+        "--no-sandbox", // Sandbox can interfere with CI
+        "--disable-setuid-sandbox",
+      ],
+    },
+
     // Test metadata
     contextOptions: {
       permissions: ["geolocation", "notifications"],
