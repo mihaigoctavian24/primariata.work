@@ -315,11 +315,24 @@ export function selectTopQuotes(responses: string[], count: number = 5): string[
     if (selected.length >= count) break;
 
     // Check if not too similar to already selected
-    const isSimilar = selected.some(
-      (s) =>
-        s.toLowerCase().includes(quote.toLowerCase().substring(0, 30)) ||
-        quote.toLowerCase().includes(s.toLowerCase().substring(0, 30))
-    );
+    const quoteLower = quote.toLowerCase();
+    const isSimilar = selected.some((s) => {
+      const sLower = s.toLowerCase();
+
+      // Calculate common prefix length
+      let commonPrefixLen = 0;
+      const minLen = Math.min(quoteLower.length, sLower.length);
+      for (let i = 0; i < minLen; i++) {
+        if (quoteLower[i] === sLower[i]) {
+          commonPrefixLen++;
+        } else {
+          break;
+        }
+      }
+
+      // If they share 15+ characters at the start, consider them similar
+      return commonPrefixLen >= 15;
+    });
 
     if (!isSimilar) {
       selected.push(quote);
@@ -408,8 +421,8 @@ export function calculateWordFrequency(
   // Combine all texts
   const combinedText = validTexts.join(" ").toLowerCase();
 
-  // Extract words (Romanian diacritics preserved)
-  const words = combinedText.match(/[a-zăâîșțĂÂÎȘȚ]+/gi) || [];
+  // Extract words (Romanian diacritics preserved, alphanumeric)
+  const words = combinedText.match(/[a-zăâîșțĂÂÎȘȚ0-9]+/gi) || [];
 
   // Count frequency
   const frequency = new Map<string, number>();
