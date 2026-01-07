@@ -32,6 +32,22 @@ if (typeof global.Request === "undefined") {
     get url() {
       return this._url;
     }
+
+    // json() method to parse request body
+    async json() {
+      if (typeof this.body === "string") {
+        return JSON.parse(this.body);
+      }
+      return this.body;
+    }
+
+    // text() method to get request body as text
+    async text() {
+      if (typeof this.body === "string") {
+        return this.body;
+      }
+      return JSON.stringify(this.body);
+    }
   };
 }
 
@@ -134,11 +150,20 @@ if (typeof global.Blob === "undefined") {
     }
 
     async arrayBuffer() {
+      // Handle Uint8Array and other typed arrays
+      if (this.parts.length === 1 && this.parts[0] instanceof Uint8Array) {
+        return this.parts[0].buffer;
+      }
+      // Handle string parts
       const text = this.parts.join("");
       return new TextEncoder().encode(text).buffer;
     }
 
     async text() {
+      // Handle Uint8Array and other typed arrays
+      if (this.parts.length === 1 && this.parts[0] instanceof Uint8Array) {
+        return new TextDecoder().decode(this.parts[0]);
+      }
       return this.parts.join("");
     }
   };

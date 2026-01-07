@@ -17,8 +17,8 @@ test.describe("Homepage", () => {
     // Wait for page to be fully loaded
     await page.waitForLoadState("networkidle");
 
-    // Verify page title
-    await expect(page).toHaveTitle(/Primăriata/);
+    // Verify page title (actual: "primariaTa❤️_ - Primăria ta digitală")
+    await expect(page).toHaveTitle(/primariaTa/i);
 
     // Verify page is visible
     await expect(page.locator("body")).toBeVisible();
