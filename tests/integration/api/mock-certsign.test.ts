@@ -130,7 +130,10 @@ describe("Signature Integration Tests", () => {
         storage: {
           from: jest.fn().mockReturnValue({
             download: jest.fn().mockResolvedValue({
-              data: new Blob([new Uint8Array([1, 2, 3])], { type: "application/pdf" }),
+              data: {
+                arrayBuffer: async () => new Uint8Array([1, 2, 3]).buffer,
+                type: "application/pdf",
+              },
               error: null,
             }),
             upload: jest.fn().mockResolvedValue({
@@ -657,7 +660,10 @@ describe("Signature Integration Tests", () => {
         storage: {
           from: jest.fn().mockReturnValue({
             download: jest.fn().mockResolvedValue({
-              data: new Blob([new Uint8Array([1, 2, 3])], { type: "application/pdf" }),
+              data: {
+                arrayBuffer: async () => new Uint8Array([1, 2, 3]).buffer,
+                type: "application/pdf",
+              },
               error: null,
             }),
             upload: jest.fn().mockResolvedValue({

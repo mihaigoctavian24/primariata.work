@@ -259,6 +259,7 @@ describe("Research API Integration Tests", () => {
             eq: jest.fn().mockReturnThis(),
             gt: jest.fn().mockReturnThis(),
             single: jest.fn().mockResolvedValue({ data: null, error: null }),
+            upsert: jest.fn().mockResolvedValue({ error: null }),
           };
         }
         if (table === "survey_respondents") {
@@ -404,6 +405,7 @@ describe("Research API Integration Tests", () => {
               data: { cache_key: "test", result: cachedResult },
               error: null,
             }),
+            upsert: jest.fn().mockResolvedValue({ error: null }),
           };
         }
         return mockClient.from(table);
@@ -440,6 +442,7 @@ describe("Research API Integration Tests", () => {
             eq: jest.fn().mockReturnThis(),
             gt: jest.fn().mockReturnThis(),
             single: jest.fn().mockResolvedValue({ data: null, error: null }),
+            upsert: jest.fn().mockResolvedValue({ error: null }),
           };
         }
         if (table === "survey_respondents") {
@@ -480,6 +483,7 @@ describe("Research API Integration Tests", () => {
             eq: jest.fn().mockReturnThis(),
             gt: jest.fn().mockReturnThis(),
             single: jest.fn().mockResolvedValue({ data: null, error: null }),
+            upsert: jest.fn().mockResolvedValue({ error: null }),
           };
         }
         if (table === "survey_respondents") {
@@ -524,6 +528,7 @@ describe("Research API Integration Tests", () => {
             eq: jest.fn().mockReturnThis(),
             gt: jest.fn().mockReturnThis(),
             single: jest.fn().mockResolvedValue({ data: null, error: null }),
+            upsert: jest.fn().mockResolvedValue({ error: null }),
           };
         }
         if (table === "survey_respondents") {
