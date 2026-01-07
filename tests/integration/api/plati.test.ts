@@ -5,6 +5,12 @@ import { createClient, createServiceRoleClient } from "@/lib/supabase/server";
 import { PlataStatus } from "@/lib/validations/plati";
 import type { ApiResponse, ApiErrorResponse, PaginatedResponse } from "@/types/api";
 import { NextRequest } from "next/server";
+import {
+  measureTestOperation,
+  printTestMetricsSummary,
+  clearTestMetrics,
+} from "../../helpers/integration-monitoring";
+import { IntegrationType, GhiseulOperation } from "@/lib/monitoring/integrations";
 
 // Mock Supabase clients
 jest.mock("@/lib/supabase/server", () => ({
@@ -58,6 +64,11 @@ describe("Payment Integration Tests", () => {
 
   afterEach(() => {
     jest.restoreAllMocks();
+  });
+
+  afterAll(() => {
+    printTestMetricsSummary();
+    clearTestMetrics();
   });
 
   describe("POST /api/plati - Create Payment", () => {
@@ -157,7 +168,12 @@ describe("Payment Integration Tests", () => {
         }),
       });
 
-      const response = await createPlata(request);
+      // Track response time
+      const response = await measureTestOperation(
+        IntegrationType.GHISEUL,
+        GhiseulOperation.CREATE_PAYMENT,
+        () => createPlata(request)
+      );
       const json = await response.json();
       const data = json as ApiResponse<{ plata_id: string; redirect_url: string }>;
 

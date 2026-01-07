@@ -7,6 +7,12 @@ import { createClient } from "@/lib/supabase/server";
 import type { ApiResponse, ApiErrorResponse } from "@/types/api";
 import { NextRequest } from "next/server";
 import { PDFDocument } from "pdf-lib";
+import {
+  measureTestOperation,
+  printTestMetricsSummary,
+  clearTestMetrics,
+} from "../../helpers/integration-monitoring";
+import { IntegrationType, CertSignOperation } from "@/lib/monitoring/integrations";
 
 // Mock Supabase client
 jest.mock("@/lib/supabase/server", () => ({
@@ -84,6 +90,11 @@ describe("Signature Integration Tests", () => {
     jest.restoreAllMocks();
   });
 
+  afterAll(() => {
+    printTestMetricsSummary();
+    clearTestMetrics();
+  });
+
   describe("POST /api/mock-certsign/sign - Single Document Signature", () => {
     it("should sign document successfully", async () => {
       const mockSupabase = {
@@ -159,7 +170,12 @@ describe("Signature Integration Tests", () => {
         }),
       });
 
-      const response = await signDocument(request);
+      // Track response time
+      const response = await measureTestOperation(
+        IntegrationType.CERTSIGN,
+        CertSignOperation.SIGN_DOCUMENT,
+        () => signDocument(request)
+      );
       const json = await response.json();
       const data = json as ApiResponse<{
         signed_document_url: string;
