@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
-import { getLocation } from "@/lib/location-storage";
+import { cookies } from "next/headers";
 
 /**
  * OAuth Callback Route Handler
@@ -29,11 +29,21 @@ export async function GET(request: Request) {
       // Determine redirect destination
       let redirectPath = next;
 
-      // If no specific redirect, check for saved location
+      // If no specific redirect, check for saved location from cookie (server-side)
       if (redirectPath === "/") {
-        const savedLocation = getLocation();
-        if (savedLocation) {
-          redirectPath = `/app/${savedLocation.judetSlug}/${savedLocation.localitateSlug}`;
+        const cookieStore = await cookies();
+        const locationCookie = cookieStore.get("selected_location");
+
+        if (locationCookie?.value) {
+          try {
+            const savedLocation = JSON.parse(decodeURIComponent(locationCookie.value));
+            if (savedLocation.judetSlug && savedLocation.localitateSlug) {
+              redirectPath = `/app/${savedLocation.judetSlug}/${savedLocation.localitateSlug}`;
+            }
+          } catch (e) {
+            console.error("[auth/callback] Failed to parse location cookie:", e);
+            // Fallback to homepage if cookie is corrupted
+          }
         }
       }
 
