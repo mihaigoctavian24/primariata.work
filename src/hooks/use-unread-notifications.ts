@@ -2,11 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
-import type { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
 
 /**
  * Hook for tracking unread notifications count
- * Subscribes to real-time updates on the notificari table
+ * Subscribes to real-time updates on the notifications table
  *
  * @param userId - Current user's ID
  * @param enabled - Whether to enable the subscription (default: true)
@@ -26,10 +25,11 @@ export function useUnreadNotifications(userId: string | null, enabled: boolean =
     // Fetch initial unread count
     const fetchUnreadCount = async () => {
       const { count, error } = await supabase
-        .from("notificari")
+        .from("notifications")
         .select("*", { count: "exact", head: true })
         .eq("utilizator_id", userId)
-        .eq("citita", false);
+        .is("read_at", null)
+        .is("dismissed_at", null);
 
       if (!error && count !== null) {
         setUnreadCount(count);
@@ -38,15 +38,15 @@ export function useUnreadNotifications(userId: string | null, enabled: boolean =
 
     fetchUnreadCount();
 
-    // Subscribe to real-time changes in notificari table
+    // Subscribe to real-time changes in notifications table
     const channel = supabase
-      .channel("notificari-updates")
+      .channel("notifications-updates")
       .on(
         "postgres_changes",
         {
           event: "*", // Listen to all events (INSERT, UPDATE, DELETE)
           schema: "public",
-          table: "notificari",
+          table: "notifications",
           filter: `utilizator_id=eq.${userId}`,
         },
         () => {

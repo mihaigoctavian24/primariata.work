@@ -10,7 +10,7 @@ import type { ApiResponse, ApiErrorResponse, TipCerere } from "@/types/api";
  *
  * Returns: Array of active tipuri_cereri sorted by ordine_afisare
  */
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const supabase = await createClient();
 

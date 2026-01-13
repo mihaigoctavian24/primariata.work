@@ -112,7 +112,7 @@ export default function PlatiPage() {
 
   // Handle back navigation
   const handleBack = () => {
-    router.push(`/app/${judet}/${localitate}/dashboard`);
+    router.push(`/app/${judet}/${localitate}`);
   };
 
   // Check if filters are active

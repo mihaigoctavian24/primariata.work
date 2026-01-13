@@ -117,9 +117,10 @@ export function DashboardHeader({
     async function fetchNotifications() {
       const supabase = createClient();
       const { count } = await supabase
-        .from("notificari")
+        .from("notifications")
         .select("*", { count: "exact", head: true })
-        .eq("read", false);
+        .is("read_at", null)
+        .is("dismissed_at", null);
 
       setUnreadNotifications(count || 0);
     }

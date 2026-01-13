@@ -1,6 +1,3 @@
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
-
 # Try to find pnpm in common locations
 if command -v pnpm >/dev/null 2>&1; then
   pnpm commitlint --edit $1

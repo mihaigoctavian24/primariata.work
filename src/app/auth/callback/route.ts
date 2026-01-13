@@ -33,7 +33,7 @@ export async function GET(request: Request) {
       if (redirectPath === "/") {
         const savedLocation = getLocation();
         if (savedLocation) {
-          redirectPath = `/app/${savedLocation.judetSlug}/${savedLocation.localitateSlug}/dashboard`;
+          redirectPath = `/app/${savedLocation.judetSlug}/${savedLocation.localitateSlug}`;
         }
       }
 

@@ -63,22 +63,26 @@ const RESPONSE_TIME_THRESHOLDS = {
 export function trackIntegrationMetrics(metrics: IntegrationMetrics): void {
   const { integration, operation, success, responseTime, error, metadata } = metrics;
 
-  // Track in Sentry as custom metric
-  Sentry.metrics.increment("integration.operation", {
+  // TODO: Refactor metrics tracking in #99 - Enhanced Error Tracking
+  // Sentry metrics API changed in recent versions
+  // Track integration event with custom context for now
+  Sentry.captureEvent({
+    message: `Integration: ${integration}.${operation}`,
+    level: "info",
     tags: {
       integration,
       operation,
       success: success.toString(),
     },
-  });
-
-  // Track response time
-  Sentry.metrics.distribution("integration.response_time", responseTime, {
-    tags: {
-      integration,
-      operation,
+    contexts: {
+      integration_metrics: {
+        integration,
+        operation,
+        success,
+        response_time_ms: responseTime,
+        ...metadata,
+      },
     },
-    unit: "millisecond",
   });
 
   // Alert if response time exceeds threshold

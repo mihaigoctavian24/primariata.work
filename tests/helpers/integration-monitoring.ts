@@ -70,6 +70,10 @@ export function getTestMetricsSummary() {
       avgResponseTime: 0,
       maxResponseTime: 0,
       failedOperations: 0,
+      byIntegration: {
+        certsign: { operations: 0, successRate: 0, avgResponseTime: 0 },
+        ghiseul: { operations: 0, successRate: 0, avgResponseTime: 0 },
+      },
     };
   }
 

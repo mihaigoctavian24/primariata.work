@@ -23,3 +23,39 @@ export { ConfirmDialog, type ConfirmDialogProps } from "./ConfirmDialog";
 export { StatsSkeleton, type StatsSkeletonProps } from "./StatsSkeleton";
 export { ChartSkeleton, type ChartSkeletonProps } from "./ChartSkeleton";
 export { TableSkeleton, type TableSkeletonProps } from "./TableSkeleton";
+
+// Phase 5 Skeleton Components
+export {
+  CitizenBadgeSkeleton,
+  type CitizenBadgeSkeletonProps,
+  HelpCenterSkeleton,
+  type HelpCenterSkeletonProps,
+  DashboardCalendarSkeleton,
+  type DashboardCalendarSkeletonProps,
+} from "./Phase5Skeleton";
+
+// Dashboard Revamp Components (Phase 1 & 2)
+export { StatusTimelineChart } from "./charts/StatusTimelineChart";
+export { PlatiOverviewChart } from "./charts/PlatiOverviewChart";
+export { ServiceBreakdownChart } from "./charts/ServiceBreakdownChart";
+export { SmartNotificationsBanner } from "./SmartNotificationsBanner";
+export { NextStepsWidget } from "./NextStepsWidget";
+export { ActiveRequestProgressCard } from "./ActiveRequestProgressCard";
+
+// Dashboard Revamp Components (Phase 3)
+export { GlobalSearchBar } from "./GlobalSearchBar";
+
+// NOTE: DocumentQuickPreview MUST be dynamically imported with ssr: false
+// Cannot export from barrel file due to react-pdf's browser-only dependencies
+// Usage: const DocumentQuickPreview = dynamic(() => import("@/components/dashboard/DocumentQuickPreview").then(mod => ({ default: mod.DocumentQuickPreview })), { ssr: false });
+export { RecentDocumentsWidget } from "./RecentDocumentsWidget";
+
+// Dashboard Revamp Components (Phase 5: Tier 2 Features)
+export { HelpCenterWidget } from "./HelpCenterWidget";
+export { CitizenBadgeWidget } from "./CitizenBadgeWidget";
+export { DashboardCalendar } from "./DashboardCalendar";
+export { WeatherWidget } from "./WeatherWidget";
+// Note: ComparisonStats integrated into StatisticsCards (no separate export)
+
+// Error Handling
+export { ErrorBoundary, ErrorFallback, InlineError } from "./ErrorBoundary";

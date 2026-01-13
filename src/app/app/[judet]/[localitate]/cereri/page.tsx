@@ -58,7 +58,7 @@ export default function CereriPage() {
 
   // Tipuri cereri state (for filter dropdown)
   const [tipuriCereri, setTipuriCereri] = useState<TipCerere[]>([]);
-  const [loadingTipuri, setLoadingTipuri] = useState(true);
+  const [, setLoadingTipuri] = useState(true);
 
   // Cancel dialog state
   const [showCancelDialog, setShowCancelDialog] = useState(false);

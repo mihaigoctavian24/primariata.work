@@ -62,7 +62,7 @@ export default function LandingPage() {
 
     if (!hasRedirected) {
       sessionStorage.setItem("hasRedirectedFromLanding", "true");
-      router.replace(`/app/${savedLocation.judetSlug}/${savedLocation.localitateSlug}/dashboard`);
+      router.replace(`/app/${savedLocation.judetSlug}/${savedLocation.localitateSlug}`);
     }
   }, [router]);
 

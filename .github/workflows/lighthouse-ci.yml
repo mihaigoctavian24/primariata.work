@@ -1,0 +1,138 @@
+name: Lighthouse CI
+
+on:
+  # Run on pull requests
+  pull_request:
+    branches: [main, develop]
+
+  # Run on pushes to main/develop
+  push:
+    branches: [main, develop]
+
+  # Allow manual trigger
+  workflow_dispatch:
+
+# Cancel in-progress runs for the same PR/branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lighthouse-ci:
+    name: Lighthouse CI Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Full history for accurate comparisons
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Next.js app
+        run: pnpm build
+        env:
+          # Supabase credentials for build (public keys only)
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          # Production mode for realistic performance
+          NODE_ENV: production
+
+      - name: Start production server
+        run: |
+          pnpm start &
+          # Wait for server to be ready
+          npx wait-on http://localhost:3000 -t 30000
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+      - name: Run Lighthouse CI
+        run: pnpm lhci autorun
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+          LHCI_TOKEN: ${{ secrets.LHCI_TOKEN }}
+
+      - name: Upload Lighthouse results
+        uses: actions/upload-artifact@v4
+        if: always() # Upload even if Lighthouse fails
+        with:
+          name: lighthouse-results
+          path: .lighthouseci
+          retention-days: 30
+
+      - name: Comment PR with results
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            // Find the latest manifest.json
+            const lighthouseDir = '.lighthouseci';
+            const manifestPath = path.join(lighthouseDir, 'manifest.json');
+
+            if (!fs.existsSync(manifestPath)) {
+              console.log('No Lighthouse results found');
+              return;
+            }
+
+            const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+            const results = manifest[0]; // First URL results
+
+            if (!results || !results.summary) {
+              console.log('No summary in results');
+              return;
+            }
+
+            const summary = results.summary;
+
+            // Format scores as percentages
+            const formatScore = (score) => score ? `${Math.round(score * 100)}` : 'N/A';
+
+            // Format metric value
+            const formatMetric = (value) => value ? Math.round(value) : 'N/A';
+
+            const comment = `## 🔦 Lighthouse CI Results
+
+            ### Performance Metrics
+            | Metric | Value | Target |
+            |--------|-------|--------|
+            | 🎨 Performance Score | **${formatScore(summary.performance)}%** | 90% |
+            | ♿ Accessibility | **${formatScore(summary.accessibility)}%** | 95% |
+            | ✅ Best Practices | **${formatScore(summary['best-practices'])}%** | 90% |
+            | 🔍 SEO | **${formatScore(summary.seo)}%** | 90% |
+
+            ### Core Web Vitals
+            | Metric | Value | Target |
+            |--------|-------|--------|
+            | LCP (Largest Contentful Paint) | **${formatMetric(summary['largest-contentful-paint'])}ms** | <2500ms |
+            | CLS (Cumulative Layout Shift) | **${formatMetric(summary['cumulative-layout-shift'] * 100) / 100}** | <0.1 |
+            | TBT (Total Blocking Time) | **${formatMetric(summary['total-blocking-time'])}ms** | <300ms |
+            | FCP (First Contentful Paint) | **${formatMetric(summary['first-contentful-paint'])}ms** | <1200ms |
+            | SI (Speed Index) | **${formatMetric(summary['speed-index'])}ms** | <3400ms |
+            | TTI (Time to Interactive) | **${formatMetric(summary.interactive)}ms** | <3500ms |
+
+            [View full Lighthouse report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            `;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });

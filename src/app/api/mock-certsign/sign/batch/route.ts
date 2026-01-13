@@ -4,12 +4,6 @@ import { PDFDocument } from "pdf-lib";
 import { addSignatureWatermark, validateSignatureOptions } from "@/lib/pdf/signature-watermark";
 import type { ApiResponse, ApiErrorResponse } from "@/types/api";
 
-interface SignRequest {
-  document_url: string;
-  cerere_id: string;
-  signature_reason?: string;
-}
-
 interface SignResult {
   cerere_id: string;
   signed_document_url?: string;

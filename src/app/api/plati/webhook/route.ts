@@ -4,7 +4,7 @@ import { webhookPlataUpdateSchema, PlataStatus } from "@/lib/validations/plati";
 import type { ApiResponse, ApiErrorResponse } from "@/types/api";
 import type { Json } from "@/types/database.types";
 import { ZodError } from "zod";
-import { sendPaymentCompletedEmail, sendPaymentFailedEmail } from "@/lib/email";
+import { sendPaymentCompletedEmail } from "@/lib/email";
 import { sendStatusChangedSMS } from "@/lib/sms";
 
 /**

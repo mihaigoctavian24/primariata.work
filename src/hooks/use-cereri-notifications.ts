@@ -74,15 +74,30 @@ export function useCereriNotifications(userId: string | null, enabled: boolean =
 
             // Create notification record in database
             try {
-              await supabase.from("notificari").insert({
-                utilizator_id: userId,
-                titlu: `Cerere ${newRecord.numar_inregistrare} actualizată`,
-                mesaj: `Statusul cererii a fost schimbat în: ${statusLabel}`,
-                tip: "cerere",
-                link_entitate_tip: "cerere",
-                link_entitate_id: newRecord.id,
-                citita: false,
-              });
+              // Get primarie_id from cerere
+              const { data: cerereData } = await supabase
+                .from("cereri")
+                .select("primarie_id")
+                .eq("id", newRecord.id)
+                .single();
+
+              if (cerereData && cerereData.primarie_id) {
+                await supabase.from("notifications").insert({
+                  utilizator_id: userId,
+                  primarie_id: cerereData.primarie_id,
+                  type: "status_updated",
+                  priority: "medium",
+                  title: `Cerere ${newRecord.numar_inregistrare} actualizată`,
+                  message: `Statusul cererii a fost schimbat în: ${statusLabel}`,
+                  action_url: `/app/cereri/${newRecord.id}`,
+                  action_label: "Vezi detalii",
+                  metadata: {
+                    cerere_id: newRecord.id,
+                    old_status: oldRecord.status,
+                    new_status: newRecord.status,
+                  },
+                });
+              }
             } catch (error) {
               console.error("Failed to create notification record:", error);
             }

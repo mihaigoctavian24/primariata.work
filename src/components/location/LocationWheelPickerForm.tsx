@@ -389,7 +389,7 @@ export function LocationWheelPickerForm({
     });
 
     // Redirect to dashboard
-    router.push(`/app/${judet.slug}/${localitate.slug}/dashboard`);
+    router.push(`/app/${judet.slug}/${localitate.slug}`);
   };
 
   return (

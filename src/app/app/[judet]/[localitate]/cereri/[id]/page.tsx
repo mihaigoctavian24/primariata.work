@@ -98,14 +98,22 @@ export default function CerereDetailsPage({ params }: CerereDetailsPageProps) {
       const supabase = createClient();
 
       // Update all unread notifications for this cerere
-      await supabase
-        .from("notificari")
-        .update({
-          citita: true,
-          citita_la: new Date().toISOString(),
-        })
-        .eq("link_entitate_id", id)
-        .eq("citita", false);
+      // First find notifications related to this cerere
+      const { data: notifications } = await supabase
+        .from("notifications")
+        .select("id")
+        .is("read_at", null)
+        .contains("metadata", { cerere_id: id });
+
+      if (notifications && notifications.length > 0) {
+        await supabase
+          .from("notifications")
+          .update({ read_at: new Date().toISOString() })
+          .in(
+            "id",
+            notifications.map((n) => n.id)
+          );
+      }
     } catch (err) {
       console.error("Error marking notifications as read:", err);
       // Silent fail - don't interrupt user experience

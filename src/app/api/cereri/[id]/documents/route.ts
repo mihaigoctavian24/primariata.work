@@ -123,7 +123,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     // Upload to Supabase Storage
     const fileBuffer = await file.arrayBuffer();
-    const { data: uploadData, error: uploadError } = await supabase.storage
+    const { error: uploadError } = await supabase.storage
       .from("cereri-documente")
       .upload(storagePath, fileBuffer, {
         contentType: file.type,

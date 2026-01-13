@@ -140,6 +140,7 @@ export type Database = {
           plata_efectuata_la: string | null;
           preluat_de_id: string | null;
           primarie_id: string | null;
+          progress_data: Json | null;
           raspuns: string | null;
           solicitant_id: string | null;
           status: string;
@@ -162,6 +163,7 @@ export type Database = {
           plata_efectuata_la?: string | null;
           preluat_de_id?: string | null;
           primarie_id?: string | null;
+          progress_data?: Json | null;
           raspuns?: string | null;
           solicitant_id?: string | null;
           status?: string;
@@ -184,6 +186,7 @@ export type Database = {
           plata_efectuata_la?: string | null;
           preluat_de_id?: string | null;
           primarie_id?: string | null;
+          progress_data?: Json | null;
           raspuns?: string | null;
           solicitant_id?: string | null;
           status?: string;
@@ -1494,6 +1497,161 @@ export type Database = {
             columns: ["primarie_id"];
             isOneToOne: false;
             referencedRelation: "primarii";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      notifications: {
+        Row: {
+          id: string;
+          utilizator_id: string;
+          primarie_id: string;
+          type:
+            | "payment_due"
+            | "cerere_approved"
+            | "cerere_rejected"
+            | "document_missing"
+            | "document_uploaded"
+            | "status_updated"
+            | "deadline_approaching"
+            | "action_required"
+            | "info";
+          priority: "urgent" | "high" | "medium" | "low";
+          title: string;
+          message: string;
+          action_url: string | null;
+          action_label: string | null;
+          dismissed_at: string | null;
+          read_at: string | null;
+          metadata: Json;
+          created_at: string;
+          expires_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          utilizator_id: string;
+          primarie_id: string;
+          type:
+            | "payment_due"
+            | "cerere_approved"
+            | "cerere_rejected"
+            | "document_missing"
+            | "document_uploaded"
+            | "status_updated"
+            | "deadline_approaching"
+            | "action_required"
+            | "info";
+          priority?: "urgent" | "high" | "medium" | "low";
+          title: string;
+          message: string;
+          action_url?: string | null;
+          action_label?: string | null;
+          dismissed_at?: string | null;
+          read_at?: string | null;
+          metadata?: Json;
+          created_at?: string;
+          expires_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          utilizator_id?: string;
+          primarie_id?: string;
+          type?:
+            | "payment_due"
+            | "cerere_approved"
+            | "cerere_rejected"
+            | "document_missing"
+            | "document_uploaded"
+            | "status_updated"
+            | "deadline_approaching"
+            | "action_required"
+            | "info";
+          priority?: "urgent" | "high" | "medium" | "low";
+          title?: string;
+          message?: string;
+          action_url?: string | null;
+          action_label?: string | null;
+          dismissed_at?: string | null;
+          read_at?: string | null;
+          metadata?: Json;
+          created_at?: string;
+          expires_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "notifications_utilizator_id_fkey";
+            columns: ["utilizator_id"];
+            isOneToOne: false;
+            referencedRelation: "utilizatori";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "notifications_primarie_id_fkey";
+            columns: ["primarie_id"];
+            isOneToOne: false;
+            referencedRelation: "primarii";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      user_achievements: {
+        Row: {
+          id: string;
+          utilizator_id: string;
+          achievement_key:
+            | "first_cerere"
+            | "payment_on_time"
+            | "expert_autorizatii"
+            | "organized_documents"
+            | "fast_responder"
+            | "all_payments_current"
+            | "power_user"
+            | "early_adopter";
+          points: number;
+          progress: number;
+          unlocked_at: string | null;
+          metadata: Json;
+        };
+        Insert: {
+          id?: string;
+          utilizator_id: string;
+          achievement_key:
+            | "first_cerere"
+            | "payment_on_time"
+            | "expert_autorizatii"
+            | "organized_documents"
+            | "fast_responder"
+            | "all_payments_current"
+            | "power_user"
+            | "early_adopter";
+          points?: number;
+          progress?: number;
+          unlocked_at?: string | null;
+          metadata?: Json;
+        };
+        Update: {
+          id?: string;
+          utilizator_id?: string;
+          achievement_key?:
+            | "first_cerere"
+            | "payment_on_time"
+            | "expert_autorizatii"
+            | "organized_documents"
+            | "fast_responder"
+            | "all_payments_current"
+            | "power_user"
+            | "early_adopter";
+          points?: number;
+          progress?: number;
+          unlocked_at?: string | null;
+          metadata?: Json;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "user_achievements_utilizator_id_fkey";
+            columns: ["utilizator_id"];
+            isOneToOne: false;
+            referencedRelation: "utilizatori";
             referencedColumns: ["id"];
           },
         ];
