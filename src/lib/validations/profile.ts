@@ -1,71 +1,126 @@
 import { z } from "zod";
+import {
+  createSafeStringSchema,
+  emailSchema,
+  phoneSchema,
+  optionalPhoneSchema,
+  cnpSchema,
+  optionalCnpSchema,
+  dateStringSchema,
+  passwordSchema,
+  calculatePasswordStrength,
+  getPasswordStrengthLabel,
+} from "./common";
+
+/**
+ * User Profile Validation Schemas
+ *
+ * SECURITY ENHANCEMENTS (Issue #93):
+ * - Using Romanian-specific validators (CNP, phone)
+ * - Enhanced email validation (RFC compliant)
+ * - CNP checksum validation
+ * - Phone number normalization
+ * - XSS sanitization for names
+ * - Password complexity requirements
+ */
 
 /**
  * Personal Information Form Validation
+ *
+ * SECURITY: Enhanced with proper Romanian validators
  */
 export const personalInfoSchema = z.object({
-  full_name: z
-    .string()
-    .min(3, "Numele trebuie să conțină cel puțin 3 caractere")
-    .max(100, "Numele este prea lung"),
+  // ENHANCED: Length limits and XSS sanitization
+  full_name: createSafeStringSchema({
+    minLength: 3,
+    maxLength: 100,
+    sanitize: true,
+  }).refine(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (name: any) => {
+      // Ensure name contains at least 2 words (first + last name)
+      if (!name) return false;
+      return name.trim().split(/\s+/).length >= 2;
+    },
+    { message: "Introduceți numele complet (prenume și nume)" }
+  ),
 
-  email: z.string().email("Email invalid"),
+  // ENHANCED: Strict RFC-compliant email validation
+  email: emailSchema,
 
-  phone: z
-    .string()
-    .regex(/^(\+4|0)[0-9]{9}$/, "Număr de telefon invalid (ex: 0712345678 sau +40712345678)")
+  // ENHANCED: Romanian phone validation with normalization
+  phone: optionalPhoneSchema,
+
+  // ENHANCED: ISO date validation with bounds
+  birth_date: dateStringSchema
+    .refine(
+      (date) => {
+        const birthDate = new Date(date);
+        const today = new Date();
+        const age = today.getFullYear() - birthDate.getFullYear();
+        return age >= 18 && age <= 150; // Must be adult, reasonable age
+      },
+      { message: "Vârsta trebuie să fie între 18 și 150 ani" }
+    )
     .optional()
     .or(z.literal("")),
 
-  birth_date: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "Data invalidă")
-    .optional()
-    .or(z.literal("")),
-
-  cnp: z
-    .string()
-    .regex(/^[1-9]\d{12}$/, "CNP invalid (13 cifre)")
-    .optional()
-    .or(z.literal("")),
+  // ENHANCED: CNP validation with checksum algorithm
+  cnp: optionalCnpSchema,
 });
 
 export type PersonalInfoFormData = z.infer<typeof personalInfoSchema>;
 
 /**
  * Password Change Form Validation
+ *
+ * SECURITY: Enhanced with complexity requirements
  */
 export const passwordChangeSchema = z
   .object({
     current_password: z.string().min(1, "Parola curentă este obligatorie"),
 
-    new_password: z
-      .string()
-      .min(8, "Parola trebuie să conțină cel puțin 8 caractere")
-      .regex(/[A-Z]/, "Parola trebuie să conțină cel puțin o literă mare")
-      .regex(/[a-z]/, "Parola trebuie să conțină cel puțin o literă mică")
-      .regex(/[0-9]/, "Parola trebuie să conțină cel puțin o cifră")
-      .regex(/[^A-Za-z0-9]/, "Parola trebuie să conțină cel puțin un caracter special"),
+    // ENHANCED: Strong password requirements
+    new_password: passwordSchema,
 
     confirm_password: z.string().min(1, "Confirmarea parolei este obligatorie"),
   })
   .refine((data) => data.new_password === data.confirm_password, {
     message: "Parolele nu coincid",
     path: ["confirm_password"],
+  })
+  .refine((data) => data.current_password !== data.new_password, {
+    message: "Parola nouă trebuie să fie diferită de cea curentă",
+    path: ["new_password"],
   });
 
 export type PasswordChangeFormData = z.infer<typeof passwordChangeSchema>;
 
 /**
  * Avatar Upload Validation
+ *
+ * SECURITY: Enhanced with MIME validation and size limits
  */
 export const avatarUploadSchema = z.object({
   file: z
     .instanceof(File)
+    .refine((file) => file.size > 0, "Fișierul este gol")
     .refine((file) => file.size <= 2 * 1024 * 1024, "Imaginea nu trebuie să depășească 2MB")
+    .refine((file) => ["image/jpeg", "image/png", "image/webp", "image/jpg"].includes(file.type), {
+      message: "Doar imagini JPEG, PNG sau WebP sunt permise",
+    })
     .refine(
-      (file) => ["image/jpeg", "image/png", "image/webp", "image/jpg"].includes(file.type),
-      "Doar imagini JPEG, PNG sau WebP sunt permise"
+      (file) => {
+        // Validate file extension matches MIME type
+        const ext = file.name.split(".").pop()?.toLowerCase();
+        const mimeToExt: Record<string, string[]> = {
+          "image/jpeg": ["jpg", "jpeg"],
+          "image/png": ["png"],
+          "image/webp": ["webp"],
+        };
+        return mimeToExt[file.type]?.includes(ext || "") ?? false;
+      },
+      { message: "Extensia fișierului nu corespunde tipului" }
     ),
 });
 
@@ -74,37 +129,10 @@ export type AvatarUploadFormData = z.infer<typeof avatarUploadSchema>;
 /**
  * Password Strength Calculator
  * Returns score 0-4: weak (0-1), medium (2), strong (3), very strong (4)
+ *
+ * Re-exported from common.ts for backward compatibility
  */
-export function calculatePasswordStrength(password: string): number {
-  let strength = 0;
-
-  if (password.length >= 8) strength++;
-  if (password.length >= 12) strength++;
-  if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
-  if (/[0-9]/.test(password)) strength++;
-  if (/[^A-Za-z0-9]/.test(password)) strength++;
-
-  return Math.min(strength, 4);
-}
-
-/**
- * Get password strength label in Romanian
- */
-export function getPasswordStrengthLabel(strength: number): string {
-  switch (strength) {
-    case 0:
-    case 1:
-      return "Slabă";
-    case 2:
-      return "Medie";
-    case 3:
-      return "Puternică";
-    case 4:
-      return "Foarte puternică";
-    default:
-      return "Slabă";
-  }
-}
+export { calculatePasswordStrength, getPasswordStrengthLabel };
 
 /**
  * Get password strength color for UI
@@ -127,15 +155,175 @@ export function getPasswordStrengthColor(strength: number): string {
 
 /**
  * Notification Preferences Form Validation
+ *
+ * SECURITY: Enhanced phone validation
  */
-export const notificationPreferencesSchema = z.object({
-  sms_notifications_enabled: z.boolean(),
+export const notificationPreferencesSchema = z
+  .object({
+    sms_notifications_enabled: z.boolean(),
 
-  telefon: z
-    .string()
-    .regex(/^\+[1-9]\d{1,14}$/, "Număr de telefon invalid (format E.164: +40712345678)")
-    .optional()
-    .or(z.literal("")),
-});
+    // ENHANCED: Romanian phone validation with +40 format
+    telefon: optionalPhoneSchema,
+  })
+  .refine(
+    (data) => {
+      // If SMS notifications are enabled, phone must be provided
+      if (data.sms_notifications_enabled && !data.telefon) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "Numărul de telefon este obligatoriu pentru notificări SMS",
+      path: ["telefon"],
+    }
+  );
 
 export type NotificationPreferencesFormData = z.infer<typeof notificationPreferencesSchema>;
+
+/**
+ * Address Form Validation (for user profile)
+ *
+ * SECURITY: NEW - comprehensive address validation
+ */
+export const addressSchema = z.object({
+  strada: createSafeStringSchema({
+    minLength: 3,
+    maxLength: 100,
+    sanitize: true,
+  }),
+
+  numar: createSafeStringSchema({
+    minLength: 1,
+    maxLength: 20,
+    sanitize: true,
+  }),
+
+  bloc: createSafeStringSchema({
+    maxLength: 20,
+    sanitize: true,
+    allowEmpty: true,
+  }),
+
+  scara: createSafeStringSchema({
+    maxLength: 10,
+    sanitize: true,
+    allowEmpty: true,
+  }),
+
+  etaj: createSafeStringSchema({
+    maxLength: 10,
+    sanitize: true,
+    allowEmpty: true,
+  }),
+
+  apartament: createSafeStringSchema({
+    maxLength: 10,
+    sanitize: true,
+    allowEmpty: true,
+  }),
+
+  cod_postal: z
+    .string()
+    .trim()
+    .regex(/^\d{6}$/, "Cod poștal invalid (6 cifre)")
+    .optional()
+    .or(z.literal("")),
+
+  localitate: createSafeStringSchema({
+    minLength: 2,
+    maxLength: 100,
+    sanitize: true,
+  }),
+
+  judet: createSafeStringSchema({
+    minLength: 2,
+    maxLength: 50,
+    sanitize: true,
+  }),
+});
+
+export type AddressFormData = z.infer<typeof addressSchema>;
+
+/**
+ * Email Change Validation
+ *
+ * SECURITY: NEW - validates email change with confirmation
+ */
+export const emailChangeSchema = z
+  .object({
+    new_email: emailSchema,
+    confirm_email: emailSchema,
+    password: z.string().min(1, "Parola este obligatorie pentru schimbarea email-ului"),
+  })
+  .refine((data) => data.new_email === data.confirm_email, {
+    message: "Email-urile nu coincid",
+    path: ["confirm_email"],
+  });
+
+export type EmailChangeFormData = z.infer<typeof emailChangeSchema>;
+
+/**
+ * Profile Deletion Validation
+ *
+ * SECURITY: NEW - requires password confirmation
+ */
+export const profileDeletionSchema = z.object({
+  password: z.string().min(1, "Parola este obligatorie"),
+  confirmation: z.literal("STERGE").refine((val) => val === "STERGE", {
+    message: "Introduceți 'STERGE' pentru confirmare",
+  }),
+});
+
+export type ProfileDeletionFormData = z.infer<typeof profileDeletionSchema>;
+
+/**
+ * Two-Factor Authentication Setup
+ *
+ * SECURITY: NEW - validates 2FA setup
+ */
+export const twoFactorSetupSchema = z.object({
+  code: z
+    .string()
+    .trim()
+    .length(6, "Codul trebuie să aibă 6 cifre")
+    .regex(/^\d{6}$/, "Codul trebuie să conțină doar cifre"),
+});
+
+export type TwoFactorSetupFormData = z.infer<typeof twoFactorSetupSchema>;
+
+/**
+ * Validate CNP date consistency
+ *
+ * Extracts birthdate from CNP and validates against provided birth_date
+ */
+export function validateCnpDateConsistency(cnp: string, birthDate: string): boolean {
+  if (!cnp || !birthDate) return false;
+
+  // Extract date from CNP (positions 1-6: YYMMDD)
+  const yearCode = cnp.substring(1, 3);
+  const monthCode = cnp.substring(3, 5);
+  const dayCode = cnp.substring(5, 7);
+
+  // Determine century from first digit
+  const sexCentury = parseInt(cnp[0]!);
+  let century: number;
+  if (sexCentury === 1 || sexCentury === 2) century = 1900;
+  else if (sexCentury === 3 || sexCentury === 4) century = 1800;
+  else if (sexCentury === 5 || sexCentury === 6) century = 2000;
+  else if (sexCentury === 7 || sexCentury === 8)
+    century = 2000; // Foreign residents
+  else return false;
+
+  const cnpYear = century + parseInt(yearCode);
+  const cnpMonth = parseInt(monthCode);
+  const cnpDay = parseInt(dayCode);
+
+  // Parse provided birth date
+  const parts = birthDate.split("-");
+  if (parts.length !== 3) return false;
+  const [bdYear, bdMonth, bdDay] = parts.map(Number);
+
+  // Compare
+  return cnpYear === bdYear && cnpMonth === bdMonth && cnpDay === bdDay;
+}

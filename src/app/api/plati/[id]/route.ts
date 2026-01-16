@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import type { ApiResponse, ApiErrorResponse } from "@/types/api";
+import { requireAuth, requireOwnership, validateUUID } from "@/lib/auth/authorization";
 
 /**
  * GET /api/plati/[id]
@@ -9,31 +10,30 @@ import type { ApiResponse, ApiErrorResponse } from "@/types/api";
  * Returns:
  * - plata: Payment object
  * - chitanta (optional): Receipt object if payment succeeded
+ *
+ * Security:
+ * - Authentication required
+ * - Ownership verification: Users can only access their own payments
+ * - UUID validation for route parameter
  */
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const supabase = await createClient();
+    // 1. Validate authentication
+    const authError = await requireAuth(request);
+    if (authError) return authError;
+
     const { id } = await params;
 
-    // Check authentication
+    // 2. Validate UUID format
+    const uuidError = validateUUID(id, "plata_id");
+    if (uuidError) return uuidError;
+
+    const supabase = await createClient();
     const {
       data: { user },
-      error: authError,
     } = await supabase.auth.getUser();
 
-    if (authError || !user) {
-      const errorResponse: ApiErrorResponse = {
-        success: false,
-        error: {
-          code: "UNAUTHORIZED",
-          message: "Autentificare necesară",
-        },
-        meta: { timestamp: new Date().toISOString() },
-      };
-      return NextResponse.json(errorResponse, { status: 401 });
-    }
-
-    // Fetch payment with related data (RLS ensures access control)
+    // 3. Fetch payment to verify ownership
     const { data: plata, error: plataError } = await supabase
       .from("plati")
       .select(
@@ -68,12 +68,28 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         success: false,
         error: {
           code: "PAYMENT_NOT_FOUND",
-          message: "Plata nu a fost găsită sau nu aveți acces la ea",
+          message: "Plata nu a fost găsită",
         },
         meta: { timestamp: new Date().toISOString() },
       };
       return NextResponse.json(errorResponse, { status: 404 });
     }
+
+    // 4. Verify ownership explicitly (defense-in-depth beyond RLS)
+    if (!plata.utilizator_id) {
+      const errorResponse: ApiErrorResponse = {
+        success: false,
+        error: {
+          code: "INVALID_PAYMENT",
+          message: "Plata nu are un utilizator asociat",
+        },
+        meta: { timestamp: new Date().toISOString() },
+      };
+      return NextResponse.json(errorResponse, { status: 500 });
+    }
+
+    const ownershipError = await requireOwnership(plata.utilizator_id, request, "plată");
+    if (ownershipError) return ownershipError;
 
     // Fetch chitanta if payment is successful
     let chitanta = null;

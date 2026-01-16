@@ -84,32 +84,22 @@ export function DashboardHeader({
     fetchUser();
   }, []);
 
-  // Fetch location name
-  // TODO: Create API endpoint /api/localitati/[slug]/route.ts to fetch localitate by slug
-  // Currently using fallback (slug transformation) until endpoint is implemented
+  // Display location name (transform slug to readable format)
   useEffect(() => {
-    async function fetchLocationName() {
-      try {
-        const response = await fetch(`/api/localitati/${localitate}`);
+    // Transform slug to readable name: "sector-1-b" → "Sector 1 B"
+    const localitateFormatted = localitate
+      .replace(/-/g, " ")
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
 
-        // Check if response is OK before parsing JSON
-        if (!response.ok) {
-          // API endpoint doesn't exist yet - use fallback
-          setLocationName(`${localitate.replace(/-/g, " ")}, Jud. ${judet.replace(/-/g, " ")}`);
-          return;
-        }
+    const judetFormatted = judet
+      .replace(/-/g, " ")
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
 
-        const data = await response.json();
-        if (data.data) {
-          setLocationName(`${data.data.nume}, Jud. ${judet}`);
-        }
-      } catch (error) {
-        console.error("Failed to fetch location name:", error);
-        setLocationName(`${localitate.replace(/-/g, " ")}, Jud. ${judet.replace(/-/g, " ")}`);
-      }
-    }
-
-    fetchLocationName();
+    setLocationName(`${localitateFormatted}, Jud. ${judetFormatted}`);
   }, [judet, localitate]);
 
   // Fetch unread notifications count

@@ -1,5 +1,8 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { withRateLimit, getSupabaseUserId } from "@/lib/middleware/rate-limit";
+import { requireAuth, validateUUID, requireOwnership } from "@/lib/auth/authorization";
+import { csrfProtectionFromRequest } from "@/lib/middleware/csrf-protection";
 
 /**
  * GET /api/dashboard/notifications
@@ -11,8 +14,10 @@ import { createClient } from "@/lib/supabase/server";
  *   success: true,
  *   data: Notification[]
  * }
+ *
+ * Rate Limit: READ tier (100 requests per 15 minutes)
  */
-export async function GET() {
+async function getHandler(_req: NextRequest) {
   try {
     const supabase = await createClient();
 
@@ -81,20 +86,29 @@ export async function GET() {
  *   action: "dismiss" | "read",
  *   notificationId: string
  * }
+ *
+ * Rate Limit: WRITE tier (20 requests per 15 minutes)
+ *
+ * Security:
+ * - CSRF protection for state-changing operation
+ * - Authentication required
+ * - Ownership verification: Users can only update their own notifications
+ * - UUID validation for notification ID
  */
-export async function PATCH(request: Request) {
+async function patchHandler(request: NextRequest) {
   try {
-    const supabase = await createClient();
+    // 1. CSRF Protection
+    const csrfError = csrfProtectionFromRequest(request);
+    if (csrfError) return csrfError;
 
-    // Get authenticated user
+    // 2. Authentication check
+    const authError = await requireAuth(request);
+    if (authError) return authError;
+
+    const supabase = await createClient();
     const {
       data: { user },
-      error: authError,
     } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
-    }
 
     const body = await request.json();
     const { action, notificationId } = body;
@@ -106,7 +120,33 @@ export async function PATCH(request: Request) {
       );
     }
 
-    // Update notification based on action
+    // 3. Validate UUID format
+    const uuidError = validateUUID(notificationId, "notificationId");
+    if (uuidError) return uuidError;
+
+    // 4. Fetch notification to verify existence and ownership
+    const { data: notification, error: fetchError } = await supabase
+      .from("notifications")
+      .select("id, utilizator_id")
+      .eq("id", notificationId)
+      .single();
+
+    if (fetchError || !notification) {
+      return NextResponse.json(
+        { success: false, error: "Notification not found" },
+        { status: 404 }
+      );
+    }
+
+    // 5. Verify ownership explicitly
+    const ownershipError = await requireOwnership(
+      notification.utilizator_id,
+      request,
+      "notificare"
+    );
+    if (ownershipError) return ownershipError;
+
+    // 6. Validate action
     const updateData: { dismissed_at?: string; read_at?: string } = {};
     if (action === "dismiss") {
       updateData.dismissed_at = new Date().toISOString();
@@ -119,11 +159,12 @@ export async function PATCH(request: Request) {
       );
     }
 
+    // 7. Update notification
     const { error: updateError } = await supabase
       .from("notifications")
       .update(updateData)
       .eq("id", notificationId)
-      .eq("utilizator_id", user.id); // Security: only update own notifications
+      .eq("utilizator_id", user!.id); // Additional security layer beyond ownership check
 
     if (updateError) {
       console.error("Error updating notification:", updateError);
@@ -142,3 +183,7 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ success: false, error: "Internal server error" }, { status: 500 });
   }
 }
+
+// Export with rate limiting middleware
+export const GET = withRateLimit("READ", getHandler, getSupabaseUserId);
+export const PATCH = withRateLimit("WRITE", patchHandler, getSupabaseUserId);

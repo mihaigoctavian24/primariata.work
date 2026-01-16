@@ -1,4 +1,16 @@
 import { z } from "zod";
+import { createSafeStringSchema, uuidSchema } from "./common";
+import { sanitizeJsonObject } from "../security/sanitize";
+
+/**
+ * Cereri (Requests) Validation Schemas
+ *
+ * SECURITY ENHANCEMENTS (Issue #93):
+ * - Added string length limits to prevent DoS
+ * - Added XSS sanitization for user input
+ * - Enhanced JSONB validation to prevent injection
+ * - Added size limits for form data
+ */
 
 /**
  * Cerere Status Enum
@@ -20,11 +32,48 @@ export type CerereStatusType = (typeof CerereStatus)[keyof typeof CerereStatus];
 /**
  * Create Cerere Validation Schema
  * Used when creating a new cerere (draft state)
+ *
+ * SECURITY: Enhanced with size limits and sanitization
  */
 export const createCerereSchema = z.object({
-  tip_cerere_id: z.string().uuid("ID tip cerere invalid"),
-  date_formular: z.record(z.string(), z.unknown()),
-  observatii_solicitant: z.string().max(1000, "Observațiile sunt prea lungi").optional(),
+  tip_cerere_id: uuidSchema.refine((id) => id.length === 36, "ID tip cerere invalid"),
+
+  // ENHANCED: Validate and sanitize JSONB form data
+  date_formular: z
+    .record(z.string(), z.unknown())
+    .refine(
+      (data) => {
+        // Prevent DoS via extremely large objects
+        const jsonString = JSON.stringify(data);
+        return jsonString.length <= 100000; // 100KB max
+      },
+      { message: "Datele formularului sunt prea mari (max 100KB)" }
+    )
+    .refine(
+      (data) => {
+        // Prevent null bytes in keys (security)
+        return !Object.keys(data).some((key) => key.includes("\0"));
+      },
+      { message: "Chei invalide în datele formularului" }
+    )
+    .refine(
+      (data) => {
+        // Limit number of keys (prevent DoS)
+        return Object.keys(data).length <= 100;
+      },
+      { message: "Prea multe câmpuri în formular (max 100)" }
+    )
+    .transform((data) => {
+      // Sanitize all string values in the JSON object
+      return sanitizeJsonObject(data);
+    }),
+
+  // ENHANCED: Length limit and XSS sanitization
+  observatii_solicitant: createSafeStringSchema({
+    maxLength: 5000,
+    sanitize: true,
+    allowEmpty: true,
+  }),
 });
 
 export type CreateCerereData = z.infer<typeof createCerereSchema>;
@@ -32,16 +81,41 @@ export type CreateCerereData = z.infer<typeof createCerereSchema>;
 /**
  * Update Cerere Validation Schema
  * Used when updating a draft cerere (before submission)
+ *
+ * SECURITY: Same enhancements as createCerereSchema
  */
 export const updateCerereSchema = z.object({
-  date_formular: z.record(z.string(), z.unknown()).optional(),
-  observatii_solicitant: z.string().max(1000, "Observațiile sunt prea lungi").optional(),
+  date_formular: z
+    .record(z.string(), z.unknown())
+    .refine(
+      (data) => {
+        const jsonString = JSON.stringify(data);
+        return jsonString.length <= 100000;
+      },
+      { message: "Datele formularului sunt prea mari (max 100KB)" }
+    )
+    .refine((data) => !Object.keys(data).some((key) => key.includes("\0")), {
+      message: "Chei invalide în datele formularului",
+    })
+    .refine((data) => Object.keys(data).length <= 100, {
+      message: "Prea multe câmpuri în formular (max 100)",
+    })
+    .transform((data) => sanitizeJsonObject(data))
+    .optional(),
+
+  observatii_solicitant: createSafeStringSchema({
+    maxLength: 5000,
+    sanitize: true,
+    allowEmpty: true,
+  }),
 });
 
 export type UpdateCerereData = z.infer<typeof updateCerereSchema>;
 
 /**
  * Query Params for listing cereri
+ *
+ * SECURITY: Added bounds validation for pagination
  */
 export const listCereriQuerySchema = z.object({
   page: z
@@ -49,7 +123,7 @@ export const listCereriQuerySchema = z.object({
     .optional()
     .default("1")
     .transform((val) => parseInt(val, 10))
-    .refine((val) => !isNaN(val) && val > 0, "Page must be a positive number"),
+    .refine((val) => !isNaN(val) && val > 0 && val <= 10000, "Page must be between 1 and 10000"),
 
   limit: z
     .string()
@@ -60,7 +134,7 @@ export const listCereriQuerySchema = z.object({
 
   status: z.nativeEnum(CerereStatus).optional(),
 
-  tip_cerere_id: z.string().uuid("ID tip cerere invalid").optional(),
+  tip_cerere_id: uuidSchema.optional(),
 
   sort: z
     .enum(["created_at", "updated_at", "data_termen", "numar_inregistrare"])
@@ -68,6 +142,13 @@ export const listCereriQuerySchema = z.object({
     .default("created_at"),
 
   order: z.enum(["asc", "desc"]).optional().default("desc"),
+
+  // ENHANCED: Search query with length limit and sanitization
+  search: createSafeStringSchema({
+    maxLength: 200,
+    sanitize: true,
+    allowEmpty: true,
+  }),
 });
 
 export type ListCereriQuery = z.infer<typeof listCereriQuerySchema>;
@@ -86,12 +167,37 @@ export type SubmitCerereData = z.infer<typeof submitCerereSchema>;
 /**
  * Cancel Cerere Schema
  * Used when cancelling a cerere
+ *
+ * SECURITY: Enhanced with length limits and sanitization
  */
 export const cancelCerereSchema = z.object({
-  motiv_anulare: z.string().min(10, "Motivul anulării trebuie să aibă cel puțin 10 caractere"),
+  motiv_anulare: createSafeStringSchema({
+    minLength: 10,
+    maxLength: 2000,
+    sanitize: true,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  }).refine((val: any) => (val ?? "").trim().length >= 10, {
+    message: "Motivul anulării trebuie să aibă cel puțin 10 caractere",
+  }),
 });
 
 export type CancelCerereData = z.infer<typeof cancelCerereSchema>;
+
+/**
+ * Add Comment Schema (for officials/citizens)
+ *
+ * SECURITY: NEW - validates comments with XSS protection
+ */
+export const addCommentSchema = z.object({
+  cerere_id: uuidSchema,
+  content: createSafeStringSchema({
+    minLength: 1,
+    maxLength: 2000,
+    sanitize: true,
+  }),
+});
+
+export type AddCommentData = z.infer<typeof addCommentSchema>;
 
 /**
  * Validation helper to check if cerere can be modified
@@ -109,6 +215,13 @@ export function canCancelCerere(status: CerereStatusType): boolean {
     status !== CerereStatus.FINALIZATA &&
     status !== CerereStatus.RESPINSA
   );
+}
+
+/**
+ * Validation helper to check if cerere can be submitted
+ */
+export function canSubmitCerere(status: CerereStatusType): boolean {
+  return status === CerereStatus.DEPUSA;
 }
 
 /**
@@ -145,4 +258,34 @@ export function getCerereStatusColor(status: CerereStatusType): string {
   };
 
   return colors[status] || "bg-gray-100 text-gray-800";
+}
+
+/**
+ * Validate cerere transition (state machine validation)
+ *
+ * SECURITY: Prevents invalid status transitions
+ */
+export function isValidStatusTransition(from: CerereStatusType, to: CerereStatusType): boolean {
+  // Valid transitions map
+  const transitions: Record<CerereStatusType, CerereStatusType[]> = {
+    [CerereStatus.DEPUSA]: [CerereStatus.IN_VERIFICARE, CerereStatus.ANULATA],
+    [CerereStatus.IN_VERIFICARE]: [
+      CerereStatus.INFO_SUPLIMENTARE,
+      CerereStatus.IN_PROCESARE,
+      CerereStatus.RESPINSA,
+      CerereStatus.ANULATA,
+    ],
+    [CerereStatus.INFO_SUPLIMENTARE]: [CerereStatus.IN_VERIFICARE, CerereStatus.ANULATA],
+    [CerereStatus.IN_PROCESARE]: [
+      CerereStatus.APROBATA,
+      CerereStatus.RESPINSA,
+      CerereStatus.ANULATA,
+    ],
+    [CerereStatus.APROBATA]: [CerereStatus.FINALIZATA],
+    [CerereStatus.RESPINSA]: [],
+    [CerereStatus.ANULATA]: [],
+    [CerereStatus.FINALIZATA]: [],
+  };
+
+  return transitions[from]?.includes(to) ?? false;
 }

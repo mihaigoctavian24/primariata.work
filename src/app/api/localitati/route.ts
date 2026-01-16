@@ -1,8 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import type { ApiResponse, ApiErrorResponse, Localitate } from "@/types/api";
+import { withRateLimit } from "@/lib/middleware/rate-limit";
 
-export async function GET(request: NextRequest) {
+/**
+ * GET /api/localitati
+ *
+ * Public endpoint to list localities by county
+ *
+ * Rate Limit: PUBLIC tier (200 requests per 15 minutes)
+ */
+async function handler(request: NextRequest) {
   try {
     // Extract query parameters
     const searchParams = request.nextUrl.searchParams;
@@ -114,3 +122,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(errorResponse, { status: 500 });
   }
 }
+
+// Export with rate limiting middleware (PUBLIC tier - no auth required)
+export const GET = withRateLimit("PUBLIC", handler);

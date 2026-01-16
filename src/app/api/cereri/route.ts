@@ -10,6 +10,8 @@ import type {
 } from "@/types/api";
 import type { Json } from "@/types/database.types";
 import { ZodError } from "zod";
+import { withRateLimit, getSupabaseUserId } from "@/lib/middleware/rate-limit";
+import { csrfProtectionFromRequest } from "@/lib/middleware/csrf-protection";
 
 /**
  * GET /api/cereri
@@ -22,8 +24,10 @@ import { ZodError } from "zod";
  * - tip_cerere_id (optional): Filter by request type
  * - sort (optional): Sort field (created_at, updated_at, data_termen)
  * - order (optional): Sort order (asc, desc)
+ *
+ * Rate Limit: READ tier (100 requests per 15 minutes)
  */
-export async function GET(request: NextRequest) {
+async function getHandler(request: NextRequest) {
   try {
     const supabase = await createClient();
 
@@ -194,9 +198,15 @@ export async function GET(request: NextRequest) {
  * - tip_cerere_id: UUID of request type
  * - date_formular: Dynamic form data
  * - observatii_solicitant (optional): Additional notes
+ *
+ * Rate Limit: WRITE tier (20 requests per 15 minutes)
  */
-export async function POST(request: NextRequest) {
+async function postHandler(request: NextRequest) {
   try {
+    // CSRF Protection for state-changing operation
+    const csrfError = csrfProtectionFromRequest(request);
+    if (csrfError) return csrfError;
+
     const supabase = await createClient();
 
     // Check authentication
@@ -359,3 +369,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(errorResponse, { status: 500 });
   }
 }
+
+// Export with rate limiting middleware
+export const GET = withRateLimit("READ", getHandler, getSupabaseUserId);
+export const POST = withRateLimit("WRITE", postHandler, getSupabaseUserId);

@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { withRateLimit, getSupabaseUserId } from "@/lib/middleware/rate-limit";
 
 /**
  * GET /api/dashboard/plati-monthly?months=6
@@ -32,8 +33,10 @@ import { createClient } from "@/lib/supabase/server";
  *     }
  *   }
  * }
+ *
+ * Rate Limit: READ tier (100 requests per 15 minutes)
  */
-export async function GET(request: Request) {
+async function handler(request: NextRequest) {
   try {
     const supabase = await createClient();
 
@@ -202,3 +205,6 @@ interface MonthlyPayment {
   success_suma: number;
   pending_suma: number;
 }
+
+// Export with rate limiting middleware
+export const GET = withRateLimit("READ", handler, getSupabaseUserId);

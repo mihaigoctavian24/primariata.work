@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import type { ApiResponse, ApiErrorResponse } from "@/types/api";
+import { withRateLimit, getSupabaseUserId } from "@/lib/middleware/rate-limit";
 
 /**
  * POST /api/location/set
@@ -9,8 +10,10 @@ import type { ApiResponse, ApiErrorResponse } from "@/types/api";
  *
  * Body:
  * - localitateId: string - The localitate ID
+ *
+ * Rate Limit: WRITE tier (20 requests per 15 minutes)
  */
-export async function POST(request: NextRequest) {
+async function handler(request: NextRequest) {
   try {
     const supabase = await createClient();
 
@@ -142,3 +145,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(errorResponse, { status: 500 });
   }
 }
+
+// Export with rate limiting middleware
+export const POST = withRateLimit("WRITE", handler, getSupabaseUserId);

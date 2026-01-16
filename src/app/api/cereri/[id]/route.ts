@@ -7,6 +7,7 @@ import {
 } from "@/lib/validations/cereri";
 import type { ApiResponse, ApiErrorResponse, Cerere } from "@/types/api";
 import { ZodError } from "zod";
+import { csrfProtectionFromRequest } from "@/lib/middleware/csrf-protection";
 
 /**
  * GET /api/cereri/[id]
@@ -142,9 +143,16 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  * Body:
  * - date_formular (optional): Updated form data
  * - observatii_solicitant (optional): Updated notes
+ *
+ * Security:
+ * - CSRF protection for state-changing operation
  */
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    // CSRF Protection
+    const csrfError = csrfProtectionFromRequest(request);
+    if (csrfError) return csrfError;
+
     const supabase = await createClient();
 
     // Check authentication
@@ -324,12 +332,19 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 /**
  * DELETE /api/cereri/[id]
  * Soft delete a cerere (only allowed for drafts in 'depusa' status)
+ *
+ * Security:
+ * - CSRF protection for state-changing operation
  */
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // CSRF Protection
+    const csrfError = csrfProtectionFromRequest(request);
+    if (csrfError) return csrfError;
+
     const supabase = await createClient();
 
     // Check authentication
