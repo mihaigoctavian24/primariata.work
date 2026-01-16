@@ -453,3 +453,74 @@ export function getPasswordStrengthLabel(strength: number): string {
       return "Slabă";
   }
 }
+
+// =============================================================================
+// VALIDATOR ALIASES (for test compatibility)
+// =============================================================================
+
+/**
+ * Export schema validators with "Validator" suffix for test compatibility
+ * Tests expect `cnpValidator.parse()` syntax
+ */
+export const cnpValidator = cnpSchema;
+export const romanianPhoneValidator = phoneSchema;
+export const romanianIBANValidator = ibanSchema;
+
+// =============================================================================
+// JSONB SIZE VALIDATION
+// =============================================================================
+
+/**
+ * Validate JSONB object size (prevent DoS via large payloads)
+ * Max 100KB serialized size, max 100 keys
+ *
+ * Using z.object({}).passthrough() for Zod v4 compatibility (replaces z.record(z.unknown()))
+ */
+export const jsonbSizeValidator = z
+  .object({})
+  .passthrough()
+  .refine((obj) => JSON.stringify(obj).length <= 100 * 1024, {
+    message: "Obiect prea mare (maxim 100KB)",
+  })
+  .refine((obj) => Object.keys(obj).length <= 100, {
+    message: "Prea multe chei (maxim 100)",
+  });
+
+// =============================================================================
+// PATH TRAVERSAL PREVENTION
+// =============================================================================
+
+/**
+ * Prevent path traversal attacks (../, ..\\, etc.)
+ */
+export const preventPathTraversal = z
+  .string()
+  .refine((path) => !path.includes("..") && !path.includes("\\") && !path.startsWith("/"), {
+    message: "Path traversal detectat",
+  });
+
+// =============================================================================
+// SSRF PREVENTION
+// =============================================================================
+
+/**
+ * Prevent Server-Side Request Forgery (SSRF) attacks
+ * Block private IPs, localhost, etc.
+ */
+export const preventSSRF = z
+  .string()
+  .url()
+  .refine(
+    (url) => {
+      const hostname = new URL(url).hostname;
+      return (
+        !hostname.includes("localhost") &&
+        !hostname.includes("127.0.0.1") &&
+        !hostname.includes("0.0.0.0") &&
+        !hostname.match(/^192\.168\./) &&
+        !hostname.match(/^10\./) &&
+        !hostname.match(/^172\.(1[6-9]|2[0-9]|3[0-1])\./)
+      );
+    },
+    { message: "SSRF prevention: URL privat nu este permis" }
+  );

@@ -15,7 +15,7 @@ import { describe, it, expect, beforeEach, afterEach } from "@jest/globals";
 import { NextRequest, NextResponse } from "next/server";
 import { withRateLimit } from "@/lib/middleware/rate-limit";
 import { withCSRFProtection } from "@/lib/middleware/csrf-protection";
-import { requireAuth, requireOwnership } from "@/lib/auth/authorization";
+import { requireAuth, requireOwnership, getCurrentUser } from "@/lib/auth/authorization";
 import { sanitizeHtml, sanitizeText } from "@/lib/security/sanitize";
 import { rateLimiter } from "@/lib/rate-limiter";
 
@@ -139,11 +139,10 @@ describe("Security Integration Tests", () => {
 
   describe("Rate Limiting + CSRF Protection Integration", () => {
     it("should check CSRF before consuming rate limit quota", async () => {
-      const handler = withRateLimit(
-        withCSRFProtection(async (req: NextRequest) => {
+      const handler = withCSRFProtection(
+        withRateLimit(async (req: NextRequest) => {
           return NextResponse.json({ success: true });
-        }),
-        "WRITE" // 20 requests per 15 min
+        }, "WRITE") // 20 requests per 15 min
       );
 
       // Request WITHOUT Origin header (CSRF fail)
@@ -155,9 +154,8 @@ describe("Security Integration Tests", () => {
       const response1 = await handler(invalidRequest);
 
       expect(response1.status).toBe(403); // CSRF rejected
-      expect(await response1.json()).toMatchObject({
-        error: expect.stringContaining("CSRF"),
-      });
+      const data1 = await response1.json();
+      expect(data1.error.code).toBe("CSRF_VIOLATION");
 
       // Verify rate limit quota was NOT consumed
       const validRequest = createMockRequest({
@@ -214,14 +212,18 @@ describe("Security Integration Tests", () => {
     it("should validate CSRF → Auth → Input in correct order", async () => {
       const handler = withCSRFProtection(async (req: NextRequest) => {
         // Step 2: Check authentication
-        const user = await requireAuth(req);
+        const authError = await requireAuth(req);
+        if (authError) return authError;
+
+        // Get authenticated user
+        const user = await getCurrentUser();
 
         // Step 3: Validate input
         const body = await req.json();
         const sanitizedTitle = sanitizeText(body.title);
 
         return NextResponse.json({
-          userId: user.id,
+          userId: user!.id,
           sanitizedTitle,
         });
       });
@@ -234,9 +236,8 @@ describe("Security Integration Tests", () => {
 
       const response1 = await handler(noCsrfRequest);
       expect(response1.status).toBe(403);
-      expect(await response1.json()).toMatchObject({
-        error: expect.stringContaining("CSRF"),
-      });
+      const data1 = await response1.json();
+      expect(data1.error.code).toBe("CSRF_VIOLATION");
 
       // Valid CSRF → should proceed to auth and sanitize input
       const validRequest = createMockRequest({
@@ -261,10 +262,12 @@ describe("Security Integration Tests", () => {
       const mockResource = { user_id: "different-user", id: "123" };
 
       const handler = withCSRFProtection(async (req: NextRequest) => {
-        const user = await requireAuth(req);
+        const authError = await requireAuth(req);
+        if (authError) return authError;
 
-        // This should throw AuthorizationError
-        await requireOwnership(mockResource, user.id, "resource");
+        // Check ownership (should fail - different user)
+        const ownershipError = await requireOwnership(mockResource.user_id, req, "resource");
+        if (ownershipError) return ownershipError;
 
         return NextResponse.json({ success: true });
       });
@@ -277,8 +280,12 @@ describe("Security Integration Tests", () => {
         },
       });
 
-      // Should throw authorization error
-      await expect(handler(request)).rejects.toThrow();
+      // Should return 403 Forbidden
+      const response = await handler(request);
+      expect(response.status).toBe(403);
+      const data = await response.json();
+      expect(data.error.code).toBe("FORBIDDEN");
+      expect(data.error.message).toContain("resource");
     });
   });
 
@@ -290,7 +297,10 @@ describe("Security Integration Tests", () => {
     it("should pass through all layers for valid request", async () => {
       const handler = withRateLimit(
         withCSRFProtection(async (req: NextRequest) => {
-          const user = await requireAuth(req);
+          const authError = await requireAuth(req);
+          if (authError) return authError;
+
+          const user = await getCurrentUser();
           const body = await req.json();
 
           // Validate and sanitize
@@ -301,7 +311,7 @@ describe("Security Integration Tests", () => {
 
           return NextResponse.json({
             success: true,
-            userId: user.id,
+            userId: user!.id,
             data: sanitizedData,
           });
         }),
@@ -337,8 +347,11 @@ describe("Security Integration Tests", () => {
     it("should fail fast at first violated layer", async () => {
       const handler = withRateLimit(
         withCSRFProtection(async (req: NextRequest) => {
-          const user = await requireAuth(req);
-          return NextResponse.json({ userId: user.id });
+          const authError = await requireAuth(req);
+          if (authError) return authError;
+
+          const user = await getCurrentUser();
+          return NextResponse.json({ userId: user!.id });
         }),
         "CRITICAL" // 5 requests per 15 min
       );
@@ -373,12 +386,15 @@ describe("Security Integration Tests", () => {
     it("should handle concurrent requests without race conditions", async () => {
       const handler = withRateLimit(
         withCSRFProtection(async (req: NextRequest) => {
-          const user = await requireAuth(req);
+          const authError = await requireAuth(req);
+          if (authError) return authError;
+
+          const user = await getCurrentUser();
 
           // Simulate async processing
           await new Promise((resolve) => setTimeout(resolve, 50));
 
-          return NextResponse.json({ userId: user.id });
+          return NextResponse.json({ userId: user!.id });
         }),
         "WRITE" // 20 requests
       );

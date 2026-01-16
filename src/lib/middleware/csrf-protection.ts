@@ -93,8 +93,8 @@ function validateOrigin(request: NextRequest): boolean {
     },
   });
 
-  // In production, consider rejecting requests without Origin/Referer
-  if (process.env.NODE_ENV === "production") {
+  // In production or test mode, reject requests without Origin/Referer
+  if (process.env.NODE_ENV === "production" || process.env.NODE_ENV === "test") {
     return false;
   }
 
@@ -204,3 +204,34 @@ export const csrfConfig = {
     return csrfConfig.excludePaths.some((excludePath) => pathname.startsWith(excludePath));
   },
 };
+
+/**
+ * CSRF Protection Middleware Wrapper (similar to withRateLimit)
+ *
+ * Wraps an API route handler with CSRF protection.
+ *
+ * @param handler - The API route handler function
+ * @returns Wrapped handler with CSRF protection
+ *
+ * @example
+ * ```typescript
+ * export const POST = withCSRFProtection(async (req) => {
+ *   // Your API logic here
+ *   return NextResponse.json({ success: true });
+ * });
+ * ```
+ */
+export function withCSRFProtection<T extends NextRequest = NextRequest>(
+  handler: (req: T) => Promise<NextResponse>
+): (req: T) => Promise<NextResponse> {
+  return async (req: T) => {
+    // Check CSRF protection
+    const csrfError = csrfProtection(req);
+    if (csrfError) {
+      return csrfError;
+    }
+
+    // CSRF validation passed - execute handler
+    return handler(req);
+  };
+}

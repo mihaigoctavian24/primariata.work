@@ -21,21 +21,38 @@ import * as Sentry from "@sentry/nextjs";
 /**
  * Rate limit middleware wrapper for Next.js API routes
  *
- * @param tier - Rate limit tier (CRITICAL, SENSITIVE, WRITE, READ, PUBLIC)
- * @param handler - Next.js API route handler function
+ * Supports two signatures for backwards compatibility:
+ * 1. withRateLimit('CRITICAL', handler, getUserId) - tier first (recommended)
+ * 2. withRateLimit(handler, 'CRITICAL') - handler first (test compatibility)
+ *
+ * @param tierOrHandler - Rate limit tier OR handler function
+ * @param handlerOrTier - Handler function OR rate limit tier
  * @param getUserId - Optional function to extract user ID from request (for authenticated routes)
  * @returns Wrapped handler with rate limiting
  */
 export function withRateLimit<T extends NextRequest = NextRequest>(
-  tier: RateLimitTier,
-  handler: (req: T) => Promise<NextResponse>,
+  tierOrHandler: RateLimitTier | ((req: T) => Promise<NextResponse>),
+  handlerOrTier?: ((req: T) => Promise<NextResponse>) | RateLimitTier,
   getUserId?: (req: T) => Promise<string | undefined>
 ): (req: T) => Promise<NextResponse> {
+  // Detect which signature was used
+  let tier: RateLimitTier;
+  let handler: (req: T) => Promise<NextResponse>;
+
+  if (typeof tierOrHandler === "string") {
+    // Signature 1: withRateLimit('CRITICAL', handler, getUserId)
+    tier = tierOrHandler as RateLimitTier;
+    handler = handlerOrTier as (req: T) => Promise<NextResponse>;
+  } else {
+    // Signature 2: withRateLimit(handler, 'CRITICAL')
+    handler = tierOrHandler as (req: T) => Promise<NextResponse>;
+    tier = handlerOrTier as RateLimitTier;
+  }
   return async (req: T) => {
     try {
       // Get identifier (user ID or IP)
       const userId = getUserId ? await getUserId(req) : undefined;
-      const identifier = await getRateLimitIdentifier(userId);
+      const identifier = await getRateLimitIdentifier(userId, req);
 
       // Check rate limit
       const result = checkRateLimit(tier, identifier);
@@ -165,7 +182,7 @@ export class RateLimitError extends Error {
  */
 export async function checkRateLimitForRequest(
   tier: RateLimitTier,
-  _req: NextRequest,
+  req: NextRequest,
   userId?: string
 ): Promise<{
   allowed: boolean;
@@ -173,6 +190,6 @@ export async function checkRateLimitForRequest(
   resetAt: Date;
   retryAfter?: number;
 }> {
-  const identifier = await getRateLimitIdentifier(userId);
+  const identifier = await getRateLimitIdentifier(userId, req);
   return checkRateLimit(tier, identifier);
 }

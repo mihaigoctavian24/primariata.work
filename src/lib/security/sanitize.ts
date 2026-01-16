@@ -264,6 +264,11 @@ export function sanitizeRecord(record: Record<string, string>): Record<string, s
 // EXPORTS
 // =============================================================================
 
+/**
+ * Alias for test compatibility
+ */
+export const sanitizeText = sanitizePlainText;
+
 export default {
   // Core sanitization
   sanitizePlainText,

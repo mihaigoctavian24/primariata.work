@@ -77,13 +77,27 @@ startCleanup();
  * 1. User ID (if authenticated)
  * 2. IP address (from headers)
  * 3. "unknown" (fallback)
+ *
+ * @param userId - Optional user ID (if authenticated)
+ * @param req - Optional NextRequest object (for tests to avoid headers() call)
  */
-export async function getRateLimitIdentifier(userId?: string): Promise<string> {
+export async function getRateLimitIdentifier(
+  userId?: string,
+  req?: { headers: { get: (name: string) => string | null } }
+): Promise<string> {
   if (userId) {
     return `user:${userId}`;
   }
 
-  // Get IP from headers (supports Vercel/Cloudflare proxies)
+  // If request is provided (for tests), extract IP directly
+  if (req) {
+    const forwardedFor = req.headers.get("x-forwarded-for");
+    const realIp = req.headers.get("x-real-ip");
+    const ip = forwardedFor?.split(",")[0] || realIp || "unknown";
+    return `ip:${ip}`;
+  }
+
+  // Production: Get IP from Next.js headers() (requires request context)
   const headersList = await headers();
   const forwardedFor = headersList.get("x-forwarded-for");
   const realIp = headersList.get("x-real-ip");
@@ -210,3 +224,73 @@ export function getRateLimiterDebugInfo(): {
     keys: Array.from(requestStore.keys()),
   };
 }
+
+// =============================================================================
+// CLASS-BASED API (for test compatibility)
+// =============================================================================
+
+/**
+ * Export RATE_LIMITS as RATE_LIMIT_TIERS for test compatibility
+ */
+export const RATE_LIMIT_TIERS = RATE_LIMITS;
+
+/**
+ * RateLimiter class wrapper for functional API
+ * Provides object-oriented interface for tests
+ */
+export class RateLimiter {
+  /**
+   * Consume a rate limit token
+   * @param identifier - Unique identifier (e.g., "CRITICAL:user-123")
+   * @param tier - Rate limit tier
+   */
+  async consume(
+    identifier: string,
+    tier: RateLimitTier
+  ): Promise<{
+    success: boolean;
+    remaining: number;
+    resetAt: Date;
+    retryAfter?: number;
+  }> {
+    const result = checkRateLimit(tier, identifier);
+    return {
+      success: result.allowed,
+      remaining: result.remaining,
+      resetAt: result.resetAt,
+      retryAfter: result.retryAfter,
+    };
+  }
+
+  /**
+   * Reset rate limit for specific identifier
+   */
+  reset(tier?: RateLimitTier, identifier?: string): void {
+    if (tier && identifier) {
+      resetRateLimit(tier, identifier);
+    } else {
+      // Reset all (for tests)
+      requestStore.clear();
+    }
+  }
+
+  /**
+   * Get current rate limit status
+   */
+  getStatus(
+    identifier: string,
+    tier: RateLimitTier
+  ): {
+    current: number;
+    limit: number;
+    remaining: number;
+    resetAt: Date;
+  } {
+    return getRateLimitStatus(tier, identifier);
+  }
+}
+
+/**
+ * Default singleton instance for tests
+ */
+export const rateLimiter = new RateLimiter();
