@@ -42,7 +42,7 @@ async function checkTables() {
 
     // Check progress_data column in cereri
     console.log("\n3️⃣ Checking progress_data column in cereri...");
-    const { error: cereriError } = await supabase
+    const { data: cereri, error: cereriError } = await supabase
       .from("cereri")
       .select("id, progress_data")
       .limit(1);
