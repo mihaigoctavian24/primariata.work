@@ -63,7 +63,7 @@ export function ServiceBreakdownChart({
       initial={mounted ? { opacity: 0, y: 20 } : false}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="border-border/40 bg-card space-y-2 rounded-lg border p-6 shadow-sm"
+      className="border-border/40 bg-card chart-card space-y-2 rounded-lg border p-6 shadow-sm"
     >
       {/* Header */}
       <div className="flex items-center justify-between">

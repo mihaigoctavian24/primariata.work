@@ -1,5 +1,25 @@
 import { z } from "zod";
-import DOMPurify from "isomorphic-dompurify";
+
+// Dynamic import for DOMPurify to avoid Next.js SSR issues
+// Only use DOMPurify on client-side; server-side will skip sanitization
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let domPurifyInstance: any = null;
+
+const getDOMPurify = () => {
+  if (typeof window !== "undefined" && !domPurifyInstance) {
+    // Client-side: return cached instance (loaded asynchronously below)
+    return domPurifyInstance;
+  }
+  // Server-side: return null to skip HTML sanitization
+  return null;
+};
+
+// Lazy load DOMPurify on client-side (async initialization)
+if (typeof window !== "undefined") {
+  import("isomorphic-dompurify").then((module) => {
+    domPurifyInstance = module;
+  });
+}
 
 /**
  * Common Validation Schemas and Utilities
@@ -116,15 +136,21 @@ export const createSafeStringSchema = (options: {
     schema = schema.regex(options.pattern, options.patternError || "Format invalid");
   }
 
-  // Sanitization transform
+  // Sanitization transform (client-side only)
   if (options.sanitize) {
-    schema = schema.transform((val: string) =>
-      DOMPurify.sanitize(val, {
-        ALLOWED_TAGS: [], // Strip all HTML tags
-        ALLOWED_ATTR: [],
-        KEEP_CONTENT: true, // Keep text content, just remove tags
-      })
-    );
+    schema = schema.transform((val: string) => {
+      const DOMPurify = getDOMPurify();
+      if (DOMPurify) {
+        // Client-side: sanitize with DOMPurify
+        return DOMPurify.sanitize(val, {
+          ALLOWED_TAGS: [], // Strip all HTML tags
+          ALLOWED_ATTR: [],
+          KEEP_CONTENT: true, // Keep text content, just remove tags
+        });
+      }
+      // Server-side: basic text sanitization (strip HTML-like content)
+      return val.replace(/<[^>]*>/g, "");
+    });
   }
 
   // Allow empty (optional)

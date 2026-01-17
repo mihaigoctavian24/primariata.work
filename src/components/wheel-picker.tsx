@@ -1,7 +1,7 @@
 "use client";
 
 import { useTheme } from "next-themes";
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { motion, useMotionValue, useVelocity, animate, PanInfo } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -144,9 +144,13 @@ function WheelPicker({
   const isInternalChangeRef = useRef(false);
 
   // Create extended options for infinite scrolling
-  const extendedOptions = infinite
-    ? [...options, ...options, ...options] // Triple the options for smooth infinite scroll
-    : options;
+  const extendedOptions = useMemo(
+    () =>
+      infinite
+        ? [...options, ...options, ...options] // Triple the options for smooth infinite scroll
+        : options,
+    [infinite, options]
+  );
 
   // Find current index
   const currentIndex = extendedOptions.findIndex((opt) => opt.value === value);
@@ -246,7 +250,7 @@ function WheelPicker({
         }
       }
     },
-    [y, extendedOptions, options, value, onValueChange, infinite]
+    [y, extendedOptions, options, onValueChange, infinite]
   );
 
   // Handle velocity-based snap detection

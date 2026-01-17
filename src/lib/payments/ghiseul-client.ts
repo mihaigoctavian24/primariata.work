@@ -82,7 +82,7 @@ export class GhiseulClient {
     if (this.config.mode === "mock") {
       return this.verifyWebhookMock(payload.transaction_id, payload.status, signature);
     } else {
-      return this.verifyWebhookProduction(payload, signature);
+      return this.verifyWebhookProduction(signature);
     }
   }
 
@@ -230,7 +230,8 @@ export class GhiseulClient {
    *
    * TODO: Implement when real Ghișeul.ro webhook signature scheme is known
    */
-  private verifyWebhookProduction(payload: PaymentCallback, signature: string): boolean {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private verifyWebhookProduction(__signature: string): boolean {
     // This would implement the real Ghișeul.ro signature verification
     // For now, return false to prevent accepting unverified webhooks
     console.warn("[GhiseulClient] Production webhook verification not implemented");

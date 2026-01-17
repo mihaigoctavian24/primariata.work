@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { LayoutGrid, Table2, Plus, ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -10,19 +10,24 @@ import { CereriTable } from "@/components/cereri/CereriTable";
 import { CereriCard, CereriCardSkeleton } from "@/components/cereri/CereriCard";
 import { CereriFilters } from "@/components/cereri/CereriFilters";
 import { CancelCerereDialog } from "@/components/cereri/CancelCerereDialog";
+import { BulkCancelDialog } from "@/components/cereri/BulkCancelDialog";
 import { useCereriList } from "@/hooks/use-cereri-list";
+import { useDebounce } from "@/hooks/use-debounce";
 import type { CerereStatusType } from "@/lib/validations/cereri";
 import type { TipCerere } from "@/types/api";
 import { toast } from "sonner";
+import JSZip from "jszip";
 
 /**
  * Cereri List Page
  * Displays user's cereri with filters, pagination, and responsive views
  *
- * Features:
+ * Features (Enhanced Issue #88):
  * - Table view (desktop) / Card view (mobile/tablet)
- * - Filters: Status, Tip Cerere, Search by număr
- * - Pagination (20 items per page)
+ * - Advanced Filters: Status, Tip Cerere, Search, Date Range, Sort
+ * - Debounced search (300ms)
+ * - URL state persistence for shareable links
+ * - Pagination (10 items per page)
  * - Quick actions: View, Cancel, Download
  * - Empty states: No cereri, No results from filters
  * - Loading states with skeletons
@@ -30,6 +35,7 @@ import { toast } from "sonner";
 export default function CereriPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const judet = params.judet as string;
   const localitate = params.localitate as string;
 
@@ -37,22 +43,41 @@ export default function CereriPage() {
   const [viewMode, setViewMode] = useState<"table" | "card">("table");
   const [isBackHovered, setIsBackHovered] = useState(false);
 
-  // Filter states
-  const [status, setStatus] = useState<CerereStatusType | undefined>();
-  const [tipCerereId, setTipCerereId] = useState<string | undefined>();
-  const [search, setSearch] = useState<string>("");
-  const [page, setPage] = useState(1);
+  // Initialize filter states from URL
+  const [status, setStatus] = useState<CerereStatusType | undefined>(
+    (searchParams.get("status") as CerereStatusType) || undefined
+  );
+  const [tipCerereId, setTipCerereId] = useState<string | undefined>(
+    searchParams.get("tip") || undefined
+  );
+  const [searchInput, setSearchInput] = useState<string>(searchParams.get("search") || "");
 
-  // Sorting states
-  type SortField = "numar_inregistrare" | "tip_cerere" | "status" | "created_at" | "data_termen";
-  type SortOrder = "asc" | "desc";
-  const [sortField, setSortField] = useState<SortField>("created_at");
-  const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
+  // Parse dates from URL params with proper null handling
+  const fromParam = searchParams.get("from");
+  const toParam = searchParams.get("to");
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(
+    fromParam ? new Date(fromParam) : undefined
+  );
+  const [dateTo, setDateTo] = useState<Date | undefined>(toParam ? new Date(toParam) : undefined);
+
+  const [sortBy, setSortBy] = useState<string>(searchParams.get("sort") || "created_at_desc");
+  const [page, setPage] = useState(parseInt(searchParams.get("page") || "1", 10));
+
+  // Debounce search input (300ms)
+  const debouncedSearch = useDebounce(searchInput, 300);
+
+  // Parse sortBy into sort field and order
+  // Split on last underscore to handle fields like "created_at"
+  const lastUnderscoreIndex = sortBy.lastIndexOf("_");
+  const sortField = sortBy.substring(0, lastUnderscoreIndex) as
+    | "created_at"
+    | "numar_inregistrare"
+    | "status";
+  const sortOrder = sortBy.substring(lastUnderscoreIndex + 1) as "asc" | "desc";
 
   // Helper function to check if field is API-sortable
-  const isApiSortable = (
-    field: SortField
-  ): field is "created_at" | "data_termen" | "numar_inregistrare" => {
+  type ApiSortField = "created_at" | "data_termen" | "numar_inregistrare";
+  const isApiSortable = (field: string): field is ApiSortField => {
     return field === "created_at" || field === "data_termen" || field === "numar_inregistrare";
   };
 
@@ -64,6 +89,44 @@ export default function CereriPage() {
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [cancelCerereId, setCancelCerereId] = useState<string | null>(null);
 
+  // Bulk cancel dialog state
+  const [showBulkCancelDialog, setShowBulkCancelDialog] = useState(false);
+  const [bulkCancelIds, setBulkCancelIds] = useState<string[]>([]);
+  const [isBulkProcessing, setIsBulkProcessing] = useState(false);
+
+  // Update URL when filters change
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (status) params.set("status", status);
+    if (tipCerereId) params.set("tip", tipCerereId);
+    if (debouncedSearch) params.set("search", debouncedSearch);
+    if (dateFrom) {
+      const fromStr = dateFrom.toISOString().split("T")[0];
+      if (fromStr) params.set("from", fromStr);
+    }
+    if (dateTo) {
+      const toStr = dateTo.toISOString().split("T")[0];
+      if (toStr) params.set("to", toStr);
+    }
+    if (sortBy !== "created_at_desc") params.set("sort", sortBy);
+    if (page !== 1) params.set("page", page.toString());
+
+    const paramsString = params.toString();
+    const newUrl = `${window.location.pathname}${paramsString ? `?${paramsString}` : ""}`;
+    router.replace(newUrl, { scroll: false });
+  }, [
+    status,
+    tipCerereId,
+    debouncedSearch,
+    dateFrom,
+    dateTo,
+    sortBy,
+    page,
+    judet,
+    localitate,
+    router,
+  ]);
+
   // Fetch cereri using custom hook
   // Only pass API-supported sort fields to avoid 400 errors
   const { cereri, pagination, isLoading, isError, error, refetch } = useCereriList({
@@ -71,9 +134,11 @@ export default function CereriPage() {
     limit: 10,
     status,
     tipCerereId,
-    search,
+    search: debouncedSearch,
+    dateFrom,
+    dateTo,
     sort: isApiSortable(sortField) ? sortField : "created_at",
-    order: isApiSortable(sortField) ? sortOrder : "desc",
+    order: sortOrder,
   });
 
   // Fetch tipuri cereri for filter
@@ -113,26 +178,39 @@ export default function CereriPage() {
   // Reset to page 1 when filters change
   useEffect(() => {
     setPage(1);
-  }, [status, tipCerereId, search]);
+  }, [status, tipCerereId, debouncedSearch, dateFrom, dateTo, sortBy]);
 
   // Handlers
   const handleResetFilters = () => {
     setStatus(undefined);
     setTipCerereId(undefined);
-    setSearch("");
+    setSearchInput("");
+    setDateFrom(undefined);
+    setDateTo(undefined);
+    setSortBy("created_at_desc");
     setPage(1);
   };
 
+  const handleDateRangeChange = (from?: Date, to?: Date) => {
+    setDateFrom(from);
+    setDateTo(to);
+  };
+
+  const handleSortChange = (newSortBy: string) => {
+    setSortBy(newSortBy);
+  };
+
+  // Keep old handleSort for table column sorting (if used)
+  type SortField = "numar_inregistrare" | "tip_cerere" | "status" | "created_at" | "data_termen";
   const handleSort = (field: SortField) => {
     if (sortField === field) {
-      // Toggle sort order if clicking same field
-      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+      // Toggle sort order
+      const newOrder = sortOrder === "asc" ? "desc" : "asc";
+      setSortBy(`${field}_${newOrder}`);
     } else {
       // Set new field with ascending order
-      setSortField(field);
-      setSortOrder("asc");
+      setSortBy(`${field}_asc`);
     }
-    setPage(1); // Reset to first page when sorting changes
   };
 
   const handleCancel = (cerereId: string) => {
@@ -168,14 +246,141 @@ export default function CereriPage() {
     console.log("Download documents for cerere:", cerereId);
   };
 
-  const hasActiveFilters = status || tipCerereId || search;
+  // Bulk cancel handler
+  const handleBulkCancel = async (cereriIds: string[]) => {
+    setBulkCancelIds(cereriIds);
+    setShowBulkCancelDialog(true);
+  };
+
+  const handleConfirmBulkCancel = async () => {
+    try {
+      setIsBulkProcessing(true);
+
+      const response = await fetch("/api/cereri/bulk-cancel", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          cereri_ids: bulkCancelIds,
+          motiv_anulare: "Anulare în masă din interfață utilizator",
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error?.message || "Eroare la anularea cererilor");
+      }
+
+      const result = await response.json();
+
+      if (result.data.succeeded > 0) {
+        toast.success(
+          `${result.data.succeeded} ${result.data.succeeded === 1 ? "cerere anulată" : "cereri anulate"} cu succes`
+        );
+      }
+
+      if (result.data.failed > 0) {
+        toast.error(
+          `${result.data.failed} ${result.data.failed === 1 ? "cerere" : "cereri"} nu au putut fi anulate`
+        );
+      }
+
+      refetch(); // Refresh list
+      setShowBulkCancelDialog(false);
+      setBulkCancelIds([]);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Eroare la anularea cererilor");
+    } finally {
+      setIsBulkProcessing(false);
+    }
+  };
+
+  // Bulk download handler
+  const handleBulkDownload = async (cereriIds: string[]) => {
+    try {
+      toast.info("Pregătire descărcare documente...");
+
+      const zip = new JSZip();
+      let documentsFound = 0;
+      let errors = 0;
+
+      // Download documents for each cerere
+      for (const cerereId of cereriIds) {
+        try {
+          const response = await fetch(`/api/cereri/${cerereId}/documents`);
+
+          if (!response.ok) {
+            errors++;
+            continue;
+          }
+
+          const result = await response.json();
+          const documents = result.data?.items || [];
+
+          if (documents.length === 0) {
+            continue;
+          }
+
+          // Get cerere info for folder name
+          const cerere = cereri.find((c) => c.id === cerereId);
+          const folderName = cerere?.numar_inregistrare || cerereId.substring(0, 8);
+
+          // Download each document
+          for (const doc of documents) {
+            try {
+              const docResponse = await fetch(`/api/cereri/${cerereId}/documents/${doc.id}`);
+
+              if (!docResponse.ok) {
+                continue;
+              }
+
+              const docBlob = await docResponse.blob();
+              zip.file(`${folderName}/${doc.nume_fisier}`, docBlob);
+              documentsFound++;
+            } catch (err) {
+              console.error(`Error downloading document ${doc.id}:`, err);
+            }
+          }
+        } catch (err) {
+          console.error(`Error fetching documents for cerere ${cerereId}:`, err);
+          errors++;
+        }
+      }
+
+      if (documentsFound === 0) {
+        toast.error("Nu s-au găsit documente pentru cererile selectate");
+        return;
+      }
+
+      // Generate ZIP
+      const zipBlob = await zip.generateAsync({ type: "blob" });
+
+      // Create download link
+      const url = URL.createObjectURL(zipBlob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `cereri_${judet}_${localitate}_${new Date().toISOString().split("T")[0]}.zip`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      toast.success(
+        `${documentsFound} ${documentsFound === 1 ? "document descărcat" : "documente descărcate"}${errors > 0 ? ` (${errors} erori)` : ""}`
+      );
+    } catch (err) {
+      console.error("Error creating ZIP:", err);
+      toast.error("Eroare la crearea arhivei ZIP");
+    }
+  };
+
+  const hasActiveFilters = status || tipCerereId || debouncedSearch || dateFrom || dateTo;
   const hasNoCereri = !isLoading && cereri.length === 0 && !hasActiveFilters;
   const hasNoResults = !isLoading && cereri.length === 0 && hasActiveFilters;
 
   return (
     <div className="flex h-[calc(100vh-4rem)] flex-col">
       {/* Static header - Title, Filters, View Toggle */}
-      <div className="border-border/40 sticky top-0 z-10 flex-shrink-0 border-b bg-white">
+      <div className="border-border/40 bg-background sticky top-0 z-10 flex-shrink-0 border-b">
         <div className="container mx-auto space-y-4 px-4 py-6">
           {/* Header */}
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -224,11 +429,16 @@ export default function CereriPage() {
             <CereriFilters
               status={status}
               tipCerereId={tipCerereId}
-              search={search}
+              search={searchInput}
+              dateFrom={dateFrom}
+              dateTo={dateTo}
+              sortBy={sortBy}
               tipuriCereri={tipuriCereri}
               onStatusChange={setStatus}
               onTipCerereChange={setTipCerereId}
-              onSearchChange={setSearch}
+              onSearchChange={setSearchInput}
+              onDateRangeChange={handleDateRangeChange}
+              onSortChange={handleSortChange}
               onReset={handleResetFilters}
               className="flex-1"
             />
@@ -320,6 +530,8 @@ export default function CereriPage() {
               cereri={cereri}
               onCancel={handleCancel}
               onDownload={handleDownload}
+              onBulkCancel={handleBulkCancel}
+              onBulkDownload={handleBulkDownload}
               isLoading={isLoading}
               sortField={sortField}
               sortOrder={sortOrder}
@@ -406,6 +618,15 @@ export default function CereriPage() {
             ? cereri.find((c) => c.id === cancelCerereId)?.numar_inregistrare
             : undefined
         }
+      />
+
+      {/* Bulk Cancel Dialog */}
+      <BulkCancelDialog
+        isOpen={showBulkCancelDialog}
+        onOpenChange={setShowBulkCancelDialog}
+        onConfirm={handleConfirmBulkCancel}
+        count={bulkCancelIds.length}
+        isLoading={isBulkProcessing}
       />
     </div>
   );

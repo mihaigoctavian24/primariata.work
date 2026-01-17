@@ -17,6 +17,7 @@ import { csrfProtectionFromRequest } from "@/lib/middleware/csrf-protection";
  *
  * Rate Limit: READ tier (100 requests per 15 minutes)
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function getHandler(_req: NextRequest) {
   try {
     const supabase = await createClient();

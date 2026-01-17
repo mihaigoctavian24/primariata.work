@@ -22,10 +22,14 @@ import { csrfProtectionFromRequest } from "@/lib/middleware/csrf-protection";
  * - limit (optional): Items per page (default: 20, max: 100)
  * - status (optional): Filter by status
  * - tip_cerere_id (optional): Filter by request type
- * - sort (optional): Sort field (created_at, updated_at, data_termen)
+ * - search (optional): Search by numar_inregistrare or titlu
+ * - date_from (optional): Filter by created_at >= date_from (ISO date string)
+ * - date_to (optional): Filter by created_at <= date_to (ISO date string)
+ * - sort (optional): Sort field (created_at, updated_at, data_termen, numar_inregistrare)
  * - order (optional): Sort order (asc, desc)
  *
  * Rate Limit: READ tier (100 requests per 15 minutes)
+ * Enhanced: Issue #88 - Advanced search and filtering
  */
 async function getHandler(request: NextRequest) {
   try {
@@ -59,6 +63,9 @@ async function getHandler(request: NextRequest) {
         limit: searchParams.get("limit") || "20",
         status: searchParams.get("status") || undefined,
         tip_cerere_id: searchParams.get("tip_cerere_id") || undefined,
+        search: searchParams.get("search") || undefined,
+        date_from: searchParams.get("date_from") || undefined,
+        date_to: searchParams.get("date_to") || undefined,
         sort: searchParams.get("sort") || "created_at",
         order: searchParams.get("order") || "desc",
       });
@@ -78,7 +85,8 @@ async function getHandler(request: NextRequest) {
       throw error;
     }
 
-    const { page, limit, status, tip_cerere_id, sort, order } = queryParams;
+    const { page, limit, status, tip_cerere_id, search, date_from, date_to, sort, order } =
+      queryParams;
     const offset = (page - 1) * limit;
 
     // Build base query - user can only see their own cereri (enforced by RLS)
@@ -127,6 +135,26 @@ async function getHandler(request: NextRequest) {
 
     if (tip_cerere_id) {
       query = query.eq("tip_cerere_id", tip_cerere_id);
+    }
+
+    // ENHANCED (Issue #88): Search by numar_inregistrare or titlu
+    if (search) {
+      // Search in numar_inregistrare (text match) or date_formular->titlu (JSONB field)
+      query = query.or(
+        `numar_inregistrare.ilike.%${search}%,date_formular->>titlu.ilike.%${search}%`
+      );
+    }
+
+    // ENHANCED (Issue #88): Date range filtering
+    if (date_from) {
+      query = query.gte("created_at", date_from);
+    }
+
+    if (date_to) {
+      // Add 1 day to include the entire end date
+      const endDate = new Date(date_to);
+      endDate.setDate(endDate.getDate() + 1);
+      query = query.lt("created_at", endDate.toISOString());
     }
 
     // Apply sorting

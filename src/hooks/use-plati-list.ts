@@ -10,7 +10,7 @@ interface UsePlatiListParams {
   status?: PlataStatusType;
   dateFrom?: string;
   dateTo?: string;
-  sort?: "created_at" | "updated_at" | "suma";
+  sort?: "created_at" | "suma";
   order?: "asc" | "desc";
 }
 

@@ -58,7 +58,7 @@ export function PlatiOverviewChart({
       initial={mounted ? { opacity: 0, y: 20 } : false}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="border-border/40 bg-card space-y-4 rounded-lg border p-6 shadow-sm"
+      className="border-border/40 bg-card chart-card space-y-4 rounded-lg border p-6 shadow-sm"
     >
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -91,25 +91,22 @@ export function PlatiOverviewChart({
       </div>
 
       {/* Bar Chart */}
-      <div className="h-[300px] w-full">
+      <div className="mt-6 h-[300px] w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={monthly} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
+          <BarChart data={monthly} margin={{ top: 20, right: 10, left: 0, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#27272a" opacity={0.3} />
             <XAxis
               dataKey="month_label"
-              tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
-              stroke="hsl(var(--border))"
+              tick={{ fill: "#a3a3a3", fontSize: 12 }}
+              stroke="#27272a"
             />
             <YAxis
-              tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
-              stroke="hsl(var(--border))"
+              tick={{ fill: "#a3a3a3", fontSize: 12 }}
+              stroke="#27272a"
               tickFormatter={(value) => `${value} RON`}
             />
-            <Tooltip
-              content={<CustomTooltip />}
-              cursor={{ fill: "hsl(var(--muted))", opacity: 0.3 }}
-            />
-            <Legend wrapperStyle={{ fontSize: "12px", color: "hsl(var(--foreground))" }} />
+            <Tooltip content={<CustomTooltip />} cursor={{ fill: "#1f1f1f", opacity: 0.3 }} />
+            <Legend wrapperStyle={{ fontSize: "12px", color: "#a3a3a3" }} />
             <Bar
               dataKey="success_suma"
               name="Procesate"
@@ -159,12 +156,12 @@ function SummaryCard({
   };
 
   return (
-    <div className="border-border/40 bg-background rounded-lg border p-2">
+    <div className="border-border/40 bg-card rounded-lg border p-2">
       <div className="flex items-center gap-2">
         <div
-          className={`flex-shrink-0 rounded-md p-1.5 ${
+          className={`flex-shrink-0 rounded-md p-1.5 transition-colors ${
             variant === "warning"
-              ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
+              ? "bg-orange-500/10 text-orange-600 dark:bg-orange-500/20 dark:text-orange-400"
               : "bg-primary/10 text-primary"
           }`}
         >

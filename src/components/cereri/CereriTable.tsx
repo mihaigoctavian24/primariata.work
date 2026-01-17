@@ -4,7 +4,7 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { ro } from "date-fns/locale";
-import { Eye, Download, XCircle, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { Eye, Download, XCircle, ArrowUpDown, ArrowUp, ArrowDown, Trash2 } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -14,6 +14,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { StatusBadge } from "./StatusBadge";
 import { canCancelCerere } from "@/lib/validations/cereri";
 import type { Cerere } from "@/types/api";
@@ -26,6 +27,8 @@ interface CereriTableProps {
   cereri: Cerere[];
   onCancel: (cerereId: string) => void;
   onDownload: (cerereId: string) => void;
+  onBulkCancel?: (cereriIds: string[]) => Promise<void>;
+  onBulkDownload?: (cereriIds: string[]) => Promise<void>;
   isLoading?: boolean;
   sortField?: SortField;
   sortOrder?: SortOrder;
@@ -48,16 +51,85 @@ export function CereriTable({
   cereri,
   onCancel,
   onDownload,
+  onBulkCancel,
+  onBulkDownload,
   isLoading,
   sortField,
   sortOrder,
   onSort,
 }: CereriTableProps) {
   const router = useRouter();
+  const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set());
+  const [isProcessing, setIsProcessing] = React.useState(false);
 
   const handleViewDetails = (cerereId: string) => {
     router.push(`cereri/${cerereId}`);
   };
+
+  // Check if a cerere can be selected for bulk operations
+  const canSelectCerere = (cerere: Cerere): boolean => {
+    return canCancelCerere(cerere.status as CerereStatusType);
+  };
+
+  // Get selectable cereri
+  const selectableCereri = React.useMemo(() => {
+    return cereri.filter((c) => canSelectCerere(c));
+  }, [cereri]);
+
+  // Check if all selectable cereri are selected
+  const isAllSelected = React.useMemo(() => {
+    return selectableCereri.length > 0 && selectableCereri.every((c) => selectedIds.has(c.id));
+  }, [selectableCereri, selectedIds]);
+
+  // Handle master checkbox toggle
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedIds(new Set(selectableCereri.map((c) => c.id)));
+    } else {
+      setSelectedIds(new Set());
+    }
+  };
+
+  // Handle individual checkbox toggle
+  const handleSelectOne = (cerereId: string, checked: boolean) => {
+    const newSelectedIds = new Set(selectedIds);
+    if (checked) {
+      newSelectedIds.add(cerereId);
+    } else {
+      newSelectedIds.delete(cerereId);
+    }
+    setSelectedIds(newSelectedIds);
+  };
+
+  // Handle bulk cancel
+  const handleBulkCancel = async () => {
+    if (!onBulkCancel || selectedIds.size === 0 || isProcessing) return;
+
+    try {
+      setIsProcessing(true);
+      await onBulkCancel(Array.from(selectedIds));
+      setSelectedIds(new Set()); // Clear selection after success
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // Handle bulk download
+  const handleBulkDownload = async () => {
+    if (!onBulkDownload || selectedIds.size === 0 || isProcessing) return;
+
+    try {
+      setIsProcessing(true);
+      await onBulkDownload(Array.from(selectedIds));
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // Reset selection when cereri list changes
+  React.useEffect(() => {
+    setSelectedIds(new Set());
+  }, [cereri]);
 
   // Client-side sorting for fields not supported by API
   const sortedCereri = React.useMemo(() => {
@@ -147,99 +219,184 @@ export function CereriTable({
   }
 
   return (
-    <div className="border-border/40 rounded-lg border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <SortableHeader field="numar_inregistrare">Număr Cerere</SortableHeader>
-            <SortableHeader field="tip_cerere">Tip Cerere</SortableHeader>
-            <SortableHeader field="status">Status</SortableHeader>
-            <SortableHeader field="created_at">Data Depunere</SortableHeader>
-            <SortableHeader field="data_termen">Termen Estimat</SortableHeader>
-            <TableHead className="text-right">Acțiuni</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {sortedCereri.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={6} className="text-muted-foreground h-32 text-center">
-                Nu există cereri de afișat
-              </TableCell>
-            </TableRow>
-          ) : (
-            sortedCereri.map((cerere, index) => (
-              <TableRow
-                key={cerere.id}
-                className={`hover:bg-muted/70 cursor-pointer transition-colors ${
-                  index % 2 === 0 ? "bg-background" : "bg-muted/20"
-                }`}
+    <div className="space-y-4">
+      {/* Bulk Actions Bar */}
+      {selectedIds.size > 0 && (
+        <div className="border-border/40 bg-muted/30 flex items-center justify-between gap-4 rounded-lg border p-4">
+          <div className="text-sm font-medium">
+            <span className="text-primary">{selectedIds.size}</span> cereri selectate
+          </div>
+          <div className="flex items-center gap-2">
+            {onBulkDownload && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleBulkDownload}
+                disabled={isProcessing}
+                className="gap-2"
               >
-                <TableCell className="font-medium" onClick={() => handleViewDetails(cerere.id)}>
-                  {cerere.numar_inregistrare}
-                </TableCell>
-                <TableCell onClick={() => handleViewDetails(cerere.id)}>
-                  {cerere.tip_cerere?.nume || "N/A"}
-                </TableCell>
-                <TableCell onClick={() => handleViewDetails(cerere.id)}>
-                  <StatusBadge status={cerere.status as CerereStatusType} />
-                </TableCell>
-                <TableCell onClick={() => handleViewDetails(cerere.id)}>
-                  {format(new Date(cerere.created_at), "dd MMM yyyy", { locale: ro })}
-                </TableCell>
-                <TableCell onClick={() => handleViewDetails(cerere.id)}>
-                  {cerere.data_termen
-                    ? format(new Date(cerere.data_termen), "dd MMM yyyy", { locale: ro })
-                    : "—"}
-                </TableCell>
-                <TableCell className="text-right">
-                  <div className="flex items-center justify-end gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleViewDetails(cerere.id);
-                      }}
-                      title="Vezi detalii"
-                    >
-                      <Eye className="size-4" />
-                    </Button>
+                <Download className="size-4" />
+                Descarcă documente
+              </Button>
+            )}
+            {onBulkCancel && (
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={handleBulkCancel}
+                disabled={isProcessing}
+                className="gap-2"
+              >
+                <Trash2 className="size-4" />
+                Anulează selectate
+              </Button>
+            )}
+          </div>
+        </div>
+      )}
 
-                    {/* Download button - only show if documents available */}
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onDownload(cerere.id);
-                      }}
-                      title="Descarcă documente"
-                    >
-                      <Download className="size-4" />
-                    </Button>
-
-                    {/* Cancel button - only if status allows */}
-                    {canCancelCerere(cerere.status as CerereStatusType) && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onCancel(cerere.id);
-                        }}
-                        title="Anulează cerere"
-                        className="text-destructive hover:text-destructive"
-                      >
-                        <XCircle className="size-4" />
-                      </Button>
-                    )}
-                  </div>
+      {/* Table */}
+      <div className="border-border/40 rounded-lg border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              {/* Master Checkbox */}
+              {(onBulkCancel || onBulkDownload) && selectableCereri.length > 0 && (
+                <TableHead className="w-12">
+                  <Checkbox
+                    checked={isAllSelected}
+                    onCheckedChange={handleSelectAll}
+                    aria-label="Selectează toate cererile"
+                  />
+                </TableHead>
+              )}
+              <SortableHeader field="numar_inregistrare">Număr Cerere</SortableHeader>
+              <SortableHeader field="tip_cerere">Tip Cerere</SortableHeader>
+              <SortableHeader field="status">Status</SortableHeader>
+              <SortableHeader field="created_at">Data Depunere</SortableHeader>
+              <SortableHeader field="data_termen">Termen Estimat</SortableHeader>
+              <TableHead className="text-right">Acțiuni</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {sortedCereri.length === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={(onBulkCancel || onBulkDownload) && selectableCereri.length > 0 ? 7 : 6}
+                  className="text-muted-foreground h-32 text-center"
+                >
+                  Nu există cereri de afișat
                 </TableCell>
               </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
+            ) : (
+              sortedCereri.map((cerere, index) => {
+                const isSelectable = canSelectCerere(cerere);
+                const isSelected = selectedIds.has(cerere.id);
+
+                return (
+                  <TableRow
+                    key={cerere.id}
+                    className={`hover:bg-muted/70 transition-colors ${
+                      index % 2 === 0 ? "bg-background" : "bg-muted/20"
+                    }`}
+                  >
+                    {/* Checkbox column */}
+                    {(onBulkCancel || onBulkDownload) && selectableCereri.length > 0 && (
+                      <TableCell onClick={(e) => e.stopPropagation()}>
+                        <Checkbox
+                          checked={isSelected}
+                          onCheckedChange={(checked) =>
+                            handleSelectOne(cerere.id, checked as boolean)
+                          }
+                          disabled={!isSelectable}
+                          aria-label={`Selectează cererea ${cerere.numar_inregistrare}`}
+                        />
+                      </TableCell>
+                    )}
+
+                    <TableCell
+                      className="cursor-pointer font-medium"
+                      onClick={() => handleViewDetails(cerere.id)}
+                    >
+                      {cerere.numar_inregistrare}
+                    </TableCell>
+                    <TableCell
+                      className="cursor-pointer"
+                      onClick={() => handleViewDetails(cerere.id)}
+                    >
+                      {cerere.tip_cerere?.nume || "N/A"}
+                    </TableCell>
+                    <TableCell
+                      className="cursor-pointer"
+                      onClick={() => handleViewDetails(cerere.id)}
+                    >
+                      <StatusBadge status={cerere.status as CerereStatusType} />
+                    </TableCell>
+                    <TableCell
+                      className="cursor-pointer"
+                      onClick={() => handleViewDetails(cerere.id)}
+                    >
+                      {format(new Date(cerere.created_at), "dd MMM yyyy", { locale: ro })}
+                    </TableCell>
+                    <TableCell
+                      className="cursor-pointer"
+                      onClick={() => handleViewDetails(cerere.id)}
+                    >
+                      {cerere.data_termen
+                        ? format(new Date(cerere.data_termen), "dd MMM yyyy", { locale: ro })
+                        : "—"}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleViewDetails(cerere.id);
+                          }}
+                          title="Vezi detalii"
+                        >
+                          <Eye className="size-4" />
+                        </Button>
+
+                        {/* Download button - only show if documents available */}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onDownload(cerere.id);
+                          }}
+                          title="Descarcă documente"
+                        >
+                          <Download className="size-4" />
+                        </Button>
+
+                        {/* Cancel button - only if status allows */}
+                        {canCancelCerere(cerere.status as CerereStatusType) && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onCancel(cerere.id);
+                            }}
+                            title="Anulează cerere"
+                            className="text-destructive hover:text-destructive"
+                          >
+                            <XCircle className="size-4" />
+                          </Button>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            )}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 }

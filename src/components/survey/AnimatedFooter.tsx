@@ -40,12 +40,7 @@ export function AnimatedFooter() {
 
   return (
     <motion.footer
-      className="border-border/50 border-t px-4 py-12 text-center"
-      style={{
-        backgroundColor: isDark
-          ? "oklab(0.239286 0.0000109151 0.00000479817 / 0.3)"
-          : "rgb(248 250 252)",
-      }}
+      className="border-border/50 bg-muted/30 border-t px-4 py-12 text-center"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 6.0, duration: 0.6 }}

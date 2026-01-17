@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Fuse from "fuse.js";
 import {
@@ -198,6 +198,23 @@ export function GlobalSearchBar({
     return () => clearTimeout(timeoutId);
   }, [query, maxResults]);
 
+  // Handle result click - defined before keyboard navigation useEffect
+  const handleResultClick = useCallback(
+    (result: SearchResult) => {
+      // Save to recent searches
+      const updated = [query, ...recentSearches.filter((s) => s !== query)].slice(0, 5);
+      setRecentSearches(updated);
+      localStorage.setItem("dashboard-recent-searches", JSON.stringify(updated));
+
+      // Navigate
+      onResultClick?.(result);
+      setIsOpen(false);
+      setQuery("");
+      inputRef.current?.blur();
+    },
+    [query, recentSearches, onResultClick]
+  );
+
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -228,7 +245,7 @@ export function GlobalSearchBar({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, results, selectedIndex]);
+  }, [isOpen, results, selectedIndex, handleResultClick]);
 
   // Click outside to close
   useEffect(() => {
@@ -246,19 +263,6 @@ export function GlobalSearchBar({
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  const handleResultClick = (result: SearchResult) => {
-    // Save to recent searches
-    const updated = [query, ...recentSearches.filter((s) => s !== query)].slice(0, 5);
-    setRecentSearches(updated);
-    localStorage.setItem("dashboard-recent-searches", JSON.stringify(updated));
-
-    // Navigate
-    onResultClick?.(result);
-    setIsOpen(false);
-    setQuery("");
-    inputRef.current?.blur();
-  };
 
   const handleClearHistory = () => {
     setRecentSearches([]);
@@ -425,22 +429,22 @@ function getStatusConfig(status: string) {
   const configs: Record<string, { label: string; badgeClass: string; icon: React.ReactNode }> = {
     pending: {
       label: "În așteptare",
-      badgeClass: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
+      badgeClass: "bg-yellow-500/10 text-yellow-600 dark:bg-yellow-500/20 dark:text-yellow-400",
       icon: <Clock className="h-3 w-3" />,
     },
     success: {
       label: "Procesată",
-      badgeClass: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+      badgeClass: "bg-green-500/10 text-green-600 dark:bg-green-500/20 dark:text-green-400",
       icon: <CheckCircle className="h-3 w-3" />,
     },
     failed: {
       label: "Eșuată",
-      badgeClass: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+      badgeClass: "bg-red-500/10 text-red-600 dark:bg-red-500/20 dark:text-red-400",
       icon: <XCircle className="h-3 w-3" />,
     },
     aprobat: {
       label: "Aprobată",
-      badgeClass: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+      badgeClass: "bg-green-500/10 text-green-600 dark:bg-green-500/20 dark:text-green-400",
       icon: <CheckCircle className="h-3 w-3" />,
     },
   };

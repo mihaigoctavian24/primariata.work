@@ -109,7 +109,7 @@ export function DocumentsList({ cerereId, documents, onDocumentDeleted }: Docume
     fetchSignatures();
   }, [documents]);
 
-  async function handleDownload(documentId: string, fileName: string) {
+  async function handleDownload(documentId: string) {
     try {
       setDownloading(documentId);
 
@@ -165,6 +165,7 @@ export function DocumentsList({ cerereId, documents, onDocumentDeleted }: Docume
 
   function getFileIcon(tipFisier: string) {
     if (tipFisier.startsWith("image/")) {
+      // eslint-disable-next-line jsx-a11y/alt-text
       return <Image className="h-5 w-5 text-blue-600" />;
     }
     if (tipFisier === "application/pdf") {
@@ -249,7 +250,7 @@ export function DocumentsList({ cerereId, documents, onDocumentDeleted }: Docume
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleDownload(doc.id, doc.nume_fisier)}
+                          onClick={() => handleDownload(doc.id)}
                           disabled={downloading === doc.id || deleting === doc.id}
                         >
                           <Download className="h-4 w-4" />

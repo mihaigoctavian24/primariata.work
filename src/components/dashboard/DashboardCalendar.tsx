@@ -2,15 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Calendar as CalendarIcon,
-  ChevronLeft,
-  ChevronRight,
-  Clock,
-  FileText,
-  CreditCard,
-  AlertCircle,
-} from "lucide-react";
+import { Calendar as CalendarIcon, Clock, FileText, CreditCard, AlertCircle } from "lucide-react";
 
 interface CalendarEvent {
   id: string;
@@ -49,7 +41,6 @@ export function DashboardCalendar({
   daysToShow = 30,
 }: DashboardCalendarProps) {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [currentMonth, setCurrentMonth] = useState(new Date());
 
   // Generate calendar days (30 days starting from today)
   const calendarDays = useMemo(() => {
@@ -232,7 +223,9 @@ function CalendarDay({
   onClick: () => void;
 }) {
   const hasEvents = day.events.length > 0;
-  const hasHighPriorityEvent = day.events.some((e) => e.priority === "high");
+  // Check for high priority events (for future styling)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _hasHighPriorityEvent = day.events.some((e) => e.priority === "high");
 
   return (
     <button
@@ -304,12 +297,12 @@ function EventItem({ event, onClick }: { event: CalendarEvent; onClick: () => vo
       <div
         className={`mt-0.5 flex-shrink-0 rounded-md p-1 ${
           event.type === "deadline"
-            ? "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400"
+            ? "bg-red-500/10 text-red-600 dark:bg-red-500/20 dark:text-red-400"
             : event.type === "payment"
-              ? "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
+              ? "bg-blue-500/10 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400"
               : event.type === "appointment"
-                ? "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400"
-                : "bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400"
+                ? "bg-green-500/10 text-green-600 dark:bg-green-500/20 dark:text-green-400"
+                : "bg-yellow-500/10 text-yellow-600 dark:bg-yellow-500/20 dark:text-yellow-400"
         }`}
       >
         {getEventIcon(event.type)}
@@ -361,12 +354,12 @@ function UpcomingEventItem({ event, onClick }: { event: CalendarEvent; onClick: 
       <div
         className={`flex-shrink-0 rounded-md p-1.5 ${
           event.type === "deadline"
-            ? "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400"
+            ? "bg-red-500/10 text-red-600 dark:bg-red-500/20 dark:text-red-400"
             : event.type === "payment"
-              ? "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
+              ? "bg-blue-500/10 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400"
               : event.type === "appointment"
-                ? "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400"
-                : "bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400"
+                ? "bg-green-500/10 text-green-600 dark:bg-green-500/20 dark:text-green-400"
+                : "bg-yellow-500/10 text-yellow-600 dark:bg-yellow-500/20 dark:text-yellow-400"
         }`}
       >
         {getEventIcon(event.type)}

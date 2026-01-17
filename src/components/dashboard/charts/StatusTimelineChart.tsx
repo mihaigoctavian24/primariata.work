@@ -44,7 +44,7 @@ export function StatusTimelineChart({
   }
 
   return (
-    <div className="border-border/40 bg-card space-y-4 rounded-lg border p-6 shadow-sm">
+    <div className="border-border/40 bg-card chart-card space-y-4 rounded-lg border p-6 shadow-sm">
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-foreground text-lg font-semibold">Progres Cereri Active</h3>

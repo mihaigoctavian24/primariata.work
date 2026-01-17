@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @import "../styles/grid.css";
 
+@variant dark (&:where(.dark, .dark *));
+
 @layer base {
   :root {
     /* Color Variables - Light Mode */
@@ -265,6 +267,11 @@
   .hide-scrollbar::-webkit-scrollbar {
     display: none; /* Chrome, Safari, Opera */
   }
+
+  /* Chart cards in dark mode have pure black background */
+  .dark .chart-card {
+    background-color: #000000 !important;
+  }
 }
 
 @theme inline {
@@ -375,7 +382,7 @@
 }
 
 html {
-  background: transparent;
+  background: var(--background);
 }
 
 body {

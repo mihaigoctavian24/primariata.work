@@ -1,12 +1,20 @@
 import { createClient } from "@/lib/supabase/server";
+import { updateNotificationSchema } from "@/lib/validations/notifications";
 import { NextResponse } from "next/server";
 
+/**
+ * PATCH /api/notifications/[id]
+ * Update notification status (read, unread, archive, dismiss)
+ *
+ * Body:
+ * - action: "read" | "unread" | "archive" | "dismiss"
+ */
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const supabase = await createClient();
     const { id } = await params;
 
-    // Get authenticated user
+    // 1. Authentication
     const {
       data: { user },
       error: authError,
@@ -16,29 +24,47 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Parse request body
+    // 2. Parse and validate request body
     const body = await request.json();
-    const { action } = body;
+    const validatedData = updateNotificationSchema.parse(body);
+    const { action } = validatedData;
 
-    if (!action || (action !== "dismiss" && action !== "read")) {
-      return NextResponse.json(
-        { error: 'Invalid action. Must be "dismiss" or "read"' },
-        { status: 400 }
-      );
+    // 3. Prepare update data based on action
+    let updateData: Record<string, string | null> = {};
+
+    switch (action) {
+      case "read":
+        // Mark as read AND dismiss (archive) automatically
+        const now = new Date().toISOString();
+        updateData = {
+          read_at: now,
+          dismissed_at: now,
+        };
+        break;
+      case "unread":
+        // Unmark as read AND remove from archive
+        updateData = {
+          read_at: null,
+          dismissed_at: null,
+        };
+        break;
+      case "archive":
+        updateData = {
+          dismissed_at: new Date().toISOString(),
+          read_at: new Date().toISOString(), // Auto-mark as read when archiving
+        };
+        break;
+      case "dismiss":
+        // Dismiss = archive (soft delete)
+        updateData = { dismissed_at: new Date().toISOString() };
+        break;
     }
 
-    // Prepare update data based on action
-    const updateData =
-      action === "dismiss"
-        ? { dismissed_at: new Date().toISOString() }
-        : { read_at: new Date().toISOString() };
-
-    // Update notification (RLS will ensure user owns this notification)
+    // 4. Update notification (RLS will ensure user owns this notification)
     const { data: notification, error: updateError } = await supabase
       .from("notifications")
       .update(updateData)
       .eq("id", id)
-      .eq("utilizator_id", user.id)
       .select()
       .single();
 
@@ -54,9 +80,13 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       );
     }
 
+    // 5. Return success response
     return NextResponse.json({
       success: true,
-      data: notification,
+      data: {
+        ...notification,
+        metadata: notification.metadata as Record<string, unknown> | null,
+      },
     });
   } catch (error) {
     console.error("Unexpected error in PATCH /api/notifications/[id]:", error);

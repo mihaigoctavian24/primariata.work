@@ -1,7 +1,6 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import type { NotificationResponse } from "@/types/notifications";
 import type { NextStep } from "@/types/dashboard";
 
 interface ApiResponse<T> {
@@ -41,7 +40,7 @@ export function useNextSteps() {
  * Hook for fetching dashboard notifications
  */
 export function useDashboardNotifications() {
-  return useQuery<NotificationResponse>({
+  return useQuery({
     queryKey: ["dashboard", "notifications"],
     queryFn: async () => {
       const response = await fetch("/api/notifications", {

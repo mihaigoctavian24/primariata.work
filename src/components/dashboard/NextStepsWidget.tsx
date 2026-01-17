@@ -127,7 +127,6 @@ export function NextStepsWidget({
  */
 function StepCard({
   step,
-  index,
   onClick,
   onDismiss,
 }: {
@@ -145,9 +144,9 @@ function StepCard({
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: 100, scale: 0.95 }}
-      transition={{ duration: 0.3, delay: index * 0.05 }}
+      transition={{ duration: 0.3 }}
       onClick={onClick}
-      className={`group border-border/40 hover:border-primary/50 relative flex items-start gap-3 rounded-lg border p-3 transition-all hover:shadow-md ${onClick ? "hover:bg-muted/30 cursor-pointer" : ""} ${isUrgent ? "border-orange-200 bg-orange-50/50 dark:border-orange-800 dark:bg-orange-950/10" : "bg-background"} `}
+      className={`group border-border/40 hover:border-primary/50 relative flex items-start gap-3 rounded-lg border p-3 transition-all hover:shadow-md ${onClick ? "hover:bg-muted/30 cursor-pointer" : ""} ${isUrgent ? "border-orange-500/30 bg-orange-500/10" : "bg-background"} `}
     >
       {/* Priority indicator */}
       {isUrgent && <div className="absolute top-0 left-0 h-full w-1 rounded-l-lg bg-orange-500" />}

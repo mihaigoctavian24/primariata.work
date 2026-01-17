@@ -81,7 +81,10 @@ async function handler(request: NextRequest) {
       // Update existing user
       const { error: updateError } = await supabase
         .from("utilizatori")
-        .update({ primarie_id: primarie.id })
+        .update({
+          primarie_id: primarie.id,
+          localitate_id: parseInt(localitateId, 10),
+        })
         .eq("id", user.id);
 
       if (updateError) {
@@ -105,6 +108,7 @@ async function handler(request: NextRequest) {
         nume: user.user_metadata?.full_name?.split(" ")?.[1] || "",
         prenume: user.user_metadata?.full_name?.split(" ")?.[0] || "",
         primarie_id: primarie.id,
+        localitate_id: parseInt(localitateId, 10),
         rol: "cetatean",
       });
 

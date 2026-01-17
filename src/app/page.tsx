@@ -96,12 +96,13 @@ function LandingPageContent({
 
   // Background transition based on current theme
   // Transition completes as we scroll through the transition zone
+  // Use CSS variables for proper dark mode support
   const backgroundColor = useTransform(
     scrollYProgress,
     [0, 1],
     isDarkTheme
-      ? ["rgb(0, 0, 0)", "rgb(255, 255, 255)"] // Dark → Light
-      : ["rgb(255, 255, 255)", "rgb(0, 0, 0)"] // Light → Dark
+      ? ["hsl(0, 0%, 0%)", "hsl(0, 0%, 100%)"] // Dark → Light
+      : ["hsl(0, 0%, 100%)", "hsl(0, 0%, 0%)"] // Light → Dark
   );
 
   useEffect(() => {
@@ -118,7 +119,7 @@ function LandingPageContent({
       ref={mainRef}
       id="main-content"
       style={{ backgroundColor }}
-      className="h-screen snap-y snap-mandatory overflow-y-scroll scroll-smooth"
+      className="relative h-screen snap-y snap-mandatory overflow-y-scroll scroll-smooth"
     >
       {/* The Infinite Grid - Animated grid background with scroll */}
       <TheInfiniteGrid scrollContainer={mainRef} />

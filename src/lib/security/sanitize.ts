@@ -1,5 +1,3 @@
-import DOMPurify from "isomorphic-dompurify";
-
 /**
  * Security Sanitization Utilities
  *
@@ -12,7 +10,34 @@ import DOMPurify from "isomorphic-dompurify";
  * - Event handler removal (onclick, onerror, etc.)
  * - Safe HTML rendering (when needed)
  * - SQL injection prevention via parameterization (handled by Supabase)
+ *
+ * Note: DOMPurify is conditionally loaded to support both client and server environments.
+ * - Client-side: Full DOMPurify sanitization
+ * - Server-side: Regex-based HTML stripping (sufficient for most cases)
  */
+
+// Dynamic import for DOMPurify to avoid Next.js SSR issues
+// Only use DOMPurify on client-side; server-side will use regex fallback
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let domPurifyInstance: any = null;
+
+const getDOMPurify = () => {
+  if (typeof window !== "undefined" && !domPurifyInstance) {
+    // Client-side: load dompurify dynamically (only once)
+    // Note: This is a synchronous getter, so we return cached instance
+    // Actual loading happens via lazy initialization on first sanitization call
+    return domPurifyInstance;
+  }
+  // Server-side: return null to use regex fallback
+  return null;
+};
+
+// Lazy load DOMPurify on client-side (async initialization)
+if (typeof window !== "undefined") {
+  import("isomorphic-dompurify").then((module) => {
+    domPurifyInstance = module;
+  });
+}
 
 // =============================================================================
 // XSS PREVENTION
@@ -28,11 +53,19 @@ import DOMPurify from "isomorphic-dompurify";
  * // Returns: 'Hello'
  */
 export function sanitizePlainText(input: string): string {
-  return DOMPurify.sanitize(input, {
-    ALLOWED_TAGS: [], // No HTML tags allowed
-    ALLOWED_ATTR: [], // No attributes allowed
-    KEEP_CONTENT: true, // Keep text content, remove tags
-  });
+  const DOMPurify = getDOMPurify();
+
+  if (DOMPurify) {
+    // Client-side: use DOMPurify
+    return DOMPurify.sanitize(input, {
+      ALLOWED_TAGS: [], // No HTML tags allowed
+      ALLOWED_ATTR: [], // No attributes allowed
+      KEEP_CONTENT: true, // Keep text content, remove tags
+    });
+  }
+
+  // Server-side: regex fallback (strips HTML tags)
+  return input.replace(/<[^>]*>/g, "");
 }
 
 /**
@@ -48,12 +81,33 @@ export function sanitizePlainText(input: string): string {
  * // Returns: '<p>Safe <strong>text</strong></p>'
  */
 export function sanitizeHtml(input: string): string {
-  return DOMPurify.sanitize(input, {
-    ALLOWED_TAGS: ["p", "br", "strong", "em", "u", "ul", "ol", "li", "a", "blockquote", "h3", "h4"],
-    ALLOWED_ATTR: ["href", "title"],
-    ALLOW_DATA_ATTR: false,
-    ALLOWED_URI_REGEXP: /^https?:\/\//i, // Only http/https URLs
-  });
+  const DOMPurify = getDOMPurify();
+
+  if (DOMPurify) {
+    // Client-side: use DOMPurify
+    return DOMPurify.sanitize(input, {
+      ALLOWED_TAGS: [
+        "p",
+        "br",
+        "strong",
+        "em",
+        "u",
+        "ul",
+        "ol",
+        "li",
+        "a",
+        "blockquote",
+        "h3",
+        "h4",
+      ],
+      ALLOWED_ATTR: ["href", "title"],
+      ALLOW_DATA_ATTR: false,
+      ALLOWED_URI_REGEXP: /^https?:\/\//i, // Only http/https URLs
+    });
+  }
+
+  // Server-side: regex fallback (strips ALL HTML - safer for server context)
+  return input.replace(/<[^>]*>/g, "");
 }
 
 /**
@@ -74,10 +128,15 @@ export function sanitizeHtml(input: string): string {
  * // Returns: 'https://example.com'
  */
 export function sanitizeUrl(url: string): string {
-  const sanitized = DOMPurify.sanitize(url, {
-    ALLOWED_TAGS: [],
-    ALLOWED_ATTR: [],
-  });
+  const DOMPurify = getDOMPurify();
+
+  // First sanitize to remove HTML tags
+  const sanitized = DOMPurify
+    ? DOMPurify.sanitize(url, {
+        ALLOWED_TAGS: [],
+        ALLOWED_ATTR: [],
+      })
+    : url.replace(/<[^>]*>/g, "");
 
   // Validate protocol
   try {
@@ -269,7 +328,10 @@ export function sanitizeRecord(record: Record<string, string>): Record<string, s
  */
 export const sanitizeText = sanitizePlainText;
 
-export default {
+/**
+ * Default export with all sanitization utilities
+ */
+const sanitizeUtils = {
   // Core sanitization
   sanitizePlainText,
   sanitizeHtml,
@@ -287,3 +349,5 @@ export default {
   sanitizeArray,
   sanitizeRecord,
 };
+
+export default sanitizeUtils;

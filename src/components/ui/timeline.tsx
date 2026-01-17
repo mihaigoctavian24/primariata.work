@@ -196,14 +196,11 @@ export const Timeline = ({
           return (
             <div key={index} className="flex justify-start pt-48 md:gap-10 md:pt-40">
               <div className="sticky top-40 z-40 flex max-w-xs flex-col items-center self-start md:w-full md:flex-row lg:max-w-sm">
-                <div className="timeline-dot-outer absolute left-3 flex h-10 w-10 items-center justify-center rounded-full bg-white md:left-3 dark:bg-black">
+                <div className="timeline-dot-outer bg-background absolute left-3 flex h-10 w-10 items-center justify-center rounded-full md:left-3">
                   <motion.div
-                    className="h-4 w-4 rounded-full border p-2"
-                    initial={{ backgroundColor: "rgb(229, 229, 229)" }}
-                    animate={{
-                      backgroundColor: isActive ? "rgb(190, 49, 68)" : "rgb(229, 229, 229)",
-                      borderColor: isActive ? "rgb(190, 49, 68)" : "rgb(212, 212, 212)",
-                    }}
+                    className={`h-4 w-4 rounded-full border p-2 transition-colors duration-300 ${
+                      isActive ? "bg-primary border-primary" : "bg-muted border-border"
+                    }`}
                     transition={{ duration: 0.3 }}
                   />
                 </div>

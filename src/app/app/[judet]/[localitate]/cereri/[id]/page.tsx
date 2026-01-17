@@ -48,6 +48,7 @@ export default function CerereDetailsPage({ params }: CerereDetailsPageProps) {
     fetchCerereDetails();
     fetchDocuments();
     markNotificationsAsRead();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   async function fetchCerereDetails() {

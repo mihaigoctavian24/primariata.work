@@ -5,7 +5,6 @@ import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Upload, X, Loader2 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { avatarUploadSchema } from "@/lib/validations/profile";
 
 interface AvatarUploadProps {

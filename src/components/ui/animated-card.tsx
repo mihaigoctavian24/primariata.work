@@ -53,7 +53,6 @@ export function AnimatedCard({
         opacity: 1,
         y: isActive ? -15 : 0,
         filter: "blur(0px)",
-        boxShadow: isActive ? "0 20px 40px rgba(0, 0, 0, 0.1)" : "0 0px 0px rgba(0, 0, 0, 0)",
       }}
       transition={{
         opacity: {
@@ -83,6 +82,7 @@ export function AnimatedCard({
       onBlur={() => setIsFocused(false)}
       className={cn(
         "relative overflow-hidden rounded-2xl p-8 transition-all duration-300",
+        isActive ? "shadow-2xl" : "shadow-none",
         !glassEffect && "border-border bg-card border shadow-lg",
         className
       )}

@@ -2,9 +2,7 @@ import { z } from "zod";
 import {
   createSafeStringSchema,
   emailSchema,
-  phoneSchema,
   optionalPhoneSchema,
-  cnpSchema,
   optionalCnpSchema,
   dateStringSchema,
   passwordSchema,

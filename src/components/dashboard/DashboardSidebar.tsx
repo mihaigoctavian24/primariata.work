@@ -18,7 +18,7 @@ import {
 import { cn } from "@/lib/utils";
 import TextType from "@/components/TextType";
 import { createClient } from "@/lib/supabase/client";
-import { useUnreadNotifications } from "@/hooks/use-unread-notifications";
+import { useQuery } from "@tanstack/react-query";
 
 /**
  * Dashboard Sidebar Component
@@ -65,8 +65,27 @@ export function DashboardSidebar({
     });
   }, []);
 
-  // Get unread notifications count
-  const unreadCount = useUnreadNotifications(userId);
+  // Fetch unread count with React Query (syncs with mutations)
+  const { data: unreadCountData } = useQuery({
+    queryKey: ["unread-notifications-count", userId],
+    queryFn: async () => {
+      if (!userId) return 0;
+
+      const supabase = createClient();
+      const { count } = await supabase
+        .from("notifications")
+        .select("*", { count: "exact", head: true })
+        .eq("utilizator_id", userId)
+        .is("read_at", null)
+        .is("dismissed_at", null);
+
+      return count || 0;
+    },
+    enabled: !!userId,
+    refetchOnWindowFocus: true,
+  });
+
+  const unreadCount = unreadCountData || 0;
 
   const navigationLinks: NavigationLink[] = [
     { href: `${baseHref}`, label: "Dashboard", icon: Home },

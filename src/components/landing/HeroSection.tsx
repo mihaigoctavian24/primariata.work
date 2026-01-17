@@ -348,8 +348,7 @@ export function HeroSection({
               <span ref={hyperTextRef} style={{ display: "inline-block" }}>
                 <HyperText
                   key={triggerAnimation}
-                  className="text-[4.5rem] sm:text-[7.5rem] md:text-[9rem] lg:text-[10.5rem]"
-                  style={{ color: "#BE3144" }}
+                  className="text-primary text-[4.5rem] sm:text-[7.5rem] md:text-[9rem] lg:text-[10.5rem]"
                   duration={800}
                   delay={0}
                   startOnView={false}
@@ -434,10 +433,8 @@ export function HeroSection({
             className="relative z-40 mb-16"
           >
             <motion.button
-              className="ring-offset-background font-montreal inline-flex h-12 min-w-[200px] items-center justify-center rounded-full px-8 text-base font-normal shadow-lg transition-colors focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 sm:h-14 sm:px-10 sm:text-lg"
+              className="bg-primary text-primary-foreground ring-offset-background font-montreal inline-flex h-12 min-w-[200px] items-center justify-center rounded-full px-8 text-base font-normal shadow-lg transition-colors focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 sm:h-14 sm:px-10 sm:text-lg"
               style={{
-                backgroundColor: "#BE3144",
-                color: "#FFFFFF",
                 textShadow:
                   "3px 3px 6px rgba(0, 0, 0, 0.6), -3px -3px 6px rgba(255, 255, 255, 0.3)",
                 filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))",
@@ -475,15 +472,13 @@ export function HeroSection({
             >
               <motion.button
                 onClick={() => setStep(1)}
-                className="font-montreal text-muted-foreground text-sm"
+                className="font-montreal text-muted-foreground hover:text-primary text-sm"
                 animate={{ fontWeight: 400 }}
                 whileHover={{
-                  color: "#ED5C46",
                   fontWeight: 700,
                 }}
                 whileTap={{
                   scale: 0.92,
-                  color: "#D74428",
                 }}
                 transition={{
                   duration: 0.4,
@@ -709,7 +704,7 @@ export function HeroSection({
                     }
                     transition={{ delay: 0.2, duration: 0.6 }}
                   >
-                    primaria<span style={{ color: "#BE3144" }}>Ta</span>
+                    primaria<span className="text-primary">Ta</span>
                   </motion.span>
                   <motion.span
                     className="inline-block"

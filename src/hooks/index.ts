@@ -20,3 +20,7 @@ export type { UseMetricAnimationOptions } from "./useMetricAnimation";
 
 export { useTableState } from "./useTableState";
 export type { UseTableStateOptions, SortConfig } from "./useTableState";
+
+// Notifications hooks
+export { useNotificationsRealtime } from "./use-notifications-realtime";
+export { useNotificationsActions } from "./use-notifications-actions";

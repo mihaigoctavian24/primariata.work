@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FileText,
@@ -60,15 +59,11 @@ export function RecentDocumentsWidget({
   onDownload,
   isLoading = false,
 }: RecentDocumentsWidgetProps) {
-  const [previewDocument, setPreviewDocument] = useState<Document | null>(null);
-
   const displayedDocuments = documents.slice(0, maxDisplay);
 
   const handlePreview = (doc: Document) => {
     if (onPreview) {
       onPreview(doc);
-    } else {
-      setPreviewDocument(doc);
     }
   };
 

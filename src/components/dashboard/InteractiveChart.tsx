@@ -324,7 +324,7 @@ export function InteractiveChart({
   }
 
   return (
-    <Card className={className}>
+    <Card className={`chart-card ${className || ""}`}>
       <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-4">
         <div className="space-y-1">
           {title && <CardTitle className="text-lg font-bold">{title}</CardTitle>}

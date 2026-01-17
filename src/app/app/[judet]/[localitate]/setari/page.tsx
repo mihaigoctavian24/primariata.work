@@ -33,6 +33,7 @@ import {
 } from "lucide-react";
 import { clearLocation } from "@/lib/location-storage";
 import { createClient } from "@/lib/supabase/client";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 interface SettingsPageProps {
   params: Promise<{
@@ -160,6 +161,8 @@ export default function SettingsPage({ params }: SettingsPageProps) {
     } else {
       localStorage.setItem("weather-widget-dismissed", "true");
     }
+    // Dispatch custom event to notify weather widget component
+    window.dispatchEvent(new Event("weather-widget-settings-changed"));
   };
 
   const handleCompactModeToggle = (checked: boolean) => {
@@ -206,6 +209,9 @@ export default function SettingsPage({ params }: SettingsPageProps) {
       localStorage.setItem("notifications-email", emailNotifications.toString());
       localStorage.setItem("notifications-push", pushNotifications.toString());
       localStorage.setItem("notifications-sms", smsNotifications.toString());
+
+      // Dispatch event for same-tab synchronization
+      window.dispatchEvent(new Event("notification-settings-changed"));
 
       toast.success("Preferințele de notificări au fost salvate");
     } catch (error) {
@@ -302,13 +308,7 @@ export default function SettingsPage({ params }: SettingsPageProps) {
   return (
     <>
       {/* Page Header - Fixed */}
-      <div
-        className="px-4 py-6 sm:px-6 lg:px-8"
-        style={{
-          background:
-            "linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 50%)",
-        }}
-      >
+      <div className="via-background/50 to-background bg-gradient-to-b from-transparent px-4 py-6 sm:px-6 lg:px-8">
         <div className="container mx-auto max-w-4xl">
           <div className="flex items-start justify-between">
             <div className="space-y-2">
@@ -725,11 +725,14 @@ export default function SettingsPage({ params }: SettingsPageProps) {
                         Activează tema întunecată pentru a reduce oboseala ochilor
                       </p>
                     </div>
-                    <Switch
-                      id="dark-mode"
-                      checked={theme === "dark"}
-                      onCheckedChange={handleThemeToggle}
-                    />
+                    <div className="flex items-center gap-3">
+                      <Switch
+                        id="dark-mode"
+                        checked={theme === "dark"}
+                        onCheckedChange={handleThemeToggle}
+                      />
+                      <ThemeToggle />
+                    </div>
                   </div>
 
                   <Separator />

@@ -333,19 +333,3 @@ function AchievementBadge({ achievement }: { achievement: Achievement }) {
     </motion.div>
   );
 }
-
-/**
- * Helper function to get category icon
- */
-function getCategoryIcon(category: string) {
-  switch (category) {
-    case "cereri":
-      return <FileCheck className="h-3 w-3" />;
-    case "plati":
-      return <CheckCircle className="h-3 w-3" />;
-    case "general":
-      return <Trophy className="h-3 w-3" />;
-    default:
-      return <Star className="h-3 w-3" />;
-  }
-}

@@ -154,7 +154,7 @@ export function BatchSignatureModal({
               <h4 className="text-sm font-semibold">Rezultate pe document:</h4>
               <ScrollArea className="h-[250px] rounded-md border p-3">
                 <div className="space-y-2">
-                  {results.map((result, index) => (
+                  {results.map((result) => (
                     <div
                       key={result.cerere_id}
                       className="flex items-center justify-between rounded-lg border p-3"

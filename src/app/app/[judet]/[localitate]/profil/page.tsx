@@ -68,13 +68,7 @@ export default function ProfilePage() {
   return (
     <>
       {/* Page Header - Fixed */}
-      <div
-        className="px-4 py-6 sm:px-6 lg:px-8"
-        style={{
-          background:
-            "linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 50%)",
-        }}
-      >
+      <div className="via-background/50 to-background bg-gradient-to-b from-transparent px-4 py-6 sm:px-6 lg:px-8">
         <div className="container mx-auto max-w-4xl">
           <div className="flex items-start justify-between">
             <div>

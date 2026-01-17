@@ -18,7 +18,7 @@ import type {
   MockTransactionLog,
   TestCardBehavior,
 } from "./types";
-import type { PaymentStatus, PaymentErrorCode } from "../types";
+import type { PaymentStatus } from "../types";
 import { getTestCardBehavior, maskCardNumber, getCardLast4 } from "./test-cards";
 
 /**
@@ -97,7 +97,7 @@ export function initiatePayment(request: MockPaymentRequest): MockPaymentRespons
 export async function processCardPaymentWithDetails(
   transactionId: MockTransactionId,
   cardNumber: string,
-  cardHolder: string,
+  __cardHolder: string,
   amount: number,
   callbackUrl: string
 ): Promise<MockPaymentResult> {
@@ -142,7 +142,8 @@ export async function processCardPaymentWithDetails(
 export async function processCardPayment(
   transactionId: MockTransactionId,
   cardNumber: string,
-  cardHolder: string
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _cardHolder: string
 ): Promise<MockPaymentResult> {
   const log = transactionStore.get(transactionId);
 

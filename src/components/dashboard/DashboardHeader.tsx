@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Menu, MapPin, Bell, User, Settings, LogOut, ChevronDown } from "lucide-react";
+import { Menu, MapPin, User, Settings, LogOut, ChevronDown } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import {
   DropdownMenu,
@@ -14,9 +14,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { cn } from "@/lib/utils";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { WeatherWidgetMinimal } from "@/components/weather/WeatherWidgetMinimal";
+import { NotificationDropdown } from "@/components/notifications/NotificationDropdown";
 
 /**
  * Dashboard Header Component
@@ -50,8 +51,8 @@ export function DashboardHeader({
 }: DashboardHeaderProps) {
   const router = useRouter();
   const [user, setUser] = useState<UserData | null>(null);
-  const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [locationName, setLocationName] = useState<string>("");
+  const [weatherLocation, setWeatherLocation] = useState<string>("");
 
   // Fetch user data
   useEffect(() => {
@@ -100,23 +101,9 @@ export function DashboardHeader({
       .join(" ");
 
     setLocationName(`${localitateFormatted}, Jud. ${judetFormatted}`);
+    // Set weather location to just the judet name for WeatherAPI.com
+    setWeatherLocation(judetFormatted);
   }, [judet, localitate]);
-
-  // Fetch unread notifications count
-  useEffect(() => {
-    async function fetchNotifications() {
-      const supabase = createClient();
-      const { count } = await supabase
-        .from("notifications")
-        .select("*", { count: "exact", head: true })
-        .is("read_at", null)
-        .is("dismissed_at", null);
-
-      setUnreadNotifications(count || 0);
-    }
-
-    fetchNotifications();
-  }, []);
 
   const handleLogout = async () => {
     const supabase = createClient();
@@ -174,30 +161,16 @@ export function DashboardHeader({
           </button>
         </div>
 
-        {/* Right: Notifications + User Menu */}
+        {/* Right: Weather + Theme Toggle + Notifications + User Menu */}
         <div className="flex items-center gap-2">
-          {/* Notification Bell */}
-          <Link
-            href={`/app/${judet}/${localitate}/notificari`}
-            className="text-muted-foreground hover:text-foreground relative rounded-md p-2 transition-colors"
-            aria-label={
-              unreadNotifications > 0 ? `Notificări: ${unreadNotifications} necitite` : "Notificări"
-            }
-          >
-            <Bell className="h-5 w-5" aria-hidden="true" />
-            {unreadNotifications > 0 && (
-              <Badge
-                className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full p-0 text-xs"
-                style={{
-                  backgroundColor: "#be3144",
-                  color: "white",
-                }}
-                aria-hidden="true"
-              >
-                {unreadNotifications > 9 ? "9+" : unreadNotifications}
-              </Badge>
-            )}
-          </Link>
+          {/* Weather Widget (hidden on mobile) */}
+          <WeatherWidgetMinimal location={weatherLocation} />
+
+          {/* Theme Toggle */}
+          <ThemeToggle />
+
+          {/* Notification Dropdown */}
+          <NotificationDropdown judet={judet} localitate={localitate} />
 
           {/* User Menu Dropdown */}
           <DropdownMenu>

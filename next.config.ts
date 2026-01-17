@@ -19,6 +19,7 @@ function buildCSPHeader(isDev: boolean): string {
       isDev ? "'unsafe-eval'" : "", // Required for Next.js dev mode HMR
       "'unsafe-inline'", // Required for Next.js styled-jsx and inline scripts
       "https://vercel.live", // Vercel Toolbar
+      "https://va.vercel-scripts.com", // Vercel Analytics
       "https://*.sentry.io", // Sentry error tracking
       "https://browser.sentry-cdn.com", // Sentry SDK
     ].filter(Boolean),
@@ -42,19 +43,22 @@ function buildCSPHeader(isDev: boolean): string {
     // Fonts - Google Fonts, data URLs
     "font-src": ["'self'", "data:", "https://fonts.gstatic.com"],
 
-    // Connect - API calls to Supabase, Sentry, Vercel
+    // Connect - API calls to Supabase, Sentry, Vercel, WeatherAPI
     "connect-src": [
       "'self'",
       "https://*.supabase.co", // Supabase API and Realtime
       "wss://*.supabase.co", // Supabase Realtime WebSocket
       "https://*.sentry.io", // Sentry error reporting
       "https://vercel.live", // Vercel Toolbar
+      "https://va.vercel-scripts.com", // Vercel Analytics
+      "https://vitals.vercel-insights.com", // Vercel Speed Insights
+      "https://api.weatherapi.com", // WeatherAPI for WeatherWidget
       isDev ? "ws://localhost:*" : "", // Next.js dev server WebSocket (HMR)
       isDev ? "http://localhost:*" : "", // Local API calls in dev
     ].filter(Boolean),
 
-    // Frames - disable iframes completely (clickjacking protection)
-    "frame-src": ["'none'"],
+    // Frames - allow Spline 3D embeds, disable frame-ancestors for clickjacking protection
+    "frame-src": ["'self'", "https://*.spline.design"],
     "frame-ancestors": ["'none'"],
 
     // Objects - disable plugins (Flash, Java, etc.)

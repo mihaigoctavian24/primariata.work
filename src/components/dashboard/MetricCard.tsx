@@ -143,7 +143,7 @@ export function MetricCard({
       onHoverEnd={() => setIsHovered(false)}
       onClick={onClick}
       className={cn(
-        "group border-border bg-card relative cursor-pointer overflow-hidden rounded-lg border shadow-sm transition-all hover:shadow-md",
+        "group border-border bg-card chart-card relative cursor-pointer overflow-hidden rounded-lg border shadow-sm transition-all hover:shadow-md",
         onClick && "hover:scale-[1.01]",
         className
       )}

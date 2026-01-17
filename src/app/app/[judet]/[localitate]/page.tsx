@@ -14,7 +14,7 @@ import {
   usePlatiMonthly,
   useServiceBreakdown,
 } from "@/hooks/use-dashboard-charts";
-import { useNextSteps, useDashboardNotifications } from "@/hooks/use-dashboard-recommendations";
+import { useNextSteps } from "@/hooks/use-dashboard-recommendations";
 import { useDashboardDocuments } from "@/hooks/use-dashboard-documents";
 import { StatisticsCards } from "@/components/dashboard/StatisticsCards";
 import { QuickActions } from "@/components/dashboard/QuickActions";
@@ -24,7 +24,7 @@ import { PlatiOverviewChart, ServiceBreakdownChart } from "@/components/dashboar
 
 // Phase 2: Smart Features
 import {
-  SmartNotificationsBanner,
+  SmartNotificationsBannerConnected,
   NextStepsWidget,
   ActiveRequestProgressCard,
 } from "@/components/dashboard";
@@ -41,7 +41,8 @@ import {
 import { HelpCenterWidget } from "@/components/dashboard/HelpCenterWidget";
 import { CitizenBadgeWidget } from "@/components/dashboard/CitizenBadgeWidget";
 import { DashboardCalendar } from "@/components/dashboard/DashboardCalendar";
-import { WeatherWidget } from "@/components/dashboard/WeatherWidget";
+// NOTE: WeatherWidget replaced by WeatherWidgetMinimal in sidebar
+// import { WeatherWidget } from "@/components/dashboard/WeatherWidget";
 
 // Dynamic import for DocumentQuickPreview to avoid SSR issues with react-pdf
 const DocumentQuickPreview = dynamic(
@@ -94,7 +95,6 @@ export default function DashboardPage({ params }: DashboardPageProps) {
   const serviceBreakdownQuery = useServiceBreakdown();
 
   // Phase 2: Fetch smart features data
-  const notificationsQuery = useDashboardNotifications();
   const nextStepsQuery = useNextSteps();
 
   // Phase 3: Fetch documents
@@ -102,10 +102,8 @@ export default function DashboardPage({ params }: DashboardPageProps) {
 
   // Document preview state
   const [previewDocument, setPreviewDocument] = useState<Document | null>(null);
-  const [localNextSteps, setLocalNextSteps] = useState<typeof nextSteps>([]);
 
   // Extract data from queries for easier access
-  const notifications = notificationsQuery.data?.data || [];
   const nextSteps = nextStepsQuery.data?.data || [];
   const documents = documentsQuery.data?.data || [];
   const cereriTimeline = cereriTimelineQuery.data?.data || [];
@@ -116,13 +114,11 @@ export default function DashboardPage({ params }: DashboardPageProps) {
   };
 
   // Loading states
-  const notificationsLoading = notificationsQuery.isLoading;
   const nextStepsLoading = nextStepsQuery.isLoading;
   const documentsLoading = documentsQuery.isLoading;
   const timelineLoading = cereriTimelineQuery.isLoading;
 
   // Error states
-  const notificationsError = notificationsQuery.error;
   const nextStepsError = nextStepsQuery.error;
   const documentsError = documentsQuery.error;
   const cereriTimelineError = cereriTimelineQuery.error;
@@ -132,25 +128,6 @@ export default function DashboardPage({ params }: DashboardPageProps) {
   const handleChangeLocation = () => {
     clearLocation();
     router.push("/");
-  };
-
-  const handleNotificationDismiss = async (notificationId: string) => {
-    try {
-      await fetch(`/api/notifications/${notificationId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "dismiss" }),
-      });
-
-      // Refetch notifications after dismiss
-      notificationsQuery.refetch();
-    } catch (error) {
-      console.error("Error dismissing notification:", error);
-    }
-  };
-
-  const handleNotificationAction = (notificationId: string, actionUrl: string) => {
-    router.push(actionUrl);
   };
 
   const handleSearchResultClick = (result: { url: string }) => {
@@ -169,24 +146,15 @@ export default function DashboardPage({ params }: DashboardPageProps) {
     link.click();
   };
 
-  const isLoading =
-    statsLoading ||
-    cereriLoading ||
-    notificationsLoading ||
-    nextStepsLoading ||
-    documentsLoading ||
-    timelineLoading;
+  // Combined loading state (for future use)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _isLoading =
+    statsLoading || cereriLoading || nextStepsLoading || documentsLoading || timelineLoading;
 
   return (
     <>
       {/* Page Header with Search */}
-      <div
-        className="px-4 py-6 sm:px-6 lg:px-8"
-        style={{
-          background:
-            "linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 50%)",
-        }}
-      >
+      <div className="via-background/50 to-background bg-gradient-to-b from-transparent px-4 py-6 sm:px-6 lg:px-8">
         <div className="container mx-auto max-w-7xl space-y-4">
           <div className="flex items-start justify-between">
             <div>
@@ -241,28 +209,12 @@ export default function DashboardPage({ params }: DashboardPageProps) {
       {/* Page Content */}
       <div className="flex-1 overflow-y-auto">
         <div className="container mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
-          {/* Phase 5: Weather Widget Banner */}
-          <WeatherWidget
-            location={`${localitate.replace(/-/g, " ")}, ${judet.replace(/-/g, " ")}`}
-            apiKey={process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY}
-            compact={true}
-            dismissible={true}
-          />
+          {/* Weather widget moved to sidebar as WeatherWidgetMinimal */}
 
           {/* Phase 2: Smart Notifications Banner */}
-          {notificationsError && (
-            <InlineError error={notificationsError} onRetry={() => notificationsQuery.refetch()} />
-          )}
-          {!notificationsError && notifications.length > 0 && !notificationsLoading && (
-            <ErrorBoundary>
-              <SmartNotificationsBanner
-                notifications={notifications}
-                onDismiss={handleNotificationDismiss}
-                onAction={handleNotificationAction}
-                maxDisplay={3}
-              />
-            </ErrorBoundary>
-          )}
+          <ErrorBoundary>
+            <SmartNotificationsBannerConnected maxDisplay={3} />
+          </ErrorBoundary>
 
           {/* Main Dashboard Grid: 3-Column Layout (Layout A from Plan) */}
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
@@ -484,9 +436,7 @@ export default function DashboardPage({ params }: DashboardPageProps) {
                     steps={nextSteps}
                     maxDisplay={5}
                     onStepClick={(step) => router.push(step.action_url)}
-                    onDismiss={(stepId) =>
-                      setLocalNextSteps((prev) => prev.filter((s) => s.id !== stepId))
-                    }
+                    onDismiss={(stepId) => console.log("Dismissed step:", stepId)}
                   />
                 )}
               </ErrorBoundary>

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 /**
  * Authentication Error Page
@@ -14,6 +15,11 @@ import { Card } from "@/components/ui/card";
 export default function AuthCodeErrorPage() {
   return (
     <main className="from-background via-background to-muted flex min-h-screen items-center justify-center bg-gradient-to-br p-4">
+      {/* Theme Toggle - Top Right */}
+      <div className="fixed top-4 right-4 z-50">
+        <ThemeToggle />
+      </div>
+
       <Card className="w-full max-w-md space-y-6 p-8 text-center">
         {/* Error Icon */}
         <div className="bg-destructive/10 mx-auto flex size-16 items-center justify-center rounded-full">

@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Bell, ChevronDown, ChevronUp } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
+import { X, Bell, ChevronDown } from "lucide-react";
+import { formatDistanceToNow, format } from "date-fns";
 import { ro } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
+import { createClient } from "@/lib/supabase/client";
 import {
   type Notification,
   type NotificationPriority,
@@ -34,20 +35,31 @@ export function SmartNotificationsBanner({
   onAction,
   maxDisplay = 5,
 }: SmartNotificationsBannerProps) {
-  const [dismissed, setDismissed] = useState<Set<string>>(new Set());
   const [isExpanded, setIsExpanded] = useState(false);
+  const [firstName, setFirstName] = useState<string>("");
+
+  // Get user's first name
+  useEffect(() => {
+    const supabase = createClient();
+
+    const fetchUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (user?.user_metadata?.full_name) {
+        // Extract first name from full name
+        const fullName = user.user_metadata.full_name as string;
+        const firstNameExtracted = fullName.split(" ")[0] || "";
+        setFirstName(firstNameExtracted);
+      }
+    };
+
+    fetchUser();
+  }, []);
 
   // Filter active notifications (not dismissed, not expired)
   const activeNotifications = notifications.filter((n) => !n.dismissed_at);
   const unreadCount = activeNotifications.filter((n) => !n.read_at).length;
-
-  // Sort by priority and created_at
-  const priorityOrder: Record<NotificationPriority, number> = {
-    urgent: 0,
-    high: 1,
-    medium: 2,
-    low: 3,
-  };
 
   // Group notifications by priority for display
   const priorityGroups = activeNotifications.reduce(
@@ -58,38 +70,90 @@ export function SmartNotificationsBanner({
     {} as Record<NotificationPriority, number>
   );
 
+  // Get time-based greeting
+  const getTimeBasedGreeting = () => {
+    const hour = new Date().getHours();
+
+    if (hour >= 5 && hour < 12) {
+      return "Bună dimineața";
+    } else if (hour >= 12 && hour < 18) {
+      return "Bună ziua";
+    } else {
+      return "Bună seara";
+    }
+  };
+
   // Create descriptive text with colored badges
   const getNotificationSummary = () => {
     const parts: Array<{ text: string; priority: NotificationPriority }> = [];
 
+    // Grammatically correct forms based on quantity
     if (priorityGroups.urgent) {
-      parts.push({ text: `${priorityGroups.urgent} urgente`, priority: "urgent" });
+      const count = priorityGroups.urgent;
+      parts.push({
+        text: count === 1 ? `${count} urgent` : `${count} urgente`,
+        priority: "urgent",
+      });
     }
     if (priorityGroups.high) {
-      parts.push({ text: `${priorityGroups.high} prioritate înaltă`, priority: "high" });
+      const count = priorityGroups.high;
+      parts.push({
+        text: `${count} prioritate înaltă`,
+        priority: "high",
+      });
     }
     if (priorityGroups.medium) {
-      parts.push({ text: `${priorityGroups.medium} medii`, priority: "medium" });
+      const count = priorityGroups.medium;
+      parts.push({
+        text: count === 1 ? `${count} medie` : `${count} medii`,
+        priority: "medium",
+      });
     }
     if (priorityGroups.low) {
-      parts.push({ text: `${priorityGroups.low} scăzute`, priority: "low" });
+      const count = priorityGroups.low;
+      parts.push({
+        text: count === 1 ? `${count} scăzută` : `${count} scăzute`,
+        priority: "low",
+      });
     }
 
     if (parts.length === 0) {
       return <span>Nicio notificare</span>;
     }
 
+    // Get current date in Romanian format
+    const today = format(new Date(), "d MMMM yyyy", { locale: ro });
+
+    // Time-based personalized greeting
+    const timeGreeting = getTimeBasedGreeting();
+    const greeting = firstName ? `${timeGreeting} ${firstName}` : timeGreeting;
+
+    // Total notifications count
+    const totalCount = activeNotifications.length;
+    const notificationWord = totalCount === 1 ? "notificare" : "notificări";
+
     return (
-      <>
+      <span className="text-foreground flex flex-wrap items-center gap-1">
+        <span>
+          {greeting}, astăzi <span className="font-semibold">{today}</span> aveți{" "}
+          {totalCount === 1 ? "următoarea" : "următoarele"} {notificationWord}:
+        </span>
         {parts.map((part, index) => (
           <span key={part.priority} className="inline-flex items-center gap-1.5">
             <span className={`h-2 w-2 rounded-full ${getPriorityColor(part.priority)}`} />
             <span>{part.text}</span>
-            {index < parts.length - 1 && <span className="mx-1">,</span>}
+            {index < parts.length - 1 && <span className="mx-0.5">,</span>}
           </span>
         ))}
-      </>
+      </span>
     );
+  };
+
+  const priorityOrder: Record<NotificationPriority, number> = {
+    urgent: 0,
+    high: 1,
+    medium: 2,
+    low: 3,
   };
 
   const sortedNotifications = [...activeNotifications].sort((a, b) => {
@@ -103,12 +167,11 @@ export function SmartNotificationsBanner({
     : sortedNotifications.slice(0, maxDisplay);
 
   const handleDismiss = (notificationId: string) => {
-    setDismissed((prev) => new Set(prev).add(notificationId));
     onDismiss(notificationId);
   };
 
   // Unified gray styling for all pills - same as dashboard cards
-  const getPriorityStyles = (priority: NotificationPriority) => {
+  const getPriorityStyles = () => {
     return "bg-card border-border/50 hover:bg-muted/50";
   };
 
@@ -212,7 +275,7 @@ export function SmartNotificationsBanner({
                       delay: index * 0.1,
                       ease: "easeOut",
                     }}
-                    className={`group relative overflow-hidden rounded-2xl border shadow-lg transition-all hover:shadow-xl ${getPriorityStyles(notification.priority)}`}
+                    className={`group relative overflow-hidden rounded-2xl border shadow-lg transition-all hover:shadow-xl ${getPriorityStyles()}`}
                   >
                     {/* Floating Pill Content */}
                     <div className="flex items-center gap-3 p-4">

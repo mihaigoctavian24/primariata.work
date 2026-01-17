@@ -67,6 +67,13 @@ export const metadata: Metadata = {
   creator: "primariaTa",
   publisher: "primariaTa",
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://primariata.work"),
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.png", type: "image/png", sizes: "512x512" },
+    ],
+    apple: [{ url: "/apple-icon.png", type: "image/png", sizes: "180x180" }],
+  },
   openGraph: {
     type: "website",
     locale: "ro_RO",
@@ -117,7 +124,7 @@ export default function RootLayout({
       <body
         className={`${montreal.variable} ${inter.variable} ${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
           {children}
           <Toaster />
         </ThemeProvider>

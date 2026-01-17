@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Shield, ShieldCheck, ShieldAlert, ShieldX, Loader2 } from "lucide-react";
+import { ShieldCheck, ShieldAlert, ShieldX, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { verifySignature, type SignatureVerification } from "@/lib/signature";

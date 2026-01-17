@@ -118,7 +118,9 @@ export function PersonalInfoForm({ onSuccess, onError }: PersonalInfoFormProps) 
           {...register("full_name")}
           disabled={loading}
         />
-        {errors.full_name && <p className="text-destructive text-sm">{errors.full_name.message}</p>}
+        {errors.full_name && (
+          <p className="text-destructive text-sm">{String(errors.full_name.message)}</p>
+        )}
       </div>
 
       {/* Email (Read-only) */}
@@ -148,7 +150,7 @@ export function PersonalInfoForm({ onSuccess, onError }: PersonalInfoFormProps) 
           {...register("phone")}
           disabled={loading}
         />
-        {errors.phone && <p className="text-destructive text-sm">{errors.phone.message}</p>}
+        {errors.phone && <p className="text-destructive text-sm">{String(errors.phone.message)}</p>}
       </div>
 
       {/* Birth Date */}
@@ -162,7 +164,7 @@ export function PersonalInfoForm({ onSuccess, onError }: PersonalInfoFormProps) 
           max={new Date().toISOString().split("T")[0]}
         />
         {errors.birth_date && (
-          <p className="text-destructive text-sm">{errors.birth_date.message}</p>
+          <p className="text-destructive text-sm">{String(errors.birth_date.message)}</p>
         )}
       </div>
 
@@ -177,7 +179,7 @@ export function PersonalInfoForm({ onSuccess, onError }: PersonalInfoFormProps) 
           {...register("cnp")}
           disabled={loading}
         />
-        {errors.cnp && <p className="text-destructive text-sm">{errors.cnp.message}</p>}
+        {errors.cnp && <p className="text-destructive text-sm">{String(errors.cnp.message)}</p>}
       </div>
 
       {/* Submit Button */}

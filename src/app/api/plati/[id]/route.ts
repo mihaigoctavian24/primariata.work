@@ -29,9 +29,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     if (uuidError) return uuidError;
 
     const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
 
     // 3. Fetch payment to verify ownership
     const { data: plata, error: plataError } = await supabase

@@ -150,9 +150,9 @@ export function ActiveRequestProgressCard({
 
       {/* Warning indicator for delayed cereri */}
       {progress.eta_days !== null && progress.eta_days <= 2 && (
-        <div className="mt-3 flex items-start gap-2 rounded-md border border-orange-200 bg-orange-50 p-2 dark:border-orange-800 dark:bg-orange-950/20">
+        <div className="mt-3 flex items-start gap-2 rounded-md border border-orange-500/30 bg-orange-500/10 p-2 dark:bg-orange-500/20">
           <AlertTriangle className="h-4 w-4 flex-shrink-0 text-orange-600 dark:text-orange-400" />
-          <p className="text-xs text-orange-700 dark:text-orange-300">
+          <p className="text-xs text-orange-600 dark:text-orange-400">
             Aproape de termen limită estimat. Verificați statusul pentru actualizări.
           </p>
         </div>
@@ -188,7 +188,7 @@ function getStatusConfig(status: string) {
     },
     in_verificare: {
       label: "În Verificare",
-      badgeClass: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
+      badgeClass: "bg-yellow-500/10 text-yellow-600 dark:bg-yellow-500/20 dark:text-yellow-400",
       progressColor: "bg-yellow-500",
       icon: <Clock className="h-3 w-3" />,
     },

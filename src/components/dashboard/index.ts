@@ -39,6 +39,7 @@ export { StatusTimelineChart } from "./charts/StatusTimelineChart";
 export { PlatiOverviewChart } from "./charts/PlatiOverviewChart";
 export { ServiceBreakdownChart } from "./charts/ServiceBreakdownChart";
 export { SmartNotificationsBanner } from "./SmartNotificationsBanner";
+export { SmartNotificationsBannerConnected } from "./SmartNotificationsBannerConnected";
 export { NextStepsWidget } from "./NextStepsWidget";
 export { ActiveRequestProgressCard } from "./ActiveRequestProgressCard";
 

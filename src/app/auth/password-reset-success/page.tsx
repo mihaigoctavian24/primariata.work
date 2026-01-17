@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { AnimatedCard } from "@/components/ui/animated-card";
 import { CheckCircle2 } from "lucide-react";
 import { motion } from "framer-motion";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 /**
  * Password Reset Success Page
@@ -43,6 +44,11 @@ export default function PasswordResetSuccessPage() {
 
   return (
     <div className="from-background to-muted/20 flex min-h-screen items-center justify-center bg-gradient-to-b p-4">
+      {/* Theme Toggle - Top Right */}
+      <div className="fixed top-4 right-4 z-50">
+        <ThemeToggle />
+      </div>
+
       <AnimatedCard delay={0.2} glassEffect className="w-full max-w-md space-y-8 text-center">
         {/* Success Icon */}
         <motion.div

@@ -8,7 +8,7 @@
  * They are NOT legally valid and are clearly labeled as such.
  */
 
-import { PDFDocument, rgb, StandardFonts, type PDFPage } from "pdf-lib";
+import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 
 export interface SignatureWatermarkOptions {
   signerName: string;

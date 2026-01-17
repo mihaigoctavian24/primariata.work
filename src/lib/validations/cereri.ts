@@ -116,6 +116,7 @@ export type UpdateCerereData = z.infer<typeof updateCerereSchema>;
  * Query Params for listing cereri
  *
  * SECURITY: Added bounds validation for pagination
+ * ENHANCED (Issue #88): Added date range filtering and enhanced search
  */
 export const listCereriQuerySchema = z.object({
   page: z
@@ -144,11 +145,37 @@ export const listCereriQuerySchema = z.object({
   order: z.enum(["asc", "desc"]).optional().default("desc"),
 
   // ENHANCED: Search query with length limit and sanitization
+  // Searches in: numar_inregistrare, titlu (from date_formular)
   search: createSafeStringSchema({
     maxLength: 200,
     sanitize: true,
     allowEmpty: true,
   }),
+
+  // ENHANCED (Issue #88): Date range filtering
+  date_from: z
+    .string()
+    .optional()
+    .refine(
+      (val) => {
+        if (!val) return true;
+        const date = new Date(val);
+        return !isNaN(date.getTime());
+      },
+      { message: "Data de început invalidă" }
+    ),
+
+  date_to: z
+    .string()
+    .optional()
+    .refine(
+      (val) => {
+        if (!val) return true;
+        const date = new Date(val);
+        return !isNaN(date.getTime());
+      },
+      { message: "Data de sfârșit invalidă" }
+    ),
 });
 
 export type ListCereriQuery = z.infer<typeof listCereriQuerySchema>;
@@ -243,21 +270,23 @@ export function getCerereStatusLabel(status: CerereStatusType): string {
 }
 
 /**
- * Get status badge color for UI
+ * Get status badge color for UI (theme-adaptive)
+ * Uses bg-{color}-500/10 for subtle background in both light/dark modes
+ * Uses text-{color}-700 for light mode and dark:text-{color}-400 for dark mode
  */
 export function getCerereStatusColor(status: CerereStatusType): string {
   const colors: Record<CerereStatusType, string> = {
-    [CerereStatus.DEPUSA]: "bg-blue-100 text-blue-800",
-    [CerereStatus.IN_VERIFICARE]: "bg-yellow-100 text-yellow-800",
-    [CerereStatus.INFO_SUPLIMENTARE]: "bg-orange-100 text-orange-800",
-    [CerereStatus.IN_PROCESARE]: "bg-purple-100 text-purple-800",
-    [CerereStatus.APROBATA]: "bg-green-100 text-green-800",
-    [CerereStatus.RESPINSA]: "bg-red-100 text-red-800",
-    [CerereStatus.ANULATA]: "bg-gray-100 text-gray-800",
-    [CerereStatus.FINALIZATA]: "bg-emerald-100 text-emerald-800",
+    [CerereStatus.DEPUSA]: "bg-blue-500/10 text-blue-700 dark:text-blue-400",
+    [CerereStatus.IN_VERIFICARE]: "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400",
+    [CerereStatus.INFO_SUPLIMENTARE]: "bg-orange-500/10 text-orange-700 dark:text-orange-400",
+    [CerereStatus.IN_PROCESARE]: "bg-purple-500/10 text-purple-700 dark:text-purple-400",
+    [CerereStatus.APROBATA]: "bg-green-500/10 text-green-700 dark:text-green-400",
+    [CerereStatus.RESPINSA]: "bg-red-500/10 text-red-700 dark:text-red-400",
+    [CerereStatus.ANULATA]: "bg-gray-500/10 text-gray-700 dark:text-gray-400",
+    [CerereStatus.FINALIZATA]: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
   };
 
-  return colors[status] || "bg-gray-100 text-gray-800";
+  return colors[status] || "bg-gray-500/10 text-gray-700 dark:text-gray-400";
 }
 
 /**

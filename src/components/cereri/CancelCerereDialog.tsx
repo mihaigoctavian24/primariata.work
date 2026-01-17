@@ -65,7 +65,7 @@ export function CancelCerereDialog({
     try {
       await onConfirm(motiv.trim());
       handleOpenChange(false);
-    } catch (err) {
+    } catch {
       // Error handling is done in the parent component
       setIsSubmitting(false);
     }

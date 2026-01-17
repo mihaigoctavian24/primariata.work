@@ -3,7 +3,7 @@
 import { useRouter, useParams } from "next/navigation";
 import { format } from "date-fns";
 import { ro } from "date-fns/locale";
-import { Eye, Download, ArrowUpDown } from "lucide-react";
+import { Eye, Download, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -13,10 +13,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { PaymentStatusBadge } from "./PaymentStatusBadge";
 import { PlataStatus } from "@/lib/validations/plati";
 import type { Plata } from "@/types/api";
+
+type SortField = "suma" | "created_at";
+type SortOrder = "asc" | "desc";
 
 interface PlatiTableProps {
   plati: (Plata & {
@@ -28,10 +30,11 @@ interface PlatiTableProps {
       };
     };
   })[];
-  sortField?: string;
-  sortOrder?: "asc" | "desc";
-  onSort?: (field: string) => void;
+  sortField?: SortField;
+  sortOrder?: SortOrder;
+  onSort?: (field: SortField) => void;
   onDownloadChitanta?: (plataId: string) => void;
+  isLoading?: boolean;
 }
 
 /**
@@ -40,11 +43,11 @@ interface PlatiTableProps {
  *
  * Columns:
  * - Cerere (număr + tip)
- * - Sumă
+ * - Sumă (sortable)
  * - Status
  * - Metodă Plată
- * - Data Plată
- * - Acțiuni
+ * - Data Plată (sortable)
+ * - Acțiuni (View, Download)
  */
 export function PlatiTable({
   plati,
@@ -52,6 +55,7 @@ export function PlatiTable({
   sortOrder,
   onSort,
   onDownloadChitanta,
+  isLoading,
 }: PlatiTableProps) {
   const router = useRouter();
   const params = useParams();
@@ -68,49 +72,65 @@ export function PlatiTable({
     }
   };
 
-  const renderSortButton = (field: string, label: string) => (
-    <Button
-      variant="ghost"
-      size="sm"
-      className="data-[state=open]:bg-accent -ml-3 h-8 hover:bg-transparent"
-      onClick={() => onSort && onSort(field)}
-    >
-      {label}
-      <ArrowUpDown className="ml-2 h-4 w-4" />
-    </Button>
+  const getSortIcon = (field: SortField) => {
+    if (sortField !== field) {
+      return <ArrowUpDown className="text-muted-foreground ml-2 size-4" />;
+    }
+    return sortOrder === "asc" ? (
+      <ArrowUp className="ml-2 size-4" />
+    ) : (
+      <ArrowDown className="ml-2 size-4" />
+    );
+  };
+
+  const SortableHeader = ({ field, children }: { field: SortField; children: React.ReactNode }) => (
+    <TableHead>
+      <button
+        onClick={() => onSort?.(field)}
+        className="hover:text-foreground flex items-center transition-colors"
+      >
+        {children}
+        {getSortIcon(field)}
+      </button>
+    </TableHead>
   );
 
+  if (isLoading) {
+    return <PlatiTableSkeleton />;
+  }
+
   return (
-    <div className="rounded-md border">
+    <div className="border-border/40 rounded-lg border">
       <Table>
         <TableHeader>
           <TableRow>
             <TableHead>Cerere</TableHead>
-            <TableHead>{renderSortButton("suma", "Sumă")}</TableHead>
+            <SortableHeader field="suma">Sumă</SortableHeader>
             <TableHead>Status</TableHead>
             <TableHead>Metodă</TableHead>
-            <TableHead>{renderSortButton("created_at", "Data Plată")}</TableHead>
+            <SortableHeader field="created_at">Data Plată</SortableHeader>
             <TableHead className="text-right">Acțiuni</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {plati.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={6} className="h-24 text-center">
-                Nu există plăți.
+              <TableCell colSpan={6} className="text-muted-foreground h-32 text-center">
+                Nu există plăți de afișat
               </TableCell>
             </TableRow>
           ) : (
-            plati.map((plata) => {
+            plati.map((plata, index) => {
               const canDownload = plata.status === PlataStatus.SUCCESS;
 
               return (
                 <TableRow
                   key={plata.id}
-                  className="cursor-pointer"
-                  onClick={() => handleViewDetails(plata.id)}
+                  className={`hover:bg-muted/70 transition-colors ${
+                    index % 2 === 0 ? "bg-background" : "bg-muted/20"
+                  }`}
                 >
-                  <TableCell>
+                  <TableCell className="cursor-pointer" onClick={() => handleViewDetails(plata.id)}>
                     <div className="space-y-1">
                       <div className="font-medium">{plata.cerere?.numar_inregistrare || "N/A"}</div>
                       <div className="text-muted-foreground text-sm">
@@ -118,42 +138,52 @@ export function PlatiTable({
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell className="font-bold">{plata.suma} RON</TableCell>
-                  <TableCell>
+                  <TableCell
+                    className="cursor-pointer font-medium"
+                    onClick={() => handleViewDetails(plata.id)}
+                  >
+                    {plata.suma} RON
+                  </TableCell>
+                  <TableCell className="cursor-pointer" onClick={() => handleViewDetails(plata.id)}>
                     <PaymentStatusBadge status={plata.status} />
                   </TableCell>
-                  <TableCell className="capitalize">
+                  <TableCell
+                    className="cursor-pointer capitalize"
+                    onClick={() => handleViewDetails(plata.id)}
+                  >
                     {plata.metoda_plata === "card"
                       ? "Card"
                       : plata.metoda_plata === "bank_transfer"
                         ? "Transfer"
-                        : plata.metoda_plata || "-"}
+                        : plata.metoda_plata || "—"}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="cursor-pointer" onClick={() => handleViewDetails(plata.id)}>
                     {format(new Date(plata.created_at), "dd MMM yyyy, HH:mm", { locale: ro })}
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
                       <Button
                         variant="ghost"
-                        size="sm"
+                        size="icon"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleViewDetails(plata.id);
                         }}
+                        title="Vezi detalii"
                       >
-                        <Eye className="h-4 w-4" />
+                        <Eye className="size-4" />
                       </Button>
                       {canDownload && (
                         <Button
                           variant="ghost"
-                          size="sm"
+                          size="icon"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleDownload(plata.id);
                           }}
+                          title="Descarcă chitanță"
                         >
-                          <Download className="h-4 w-4" />
+                          <Download className="size-4" />
                         </Button>
                       )}
                     </div>
@@ -169,11 +199,12 @@ export function PlatiTable({
 }
 
 /**
- * Loading skeleton for PlatiTable
+ * PlatiTableSkeleton Component
+ * Loading skeleton for table
  */
 export function PlatiTableSkeleton() {
   return (
-    <div className="rounded-md border">
+    <div className="border-border/40 rounded-lg border">
       <Table>
         <TableHeader>
           <TableRow>
@@ -186,25 +217,31 @@ export function PlatiTableSkeleton() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {Array.from({ length: 5 }).map((_, i) => (
-            <TableRow key={i}>
+          {Array.from({ length: 5 }).map((_, index) => (
+            <TableRow key={index}>
               <TableCell>
-                <Skeleton className="h-4 w-32" />
+                <div className="space-y-1">
+                  <div className="bg-muted h-4 w-24 animate-pulse rounded" />
+                  <div className="bg-muted h-3 w-32 animate-pulse rounded" />
+                </div>
               </TableCell>
               <TableCell>
-                <Skeleton className="h-4 w-16" />
+                <div className="bg-muted h-4 w-20 animate-pulse rounded" />
               </TableCell>
               <TableCell>
-                <Skeleton className="h-6 w-20" />
+                <div className="bg-muted h-6 w-20 animate-pulse rounded-full" />
               </TableCell>
               <TableCell>
-                <Skeleton className="h-4 w-16" />
+                <div className="bg-muted h-4 w-16 animate-pulse rounded" />
               </TableCell>
               <TableCell>
-                <Skeleton className="h-4 w-28" />
+                <div className="bg-muted h-4 w-28 animate-pulse rounded" />
               </TableCell>
               <TableCell>
-                <Skeleton className="h-8 w-20" />
+                <div className="flex items-center justify-end gap-2">
+                  <div className="bg-muted size-8 animate-pulse rounded" />
+                  <div className="bg-muted size-8 animate-pulse rounded" />
+                </div>
               </TableCell>
             </TableRow>
           ))}

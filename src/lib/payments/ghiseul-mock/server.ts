@@ -12,12 +12,7 @@ import type {
   MockPaymentResult,
   MockTransactionId,
 } from "./types";
-import {
-  initiatePayment,
-  processCardPayment,
-  processCardPaymentWithDetails,
-  getPaymentStatus,
-} from "./simulator";
+import { initiatePayment, processCardPaymentWithDetails, getPaymentStatus } from "./simulator";
 import { isValidCardNumber } from "./test-cards";
 
 /**
