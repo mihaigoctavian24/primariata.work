@@ -3,11 +3,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { WizardStep, WizardState, UploadedFile } from "@/types/wizard";
 import { TipCerere } from "@/types/api";
-
-const STORAGE_KEY = "cerere_wizard_state";
+import { createClient } from "@/lib/supabase/client";
 
 /**
- * Custom hook for managing wizard state with localStorage persistence
+ * Custom hook for managing wizard state with user-scoped localStorage persistence
+ * SECURITY: Each user's wizard data is isolated to prevent cross-user data leakage
  */
 export function useWizardState() {
   const [state, setState] = useState<WizardState>({
@@ -17,31 +17,106 @@ export function useWizardState() {
   });
 
   const [isHydrated, setIsHydrated] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [storageKey, setStorageKey] = useState<string | null>(null);
 
-  // Load state from localStorage on mount
+  // Get authenticated user and set storage key
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const initializeUser = async () => {
+      const supabase = createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (user?.id) {
+        setUserId(user.id);
+        setStorageKey(`cerere_wizard_state_${user.id}`);
+      } else {
+        setUserId(null);
+        setStorageKey(null);
+      }
+    };
+
+    initializeUser();
+
+    // Listen for auth state changes
+    const supabase = createClient();
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user?.id) {
+        setUserId(session.user.id);
+        setStorageKey(`cerere_wizard_state_${session.user.id}`);
+      } else {
+        // User logged out, clear state
+        setUserId(null);
+        setStorageKey(null);
+        setState({
+          currentStep: WizardStep.SELECT_TYPE,
+          formData: {},
+          uploadedFiles: [],
+        });
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  // Load state from localStorage on mount with ownership validation
+  useEffect(() => {
+    if (!storageKey || !userId) {
+      setIsHydrated(true);
+      return;
+    }
+
+    const stored = localStorage.getItem(storageKey);
     if (stored) {
       try {
-        const parsed = JSON.parse(stored);
+        const parsed = JSON.parse(stored) as WizardState;
+
+        // CRITICAL: Validate ownership
+        if (parsed.userId && parsed.userId !== userId) {
+          console.warn("[SECURITY] Mismatched user data detected, clearing wizard state");
+          localStorage.removeItem(storageKey);
+          setIsHydrated(true);
+          return;
+        }
+
+        // Optional: Check expiration (e.g., 7 days)
+        const EXPIRATION_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+        if (parsed.savedAt && Date.now() - parsed.savedAt > EXPIRATION_MS) {
+          console.info("[INFO] Wizard state expired, clearing");
+          localStorage.removeItem(storageKey);
+          setIsHydrated(true);
+          return;
+        }
+
         setState(parsed);
       } catch (error) {
         console.error("Failed to parse wizard state:", error);
+        localStorage.removeItem(storageKey);
       }
     }
     setIsHydrated(true);
-  }, []);
+  }, [storageKey, userId]);
 
-  // Save state to localStorage whenever it changes (debounced)
+  // Save state to localStorage whenever it changes (debounced) with userId
   useEffect(() => {
-    if (!isHydrated) return;
+    if (!isHydrated || !storageKey || !userId) return;
 
     const timeoutId = setTimeout(() => {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      const stateToSave: WizardState = {
+        ...state,
+        userId: userId,
+        savedAt: Date.now(),
+      };
+      localStorage.setItem(storageKey, JSON.stringify(stateToSave));
     }, 500);
 
     return () => clearTimeout(timeoutId);
-  }, [state, isHydrated]);
+  }, [state, isHydrated, storageKey, userId]);
 
   const setCurrentStep = useCallback((step: WizardStep) => {
     setState((prev) => ({ ...prev, currentStep: step }));
@@ -72,13 +147,15 @@ export function useWizardState() {
   }, []);
 
   const clearState = useCallback(() => {
-    localStorage.removeItem(STORAGE_KEY);
+    if (storageKey) {
+      localStorage.removeItem(storageKey);
+    }
     setState({
       currentStep: WizardStep.SELECT_TYPE,
       formData: {},
       uploadedFiles: [],
     });
-  }, []);
+  }, [storageKey]);
 
   const goToNextStep = useCallback(() => {
     setState((prev) => ({

@@ -176,8 +176,8 @@ export function csrfProtection(request: NextRequest): NextResponse | null {
  * Helper function for API routes that receive Request instead of NextRequest.
  */
 export function csrfProtectionFromRequest(request: Request): NextResponse | null {
-  // Create a NextRequest from the standard Request
-  const nextRequest = new NextRequest(request);
+  // Check if already a NextRequest instance to avoid private member access errors
+  const nextRequest = request instanceof NextRequest ? request : new NextRequest(request);
   return csrfProtection(nextRequest);
 }
 

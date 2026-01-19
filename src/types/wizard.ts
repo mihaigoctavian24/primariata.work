@@ -43,6 +43,8 @@ export interface WizardState {
   uploadedFiles: UploadedFile[];
   draftId?: string;
   lastSaved?: string;
+  userId?: string; // User ID for ownership validation
+  savedAt?: number; // Timestamp for expiration check
 }
 
 /**
