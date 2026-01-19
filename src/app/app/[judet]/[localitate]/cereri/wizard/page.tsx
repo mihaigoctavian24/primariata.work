@@ -181,8 +181,16 @@ export default function CreateCererePage() {
     }
   }
 
+  // Handle step navigation click
+  function handleStepClick(targetStep: WizardStep) {
+    // Only allow navigation to current or completed steps
+    if (targetStep <= state.currentStep) {
+      goToStep(targetStep);
+    }
+  }
+
   return (
-    <WizardLayout currentStep={state.currentStep}>
+    <WizardLayout currentStep={state.currentStep} onStepClick={handleStepClick}>
       {state.currentStep === WizardStep.SELECT_TYPE && (
         <SelectTipCerere
           onSelect={handleSelectTipCerere}

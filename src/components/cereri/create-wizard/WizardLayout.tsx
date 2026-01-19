@@ -10,6 +10,7 @@ import { motion } from "framer-motion";
 interface WizardLayoutProps {
   currentStep: WizardStep;
   children: React.ReactNode;
+  onStepClick?: (step: WizardStep) => void;
 }
 
 const STEPS = [
@@ -35,7 +36,7 @@ const STEPS = [
   },
 ];
 
-export function WizardLayout({ currentStep, children }: WizardLayoutProps) {
+export function WizardLayout({ currentStep, children, onStepClick }: WizardLayoutProps) {
   const router = useRouter();
   const [isBackHovered, setIsBackHovered] = useState(false);
   const progress = ((currentStep + 1) / STEPS.length) * 100;
@@ -43,7 +44,7 @@ export function WizardLayout({ currentStep, children }: WizardLayoutProps) {
   return (
     <div className="flex h-[calc(100vh-4rem)] flex-col">
       {/* Static header - Progress indicator */}
-      <div className="sticky top-0 z-10 flex-shrink-0 bg-white">
+      <div className="bg-background sticky top-0 z-10 flex-shrink-0 border-b">
         <div className="container mx-auto max-w-5xl space-y-4 py-6">
           <div className="flex items-center justify-between">
             <h1 className="text-3xl font-bold">Cerere nouă</h1>
@@ -87,6 +88,13 @@ export function WizardLayout({ currentStep, children }: WizardLayoutProps) {
               const isCompleted = currentStep > step.step;
               const isCurrent = currentStep === step.step;
               const isPending = currentStep < step.step;
+              const isClickable = isCompleted || isCurrent;
+
+              const handleStepClick = () => {
+                if (isClickable && onStepClick) {
+                  onStepClick(step.step);
+                }
+              };
 
               return (
                 <div
@@ -97,7 +105,17 @@ export function WizardLayout({ currentStep, children }: WizardLayoutProps) {
                       : ""
                   } ${isCompleted ? "after:bg-primary" : "after:bg-muted"}`}
                 >
-                  <div className="flex flex-col items-center text-center">
+                  <button
+                    onClick={handleStepClick}
+                    disabled={!isClickable}
+                    aria-label={`${step.title}: ${step.description}`}
+                    aria-current={isCurrent ? "step" : undefined}
+                    className={`flex w-full flex-col items-center text-center transition-transform ${
+                      isClickable
+                        ? "focus:ring-primary cursor-pointer hover:scale-105 focus:ring-2 focus:ring-offset-2 focus:outline-none"
+                        : "cursor-not-allowed opacity-60"
+                    }`}
+                  >
                     {/* Step circle */}
                     <div
                       className={`mb-2 flex h-10 w-10 items-center justify-center rounded-full border-2 transition-all ${
@@ -106,7 +124,7 @@ export function WizardLayout({ currentStep, children }: WizardLayoutProps) {
                           : isCurrent
                             ? "border-primary text-primary bg-background"
                             : "border-muted text-muted-foreground bg-background"
-                      }`}
+                      } ${isClickable ? "group-hover:shadow-md" : ""}`}
                     >
                       {isCompleted ? (
                         <Check className="h-5 w-5" />
@@ -132,7 +150,7 @@ export function WizardLayout({ currentStep, children }: WizardLayoutProps) {
                         {step.description}
                       </p>
                     </div>
-                  </div>
+                  </button>
                 </div>
               );
             })}
