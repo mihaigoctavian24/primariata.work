@@ -24,6 +24,7 @@ import { useJudeteWheelPicker } from "@/hooks/useJudeteWheelPicker";
 import { useLocalitatiWheelPicker } from "@/hooks/useLocalitatiWheelPicker";
 import { saveLocation } from "@/lib/location-storage";
 import { cn } from "@/lib/utils";
+import { createClient } from "@/lib/supabase/client";
 
 // Search bar styling constants for consistent design
 const SEARCH_INPUT_CLASSES = [
@@ -83,6 +84,7 @@ export function LocationWheelPickerForm({
   });
 
   const router = useRouter();
+  const supabase = createClient();
   const selectedJudetId = form.watch("judetId");
   const [localitateSearch, setLocalitateSearch] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
@@ -330,11 +332,6 @@ export function LocationWheelPickerForm({
   }, [localitateSearch, localitatiOptions, form, isUserInteracting]);
 
   const onSubmit = async (values: FormSchema) => {
-    if (onSubmitProp) {
-      onSubmitProp(values);
-      return;
-    }
-
     // Get full data for județ and localitate (including slugs)
     const judet = getJudetById(values.judetId);
     const localitate = getLocalitateById(values.localitateId);
@@ -363,33 +360,53 @@ export function LocationWheelPickerForm({
       localitateSlug: localitate.slug,
     });
 
-    // Set user's primarie_id in database
-    try {
-      const response = await fetch("/api/location/set", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ localitateId: localitate.id.toString() }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error?.message || "Eroare la salvarea locației");
-      }
-    } catch (error) {
-      console.error("Failed to set primarie_id:", error);
-      toast.error("Eroare la salvarea locației", {
-        description: error instanceof Error ? error.message : "Te rugăm să încerci din nou.",
-      });
-      return;
+    // Call custom onSubmit callback if provided (for testing/custom behavior)
+    if (onSubmitProp) {
+      onSubmitProp(values);
     }
 
-    // Show success toast
-    toast.success("Locație salvată!", {
-      description: `${judet.nume}, ${localitate.nume}`,
-    });
+    // Check if user is authenticated
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-    // Redirect to dashboard
-    router.push(`/app/${judet.slug}/${localitate.slug}`);
+    // If user is authenticated, sync location to database immediately
+    if (user) {
+      try {
+        const response = await fetch("/api/location/set", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ localitateId: localitate.id.toString() }),
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error?.message || "Eroare la salvarea locației");
+        }
+
+        // Show success toast
+        toast.success("Locație salvată!", {
+          description: `${judet.nume}, ${localitate.nume}`,
+        });
+
+        // Redirect to dashboard with new location
+        router.push(`/app/${judet.slug}/${localitate.slug}`);
+      } catch (error) {
+        console.error("Failed to set primarie_id:", error);
+        toast.error("Eroare la salvarea locației", {
+          description: error instanceof Error ? error.message : "Te rugăm să încerci din nou.",
+        });
+        return;
+      }
+    } else {
+      // User not authenticated - location will be synced after login via OAuth callback
+      toast.success("Locație salvată!", {
+        description: `${judet.nume}, ${localitate.nume}`,
+      });
+
+      // Redirect to login page
+      router.push("/auth/login");
+    }
   };
 
   return (

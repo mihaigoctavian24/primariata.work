@@ -22,7 +22,8 @@ interface EmailRequest {
     | "batch_signature_completed"
     | "welcome"
     | "password_reset"
-    | "weekly_digest";
+    | "weekly_digest"
+    | "staff_invitation";
   cerereId?: string;
   toEmail: string;
   toName: string;
@@ -36,6 +37,12 @@ interface EmailRequest {
   // Weekly digest fields
   cererePending?: number;
   cerereInProgress?: number;
+  // Staff invitation fields
+  inviteToken?: string;
+  inviteLink?: string;
+  expiresAt?: string;
+  rol?: string;
+  inviterName?: string;
 }
 
 interface CerereData {
@@ -307,13 +314,6 @@ function buildEmailMessage(
     finalizata: "Finalizată",
   };
 
-  const paymentStatusLabels: Record<string, string> = {
-    pending: "În așteptare",
-    completed: "Finalizată",
-    failed: "Eșuată",
-    cancelled: "Anulată",
-  };
-
   switch (type) {
     case "cerere_submitted": {
       if (!cerere) throw new Error("Cerere data required for cerere_submitted email");
@@ -533,6 +533,54 @@ function buildEmailMessage(
       };
     }
 
+    case "staff_invitation": {
+      // Extract staff invitation fields from body parameter
+      const { inviteToken, inviteLink, expiresAt, rol, inviterName } = body as EmailRequest;
+
+      if (!inviteToken || !inviteLink || !expiresAt || !rol) {
+        throw new Error("Missing required fields for staff_invitation email");
+      }
+
+      // Convert rol to Romanian label
+      const rolLabels: Record<string, string> = {
+        functionar: "Funcționar",
+        admin: "Administrator",
+      };
+      const rolLabel = rolLabels[rol] || rol;
+
+      return {
+        to: { email: toEmail, name: toName },
+        from: { email: SENDGRID_FROM_EMAIL, name: SENDGRID_FROM_NAME },
+        subject: `Invitație de a te alătura echipei Primăriata`,
+        text: buildTextTemplate("staff_invitation", {
+          toName,
+          rolLabel,
+          inviteLink,
+          expiresAt: new Date(expiresAt).toLocaleDateString("ro-RO", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+          inviterName: inviterName || "Administratorul",
+        }),
+        html: buildHtmlTemplate("staff_invitation", {
+          toName,
+          rolLabel,
+          inviteLink,
+          expiresAt: new Date(expiresAt).toLocaleDateString("ro-RO", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+          inviterName: inviterName || "Administratorul",
+        }),
+      };
+    }
+
     default:
       throw new Error(`Unknown email type: ${type}`);
   }
@@ -651,11 +699,30 @@ Echipa Primăriata
     batch_signature_completed: `
 Bună ziua ${data.toName},
 
-Procesul de semnare în lot a fost finalizat cu succes!
+Procesul de semnare digitală în lot a fost finalizat cu succes!
 
 Toate documentele au fost semnate digital și sunt disponibile pentru descărcare.
 
 Pentru mai multe detalii, accesați: ${data.batchLink}
+
+Cu stimă,
+Echipa Primăriata
+    `.trim(),
+
+    staff_invitation: `
+Bună ziua ${data.toName},
+
+Ați fost invitat(ă) de ${data.inviterName} să vă alăturați echipei Primăriata în calitate de ${data.rolLabel}.
+
+Pentru a accepta invitația și a vă crea contul, accesați linkul de mai jos:
+
+${data.inviteLink}
+
+⏰ Această invitație expiră la: ${data.expiresAt}
+
+După acceptarea invitației, veți avea acces la platforma Primăriata cu permisiunile specifice rolului dumneavoastră.
+
+Dacă nu recunoașteți această invitație, vă rugăm să o ignorați.
 
 Cu stimă,
 Echipa Primăriata
@@ -992,6 +1059,34 @@ function buildHtmlTemplate(type: string, data: Record<string, string>): string {
     welcome: welcomeTemplate,
     password_reset: passwordResetTemplate,
     weekly_digest: weeklyDigestTemplate,
+    staff_invitation: layout(`
+      <h2 style="margin: 0 0 20px 0; color: #be3144; font-size: 24px; font-weight: 600;">👥 Invitație în echipă</h2>
+      <p style="margin: 0 0 15px 0; color: #52525b; font-size: 16px; line-height: 1.5;">Bună ziua <strong>${data.toName}</strong>,</p>
+      <p style="margin: 0 0 15px 0; color: #52525b; font-size: 16px; line-height: 1.5;">
+        Ați fost invitat(ă) de <strong>${data.inviterName}</strong> să vă alăturați echipei Primăriata.
+      </p>
+      <div style="background-color: #fef3c7; padding: 20px; border-radius: 6px; border-left: 4px solid #f59e0b; margin: 25px 0;">
+        <p style="margin: 0 0 10px 0; color: #92400e; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Rol atribuit</p>\n        <p style="margin: 0; color: #78350f; font-size: 20px; font-weight: bold;">${data.rolLabel}</p>
+      </div>
+      <p style="margin: 0 0 15px 0; color: #52525b; font-size: 16px; line-height: 1.5;">
+        După acceptarea invitației, veți avea acces la platforma Primăriata cu permisiunile specifice rolului dumneavoastră.
+      </p>
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="${data.inviteLink}" style="display: inline-block; background-color: #be3144; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-size: 16px; font-weight: 600;">Acceptă invitația</a>
+      </div>
+      <div style="background-color: #fee2e2; padding: 15px; border-radius: 6px; margin: 25px 0;">
+        <p style="margin: 0; color: #7f1d1d; font-size: 14px; line-height: 1.5;">
+          ⏰ <strong>Atenție:</strong> Această invitație expiră la ${data.expiresAt}
+        </p>
+      </div>
+      <p style="margin: 25px 0 0 0; color: #71717a; font-size: 14px; line-height: 1.5;">
+        Dacă nu recunoașteți această invitație, vă rugăm să o ignorați.
+      </p>
+      <p style="margin: 30px 0 0 0; color: #71717a; font-size: 14px; line-height: 1.5;">
+        Cu stimă,<br>
+        <strong>Echipa Primăriata</strong>
+      </p>
+    `),
   };
 
   return templates[type] || "";

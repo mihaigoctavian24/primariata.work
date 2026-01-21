@@ -78,26 +78,18 @@ export default function NotificariPage() {
   }, [activeTab, selectedTypes, selectedPriority, selectedStatus, debouncedSearch]);
 
   // Fetch notifications using custom hook
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const {
-    notifications,
-    pagination,
-    unreadCount,
-    isLoading,
-    isError,
-    error,
-    refetch: _refetch,
-  } = useNotificationsList({
-    page,
-    limit: 10,
-    type: selectedTypes.length > 0 ? (selectedTypes[0] as NotificationTypeEnum) : undefined,
-    priority: selectedPriority,
-    status: selectedStatus === "all" ? undefined : selectedStatus,
-    search: debouncedSearch,
-    tab: activeTab,
-    sort: "created_at",
-    order: "desc",
-  });
+  const { notifications, pagination, unreadCount, isLoading, isError, error } =
+    useNotificationsList({
+      page,
+      limit: 10,
+      type: selectedTypes.length > 0 ? (selectedTypes[0] as NotificationTypeEnum) : undefined,
+      priority: selectedPriority,
+      status: selectedStatus === "all" ? undefined : selectedStatus,
+      search: debouncedSearch,
+      tab: activeTab,
+      sort: "created_at",
+      order: "desc",
+    });
 
   // Enable real-time updates
   useNotificationsRealtime();

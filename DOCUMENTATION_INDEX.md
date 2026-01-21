@@ -24,6 +24,9 @@ docs/
 ├── 01-Prezentare/              → Viziune, misiune, obiective
 ├── 02-Cerinte/                 → Specificații funcționale/nefuncționale
 ├── 03-Arhitectura/             → Design sistem, diagrame
+│   ├── Arhitectura-Generala.md    → Arhitectură admin (3 niveluri)
+│   ├── API-si-Backend.md          → Admin API endpoints
+│   └── Admin-Hierarchy-RO.md      → **[NOU]** Ierarhie completă admin
 ├── 04-Implementare/            → Tehnologii, ghid dezvoltare
 ├── 05-Utilizare/               → Ghiduri utilizatori (cetățean, funcționar, admin)
 └── 06-Anexe/                   → Glossar, referințe, contribuitori
@@ -110,8 +113,10 @@ docs/
 
 1. **Start aici**: [README.md](README.md) - Project overview
 2. **Setup**: [GETTING_STARTED.md](GETTING_STARTED.md) - Quick start în 5 min
-3. **Technical docs**: `.docs/02-technical-specs/` - Database, API, Infrastructure
-4. **Roadmap**: `.docs/03-implementation/IMPLEMENTATION_ROADMAP.md` - Phase 0-5 tasks
+3. **Development**: [DEVELOPMENT_GUIDE.md](DEVELOPMENT_GUIDE.md) - Common tasks, admin development
+4. **Technical docs**: `.docs/02-technical-specs/` - Database, API, Infrastructure
+5. **Roadmap**: `.docs/03-implementation/IMPLEMENTATION_ROADMAP.md` - Phase 0-5 tasks
+6. **Admin Development**: [DEVELOPMENT_GUIDE.md#admin-dashboard-development](DEVELOPMENT_GUIDE.md#admin-dashboard-development) - Role-based features
 
 ### Pentru Profesori/Comisie
 
@@ -119,6 +124,7 @@ docs/
 2. **Prezentare**: `docs/01-Prezentare/` - Viziune, obiective
 3. **Cerințe**: `docs/02-Cerinte/` - Specificații funcționale
 4. **Arhitectură**: `docs/03-Arhitectura/` - Design și diagrame
+5. **Admin Hierarchy**: [docs/03-Arhitectura/Admin-Hierarchy-RO.md](docs/03-Arhitectura/Admin-Hierarchy-RO.md) - Ierarhie administrativă (3 niveluri)
 
 ### Pentru Utilizatori Finali
 

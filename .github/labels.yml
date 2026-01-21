@@ -1,0 +1,275 @@
+# GitHub Labels Configuration
+# Aligned with commitlint.config.js scopes and project milestones
+# Use with github-label-sync or GitHub CLI: gh label sync -f .github/labels.yml
+
+# =============================================================================
+# PHASE LABELS (Implementation Phases)
+# =============================================================================
+
+- name: "phase-0"
+  description: "Phase 0: Infrastructure & Foundation Setup"
+  color: "0E8A16"
+
+- name: "phase-1"
+  description: "Phase 1: MVP Landing & Auth (M1)"
+  color: "0E8A16"
+
+- name: "phase-2"
+  description: "Phase 2: Core Cereri Module (M2)"
+  color: "0E8A16"
+
+- name: "phase-3"
+  description: "Phase 3: Integrations Live (M3)"
+  color: "0E8A16"
+
+- name: "phase-4"
+  description: "Phase 4: Advanced Features (M4)"
+  color: "0E8A16"
+
+- name: "phase-5"
+  description: "Phase 5: Production Launch (M5)"
+  color: "0E8A16"
+
+- name: "phase-6"
+  description: "Phase 6: Documentation & Training (M6)"
+  color: "0E8A16"
+
+# =============================================================================
+# MILESTONE LABELS (Feature-specific)
+# =============================================================================
+
+- name: "M1"
+  description: "M1: Landing Page & Authentication (Phase 1)"
+  color: "1D76DB"
+
+- name: "M2"
+  description: "M2: Cereri Module (Phase 2)"
+  color: "1D76DB"
+
+- name: "M3"
+  description: "M3: Integrations (certSIGN, Ghișeul.ro)"
+  color: "1D76DB"
+
+- name: "M4"
+  description: "M4: Advanced Features (Notifications, Audit Logs)"
+  color: "1D76DB"
+
+- name: "M5"
+  description: "M5: Production Launch Preparation"
+  color: "1D76DB"
+
+- name: "M6"
+  description: "M6: Documentation & Training"
+  color: "1D76DB"
+
+- name: "M7"
+  description: "M7: Survey Platform (100% Complete)"
+  color: "0E8A16"
+
+- name: "M8"
+  description: "M8: User-Facing Dashboards (~50% Complete)"
+  color: "FBCA04"
+
+- name: "M9"
+  description: "M9: Management Dashboards (~10% Complete)"
+  color: "FBCA04"
+
+# =============================================================================
+# FEATURE/SCOPE LABELS (Aligned with commitlint scopes)
+# =============================================================================
+
+- name: "scope:landing"
+  description: "Landing page features"
+  color: "C5DEF5"
+
+- name: "scope:auth"
+  description: "Authentication & authorization"
+  color: "C5DEF5"
+
+- name: "scope:survey"
+  description: "Survey Platform & Research Analytics"
+  color: "C5DEF5"
+
+- name: "scope:cereri"
+  description: "Cereri (Requests) Module"
+  color: "C5DEF5"
+
+- name: "scope:integrations"
+  description: "External integrations (certSIGN, Ghișeul.ro, SendGrid, Twilio)"
+  color: "C5DEF5"
+
+- name: "scope:dashboard"
+  description: "Dashboard features (cetățean, funcționar, primar)"
+  color: "C5DEF5"
+
+- name: "scope:admin"
+  description: "Admin features (Global Admin, Primărie Admin, Survey Admin)"
+  color: "C5DEF5"
+
+- name: "scope:api"
+  description: "API routes & backend logic"
+  color: "C5DEF5"
+
+- name: "scope:ui"
+  description: "UI components & styling"
+  color: "C5DEF5"
+
+- name: "scope:db"
+  description: "Database schema, migrations, RLS policies"
+  color: "C5DEF5"
+
+- name: "scope:config"
+  description: "Configuration files (Next.js, TypeScript, etc.)"
+  color: "C5DEF5"
+
+- name: "scope:deps"
+  description: "Dependencies & package management"
+  color: "C5DEF5"
+
+- name: "scope:docs"
+  description: "Documentation updates"
+  color: "C5DEF5"
+
+# =============================================================================
+# TYPE LABELS (Issue/PR Type)
+# =============================================================================
+
+- name: "type:bug"
+  description: "Something isn't working correctly"
+  color: "D73A4A"
+
+- name: "type:feature"
+  description: "New feature or enhancement"
+  color: "A2EEEF"
+
+- name: "type:docs"
+  description: "Documentation improvements"
+  color: "0075CA"
+
+- name: "type:refactor"
+  description: "Code refactoring without changing functionality"
+  color: "FBCA04"
+
+- name: "type:test"
+  description: "Testing improvements or fixes"
+  color: "BFD4F2"
+
+- name: "type:perf"
+  description: "Performance improvements"
+  color: "FF6B6B"
+
+- name: "type:chore"
+  description: "Maintenance tasks, dependencies, tooling"
+  color: "FEF2C0"
+
+# =============================================================================
+# PRIORITY LABELS
+# =============================================================================
+
+- name: "priority:P0"
+  description: "🔴 Critical - Blocking production, security issues"
+  color: "B60205"
+
+- name: "priority:P1"
+  description: "🟠 High - Important for milestone delivery"
+  color: "D93F0B"
+
+- name: "priority:P2"
+  description: "🟡 Medium - Should be addressed soon"
+  color: "FBCA04"
+
+- name: "priority:P3"
+  description: "🟢 Low - Nice to have, future consideration"
+  color: "0E8A16"
+
+# =============================================================================
+# STATUS LABELS
+# =============================================================================
+
+- name: "status:blocked"
+  description: "⛔ Blocked by dependencies or external factors"
+  color: "D73A4A"
+
+- name: "status:in-progress"
+  description: "🔄 Currently being worked on"
+  color: "FBCA04"
+
+- name: "status:review"
+  description: "👀 Awaiting code review"
+  color: "0366D6"
+
+- name: "status:ready-to-merge"
+  description: "✅ Approved and ready to merge"
+  color: "0E8A16"
+
+- name: "status:on-hold"
+  description: "⏸️ Paused, waiting for decision"
+  color: "EDEDED"
+
+# =============================================================================
+# SIZE LABELS (Estimation)
+# =============================================================================
+
+- name: "size:XS"
+  description: "Extra small: < 2 hours"
+  color: "C2E0C6"
+
+- name: "size:S"
+  description: "Small: 2-4 hours"
+  color: "9FD6A3"
+
+- name: "size:M"
+  description: "Medium: 1-2 days"
+  color: "7CCC7C"
+
+- name: "size:L"
+  description: "Large: 3-5 days"
+  color: "5CB85C"
+
+- name: "size:XL"
+  description: "Extra large: > 1 week"
+  color: "449D44"
+
+# =============================================================================
+# SPECIAL LABELS
+# =============================================================================
+
+- name: "good-first-issue"
+  description: "Good for newcomers to the project"
+  color: "7057FF"
+
+- name: "help-wanted"
+  description: "Extra attention is needed"
+  color: "008672"
+
+- name: "question"
+  description: "Further information is requested"
+  color: "D876E3"
+
+- name: "duplicate"
+  description: "This issue or pull request already exists"
+  color: "CFD3D7"
+
+- name: "invalid"
+  description: "This doesn't seem right"
+  color: "E4E669"
+
+- name: "wontfix"
+  description: "This will not be worked on"
+  color: "FFFFFF"
+
+- name: "dependencies"
+  description: "Pull requests that update a dependency file"
+  color: "0366D6"
+
+- name: "security"
+  description: "Security-related issues or improvements"
+  color: "EE0701"
+
+- name: "breaking-change"
+  description: "Changes that break backward compatibility"
+  color: "D73A4A"
+
+- name: "needs-triage"
+  description: "Needs initial review and categorization"
+  color: "FFA500"

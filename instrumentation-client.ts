@@ -51,7 +51,41 @@ Sentry.init({
   beforeSend(event, hint) {
     // Don't send events for development
     if (process.env.NODE_ENV === "development") {
-      console.error(hint.originalException || hint.syntheticException);
+      const exception = hint.originalException || hint.syntheticException;
+
+      // Log different types of exceptions with useful formatting
+      console.group("🔴 Sentry Error (Development Mode - Not Sent)");
+
+      if (exception instanceof Error) {
+        // Standard Error object - log with stack trace
+        console.error(exception);
+      } else if (exception instanceof Event) {
+        // Browser Event object - extract useful properties
+        console.error("Event Type:", exception.type);
+        console.error("Event Target:", exception.target);
+        console.error("Event Details:", {
+          type: exception.type,
+          target: exception.target,
+          currentTarget: exception.currentTarget,
+          timestamp: exception.timeStamp,
+        });
+      } else if (typeof exception === "object" && exception !== null) {
+        // Plain object - stringify to see contents
+        console.error("Exception Object:", JSON.stringify(exception, null, 2));
+      } else {
+        // Primitive or other type
+        console.error("Exception:", exception);
+      }
+
+      // Also log the event context for additional debugging info
+      if (event.message) {
+        console.error("Message:", event.message);
+      }
+      if (event.level) {
+        console.error("Level:", event.level);
+      }
+
+      console.groupEnd();
       return null;
     }
     return event;

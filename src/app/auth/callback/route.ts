@@ -26,14 +26,62 @@ export async function GET(request: Request) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error) {
+      // Sync location from cookie to database after successful authentication
+      const cookieStore = await cookies();
+      const locationCookie = cookieStore.get("selected_location");
+
+      if (locationCookie?.value) {
+        try {
+          const savedLocation = JSON.parse(decodeURIComponent(locationCookie.value));
+
+          // Sync location to database
+          if (savedLocation.localitateId) {
+            console.log("[auth/callback] Syncing location to database:", {
+              localitateId: savedLocation.localitateId,
+            });
+
+            // Get current user
+            const {
+              data: { user },
+            } = await supabase.auth.getUser();
+
+            if (user) {
+              // Get primarie_id for the selected localitate
+              const { data: primarie } = await supabase
+                .from("primarii")
+                .select("id")
+                .eq("localitate_id", parseInt(savedLocation.localitateId))
+                .single();
+
+              if (primarie) {
+                // Update utilizatori table with location data
+                const { error: updateError } = await supabase
+                  .from("utilizatori")
+                  .update({
+                    localitate_id: parseInt(savedLocation.localitateId),
+                    primarie_id: primarie.id,
+                  })
+                  .eq("id", user.id);
+
+                if (updateError) {
+                  console.error("[auth/callback] Failed to sync location:", updateError);
+                } else {
+                  console.log("[auth/callback] ✅ Location synced successfully to database");
+                }
+              }
+            }
+          }
+        } catch (e) {
+          console.error("[auth/callback] Failed to sync location:", e);
+          // Don't block auth flow if location sync fails
+        }
+      }
+
       // Determine redirect destination
       let redirectPath = next;
 
       // If no specific redirect, check for saved location from cookie (server-side)
       if (redirectPath === "/") {
-        const cookieStore = await cookies();
-        const locationCookie = cookieStore.get("selected_location");
-
         if (locationCookie?.value) {
           try {
             const savedLocation = JSON.parse(decodeURIComponent(locationCookie.value));

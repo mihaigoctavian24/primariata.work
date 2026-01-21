@@ -8,11 +8,15 @@ Documentație completă a arhitecturii backend și API pentru **primariaTa❤️
 
 1. [Prezentare Generală](#prezentare-generală)
 2. [Structura API](#structura-api)
-3. [Flow Diagrame](#flow-diagrame)
-4. [Authentication și Middleware](#authentication-și-middleware)
-5. [Server Components vs Client Components](#server-components-vs-client-components)
-6. [Error Handling](#error-handling)
-7. [Rate Limiting și Caching](#rate-limiting-și-caching)
+3. [API Endpoints](#api-endpoints-detaliat)
+   - [Survey API](#1-survey-api)
+   - [Admin API](#2-admin-api)
+   - [Admin RLS Policies](#3-admin-rls-policies)
+4. [Flow Diagrame](#flow-diagrame)
+5. [Authentication și Middleware](#authentication-și-middleware)
+6. [Server Components vs Client Components](#server-components-vs-client-components)
+7. [Error Handling](#error-handling)
+8. [Rate Limiting și Caching](#rate-limiting-și-caching)
 
 ---
 
@@ -410,6 +414,442 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
+```
+
+---
+
+### 2. Admin API
+
+#### Ierarhia Admin Endpoints
+
+```
+src/app/api/
+├── admin/
+│   ├── platform/              # Global Admin (super_admin)
+│   │   ├── stats/
+│   │   │   └── route.ts      # GET /api/admin/platform/stats
+│   │   ├── primarii/
+│   │   │   ├── route.ts      # GET/POST /api/admin/platform/primarii
+│   │   │   └── [id]/
+│   │   │       └── route.ts  # PUT/DELETE /api/admin/platform/primarii/[id]
+│   │   └── invite-admin/
+│   │       └── route.ts      # POST /api/admin/platform/invite-admin
+│   │
+│   ├── users/                 # Primărie Admin (admin)
+│   │   ├── route.ts          # GET /api/admin/users?primarie_id=uuid
+│   │   └── invite/
+│   │       └── route.ts      # POST /api/admin/users/invite
+│   │
+│   ├── cereri/                # Primărie Admin - Cereri oversight
+│   │   ├── route.ts          # GET /api/admin/cereri?primarie_id=uuid
+│   │   └── stats/
+│   │       └── route.ts      # GET /api/admin/cereri/stats
+│   │
+│   ├── plati/                 # Primărie Admin - Plăți oversight
+│   │   ├── route.ts          # GET /api/admin/plati?primarie_id=uuid
+│   │   └── stats/
+│   │       └── route.ts      # GET /api/admin/plati/stats
+│   │
+│   └── reports/               # Primărie Admin - Reports
+│       ├── activity/
+│       │   └── route.ts      # GET /api/admin/reports/activity
+│       └── performance/
+│           └── route.ts      # GET /api/admin/reports/performance
+```
+
+#### GET /api/admin/platform/stats
+
+**Scop**: Statistici la nivel de platformă (Global Admin).
+
+**Autorizare**: Doar `super_admin`
+
+**Response**:
+
+```typescript
+{
+  "totalPrimarii": 100,
+  "activePrimarii": 87,
+  "totalUsers": 10000,
+  "totalCereri": 50000,
+  "totalPlati": 35000,
+  "activeToday": 1200,
+  "growth": {
+    "users": "+12%", // ultimele 30 zile
+    "cereri": "+8%",
+    "plati": "+15%"
+  },
+  "topPrimarii": [
+    {
+      "id": "uuid",
+      "name": "București Sector 1",
+      "users": 500,
+      "cereri": 1200,
+      "activeRate": "78%"
+    }
+    // ...
+  ]
+}
+```
+
+**Implementare**:
+
+```typescript
+// app/api/admin/platform/stats/route.ts
+import { NextRequest, NextResponse } from "next/server";
+import { createServerClient } from "@/lib/supabase/server";
+
+export async function GET(request: NextRequest) {
+  try {
+    const supabase = await createServerClient();
+
+    // Verify super_admin role
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Check if super_admin
+    const { data: userData } = await supabase
+      .from("utilizatori")
+      .select("rol")
+      .eq("id", user.id)
+      .single();
+
+    if (userData?.rol !== "super_admin") {
+      return NextResponse.json({ error: "Forbidden: super_admin only" }, { status: 403 });
+    }
+
+    // Fetch platform-wide stats (RLS bypassed for super_admin)
+    const [
+      { count: totalPrimarii },
+      { count: totalUsers },
+      { count: totalCereri },
+      { count: totalPlati },
+    ] = await Promise.all([
+      supabase.from("primarii").select("*", { count: "exact", head: true }),
+      supabase.from("utilizatori").select("*", { count: "exact", head: true }),
+      supabase.from("cereri").select("*", { count: "exact", head: true }),
+      supabase.from("plati").select("*", { count: "exact", head: true }),
+    ]);
+
+    // Calculate growth rates (example: last 30 days)
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const { count: newUsersLast30Days } = await supabase
+      .from("utilizatori")
+      .select("*", { count: "exact", head: true })
+      .gte("created_at", thirtyDaysAgo.toISOString());
+
+    const usersGrowth = totalUsers > 0 ? ((newUsersLast30Days / totalUsers) * 100).toFixed(0) : "0";
+
+    // Top primării by activity
+    const { data: topPrimarii } = await supabase
+      .from("primarii")
+      .select(
+        `
+        id,
+        nume,
+        utilizatori:utilizatori(count),
+        cereri:cereri(count)
+      `
+      )
+      .order("utilizatori.count", { ascending: false })
+      .limit(10);
+
+    return NextResponse.json({
+      totalPrimarii: totalPrimarii || 0,
+      activePrimarii: totalPrimarii || 0, // TODO: filter by active status
+      totalUsers: totalUsers || 0,
+      totalCereri: totalCereri || 0,
+      totalPlati: totalPlati || 0,
+      activeToday: 0, // TODO: implement daily active users
+      growth: {
+        users: `+${usersGrowth}%`,
+        cereri: "+0%", // TODO: calculate
+        plati: "+0%", // TODO: calculate
+      },
+      topPrimarii:
+        topPrimarii?.map((p) => ({
+          id: p.id,
+          name: p.nume,
+          users: p.utilizatori[0]?.count || 0,
+          cereri: p.cereri[0]?.count || 0,
+          activeRate: "0%", // TODO: calculate
+        })) || [],
+    });
+  } catch (error) {
+    console.error("Platform stats error:", error);
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
+  }
+}
+```
+
+#### POST /api/admin/platform/invite-admin
+
+**Scop**: Invită admin de primărie (Global Admin).
+
+**Autorizare**: Doar `super_admin`
+
+**Request Body**:
+
+```typescript
+{
+  "email": "admin@primarie-cluj.ro",
+  "primarie_id": "uuid",
+  "firstName": "Ion",
+  "lastName": "Popescu"
+}
+```
+
+**Response**:
+
+```typescript
+{
+  "success": true,
+  "userId": "uuid",
+  "inviteUrl": "https://primariata.work/invite/accept?token=xxx",
+  "message": "Invitație trimisă cu succes"
+}
+```
+
+#### GET /api/admin/users
+
+**Scop**: Listă utilizatori primărie (Admin Primărie).
+
+**Autorizare**: `admin` (filtered by primarie_id)
+
+**Query Params**:
+
+- `?primarie_id=uuid` (required)
+- `?role=functionar` (optional filter)
+- `?status=active` (optional filter)
+- `?page=1&limit=20` (pagination)
+
+**Response**:
+
+```typescript
+{
+  "users": [
+    {
+      "id": "uuid",
+      "email": "ion.popescu@primarie.ro",
+      "firstName": "Ion",
+      "lastName": "Popescu",
+      "rol": "functionar",
+      "department": "Urbanism",
+      "status": "active",
+      "createdAt": "2025-01-10T10:00:00Z",
+      "lastLoginAt": "2025-01-19T08:30:00Z"
+    }
+    // ...
+  ],
+  "pagination": {
+    "total": 45,
+    "page": 1,
+    "limit": 20,
+    "totalPages": 3
+  }
+}
+```
+
+#### POST /api/admin/users/invite
+
+**Scop**: Invită staff (funcționar, primar) în primărie.
+
+**Autorizare**: `admin` (doar pentru primăria sa)
+
+**Request Body**:
+
+```typescript
+{
+  "email": "functionar@primarie.ro",
+  "role": "functionar", // "functionar" | "primar"
+  "primarie_id": "uuid",
+  "firstName": "Maria",
+  "lastName": "Ionescu",
+  "department": "Urbanism" // optional
+}
+```
+
+**Response**:
+
+```typescript
+{
+  "success": true,
+  "userId": "uuid",
+  "inviteUrl": "https://primariata.work/invite/accept?token=xxx",
+  "message": "Invitație trimisă cu succes"
+}
+```
+
+#### GET /api/admin/cereri/stats
+
+**Scop**: Statistici cereri pentru primărie (Admin Primărie).
+
+**Autorizare**: `admin` (filtered by primarie_id)
+
+**Query Params**:
+
+- `?primarie_id=uuid` (required)
+- `?from=2025-01-01&to=2025-01-31` (optional date range)
+
+**Response**:
+
+```typescript
+{
+  "total": 1234,
+  "byStatus": {
+    "in_progress": 45,
+    "pending": 120,
+    "completed": 1000,
+    "rejected": 69
+  },
+  "byType": {
+    "certificat_urbanism": 400,
+    "autorizatie_constructie": 300,
+    "certificat_fiscalitate": 534
+  },
+  "avgProcessingTime": 5.3, // days
+  "completionRate": 81.2, // %
+  "recentCereri": [
+    {
+      "id": "uuid",
+      "tip": "certificat_urbanism",
+      "status": "in_progress",
+      "cetatean": "Ion P.",
+      "createdAt": "2025-01-19T10:00:00Z"
+    }
+    // ...
+  ]
+}
+```
+
+#### GET /api/admin/plati/stats
+
+**Scop**: Statistici plăți pentru primărie (Admin Primărie).
+
+**Autorizare**: `admin` (filtered by primarie_id)
+
+**Query Params**:
+
+- `?primarie_id=uuid` (required)
+- `?from=2025-01-01&to=2025-01-31` (optional date range)
+
+**Response**:
+
+```typescript
+{
+  "total": 850,
+  "totalAmount": 125000.50, // RON
+  "byStatus": {
+    "completed": 700,
+    "pending": 100,
+    "failed": 50
+  },
+  "successRate": 93.3, // %
+  "avgAmount": 147.06, // RON
+  "recentPlati": [
+    {
+      "id": "uuid",
+      "suma": 150.00,
+      "status": "completed",
+      "cetatean": "Maria I.",
+      "createdAt": "2025-01-19T09:00:00Z"
+    }
+    // ...
+  ]
+}
+```
+
+#### GET /api/admin/reports/activity
+
+**Scop**: Log activitate primărie (Admin Primărie).
+
+**Autorizare**: `admin` (filtered by primarie_id)
+
+**Query Params**:
+
+- `?primarie_id=uuid` (required)
+- `?from=2025-01-01&to=2025-01-31` (optional)
+- `?user_id=uuid` (optional filter by user)
+- `?action_type=cerere_created` (optional filter)
+
+**Response**:
+
+```typescript
+{
+  "activities": [
+    {
+      "id": "uuid",
+      "timestamp": "2025-01-19T10:30:00Z",
+      "userId": "uuid",
+      "userName": "Ion Popescu",
+      "actionType": "cerere_updated",
+      "resource": "cereri/uuid-123",
+      "details": {
+        "field": "status",
+        "oldValue": "pending",
+        "newValue": "in_progress"
+      },
+      "ipAddress": "192.168.1.1",
+      "userAgent": "Mozilla/5.0..."
+    }
+    // ...
+  ],
+  "pagination": {
+    "total": 500,
+    "page": 1,
+    "limit": 50,
+    "totalPages": 10
+  }
+}
+```
+
+### 3. Admin RLS Policies
+
+**Exemple de policies pentru izolare admin**:
+
+```sql
+-- Global Admin: vede TOATE datele
+CREATE POLICY super_admin_all_access ON utilizatori
+FOR ALL TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM utilizatori
+    WHERE id = auth.uid() AND rol = 'super_admin'
+  )
+);
+
+-- Admin Primărie: vede DOAR primăria sa
+CREATE POLICY admin_primarie_access ON utilizatori
+FOR ALL TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM utilizatori u
+    WHERE u.id = auth.uid()
+    AND u.rol = 'admin'
+    AND u.primarie_id = utilizatori.primarie_id
+  )
+);
+
+-- Cereri: Admin primărie vede doar cererile primăriei sale
+CREATE POLICY admin_cereri_access ON cereri
+FOR ALL TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM utilizatori u
+    WHERE u.id = auth.uid()
+    AND u.rol IN ('admin', 'super_admin')
+    AND (
+      u.rol = 'super_admin' OR u.primarie_id = cereri.primarie_id
+    )
+  )
+);
 ```
 
 ---

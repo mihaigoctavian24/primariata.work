@@ -157,6 +157,57 @@ primariata.work/
 
 ---
 
+## 🏛️ Admin Hierarchy
+
+Platforma implementează **trei niveluri distincte de administrare** pentru management complet:
+
+### 🌍 Global Admin (super_admin)
+
+**Locație**: `/app/admin/primariata/`
+**Scop**: Management la nivel de platformă
+
+- Vede TOATE primăriile de pe platformă
+- Statistici și analytics la nivel național
+- Creare primării noi și onboarding
+- Invită admini de primărie (câte unul per oraș)
+- Setări de platformă și feature flags
+- **Status**: ⏳ Issue #150 (0% - Nu implementat, estimat 10h)
+
+### 🏛️ Primărie Admin (admin)
+
+**Locație**: `/app/[judet]/[localitate]/admin/`
+**Scop**: Management la nivel de primărie
+
+- Vede DOAR primăria sa (RLS enforced)
+- Management utilizatori (cetățeni, funcționari, primar)
+- Invită staff (funcționari, primar) prin email
+- Oversight cereri și plăți din primărie
+- Rapoarte și activity log
+- **Status**: ⏳ Issue #148 (0% - Blocat de #152, estimat 12h)
+
+### 🔬 Survey Admin (admin/super_admin)
+
+**Locație**: `/admin/survey/` și `/admin/survey/research/`
+**Scop**: Analytics și research (APLICAȚIE SEPARATĂ)
+
+- Analiză răspunsuri survey cu AI (GPT-4o-mini)
+- Export date (Excel/CSV/PDF/JSON)
+- Insights demographics și corelații
+- Real-time analytics și trends
+- **Status**: ✅ M7 - 100% Complete (aplicație funcțională)
+
+**Ierarhie de creare**:
+
+```
+Global Admin → Crează Primărie Admins → Crează Staff (funcționari, primar)
+```
+
+**Separare aplicații**: Survey Admin este o aplicație complet separată de aplicația principală de primărie.
+
+**Detalii complete**: Vezi [claudedocs/ADMIN_HIERARCHY.md](claudedocs/ADMIN_HIERARCHY.md) pentru arhitectură completă cu RLS policies, API endpoints și exemple de user journeys.
+
+---
+
 ## 📖 Documentație
 
 **🗂️ Avem DOUĂ tipuri de documentație** - vezi [DOCUMENTATION_INDEX.md](DOCUMENTATION_INDEX.md) pentru detalii:
@@ -273,19 +324,21 @@ pnpm format:write
 ## 📊 Project Status & Roadmap
 
 **Status actual**: Ianuarie 2026 (An universitar 2025-2026)
-**Progres general**: 43 issues închise din 101 totale = **42.6%**
+**Progres general**: 41 issues închise din 101 totale = **40.6%**
 
 ### 📈 Milestones Overview (GitHub)
 
-| Milestone                    | Progress        | Status       | Due Date    | Completed   |
-| ---------------------------- | --------------- | ------------ | ----------- | ----------- |
-| **M1: Landing & Auth 🚀**    | 20✅ / 21 total | ✅ **95.2%** | 28 Oct 2025 | 26 Dec 2025 |
-| **M7: Survey Platform**      | 1✅ / 1 total   | ✅ **100%**  | 31 Oct 2025 | -           |
-| **M2: Cereri Module 📋**     | 10✅ / 10 total | ✅ **100%**  | 1 Nov 2025  | 1 Jan 2026  |
-| **M3: Integrations 💳**      | 8✅ / 8 total   | ✅ **100%**  | 8 Nov 2025  | 7 Jan 2026  |
-| **M4: Advanced Features ✨** | 0✅ / 14 total  | ⏳ 0%        | 15 Nov 2025 | -           |
-| **M5: Production Launch 🚀** | 0✅ / 13 total  | ⏳ 0%        | 22 Nov 2025 | -           |
-| **M6: Documentation 📚**     | 0✅ / 22 total  | ⏳ 0%        | 29 Nov 2025 | -           |
+| Milestone                      | Progress         | Status       | Due Date    | Completed   |
+| ------------------------------ | ---------------- | ------------ | ----------- | ----------- |
+| **M1: Landing & Auth 🚀**      | 20✅ / 21 total  | ✅ **95.2%** | 28 Oct 2025 | 26 Dec 2025 |
+| **M7: Survey Platform**        | 1✅ / 1 total    | ✅ **100%**  | 31 Oct 2025 | -           |
+| **M2: Cereri Module 📋**       | 10✅ / 10 total  | ✅ **100%**  | 1 Nov 2025  | 1 Jan 2026  |
+| **M3: Integrations 💳**        | 8✅ / 8 total    | ✅ **100%**  | 8 Nov 2025  | 7 Jan 2026  |
+| **M4: Advanced Features ✨**   | 2✅ / 14 total   | 🔄 **14%**   | 15 Nov 2025 | -           |
+| **M8: User-Facing Dashboards** | ~3✅ / 5 total   | 🔄 **~50%**  | 15 Nov 2025 | -           |
+| **M9: Management Dashboards**  | ~0.4✅ / 4 total | 🔄 **~10%**  | 22 Nov 2025 | -           |
+| **M5: Production Launch 🚀**   | 0✅ / 13 total   | ⏳ 0%        | 22 Nov 2025 | -           |
+| **M6: Documentation 📚**       | 0✅ / 22 total   | ⏳ 0%        | 29 Nov 2025 | -           |
 
 ### ✅ M1: Landing Page & Authentication (100% - COMPLETE ✅)
 

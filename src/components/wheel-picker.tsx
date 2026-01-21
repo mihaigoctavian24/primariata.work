@@ -351,7 +351,10 @@ function WheelPicker({
   // Handle wheel scroll with native event listener for proper preventDefault
   useEffect(() => {
     const container = containerRef.current;
-    if (!container) return;
+
+    if (!container) {
+      return;
+    }
 
     let scrollTimeout: NodeJS.Timeout | null = null;
 
@@ -469,6 +472,7 @@ function WheelPicker({
               onClick={() => {
                 if (!option.disabled && !isDragging) {
                   const targetY = -(index * ITEM_HEIGHT) + ITEM_HEIGHT * 2;
+
                   animate(y, targetY, {
                     type: "spring",
                     stiffness: 300,

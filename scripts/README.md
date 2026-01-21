@@ -96,6 +96,59 @@ pip3 install markdown weasyprint
 
 ## Scripturi Disponibile
 
+### `sync-github-labels.sh` 🏷️
+
+**NEW** - Script pentru sincronizarea automată a label-urilor GitHub din `.github/labels.yml`.
+
+**Utilizare**:
+
+```bash
+./scripts/sync-github-labels.sh
+```
+
+**Cerințe**:
+
+- GitHub CLI (`gh`) instalat și autentificat
+- `yq` pentru parsing YAML (opțional, dar recomandat)
+
+```bash
+# Instalare dependențe
+brew install gh yq  # macOS
+# sau
+scoop install gh yq # Windows
+
+# Autentificare
+gh auth login
+```
+
+**Funcționalități**:
+
+- Sincronizează toate label-urile din `.github/labels.yml` cu GitHub
+- Creează label-uri noi dacă nu există
+- Actualizează label-uri existente (descriere, culoare)
+- Progress indicator în timp real
+- Validare și error handling
+
+**Label-uri incluse**:
+
+- **Phase Labels** (7): phase-0 → phase-6
+- **Milestone Labels** (9): M1 → M9
+- **Scope Labels** (13): auth, survey, cereri, admin, api, ui, db, docs, etc.
+- **Type Labels** (7): bug, feature, docs, refactor, test, perf, chore
+- **Priority Labels** (4): P0 (Critical) → P3 (Low)
+- **Status Labels** (5): blocked, in-progress, review, ready-to-merge, on-hold
+- **Size Labels** (5): XS (< 2h) → XL (> 1 week)
+- **Special Labels** (10): good-first-issue, help-wanted, security, etc.
+
+**Total**: 55+ labels aliniate cu `commitlint.config.js` și IMPLEMENTATION_ROADMAP.md
+
+**Documentație**:
+
+- [.github/labels.yml](../.github/labels.yml) - Definițiile label-urilor
+- [.github/LABELS_GUIDE.md](../.github/LABELS_GUIDE.md) - Ghid complet de utilizare
+
+---
+
 ### `generate_pdf.py`
 
 Python script pentru conversie Documentație Arhitectură Markdown → PDF cu suport complet Mermaid.

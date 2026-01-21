@@ -143,18 +143,26 @@ Această secțiune conține detalii tehnice despre implementarea platformei **pr
 
 | Componenta                              | Status        | Progress | Milestone        |
 | --------------------------------------- | ------------- | -------- | ---------------- |
-| **Landing Page**                        | ✅ Complete   | 100%     | M1 (47.6% total) |
-| **Authentication**                      | 🔄 Parțial    | 50%      | M1 (în progres)  |
-| **Location Selection**                  | ✅ Complete   | 100%     | M1               |
+| **Landing Page**                        | ✅ Complete   | 100%     | M1 (95.2% total) |
+| **Authentication**                      | ✅ Complete   | 100%     | M1 (95.2%)       |
+| **Location Selection**                  | ✅ Complete   | 100%     | M1 (95.2%)       |
 | **Survey Platform**                     | ✅ Complete   | 100%     | M7 (100%)        |
 | **Admin Dashboard**                     | ✅ Complete   | 100%     | M7 (100%)        |
 | **Research Analysis Dashboard**         | ✅ Complete   | 100%     | M7 (100%)        |
-| **Cereri Module**                       | ⏳ Planificat | 0%       | M2 (0%)          |
-| **Integrations (certSIGN, Ghișeul.ro)** | ⏳ Planificat | 0%       | M3 (0%)          |
-| **Advanced Features**                   | ⏳ Planificat | 0%       | M4 (0%)          |
+| **Cereri Module**                       | ✅ Complete   | 100%     | M2 (100%)        |
+| **Integrations (certSIGN, Ghișeul.ro)** | ✅ Complete   | 100%     | M3 (100%)        |
+| **Cetățean Dashboard**                  | 🔄 Parțial    | ~70%     | M8 (~50%)        |
+| **Role-Based Dashboard Rendering**      | 🔄 Parțial    | ~35%     | M8 (~50%)        |
+| **Dashboard Widget Integration**        | 🔄 Parțial    | ~65%     | M8 (~50%)        |
+| **Role-Based Navigation**               | 🔄 Parțial    | ~40%     | M8 (~50%)        |
+| **Funcționar Dashboard**                | ⏳ Planificat | 0%       | M9 (~10%)        |
+| **Primar Dashboard**                    | ⏳ Planificat | 0%       | M9 (~10%)        |
+| **Admin User Management**               | ⏳ Planificat | 0%       | M9 (~10%)        |
+| **Super-Admin Platform**                | ⏳ Planificat | 0%       | M9 (~10%)        |
+| **Advanced Features**                   | 🔄 Parțial    | 14%      | M4 (14%)         |
 | **Production Launch**                   | ⏳ Planificat | 0%       | M5 (0%)          |
 
-**Progress general**: 11 issues ✅ / 101 totale = 10.9% (30 octombrie 2025)
+**Progress general**: 41 issues ✅ / 101 totale = 40.6% (19 ianuarie 2026)
 
 ---
 

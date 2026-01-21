@@ -6,7 +6,7 @@
 
 Comprehensive guide to the system design, data flow, and integration architecture of primariaTa❤️\_
 
-[System Overview](#system-overview) • [Tech Stack](#technology-stack) • [Architecture Layers](#architecture-layers) • [Data Flow](#data-flow) • [Security](#security-architecture)
+[System Overview](#system-overview) • [Tech Stack](#technology-stack) • [Architecture Layers](#architecture-layers) • [Admin Architecture](#admin-architecture) • [Data Flow](#data-flow) • [Security](#security-architecture)
 
 </div>
 
@@ -23,6 +23,10 @@ Comprehensive guide to the system design, data flow, and integration architectur
   - [Data Layer](#data-layer)
   - [Integration Layer](#integration-layer)
 - [Module Structure](#module-structure)
+- [Admin Architecture](#admin-architecture)
+  - [Global Admin](#1-global-admin-super_admin)
+  - [Primărie Admin](#2-primărie-admin-admin)
+  - [Survey Admin](#3-survey-admin-adminsuper_admin)
 - [Data Flow](#data-flow)
   - [Request Flow](#request-flow)
   - [Authentication Flow](#authentication-flow)
@@ -433,6 +437,222 @@ src/
     ├── database.types.ts       # Generated from Supabase
     └── supabase.ts             # Supabase client types
 ```
+
+---
+
+## Admin Architecture
+
+The platform implements a **three-level admin hierarchy** for comprehensive platform and municipality management:
+
+### Architecture Overview
+
+```mermaid
+graph TB
+    subgraph "Platform Level"
+        GlobalAdmin[🌍 Global Admin<br/>super_admin<br/>/app/admin/primariata/]
+    end
+
+    subgraph "Primărie Level"
+        PrimarieAdmin1[🏛️ Primărie Admin<br/>admin<br/>/app/cluj/cluj-napoca/admin/]
+        PrimarieAdmin2[🏛️ Primărie Admin<br/>admin<br/>/app/bucuresti/bucuresti/admin/]
+        PrimarieAdmin3[🏛️ Primărie Admin<br/>admin<br/>/app/timis/timisoara/admin/]
+    end
+
+    subgraph "Staff Level"
+        Staff1[👥 Staff<br/>functionar/primar]
+        Staff2[👥 Staff<br/>functionar/primar]
+        Staff3[👥 Staff<br/>functionar/primar]
+    end
+
+    subgraph "Separate Application"
+        SurveyAdmin[🔬 Survey Admin<br/>admin/super_admin<br/>/admin/survey/]
+    end
+
+    GlobalAdmin -->|Creates & Invites| PrimarieAdmin1
+    GlobalAdmin -->|Creates & Invites| PrimarieAdmin2
+    GlobalAdmin -->|Creates & Invites| PrimarieAdmin3
+
+    PrimarieAdmin1 -->|Invites Staff| Staff1
+    PrimarieAdmin2 -->|Invites Staff| Staff2
+    PrimarieAdmin3 -->|Invites Staff| Staff3
+
+    classDef platform fill:#e8f5e9,stroke:#2e7d32
+    classDef primarie fill:#e3f2fd,stroke:#1565c0
+    classDef staff fill:#fff3e0,stroke:#e65100
+    classDef survey fill:#f3e5f5,stroke:#7b1fa2
+
+    class GlobalAdmin platform
+    class PrimarieAdmin1,PrimarieAdmin2,PrimarieAdmin3 primarie
+    class Staff1,Staff2,Staff3 staff
+    class SurveyAdmin survey
+```
+
+### 1. Global Admin (super_admin)
+
+**Location**: `/app/admin/primariata/`
+
+**Scope**: Platform-wide management (ALL primării)
+
+**Responsibilities**:
+
+- View platform-wide statistics (all primării combined)
+- Manage primării (create, edit, activate/deactivate)
+- Create and invite primărie admins (one per city)
+- Configure platform settings and feature flags
+- View platform-wide audit logs
+- Monitor system health and performance
+
+**Implementation Status**: ⏳ Issue #150 (0% - Not implemented, estimated 10h)
+
+**RLS Policy**:
+
+```sql
+-- Super admin sees ALL data across ALL primării
+CREATE POLICY super_admin_full_access ON utilizatori
+FOR ALL TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM utilizatori
+    WHERE id = auth.uid()
+    AND rol = 'super_admin'
+  )
+);
+```
+
+### 2. Primărie Admin (admin)
+
+**Location**: `/app/[judet]/[localitate]/admin/`
+
+**Scope**: Single primărie management (RLS enforced)
+
+**Responsibilities**:
+
+- Manage users in their primărie (cetățeni, funcționari, primar)
+- Invite staff (funcționari, primar) via email
+- Cereri oversight (all requests in primărie)
+- Plăți oversight (all payments in primărie)
+- Generate primărie-specific reports
+- View primărie activity logs
+
+**Implementation Status**: ⏳ Issue #148 (0% - Blocked by #152, estimated 12h)
+
+**Dashboard Structure**:
+
+```
+/app/[judet]/[localitate]/admin/
+├── page.tsx                    # Platform health overview
+├── users/                      # User management
+│   ├── page.tsx                # List users (table)
+│   ├── invite/page.tsx         # Invite staff
+│   └── [id]/page.tsx           # User detail
+├── cereri/                     # Cereri oversight
+│   ├── page.tsx                # All cereri table
+│   └── [id]/page.tsx           # Cerere detail
+├── plati/                      # Plăți oversight
+│   ├── page.tsx                # All plăți table
+│   └── [id]/page.tsx           # Payment detail
+├── reports/page.tsx            # Reports & analytics
+└── activity/page.tsx           # Activity log
+```
+
+**RLS Policy**:
+
+```sql
+-- Admin sees ONLY their primărie
+CREATE POLICY admin_primarie_access ON utilizatori
+FOR ALL TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM utilizatori u
+    WHERE u.id = auth.uid()
+    AND u.rol = 'admin'
+    AND u.primarie_id = utilizatori.primarie_id
+  )
+);
+```
+
+### 3. Survey Admin (admin/super_admin)
+
+**Location**: `/admin/survey/` and `/admin/survey/research/`
+
+**Scope**: Survey analytics (SEPARATE APPLICATION)
+
+**Key Distinction**: Survey Admin is a **completely separate application** from the main Primărie App. It focuses solely on survey research and analytics.
+
+**Responsibilities**:
+
+- View survey response metrics and analytics
+- Generate AI-powered insights (OpenAI GPT-4o-mini)
+- Export survey data (Excel, CSV, PDF, JSON)
+- Monitor response trends and demographics
+- Analyze correlations and cohorts
+
+**Implementation Status**: ✅ M7 - 100% Complete (fully functional)
+
+**Access Control**:
+
+- `admin` role: See surveys for their primărie
+- `super_admin` role: See ALL surveys platform-wide
+
+**RLS Policy**:
+
+```sql
+-- Admin sees surveys for their primărie
+-- Super admin sees ALL surveys
+CREATE POLICY survey_admin_access ON survey_responses
+FOR SELECT TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM utilizatori u
+    WHERE u.id = auth.uid()
+    AND (
+      u.rol = 'super_admin'
+      OR (u.rol = 'admin' AND u.primarie_id = survey_respondents.primarie_id)
+    )
+  )
+);
+```
+
+### Admin Comparison
+
+| Aspect         | Global Admin             | Primărie Admin                     | Survey Admin               |
+| -------------- | ------------------------ | ---------------------------------- | -------------------------- |
+| **Location**   | `/app/admin/primariata/` | `/app/[judet]/[localitate]/admin/` | `/admin/survey/`           |
+| **Role**       | `super_admin`            | `admin`                            | `admin` or `super_admin`   |
+| **Scope**      | ALL primării             | ONE primărie                       | Survey data (separate app) |
+| **Created By** | Pre-created (1-2 users)  | Global Admin                       | Pre-created                |
+| **Creates**    | Primărie admins          | Staff users (funcționari)          | None                       |
+| **Status**     | ⏳ 0% (Issue #150)       | ⏳ 0% (Issue #148)                 | ✅ 100% (M7)               |
+
+### Authentication Flow
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant A as Auth System
+    participant G as Global Admin
+    participant P as Primărie Admin
+    participant S as Survey Admin
+
+    U->>A: Login
+    A->>A: Verify credentials
+    A->>A: Check role
+
+    alt super_admin
+        A->>G: Redirect to /app/admin/primariata/
+    else admin
+        A->>A: Check context (URL path)
+        alt /admin/survey/*
+            A->>S: Redirect to /admin/survey/
+        else /app/[judet]/[localitate]/*
+            A->>P: Redirect to /app/[judet]/[localitate]/admin/
+        end
+    else functionar/primar/cetatean
+        A->>P: Redirect to /app/[judet]/[localitate]/
+    end
+```
+
+**Complete Documentation**: See [claudedocs/ADMIN_HIERARCHY.md](claudedocs/ADMIN_HIERARCHY.md) for comprehensive details including API endpoints, dashboard structures, and user journey examples.
 
 ---
 

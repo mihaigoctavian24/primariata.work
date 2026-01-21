@@ -22,6 +22,7 @@ module.exports = {
       2,
       "always",
       [
+        // Phase scopes (aligned with IMPLEMENTATION_ROADMAP.md)
         "phase-0",
         "phase-1",
         "phase-2",
@@ -29,12 +30,21 @@ module.exports = {
         "phase-4",
         "phase-5",
         "phase-6",
-        "auth",
+        // Milestone/Feature scopes
+        "landing", // M1: Landing page
+        "auth", // M1: Authentication
+        "survey", // M7: Survey Platform
+        "cereri", // M2: Cereri Module
+        "integrations", // M3: Integrations (certSIGN, Ghișeul.ro)
+        "dashboard", // M8/M9: Dashboards
+        "admin", // M9: Admin features
+        // Technical scopes
         "api",
         "ui",
         "db",
         "config",
         "deps",
+        "docs", // Documentation updates
       ],
     ],
     "subject-case": [2, "never", ["upper-case"]],

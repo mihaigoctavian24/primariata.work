@@ -1501,6 +1501,88 @@ export type Database = {
           },
         ];
       };
+      user_invitations: {
+        Row: {
+          id: string;
+          email: string;
+          nume: string;
+          prenume: string;
+          rol: "functionar" | "admin";
+          primarie_id: string;
+          departament: string | null;
+          permisiuni: Json | null;
+          token: string;
+          status: "pending" | "accepted" | "expired" | "cancelled";
+          expires_at: string;
+          invited_by: string;
+          invited_at: string;
+          accepted_at: string | null;
+          accepted_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          email: string;
+          nume: string;
+          prenume: string;
+          rol: "functionar" | "admin";
+          primarie_id: string;
+          departament?: string | null;
+          permisiuni?: Json | null;
+          token?: string;
+          status?: "pending" | "accepted" | "expired" | "cancelled";
+          expires_at?: string;
+          invited_by: string;
+          invited_at?: string;
+          accepted_at?: string | null;
+          accepted_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          email?: string;
+          nume?: string;
+          prenume?: string;
+          rol?: "functionar" | "admin";
+          primarie_id?: string;
+          departament?: string | null;
+          permisiuni?: Json | null;
+          token?: string;
+          status?: "pending" | "accepted" | "expired" | "cancelled";
+          expires_at?: string;
+          invited_by?: string;
+          invited_at?: string;
+          accepted_at?: string | null;
+          accepted_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "user_invitations_primarie_id_fkey";
+            columns: ["primarie_id"];
+            isOneToOne: false;
+            referencedRelation: "primarii";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "user_invitations_invited_by_fkey";
+            columns: ["invited_by"];
+            isOneToOne: false;
+            referencedRelation: "utilizatori";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "user_invitations_accepted_by_fkey";
+            columns: ["accepted_by"];
+            isOneToOne: false;
+            referencedRelation: "utilizatori";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       notifications: {
         Row: {
           id: string;

@@ -131,6 +131,8 @@ Stack tehnologic și development
 - **[📖 Overview](./04-Implementare/)** - Introducere implementare
 - **[🛠️ Stack Tehnologic](./04-Implementare/Stack-Tehnologic.md)** - Next.js, React, Supabase
 - **[📊 Research Analysis](./04-Implementare/Research-Analysis.md)** - ✅ AI Dashboard (M7)
+- **[👥 User Dashboards](./04-Implementare/)** - 🔄 În lucru (M8 ~50%)
+- **[🏛️ Admin Dashboards](./04-Implementare/)** - 🔄 În lucru (M9 ~10%)
 - **[⚙️ Setup Development](./04-Implementare/)** - ⏳ În lucru (M6)
 - **[🔄 Workflow](./04-Implementare/)** - ⏳ În lucru (M6)
 - **[🧪 Testare](./04-Implementare/)** - ⏳ În lucru (M6)
@@ -147,9 +149,10 @@ Ghiduri pentru utilizatori
 
 - **[📖 Overview](./05-Utilizare/)** - Introducere utilizare
 - **[📊 Research Dashboard](./05-Utilizare/Research-Dashboard.md)** - ✅ Ghid AI Analysis (M7)
-- **[👤 Ghid Cetățean](./05-Utilizare/)** - ⏳ În lucru (M6)
-- **[👔 Ghid Funcționar](./05-Utilizare/)** - ⏳ În lucru (M6)
-- **[⚙️ Ghid Administrator](./05-Utilizare/)** - ⏳ În lucru (M6)
+- **[👤 Ghid Cetățean](./05-Utilizare/)** - ⏳ Planificat (M8)
+- **[👔 Ghid Funcționar](./05-Utilizare/)** - ⏳ Planificat (M9)
+- **[🏛️ Ghid Admin Primărie](./05-Utilizare/)** - ⏳ Planificat (M9)
+- **[🌍 Ghid Super-Admin](./05-Utilizare/)** - ⏳ Planificat (M9)
 - **[❓ FAQ](./05-Utilizare/)** - ⏳ În lucru (M6)
 
 **Status**: 🟡 20% (1/5 documente)
@@ -209,10 +212,10 @@ gantt
 | **01-Prezentare**   | 100%       | ✅ COMPLETE    | 6/6       | ✅ Done         |
 | **02-Cerinte**      | 100%       | ✅ COMPLETE    | 5/5       | ✅ Done         |
 | **03-Arhitectura**  | 100%       | ✅ COMPLETE    | 6/6       | ✅ Done         |
-| **04-Implementare** | 25%        | 🟡 PARȚIAL     | 1/4       | 29 Nov 2025     |
-| **05-Utilizare**    | 0%         | 🔴 TODO        | 0/4       | 29 Nov 2025     |
+| **04-Implementare** | 40%        | 🟡 PARȚIAL     | 2/5       | 29 Nov 2025     |
+| **05-Utilizare**    | 20%        | 🟡 PARȚIAL     | 1/5       | 29 Nov 2025     |
 | **06-Anexe**        | 0%         | 🔴 TODO        | 0/4       | 29 Nov 2025     |
-| **TOTAL**           | **72%**    | 🟡 IN PROGRESS | **18/25** | **29 Nov 2025** |
+| **TOTAL**           | **74%**    | 🟡 IN PROGRESS | **20/27** | **29 Nov 2025** |
 
 ---
 

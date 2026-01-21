@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📚 Documentation
+    url: https://github.com/mihaigoctavian24/primariata.work/blob/main/README.md
+    about: Read the documentation first
+  - name: 💬 Questions & Discussions
+    url: https://github.com/mihaigoctavian24/primariata.work/discussions
+    about: Ask questions or discuss ideas
+  - name: 🏷️ Labels Guide
+    url: https://github.com/mihaigoctavian24/primariata.work/blob/main/.github/LABELS_GUIDE.md
+    about: Learn about our labeling system

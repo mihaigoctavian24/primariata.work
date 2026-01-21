@@ -42,8 +42,13 @@ interface DashboardSidebarProps {
   open: boolean;
   onToggle: () => void;
   isMobile: boolean;
-  judet: string;
-  localitate: string;
+  judet?: string;
+  localitate?: string;
+  customNavigationLinks?: NavigationLink[];
+  customBadge?: {
+    label: string;
+    className?: string;
+  };
 }
 
 export function DashboardSidebar({
@@ -52,20 +57,24 @@ export function DashboardSidebar({
   isMobile,
   judet,
   localitate,
+  customNavigationLinks,
+  customBadge,
 }: DashboardSidebarProps) {
   const pathname = usePathname();
-  const baseHref = `/app/${judet}/${localitate}`;
+  const baseHref = judet && localitate ? `/app/${judet}/${localitate}` : "";
   const [userId, setUserId] = useState<string | null>(null);
 
-  // Get current user for notifications
+  // Get current user for notifications (only for citizen dashboard)
   useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setUserId(user?.id || null);
-    });
-  }, []);
+    if (!customNavigationLinks) {
+      const supabase = createClient();
+      supabase.auth.getUser().then(({ data: { user } }) => {
+        setUserId(user?.id || null);
+      });
+    }
+  }, [customNavigationLinks]);
 
-  // Fetch unread count with React Query (syncs with mutations)
+  // Fetch unread count with React Query (only for citizen dashboard)
   const { data: unreadCountData } = useQuery({
     queryKey: ["unread-notifications-count", userId],
     queryFn: async () => {
@@ -81,13 +90,14 @@ export function DashboardSidebar({
 
       return count || 0;
     },
-    enabled: !!userId,
+    enabled: !!userId && !customNavigationLinks,
     refetchOnWindowFocus: true,
   });
 
   const unreadCount = unreadCountData || 0;
 
-  const navigationLinks: NavigationLink[] = [
+  // Use custom navigation links or default citizen links
+  const navigationLinks: NavigationLink[] = customNavigationLinks || [
     { href: `${baseHref}`, label: "Dashboard", icon: Home },
     { href: `${baseHref}/cereri`, label: "Cererile Mele", icon: FileText },
     { href: `${baseHref}/documente`, label: "Documente", icon: File },
@@ -97,7 +107,7 @@ export function DashboardSidebar({
   ];
 
   const isActiveLink = (href: string) => {
-    if (href === baseHref) {
+    if (href === baseHref || (baseHref && href === `${baseHref}/`)) {
       return pathname === baseHref;
     }
     return pathname.startsWith(href);
@@ -139,7 +149,12 @@ export function DashboardSidebar({
 
             {/* Logo Section */}
             <div className="flex h-20 items-center justify-between px-6">
-              <Link href={baseHref} className="flex items-center">
+              <Link
+                href={
+                  baseHref || (customNavigationLinks ? customNavigationLinks[0]?.href || "/" : "/")
+                }
+                className="flex items-center"
+              >
                 <h1 className="text-xl font-bold md:text-2xl">
                   <span className="inline-block whitespace-nowrap">
                     <TextType
@@ -205,6 +220,20 @@ export function DashboardSidebar({
                 </button>
               )}
             </div>
+
+            {/* Custom Badge (for admin panel, etc.) */}
+            {customBadge && (
+              <div
+                className={cn(
+                  "mx-4 mb-4 rounded-lg border px-3 py-2",
+                  customBadge.className || "border-border/40 bg-primary/10 text-primary"
+                )}
+              >
+                <p className="text-xs font-semibold tracking-wider uppercase">
+                  {customBadge.label}
+                </p>
+              </div>
+            )}
 
             {/* Navigation Links */}
             <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">

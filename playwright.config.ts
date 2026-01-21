@@ -163,8 +163,7 @@ export default defineConfig({
   preserveOutput: "failures-only",
 
   // =============================================================================
-  // GLOBAL SETUP & TEARDOWN (Optional)
+  // GLOBAL SETUP & TEARDOWN
   // =============================================================================
-  // globalSetup: require.resolve('./e2e/global-setup.ts'),
-  // globalTeardown: require.resolve('./e2e/global-teardown.ts'),
+  globalSetup: require.resolve("./e2e/global-setup.ts"),
 });

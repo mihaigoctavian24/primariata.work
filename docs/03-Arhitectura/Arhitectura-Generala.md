@@ -11,8 +11,12 @@ Documentație detaliată a arhitecturii sistemului **primariaTa❤️\_** - plat
 3. [Diagrama de Ansamblu](#diagrama-de-ansamblu)
 4. [Stack Tehnologic](#stack-tehnologic)
 5. [Pattern-uri Arhitecturale](#pattern-uri-arhitecturale)
-6. [Strategia de Deployment](#strategia-de-deployment)
-7. [Scalabilitate și Performance](#scalabilitate-și-performance)
+6. [Arhitectura Admin](#arhitectura-admin)
+   - [Global Admin](#1-global-admin-super_admin)
+   - [Admin Primărie](#2-admin-primărie-admin)
+   - [Survey Admin](#3-survey-admin-adminsuper_admin)
+7. [Strategia de Deployment](#strategia-de-deployment)
+8. [Scalabilitate și Performance](#scalabilitate-și-performance)
 
 ---
 
@@ -457,6 +461,343 @@ graph TB
 - **Romania**: ~50ms (Bucharest edge)
 - **Europe**: ~80ms (Frankfurt, London edges)
 - **Global**: <200ms (45+ edge locations)
+
+---
+
+## 🏛️ Arhitectura Admin
+
+Platforma implementează o **ierarhie administrativă pe trei niveluri** pentru management complet al platformei și primăriilor:
+
+### Prezentare Generală Ierarhie
+
+```mermaid
+graph TB
+    subgraph "Nivel Platformă"
+        GlobalAdmin[🌍 Global Admin<br/>super_admin<br/>/app/admin/primariata/]
+    end
+
+    subgraph "Nivel Primărie"
+        PrimarieAdmin1[🏛️ Admin Primărie<br/>admin<br/>/app/cluj/cluj-napoca/admin/]
+        PrimarieAdmin2[🏛️ Admin Primărie<br/>admin<br/>/app/bucuresti/bucuresti/admin/]
+        PrimarieAdmin3[🏛️ Admin Primărie<br/>admin<br/>/app/timis/timisoara/admin/]
+    end
+
+    subgraph "Nivel Staff"
+        Staff1[👥 Personal<br/>functionar/primar]
+        Staff2[👥 Personal<br/>functionar/primar]
+        Staff3[👥 Personal<br/>functionar/primar]
+    end
+
+    subgraph "Aplicație Separată"
+        SurveyAdmin[🔬 Survey Admin<br/>admin/super_admin<br/>/admin/survey/]
+    end
+
+    GlobalAdmin -->|Creează & Invită| PrimarieAdmin1
+    GlobalAdmin -->|Creează & Invită| PrimarieAdmin2
+    GlobalAdmin -->|Creează & Invită| PrimarieAdmin3
+
+    PrimarieAdmin1 -->|Invită Staff| Staff1
+    PrimarieAdmin2 -->|Invită Staff| Staff2
+    PrimarieAdmin3 -->|Invită Staff| Staff3
+```
+
+### 1. Global Admin (super_admin)
+
+**Locație**: `/app/admin/primariata/`
+**Scop**: Management la nivel de platformă (TOATE primăriile)
+
+**Responsabilități**:
+
+- Vizualizare statistici la nivel de platformă (toate primăriile combinate)
+- Management primării (creare, editare, activare/dezactivare)
+- Creare și invitare admini de primărie (câte unul per oraș)
+- Configurare setări de platformă și feature flags
+- Vizualizare audit logs la nivel de platformă
+- Monitorizare stare sistem și performanță
+
+**Status Implementare**: ⏳ Issue #150 (0% - Nu implementat, estimat 10h)
+
+**RLS Policy**:
+
+```sql
+-- Super admin vede TOATE datele din TOATE primăriile
+CREATE POLICY super_admin_full_access ON utilizatori
+FOR ALL TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM utilizatori
+    WHERE id = auth.uid()
+    AND rol = 'super_admin'
+  )
+);
+```
+
+**API Endpoints**:
+
+```typescript
+// Platform-wide statistics
+GET /api/admin/platform/stats
+Response: {
+  totalPrimarii: 100,
+  totalUsers: 10000,
+  totalCereri: 50000,
+  activeToday: 1200
+}
+
+// Manage primării
+POST /api/admin/platform/primarii
+PUT /api/admin/platform/primarii/:id
+DELETE /api/admin/platform/primarii/:id
+
+// Invite primărie admin
+POST /api/admin/platform/invite-admin
+Body: {
+  email: "admin@primarie.ro",
+  primarie_id: "uuid",
+  role: "admin"
+}
+```
+
+### 2. Admin Primărie (admin)
+
+**Locație**: `/app/[judet]/[localitate]/admin/`
+**Scop**: Management la nivel de primărie (DOAR primăria lor, RLS enforced)
+
+**Structură Dashboard**:
+
+```
+/app/[judet]/[localitate]/admin/
+├── page.tsx                    # Prezentare generală stare platformă
+├── users/                      # Management utilizatori
+│   ├── page.tsx                # Lista utilizatori (tabel)
+│   ├── invite/page.tsx         # Invitare staff
+│   └── [id]/page.tsx           # Detalii utilizator
+├── cereri/                     # Supraveghere cereri
+│   ├── page.tsx                # Toate cererile (tabel)
+│   └── [id]/page.tsx           # Detalii cerere
+├── plati/                      # Supraveghere plăți
+│   ├── page.tsx                # Toate plățile (tabel)
+│   └── [id]/page.tsx           # Detalii plată
+├── reports/page.tsx            # Rapoarte & analytics
+└── activity/page.tsx           # Log activitate
+```
+
+**Responsabilități**:
+
+- Management utilizatori primărie (cetățeni, funcționari, primar)
+- Invitare staff (funcționari, primar) prin email
+- Supraveghere cereri și plăți din primărie
+- Generare rapoarte și analytics
+- Vizualizare log activitate
+- Configurare setări primărie
+
+**Status Implementare**: ⏳ Issue #148 (0% - Blocat de #152, estimat 12h)
+
+**RLS Policy**:
+
+```sql
+-- Admin vede DOAR datele primăriei sale
+CREATE POLICY admin_primarie_access ON utilizatori
+FOR ALL TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM utilizatori u
+    WHERE u.id = auth.uid()
+    AND u.rol = 'admin'
+    AND u.primarie_id = utilizatori.primarie_id
+  )
+);
+```
+
+**API Endpoints**:
+
+```typescript
+// Users management
+GET /api/admin/users?primarie_id=uuid
+POST /api/admin/users/invite
+Body: {
+  email: "functionar@primarie.ro",
+  role: "functionar",
+  primarie_id: "uuid"
+}
+
+// Cereri oversight
+GET /api/admin/cereri?primarie_id=uuid&status=in_progress
+GET /api/admin/cereri/stats?primarie_id=uuid
+
+// Plăți oversight
+GET /api/admin/plati?primarie_id=uuid&status=pending
+GET /api/admin/plati/stats?primarie_id=uuid
+
+// Reports
+GET /api/admin/reports/activity?primarie_id=uuid&from=date&to=date
+GET /api/admin/reports/performance?primarie_id=uuid
+```
+
+### 3. Survey Admin (admin/super_admin)
+
+**Locație**: `/admin/survey/` și `/admin/survey/research/`
+**Scop**: Analytics și research (APLICAȚIE COMPLET SEPARATĂ)
+
+**Caracteristici**:
+
+- Analiză răspunsuri survey cu AI (GPT-4o-mini)
+- Export date (Excel/CSV/PDF/JSON)
+- Insights demographics și corelații
+- Analytics real-time și trends
+- Dashboard research cu AI-powered insights
+
+**Status Implementare**: ✅ M7 - 100% Complete (aplicație funcțională)
+
+**Access Control**:
+
+```typescript
+// Both admin and super_admin can access Survey Admin
+function canAccessSurveyAdmin(userRole: Role): boolean {
+  return userRole === "admin" || userRole === "super_admin";
+}
+```
+
+**Separare Aplicații**:
+Survey Admin este o aplicație complet separată de aplicația principală de primărie. Are propriile sale rute, componente, și logică de business.
+
+### Flow Autentificare Admin
+
+```mermaid
+sequenceDiagram
+    participant U as Utilizator
+    participant A as Sistem Auth
+    participant G as Global Admin
+    participant P as Admin Primărie
+    participant S as Survey Admin
+
+    U->>A: Login
+    A->>A: Verificare credențiale
+    A->>A: Verificare rol
+
+    alt super_admin
+        A->>G: Redirect /app/admin/primariata/
+    else admin
+        A->>A: Verificare context (URL path)
+        alt /admin/survey/*
+            A->>S: Redirect /admin/survey/
+        else /app/[judet]/[localitate]/*
+            A->>P: Redirect /app/[judet]/[localitate]/admin/
+        end
+    else functionar/primar/cetatean
+        A->>P: Redirect /app/[judet]/[localitate]/
+    end
+```
+
+### Tabel Comparativ Admin
+
+| Caracteristică | Global Admin              | Admin Primărie                   | Survey Admin         |
+| -------------- | ------------------------- | -------------------------------- | -------------------- |
+| **Rol**        | super_admin               | admin                            | admin/super_admin    |
+| **Scop**       | TOATE primăriile          | O primărie                       | Research & Analytics |
+| **Locație**    | /app/admin/primariata/    | /app/[judet]/[localitate]/admin/ | /admin/survey/       |
+| **RLS Scope**  | Toate datele              | primarie_id filtered             | Public survey data   |
+| **Poate crea** | Primării, Admini primărie | Staff (funcționari, primar)      | N/A (read-only)      |
+| **Acces date** | Platforma completă        | Doar primăria sa                 | Date survey publice  |
+| **Status**     | ⏳ 0% (Issue #150)        | ⏳ 0% (Issue #148)               | ✅ 100% (M7)         |
+
+### Ierarhie de Creare
+
+```mermaid
+graph LR
+    A[Global Admin] -->|Creează| B[Primărie]
+    A -->|Invită| C[Admin Primărie]
+    C -->|Invită| D[Funcționar]
+    C -->|Invită| E[Primar]
+
+    style A fill:#ea4335
+    style C fill:#fbbc04
+    style D fill:#34a853
+    style E fill:#4285f4
+```
+
+**Flux complet**:
+
+1. **Global Admin** creează primărie nouă în sistem
+2. **Global Admin** invită un admin pentru acea primărie (email cu link activare)
+3. **Admin Primărie** se autentifică și configurează primăria
+4. **Admin Primărie** invită staff (funcționari, primar) prin email
+5. **Staff** se autentifică și începe să proceseze cereri
+
+### Izolare Date și Securitate
+
+**Multi-tenancy prin RLS**:
+
+```sql
+-- Exemplu de policy pentru cereri
+CREATE POLICY tenant_isolation_cereri ON cereri
+FOR ALL TO authenticated
+USING (
+  CASE
+    -- Super admin: access to ALL
+    WHEN EXISTS (
+      SELECT 1 FROM utilizatori
+      WHERE id = auth.uid() AND rol = 'super_admin'
+    ) THEN true
+
+    -- Admin/Staff: only their primărie
+    WHEN primarie_id = (
+      SELECT primarie_id FROM utilizatori
+      WHERE id = auth.uid()
+    ) THEN true
+
+    ELSE false
+  END
+);
+```
+
+**Middleware Verification**:
+
+```typescript
+// middleware.ts
+export async function middleware(request: NextRequest) {
+  const user = await getUser(request);
+  const path = request.nextUrl.pathname;
+
+  // Global admin routes
+  if (path.startsWith("/app/admin/primariata")) {
+    if (user?.rol !== "super_admin") {
+      return NextResponse.redirect("/unauthorized");
+    }
+  }
+
+  // Primărie admin routes
+  if (path.includes("/admin") && !path.includes("primariata")) {
+    if (!["admin", "super_admin"].includes(user?.rol)) {
+      return NextResponse.redirect("/unauthorized");
+    }
+  }
+
+  return NextResponse.next();
+}
+```
+
+### Best Practices Admin
+
+1. **Separarea Rolurilor**:
+   - Super admin: Nu se implică în operațiuni zilnice ale primăriilor
+   - Admin primărie: Focus pe managementul primăriei sale
+   - Survey admin: Analiză și research, fără modificări la date operaționale
+
+2. **Audit Logging**:
+   - Toate acțiunile admin sunt logate cu timestamp, user_id, action, details
+   - Retention: 2 ani pentru compliance
+   - Query: `SELECT * FROM audit_logs WHERE user_id = ? AND action_type = 'admin_action'`
+
+3. **Rate Limiting**:
+   - Global admin: 100 requests/minute
+   - Admin primărie: 50 requests/minute
+   - Protecție împotriva abuse
+
+4. **Two-Factor Authentication** (Viitor):
+   - Obligatoriu pentru super_admin
+   - Opțional pentru admin primărie
+   - Implementare cu Supabase Auth + TOTP
 
 ---
 

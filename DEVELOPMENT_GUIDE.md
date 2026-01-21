@@ -23,6 +23,7 @@ Step-by-step guides for common development tasks, from setup to deployment
   - [Creating a Database Migration](#creating-a-database-migration)
   - [Adding a New Form](#adding-a-new-form)
   - [Implementing Authentication](#implementing-authentication)
+  - [Admin Dashboard Development](#admin-dashboard-development)
 - [Database Management](#database-management)
 - [Testing Guide](#testing-guide)
 - [Debugging Techniques](#debugging-techniques)
@@ -863,6 +864,197 @@ export function LoginForm() {
   );
 }
 ```
+
+---
+
+### Admin Dashboard Development
+
+**Scenario**: Build admin features with proper role-based access control
+
+The platform implements a **three-level admin hierarchy**:
+
+1. **Global Admin (super_admin)** - Platform-wide management at `/app/admin/primariata/`
+2. **Primărie Admin (admin)** - Per-city management at `/app/[judet]/[localitate]/admin/`
+3. **Survey Admin (admin/super_admin)** - Analytics at `/admin/survey/`
+
+**Important**: See full documentation in [docs/03-Arhitectura/Admin-Hierarchy-RO.md](docs/03-Arhitectura/Admin-Hierarchy-RO.md)
+
+**Steps:**
+
+1. **Check user role** (server-side):
+
+```typescript
+// src/app/api/admin/platform/stats/route.ts
+import { createServerClient } from "@/lib/supabase/server";
+import { NextResponse } from "next/server";
+
+export async function GET() {
+  const supabase = await createServerClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // Check if super_admin
+  const { data: userData } = await supabase
+    .from("utilizatori")
+    .select("rol")
+    .eq("id", user.id)
+    .single();
+
+  if (userData?.rol !== "super_admin") {
+    return NextResponse.json({ error: "Forbidden: super_admin only" }, { status: 403 });
+  }
+
+  // Fetch platform-wide stats
+  const { data: stats } = await supabase.rpc("get_platform_stats");
+
+  return NextResponse.json(stats);
+}
+```
+
+2. **Conditional rendering** (client-side):
+
+```typescript
+// src/components/admin/admin-nav.tsx
+"use client";
+
+import { useUser } from "@/hooks/use-user";
+import Link from "next/link";
+
+export function AdminNav() {
+  const { profile } = useUser();
+
+  if (!profile || !["admin", "super_admin"].includes(profile.rol)) {
+    return null;
+  }
+
+  return (
+    <nav>
+      {/* Admin of their primărie */}
+      {profile.rol === "admin" && (
+        <Link href={`/app/${profile.judet}/${profile.localitate}/admin`}>
+          Admin Panel
+        </Link>
+      )}
+
+      {/* Super admin platform-wide */}
+      {profile.rol === "super_admin" && (
+        <>
+          <Link href="/app/admin/primariata">Global Admin</Link>
+          <Link href="/admin/survey">Survey Analytics</Link>
+        </>
+      )}
+    </nav>
+  );
+}
+```
+
+3. **RLS policies** (database):
+
+```sql
+-- Global Admin: sees all data
+CREATE POLICY "super_admin_full_access" ON utilizatori
+FOR ALL TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM utilizatori
+    WHERE id = auth.uid()
+    AND rol = 'super_admin'
+  )
+);
+
+-- Primărie Admin: sees only their primărie
+CREATE POLICY "admin_primarie_access" ON cereri
+FOR ALL TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM utilizatori
+    WHERE id = auth.uid()
+    AND rol = 'admin'
+    AND primarie_id = cereri.primarie_id
+  )
+);
+```
+
+4. **Permission helper**:
+
+```typescript
+// src/lib/permissions.ts
+export async function checkAdminPermission(
+  userId: string,
+  requiredRole: "admin" | "super_admin",
+  primarieId?: string
+): Promise<boolean> {
+  const supabase = await createServerClient();
+
+  const { data: user } = await supabase
+    .from("utilizatori")
+    .select("rol, primarie_id")
+    .eq("id", userId)
+    .single();
+
+  if (!user) return false;
+
+  // Super admin: can access everything
+  if (user.rol === "super_admin") return true;
+
+  // Admin: only their primărie
+  if (requiredRole === "admin" && user.rol === "admin") {
+    return !primarieId || user.primarie_id === primarieId;
+  }
+
+  return false;
+}
+```
+
+5. **Testing admin features**:
+
+```typescript
+// tests/e2e/admin.spec.ts
+import { test, expect } from "@playwright/test";
+
+test.describe("Admin Dashboard", () => {
+  test("super_admin can access platform stats", async ({ page }) => {
+    // Login as super_admin
+    await page.goto("/login");
+    await page.fill('input[type="email"]', "admin@primariata.ro");
+    await page.fill('input[type="password"]', "test123");
+    await page.click('button[type="submit"]');
+
+    // Navigate to platform admin
+    await page.goto("/app/admin/primariata");
+    await expect(page.locator("h1")).toContainText("Platform Admin");
+
+    // Check stats are visible
+    await expect(page.locator('[data-testid="total-primarii"]')).toBeVisible();
+  });
+
+  test("admin cannot access other primărie data", async ({ page }) => {
+    // Login as admin
+    await page.goto("/login");
+    await page.fill('input[type="email"]', "admin@cluj.ro");
+    await page.fill('input[type="password"]', "test123");
+    await page.click('button[type="submit"]');
+
+    // Try to access different primărie
+    await page.goto("/app/bucuresti/bucuresti/admin");
+
+    // Should be forbidden or redirected
+    await expect(page).toHaveURL(/\/app\/cluj\//);
+  });
+});
+```
+
+**Key Resources**:
+
+- [Admin Hierarchy (Romanian)](docs/03-Arhitectura/Admin-Hierarchy-RO.md)
+- [Admin Architecture](docs/03-Arhitectura/Arhitectura-Generala.md#arhitectura-admin)
+- [Admin API Reference](docs/03-Arhitectura/API-si-Backend.md#admin-api)
 
 ---
 

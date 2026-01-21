@@ -1,11 +1,17 @@
 // Jest setup file for global test configuration
+// Load environment variables from .env.local
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+require("dotenv").config({ path: ".env.local" });
+
 import "@testing-library/jest-dom";
 
-// Mock environment variables for tests
+// Mock environment variables for tests (use defaults only if not set in .env.local)
 process.env.NEXT_PUBLIC_SUPABASE_URL =
   process.env.NEXT_PUBLIC_SUPABASE_URL || "http://localhost:54321";
 process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY =
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "mock-anon-key";
+process.env.SUPABASE_SERVICE_ROLE_KEY =
+  process.env.SUPABASE_SERVICE_ROLE_KEY || "mock-service-role-key";
 process.env.OPENAI_API_KEY = process.env.OPENAI_API_KEY || "mock-openai-key";
 
 // Mock fetch globally for OpenAI client

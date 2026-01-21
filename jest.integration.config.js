@@ -8,7 +8,7 @@ const createJestConfig = nextJest({
 // Integration test configuration
 const customJestConfig = {
   displayName: "integration",
-  setupFilesAfterEnv: ["<rootDir>/jest.setup.js"],
+  setupFilesAfterEnv: ["<rootDir>/jest.integration.setup.js"],
 
   // Use node environment for API route testing
   testEnvironment: "node",
