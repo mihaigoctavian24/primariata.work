@@ -58,9 +58,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   // Admin-specific navigation links
   const adminNavigationLinks = [
-    { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/admin/users", label: "Echipă", icon: Users },
+    { href: "/admin/primariata", label: "Global Admin", icon: LayoutDashboard },
     { href: "/admin/survey", label: "Survey Platform", icon: BarChart3 },
+    { href: "/admin/users", label: "Echipă (Vechi)", icon: Users }, // Temporary - old location
     { href: "/admin/settings", label: "Setări Admin", icon: Settings },
   ];
 
