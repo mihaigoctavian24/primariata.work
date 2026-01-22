@@ -100,7 +100,7 @@ export default async function PrimariManagementPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {primarii?.filter((p) => p.activ).length ?? 0}
+                {primarii?.filter((p) => p.activa).length ?? 0}
               </div>
             </CardContent>
           </Card>
@@ -112,7 +112,7 @@ export default async function PrimariManagementPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {primarii?.filter((p) => !p.activ).length ?? 0}
+                {primarii?.filter((p) => !p.activa).length ?? 0}
               </div>
             </CardContent>
           </Card>
@@ -160,8 +160,8 @@ export default async function PrimariManagementPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <Badge variant={primarie.activ ? "default" : "secondary"}>
-                        {primarie.activ ? "Activ" : "Inactiv"}
+                      <Badge variant={primarie.activa ? "default" : "secondary"}>
+                        {primarie.activa ? "Activ" : "Inactiv"}
                       </Badge>
                       <Button variant="outline" size="sm" disabled>
                         <Users className="mr-2 h-4 w-4" />

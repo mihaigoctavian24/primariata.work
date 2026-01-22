@@ -169,7 +169,10 @@ export default async function AdminsManagementPage() {
                         </div>
                         <div className="text-muted-foreground mt-1 flex items-center gap-1 text-xs">
                           <Calendar className="h-3 w-3" />
-                          Înregistrat: {format(new Date(admin.created_at), "dd MMM yyyy")}
+                          Înregistrat:{" "}
+                          {admin.created_at
+                            ? format(new Date(admin.created_at), "dd MMM yyyy")
+                            : "N/A"}
                         </div>
                       </div>
                     </div>

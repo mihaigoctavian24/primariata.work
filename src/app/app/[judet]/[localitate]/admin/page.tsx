@@ -90,6 +90,12 @@ export default async function PrimarieAdminPage({
   // Fetch primărie-specific metrics (filtered by primarie_id)
   const primarieId = userData.primarie_id;
 
+  // CRITICAL: primarie_id must exist for admin
+  if (!primarieId) {
+    console.error("❌ Admin user has no primarie_id");
+    redirect("/auth/login");
+  }
+
   const { count: totalStaff } = await supabase
     .from("utilizatori")
     .select("*", { count: "exact", head: true })
@@ -106,11 +112,17 @@ export default async function PrimarieAdminPage({
     .select("*", { count: "exact", head: true })
     .eq("primarie_id", primarieId);
 
-  const { count: totalCeteni } = await supabase
-    .from("utilizatori")
-    .select("*", { count: "exact", head: true })
-    .eq("rol", "cetatean")
-    .eq("localitate_id", (userData as UserDataWithRelations).primarii?.localitati?.id);
+  const localitateId = (userData as UserDataWithRelations).primarii?.localitati?.id;
+  const totalCeteni =
+    localitateId && !isNaN(Number(localitateId))
+      ? (
+          await supabase
+            .from("utilizatori")
+            .select("*", { count: "exact", head: true })
+            .eq("rol", "cetatean")
+            .eq("localitate_id", Number(localitateId))
+        ).count
+      : null;
 
   const staffCount = totalStaff ?? 0;
   const cereriCount = totalCereri ?? 0;
