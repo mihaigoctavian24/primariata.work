@@ -338,15 +338,18 @@ export function AcceptInviteForm({ token }: AcceptInviteFormProps) {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           {/* Email (read-only) */}
-          <FormItem>
-            <FormLabel>Email</FormLabel>
-            <FormControl>
-              <Input type="email" value={invitation.email} disabled className="bg-muted" />
-            </FormControl>
+          <div className="space-y-2">
+            <label
+              htmlFor="email"
+              className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              Email
+            </label>
+            <Input id="email" type="email" value={invitation.email} disabled className="bg-muted" />
             <p className="text-muted-foreground text-xs">
               Email-ul tău este pre-completat din invitație
             </p>
-          </FormItem>
+          </div>
 
           {/* Password */}
           <FormField

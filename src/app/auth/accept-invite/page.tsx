@@ -3,10 +3,11 @@
 import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { AuthLayout } from "@/components/auth/AuthLayout";
+import { AuthHeader } from "@/components/auth/AuthHeader";
+import { LocationBadge } from "@/components/auth/LocationBadge";
 import { AcceptInviteForm } from "@/components/auth/AcceptInviteForm";
 import { AnimatedCard } from "@/components/ui/animated-card";
 import { motion } from "framer-motion";
-import { Users, Shield, CheckCircle2 } from "lucide-react";
 
 /**
  * Accept Invitation Page
@@ -46,90 +47,70 @@ function AcceptInviteContent() {
       showHero
       heroContent={
         <div className="flex h-full flex-col items-center justify-center space-y-8 px-8">
-          {/* Icon and Welcome */}
+          {/* Location Badge */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9, y: -20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="flex flex-col items-center space-y-6"
           >
-            <div className="relative">
-              <div className="bg-primary/20 absolute inset-0 animate-pulse rounded-full blur-xl" />
-              <div className="from-primary to-primary/80 relative flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br shadow-xl">
-                <Users className="h-12 w-12 text-white" />
-              </div>
-            </div>
-
-            <div className="space-y-2 text-center">
-              <h1 className="bg-gradient-to-br from-white to-white/80 bg-clip-text text-4xl font-bold text-transparent">
-                Bine ai venit în echipă!
-              </h1>
-              <p className="text-lg text-white/80">Crează-ți contul pentru a începe</p>
-            </div>
+            <LocationBadge />
           </motion.div>
 
-          {/* Benefits */}
+          {/* Title */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.5 }}
-            className="w-full max-w-md space-y-4"
+            className="space-y-4 text-center"
           >
-            <div className="flex items-start space-x-3">
-              <CheckCircle2 className="mt-1 h-5 w-5 text-white/90" />
-              <div>
-                <p className="font-medium text-white">Acces personalizat</p>
-                <p className="text-sm text-white/70">Permisiuni specifice rolului tău</p>
-              </div>
-            </div>
+            <h1
+              className="text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl"
+              style={{ filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4))" }}
+            >
+              Alătură-te echipei!
+            </h1>
+            <p
+              className="text-muted-foreground text-lg md:text-xl"
+              style={{ filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))" }}
+            >
+              Ai fost invitat să te alături primăriei tale
+            </p>
+          </motion.div>
 
-            <div className="flex items-start space-x-3">
-              <Shield className="mt-1 h-5 w-5 text-white/90" />
-              <div>
-                <p className="font-medium text-white">Securitate garantată</p>
-                <p className="text-sm text-white/70">Invitație validată de administrator</p>
-              </div>
-            </div>
-
-            <div className="flex items-start space-x-3">
-              <Users className="mt-1 h-5 w-5 text-white/90" />
-              <div>
-                <p className="font-medium text-white">Lucru în echipă</p>
-                <p className="text-sm text-white/70">Colaborare eficientă cu colegii</p>
-              </div>
-            </div>
+          {/* Decorative Elements */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.8 }}
+            className="flex gap-4"
+          >
+            <div className="bg-primary/20 h-2 w-16 rounded-full" />
+            <div className="bg-primary/40 h-2 w-16 rounded-full" />
+            <div className="bg-primary/60 h-2 w-16 rounded-full" />
           </motion.div>
         </div>
       }
     >
-      <div className="flex min-h-screen items-center justify-center p-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="w-full max-w-md"
-        >
-          <AnimatedCard className="overflow-hidden">
-            {/* Header */}
-            <div className="from-primary/5 to-primary/10 border-b bg-gradient-to-r p-6">
-              <div className="space-y-2 text-center">
-                <h1 className="text-2xl font-bold tracking-tight">Acceptă invitația</h1>
-                <p className="text-muted-foreground">Completează datele pentru a-ți crea contul</p>
-              </div>
-            </div>
+      <div className="flex min-h-screen items-center justify-center p-4 sm:p-6 lg:p-8">
+        {/* Form Card */}
+        <AnimatedCard delay={0.6} glassEffect className="w-full max-w-md space-y-8">
+          {/* Header */}
+          <div className="space-y-2 text-center">
+            <h2 className="text-2xl font-bold tracking-tight">Acceptă invitația</h2>
+            <p className="text-muted-foreground text-sm">
+              Completează datele pentru a-ți crea contul
+            </p>
+          </div>
 
-            {/* Form */}
-            <div className="p-6">
-              <AcceptInviteForm token={token} />
-            </div>
-          </AnimatedCard>
+          {/* Form */}
+          <AcceptInviteForm token={token} />
 
           {/* Help Text */}
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-muted-foreground mt-4 text-center text-sm"
+            className="text-muted-foreground text-center text-sm"
           >
             Ai întrebări?{" "}
             <a
@@ -139,7 +120,7 @@ function AcceptInviteContent() {
               Contactează suportul
             </a>
           </motion.p>
-        </motion.div>
+        </AnimatedCard>
       </div>
     </AuthLayout>
   );
@@ -147,16 +128,17 @@ function AcceptInviteContent() {
 
 export default function AcceptInvitePage() {
   return (
-    <Suspense
-      fallback={
-        <AuthLayout>
+    <>
+      <AuthHeader showBackButton backHref="/?step=2" />
+      <Suspense
+        fallback={
           <div className="flex min-h-screen items-center justify-center">
-            <p>Se încarcă...</p>
+            <div className="border-primary h-8 w-8 animate-spin rounded-full border-4 border-t-transparent" />
           </div>
-        </AuthLayout>
-      }
-    >
-      <AcceptInviteContent />
-    </Suspense>
+        }
+      >
+        <AcceptInviteContent />
+      </Suspense>
+    </>
   );
 }

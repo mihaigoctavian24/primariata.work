@@ -42,7 +42,7 @@ DECLARE
   user_primarie_id UUID;
   user_departament VARCHAR(200);
   user_permisiuni JSONB;
-  user_localitate_id UUID;
+  user_localitate_id INTEGER;  -- Fixed: Changed from UUID to INTEGER (localitate_id is INTEGER in schema)
 BEGIN
   -- =====================================================
   -- STEP 1: Check for invitation token in metadata

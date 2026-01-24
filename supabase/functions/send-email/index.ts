@@ -134,7 +134,10 @@ serve(async (req: Request) => {
       type
     );
     const isSignatureEmail = ["document_signed", "batch_signature_completed"].includes(type);
-    const isCerereEmail = !isPaymentEmail && !isSignatureEmail;
+    const isAuthEmail = ["staff_invitation", "welcome", "password_reset", "weekly_digest"].includes(
+      type
+    );
+    const isCerereEmail = !isPaymentEmail && !isSignatureEmail && !isAuthEmail;
 
     // Initialize data variables
     let cerere: CerereData | null = null;
@@ -225,7 +228,8 @@ serve(async (req: Request) => {
       }
 
       signature = signatureData as unknown as SignatureData;
-    } else {
+    } else if (!isAuthEmail) {
+      // Auth emails (staff_invitation, welcome, etc.) don't need cerere/plata/signature data
       return new Response(JSON.stringify({ error: "Missing required ID for email type" }), {
         status: 400,
         headers: { "Content-Type": "application/json" },
@@ -241,7 +245,8 @@ serve(async (req: Request) => {
       tipCerereNume,
       plata,
       signature,
-      sessionId
+      sessionId,
+      isAuthEmail ? body : undefined // Pass full body for auth emails (staff_invitation, welcome, etc.)
     );
 
     // Send via SendGrid
@@ -300,7 +305,8 @@ function buildEmailMessage(
   tipCerereNume: string = "Cerere",
   plata: PlataData | null = null,
   signature: SignatureData | null = null,
-  sessionId?: string
+  sessionId?: string,
+  authData?: EmailRequest // For auth emails (staff_invitation, welcome, password_reset, etc.)
 ): SendGridMessage {
   // Status labels in Romanian
   const statusLabels: Record<string, string> = {
@@ -534,8 +540,12 @@ function buildEmailMessage(
     }
 
     case "staff_invitation": {
-      // Extract staff invitation fields from body parameter
-      const { inviteToken, inviteLink, expiresAt, rol, inviterName } = body as EmailRequest;
+      // Extract staff invitation fields from authData parameter
+      if (!authData) {
+        throw new Error("Auth data required for staff_invitation email");
+      }
+
+      const { inviteToken, inviteLink, expiresAt, rol, inviterName } = authData;
 
       if (!inviteToken || !inviteLink || !expiresAt || !rol) {
         throw new Error("Missing required fields for staff_invitation email");
