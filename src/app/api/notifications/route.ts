@@ -29,6 +29,11 @@ export async function GET(request: NextRequest) {
     } = await supabase.auth.getUser();
 
     if (authError || !user) {
+      logger.warn("Notifications API auth failed", {
+        hasAuthError: !!authError,
+        errorMessage: authError?.message,
+        hasCookies: request.headers.has("cookie"),
+      });
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 

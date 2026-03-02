@@ -72,7 +72,13 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
   if (isProtectedRoute && !user) {
     const url = request.nextUrl.clone();
     url.pathname = "/auth/login";
-    url.searchParams.set("redirectTo", request.nextUrl.pathname);
+
+    // Sanitize redirectTo: don't preserve admin paths (would cause redirect loop for non-admins)
+    const originalPath = request.nextUrl.pathname;
+    if (!originalPath.includes("/admin")) {
+      url.searchParams.set("redirectTo", originalPath);
+    }
+
     return redirectWithCookies(url, supabaseResponse);
   }
 
@@ -190,6 +196,27 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
             localitate: localitateSlug,
           },
         });
+      }
+
+      // Cross-primarie guard: redirect users to their own primarie if they navigate to a different one
+      // Uses the saved location cookie as the source of truth for the user's primarie
+      const savedLocation = request.cookies.get("selected_location")?.value;
+      if (savedLocation && association?.status === "approved") {
+        try {
+          const { judetSlug: savedJudet, localitateSlug: savedLocalitate } =
+            JSON.parse(savedLocation);
+          if (
+            savedJudet &&
+            savedLocalitate &&
+            (savedJudet !== judetSlug || savedLocalitate !== localitateSlug)
+          ) {
+            const url = request.nextUrl.clone();
+            url.pathname = `/app/${savedJudet}/${savedLocalitate}`;
+            return redirectWithCookies(url, supabaseResponse);
+          }
+        } catch {
+          // Invalid cookie format -- proceed without redirect
+        }
       }
 
       // Rebuild supabaseResponse to include the updated headers (with x-primarie-id)
