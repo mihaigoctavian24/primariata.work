@@ -30,9 +30,9 @@ Requirements for production-ready release. Each maps to roadmap phases.
 - [x] **FIX-02**: /documente route renders document page (currently 404)
 - [x] **FIX-03**: /admin panel accessible for super_admin users (currently 404)
 - [x] **FIX-04**: /admin/settings page renders settings interface (currently 404)
-- [ ] **FIX-05**: Dashboard search works across cereri and plati (plati search currently 404)
-- [ ] **FIX-06**: Gamification points display consistently (50 pts desktop vs 25 pts mobile)
-- [ ] **FIX-07**: Map widget shows correct location for selected primarie (currently shows Bucharest for all)
+- [x] **FIX-05**: Dashboard search works across cereri and plati (plati search currently 404)
+- [x] **FIX-06**: Gamification points display consistently (50 pts desktop vs 25 pts mobile)
+- [x] **FIX-07**: Map widget shows correct location for selected primarie (currently shows Bucharest for all)
 
 ### Registration & Approval
 
@@ -170,9 +170,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | FIX-02 | Phase 2: Infrastructure & Stabilization | Complete |
 | FIX-03 | Phase 2: Infrastructure & Stabilization | Complete |
 | FIX-04 | Phase 2: Infrastructure & Stabilization | Complete |
-| FIX-05 | Phase 2: Infrastructure & Stabilization | Pending |
-| FIX-06 | Phase 2: Infrastructure & Stabilization | Pending |
-| FIX-07 | Phase 2: Infrastructure & Stabilization | Pending |
+| FIX-05 | Phase 2: Infrastructure & Stabilization | Complete |
+| FIX-06 | Phase 2: Infrastructure & Stabilization | Complete |
+| FIX-07 | Phase 2: Infrastructure & Stabilization | Complete |
 | REG-01 | Phase 3: Registration & Approval | Pending |
 | REG-02 | Phase 3: Registration & Approval | Pending |
 | REG-03 | Phase 3: Registration & Approval | Pending |

@@ -103,7 +103,7 @@ export function CetățeanDashboard({ judet, localitate }: CetățeanDashboardPr
   const { stats, isLoading: statsLoading } = useDashboardStats();
 
   // Fetch recent cereri (last 5)
-  const { isLoading: cereriLoading } = useCereriList({
+  useCereriList({
     page: 1,
     limit: 5,
     sort: "created_at",
@@ -161,7 +161,6 @@ export function CetățeanDashboard({ judet, localitate }: CetățeanDashboardPr
   };
 
   // Loading states
-  const nextStepsLoading = nextStepsQuery.isLoading;
   const documentsLoading = documentsQuery.isLoading;
   const timelineLoading = cereriTimelineQuery.isLoading;
 
