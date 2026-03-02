@@ -15,6 +15,18 @@ import { logger } from "@/lib/logger";
  * 5. CSRF protection (skip webhooks, safe methods)
  * 6. x-primarie-id header injection for downstream consumption
  */
+/**
+ * Create a redirect response that preserves Supabase session cookies.
+ * Without copying cookies, redirects destroy the session and cause auth loops.
+ */
+function redirectWithCookies(url: URL, sourceResponse: NextResponse): NextResponse {
+  const redirectResponse = NextResponse.redirect(url);
+  sourceResponse.cookies.getAll().forEach((cookie) => {
+    redirectResponse.cookies.set(cookie.name, cookie.value, cookie);
+  });
+  return redirectResponse;
+}
+
 export async function middleware(request: NextRequest): Promise<NextResponse> {
   const requestHeaders = new Headers(request.headers);
   let supabaseResponse = NextResponse.next({
@@ -52,18 +64,21 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
   const isWebhookRoute =
     request.nextUrl.pathname.startsWith("/api/webhooks/") ||
     request.nextUrl.pathname === "/api/plati/webhook";
+  const isAdminRoute =
+    request.nextUrl.pathname.startsWith("/admin") &&
+    !request.nextUrl.pathname.startsWith("/admin/login");
 
   // --- Auth redirects ---
   if (isProtectedRoute && !user) {
     const url = request.nextUrl.clone();
     url.pathname = "/auth/login";
     url.searchParams.set("redirectTo", request.nextUrl.pathname);
-    return NextResponse.redirect(url);
+    return redirectWithCookies(url, supabaseResponse);
   }
 
   if (isAuthRoute && user) {
     const savedLocation = request.cookies.get("selected_location")?.value;
-    let redirectPath = "/app/bucuresti/sector-1";
+    let redirectPath = "/app/bucuresti/sector-1-b";
 
     if (savedLocation) {
       try {
@@ -76,7 +91,14 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
 
     const url = request.nextUrl.clone();
     url.pathname = redirectPath;
-    return NextResponse.redirect(url);
+    return redirectWithCookies(url, supabaseResponse);
+  }
+
+  // --- Admin route protection ---
+  if (isAdminRoute && !user) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/admin/login";
+    return redirectWithCookies(url, supabaseResponse);
   }
 
   // --- Primarie context resolution ---
@@ -130,7 +152,6 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
           "/plati",
           "/documente",
           "/admin",
-          "/profil",
           "/setari",
           "/notificari",
         ];
@@ -153,7 +174,7 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
           if (pathAfterLocalitate.length > 0) {
             const url = request.nextUrl.clone();
             url.pathname = `/app/${judetSlug}/${localitateSlug}`;
-            return NextResponse.redirect(url);
+            return redirectWithCookies(url, supabaseResponse);
           }
         }
       } else {
