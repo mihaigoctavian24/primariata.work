@@ -1,607 +1,703 @@
-# primariaTa.work - E2E Functionality Snapshot
+# E2E Functionality Snapshot - primariaTa.work
 
-**Date**: 2026-03-02
-**Tester**: Claude Sonnet 4.6 via Playwright MCP
-**Dev Server**: localhost:3000
-**Next.js**: 15.5.9 (App Router)
-**Testing Method**: Playwright MCP browser automation + curl HTTP verification
-
----
-
-## Testing Environment Notes
-
-**Dev Server Issue (Resolved)**: On fresh server start, Next.js app-router chunks (`main-app.js`, `app-pages-internals.js`) were returning 404 until the routes were explicitly compiled. After clearing the `.next` cache and restarting the server, all chunks compiled correctly. This is a development-mode compilation-on-demand behavior, not a production issue.
-
-**Recurring Non-Critical Error**: Every page showed `Creating a worker from 'blob:...'` error from `@sentry-internal/replay`. This is a Sentry Session Replay worker initialization issue specific to the dev environment and does not affect functionality.
-
-**CSP Headers**: All responses include strict Content Security Policy headers applied via `next.config.ts`. The CSP is correctly configured for development (includes `unsafe-eval` and localhost websocket origins).
+**Tested on:** 2026-03-02
+**Tester:** Claude Code (Playwright MCP)
+**User:** Octavian MIHAI (octmihai@gmail.com) — Super Admin role
+**Base URL:** https://www.primariata.work/app/alba/alba-iulia-ab
+**Browser:** Chromium (Playwright)
+**Viewport:** 1440x900 (desktop), 375x812 (mobile)
 
 ---
 
-## 1. Landing Page (`/`)
+## Summary Scorecard
 
-**Status**: WORKING
-**HTTP**: 200
-**Screenshot**: `.planning/codebase/screenshots/05-landing-page-loaded.png`
+| Section                                 | Status                 | Score |
+| --------------------------------------- | ---------------------- | ----- |
+| 1. Dashboard                            | Working (minor issues) | 8/10  |
+| 2. Cererile Mele (list)                 | Working                | 9/10  |
+| 2b. Cerere Nouă (/cereri/new route)     | BROKEN                 | 0/10  |
+| 2c. Cerere Nouă (/cereri/wizard)        | Working                | 9/10  |
+| 2d. Cerere Detail View                  | Working                | 9/10  |
+| 3. Documente                            | BROKEN (404)           | 0/10  |
+| 4. Plăți & Taxe                         | Working                | 9/10  |
+| 5. Notificări                           | Working                | 9/10  |
+| 6. Setări                               | Working                | 9/10  |
+| 7. Location Change                      | Partial                | 5/10  |
+| 8. User Menu                            | Partial (visual bug)   | 7/10  |
+| 9. Admin Panel (/admin)                 | BROKEN (404)           | 0/10  |
+| 9b. Admin Panel (/admin/login redirect) | Working                | 8/10  |
+| 9c. Admin Survey Dashboard              | Working                | 9/10  |
+| 9d. Admin Global (/admin/primariata)    | Working                | 9/10  |
+| 9e. Admin Settings (/admin/settings)    | BROKEN (404)           | 0/10  |
+| 10. Survey Landing                      | Working                | 9/10  |
+| 10b. Survey Start                       | Working                | 9/10  |
+| 11. Search Functionality                | Partial                | 5/10  |
+| 12. Mobile Responsiveness               | Working                | 9/10  |
 
-### What Was Observed
+**Overall Application Score: 7/10 — Mostly functional with critical broken sections**
 
-The landing page loads with a full client-side animated hero section:
+---
 
-- **Hero Section**: Dark theme with animated infinite grid background. Logo displays "primaria Mea" with a heart icon. Tagline: "Bine ai venit la Primăria ta digitală. / Servicii publice online, fără cozi, 24/7."
-- **Live Stats**: LOCALITATI: 13,841 / DISPONIBIL: 24/7 / COZI: 0
-- **CTA Button**: "Continuă" (red/pink button) - triggers location picker
-- **Theme Toggle**: Moon icon in top-right corner for light/dark switch
-- **Features Section** (below fold): Displays 8 feature cards: Cereri Online, Tracking Real-Time, Plăți Digitale, Chat Direct, Documente Digitale, Survey Platform, Documentație Oficială, AI Research Dashboard
-- **Footer**: Comprehensive with Platformă / Companie / Suport navigation links and social media icons. Copyright "© 2026 primariaTa.work"
+## Section 1: Dashboard
 
-### Auto-Redirect Logic
+**URL:** https://www.primariata.work/app/alba/alba-iulia-ab
+**Status:** WORKING (with minor issues)
+**Screenshot:** `01-dashboard-full.png`, `02-dashboard-search.png`, `23-dashboard-scrolled.png`
 
-If the user has a saved location in localStorage, the page auto-redirects to `/app/[judet]/[localitate]` (via `getLocation()` from `lib/location-storage`). This was confirmed working - after selecting a location, revisiting `/` redirected to `/auth/login?redirectTo=...`.
+### What Works
+
+- Page loads successfully with user logged in as Octavian MIHAI
+- Sidebar navigation visible with all 6 links (Dashboard, Cererile Mele, Documente, Plăți & Taxe, Notificări, Setări)
+- Notification banner renders: "Bună ziua Octavian, astăzi 2 martie 2026 aveți următoarea notificare: 1 medie" (later shows "1 urgent" after notification mark-read)
+- Left panel map widget (Spline/Hana 3D map) renders with location pin
+- Cereri Active widget: Shows B-SE-2026-00001, "În Verificare", 40% progres, with "Aproape de termen limită" warning
+- "Arată toate (10)" button visible on Cereri Active
+- Statistici Financiare section renders with donut chart:
+  - Total: 32 cereri
+  - Certificat de Căsătorie 41% (13 cereri)
+  - Certificat Fiscal 34% (11 cereri)
+  - Certificat de Naștere 13% (4 cereri)
+  - Autorizație de Construcție 9% (3 cereri)
+  - Permis de Parcare Rezidențială 3% (1 cerere)
+- Statistici counter cards: Total Cereri 32, În Procesare 0, Finalizate 0, Total Plăți 250 RON
+- Evoluție Plăți chart: Total An Curent 250 RON, Luna Curentă 0 RON, În Așteptare 2 plăți
+- Acțiuni Rapide: "Cerere Nouă" and "Plătește Taxe" buttons present
+- Următorii Pași: 3 recommended actions (upload docs for B-SE-2025-00026, unnamed cerere, B-SE-2025-00017)
+- Centru Ajutor widget: 4 FAQ items visible (searchable)
+- Calendar widget: Shows current month (March 2026, days 2-31), "Niciun eveniment programat"
+- Documente Recente widget: "Niciun document recent" empty state
+- Nivel/gamification widget: "Nivel 1, Începător, 50 pts" (visible on desktop), 25 pts on mobile — inconsistency
+- Weather: 8°C, Alba
+- Theme toggle button works
+- Notification bell with badge (shows count 2 initially, 1 after marking one read)
+- User avatar loads from Google profile photo
+
+### What Partially Works
+
+- Search box: Typing "cerere" triggers an API call to `/api/dashboard/search/plati?q=cerere` which returns 404, and displays "Niciun rezultat" — the cereri search endpoint fails but UI handles it gracefully
+- Notification banner: Shows "1 medie" initially but after returning from notificari page updates to "1 urgent" — count/priority display seems to depend on session state
 
 ### Console Errors
 
-- 1 non-critical Sentry Replay worker error
+- `[ERROR] Failed to load resource: the server responded with a status of 404 () @ https://www.primariata.work/app/alba/alba-iulia-ab/documente?_rsc=1iooo` — This error fires on every page load due to prefetch of the /documente route which doesn't exist. This is a persistent error across ALL pages.
+- `[ERROR] Failed to load resource: /api/dashboard/search/plati?q=cerere` — Search API endpoint for plati returns 404
+
+### UX Issues
+
+- "Documente Recente" widget is empty despite user having documents attached to cereri
+- Gamification points inconsistency: 50 pts on desktop, 25 pts on mobile (same user, same session)
+- The map widget shows a Bucharest street (Primăria Sectorului 1, Strada Comana) instead of Alba Iulia — map pin is incorrect for this primărie
 
 ---
 
-## 2. Location Selection Flow
+## Section 2: Cererile Mele
 
-**Status**: WORKING
-**Screenshots**: `.planning/codebase/screenshots/06-after-continua-click.png`
+### 2a. Request List
 
-### Flow Description
+**URL:** https://www.primariata.work/app/alba/alba-iulia-ab/cereri
+**Status:** WORKING
+**Screenshot:** `04-cereri-list.png`
 
-1. User clicks "Continuă" on hero section
-2. A location picker overlay appears inline (scroll into view) showing:
-   - "Selectează primariaTa ❤️ \_" heading
-   - Dual wheel/drum-roll pickers: Județ (left) / Localitate (right)
-   - Search field: "Caută localitate..."
-   - Default selection: Alba / Abrud (Comună)
-   - "Continuă" confirm button and "Renunță" cancel button
-3. On clicking "Continuă":
-   - Console logs: `[location-storage] Location saved: {judetId:..., localitateSlug:...}`
-   - Redirects to `/auth/login` (since unauthenticated)
-   - Location persists in localStorage across sessions
+#### What Works
 
-### Location Picker Details
+- Page loads with full data table
+- 29 cereri total, 3 pages, 10 per page
+- Table columns: Număr Cerere, Tip Cerere, Status, Data Depunere, Termen Estimat, Acțiuni
+- Sortable columns (click headers)
+- Status badges: "În verificare" (red), "Finalizată" (green), "Respinsă" (orange), "Anulată" (gray), "Depusă" (blue)
+- First page shows: B-SE-2026-00001 through B-SE-2025-00021
+- Action buttons: "Vezi detalii" (eye icon), "Descarcă documente" (download icon), "Anulează cerere" (X icon, only for cancellable statuses)
+- Filter bar: search box, status dropdown, period picker, sort dropdown
+- View toggle: Tabel / Card modes available
+- Pagination: 3 pages, Anterioara/Următoarea navigation
+- Checkboxes for multi-select (disabled for finalized/cancelled cereri)
+- "Cerere Nouă" button in top right (links to /cereri/wizard)
 
-The wheel picker shows all 42 Romanian județe and corresponding localitati (13,841 total). The picker is data-driven from the Supabase database via `/api/localitati/judete` and `/api/localitati?judet_id=X` endpoints.
+#### Console Errors
 
----
+- `[ERROR] Failed to load resource: 404 @ /app/alba/alba-iulia-ab/documente?_rsc=` — Same persistent /documente prefetch error
 
-## 3. Authentication Pages
+### 2b. Cerere Nouă via /cereri/new route
 
-### 3a. Login Page (`/auth/login`)
+**URL:** https://www.primariata.work/app/alba/alba-iulia-ab/cereri/new
+**Status:** BROKEN — Critical Bug
+**Screenshot:** `03-cereri-new-error.png`
 
-**Status**: FULLY WORKING
-**HTTP**: 200
-**Screenshot**: `.planning/codebase/screenshots/07-auth-login-full.png`
+#### What Fails
 
-**UI Elements**:
+- Shows alert: "Eroare la încărcarea cererii" with a red error alert
+- Only "Înapoi" button rendered — entire wizard fails to load
+- Console errors:
+  - `[ERROR] Failed to load resource: 500 @ https://www.primariata.work/api/cereri/new` — API returns 500 Internal Server Error
+  - `[ERROR] Failed to load resource: 404 @ https://www.primariata.work/api/cereri/new/documents` — Documents endpoint returns 404
+  - `[ERROR] Failed to fetch documents` — Client error from wizard component
+- The "Cerere Nouă" quick action on the dashboard links to this broken route (`/cereri/new`)
 
-- Logo: "primariaTa" in header left
-- Location badge: Shows selected location (e.g., "Primăria - Abrud, Jud. Alba")
-- Navigation: "Schimbă localitatea" and theme toggle buttons
-- Welcome text: "Bine ai revenit!" with subtitle
-- Form fields:
-  - Google OAuth button: "Continuă cu Google"
-  - Email input: placeholder "nume@exemplu.ro"
-  - Password input with visibility toggle and "Ai uitat parola?" link
-  - "Ține-mă conectat" checkbox
-  - "Intră în cont" submit button (red)
-  - "Nu ai cont? Înregistrează-te" link to register
-- Security badges: SSL 256-bit, GDPR, ISO 27001 (only visible in Peladi context screenshot)
+### 2c. Cerere Nouă via /cereri/wizard route
 
-**Error Handling**: When invalid credentials submitted, displays "Email sau parolă greșită" in a red banner above the form. The API call to Supabase Auth (`/auth/v1/token?grant_type=password`) returns a 400 error which is properly caught and displayed.
-**Screenshot of error state**: `.planning/codebase/screenshots/15-login-error.png`
+**URL:** https://www.primariata.work/app/alba/alba-iulia-ab/cereri/wizard
+**Status:** WORKING
+**Screenshot:** `06-cereri-wizard-loading.png`, `07-wizard-step2-details.png`
 
-### 3b. Register Page (`/auth/register`)
+#### What Works
 
-**Status**: FULLY WORKING
-**HTTP**: 200
-**Screenshot**: `.planning/codebase/screenshots/08-auth-register.png`
+- Step 1 — Type Selection: Loads all 5 cerere types:
+  - Certificat de Naștere (Cod: CERT_NASTERE) — Stare Civilă, 15 RON, 10 zile
+  - Certificat de Căsătorie (Cod: CERT_CASATORIE) — Stare Civilă, 15 RON, 10 zile
+  - Autorizație de Construcție (Cod: AUTORIZATIE_CONSTRUCTIE) — Urbanism, 100 RON, 30 zile
+  - Certificat Fiscal (Cod: CERTIFICAT_FISCAL) — Taxe și Impozite, Gratuită, 5 zile
+  - Permis de Parcare Rezidențială (Cod: PERMIS_PARCARE) — Poliție Locală, 50 RON, 15 zile
+- Search within type selection works
+- Clicking a type (e.g., Certificat de Naștere) advances to Step 2
+- Step 2 — Details Form: Shows dynamic form specific to the cerere type
+  - For Certificat de Naștere: fields for Numele copilului*, Prenumele copilului*, Data nașterii*, Numele mamei*, Numele tatălui\*, Spitalul unde s-a născut (optional)
+  - Observații suplimentare textarea (optional, 1000 char limit)
+  - Navigation: Înapoi, Salvează draft, Continuă
+- Progress bar shows step progression (1/4, 2/4, etc.)
+- Step indicators: 1 Tip cerere, 2 Detalii, 3 Documente, 4 Revizuire
 
-**UI Elements**:
+#### Not Tested (stopped at Step 2)
 
-- Welcome text: "Alătură-te comunității!" / "Creează-ți cont pentru a accesa toate serviciile"
-- Form fields:
-  - Google OAuth: "Înregistrează-te cu Google"
-  - Nume complet (placeholder: Ion Popescu)
-  - Email
-  - Parolă
-  - Confirmă parola
-  - "Accept termenii și condițiile și politica de confidențialitate" checkbox (linked to `/termeni` and `/confidentialitate`)
-  - "Creează cont" submit button
-  - "Ai deja cont? Intră în cont" link
+- Step 3 — Document upload
+- Step 4 — Review & Submit
+- Draft save functionality
+- Actual submission
 
-### 3c. Reset Password (`/auth/reset-password`)
+### 2d. Cerere Detail View
 
-**Status**: WORKING
-**HTTP**: 200
-**Screenshot**: `.planning/codebase/screenshots/09-reset-password.png`
+**URL:** https://www.primariata.work/app/alba/alba-iulia-ab/cereri/8469d493-2f1a-43df-9d6d-da7d936acaca
+**Status:** WORKING
+**Screenshot:** `05-cerere-detail.png`
 
-**UI Elements**:
+#### What Works
 
-- Title: "Ai uitat parola?"
-- Subtitle: "Nu-ți fă griji, îți vom trimite instrucțiuni de resetare"
-- Email input
-- "Trimite link de resetare" button
-- "Înapoi la autentificare" link
+- Shows B-SE-2026-00001 detail: Autorizație de Construcție, in_verificare status
+- Status timeline: "Cerere depusă" (04 ian 2026, 13:22) active → "În procesare" → "Finalizată"
+- Termen estimat: 03 februarie 2026 (note: this is past the current date — overdue by ~1 month)
+- Detalii cerere card: tip lucrare, adresa lucrare, numar cadastral, descriere lucrare, suprafata construita
+- Documente section: RAPORT_COMPLET_PRIMARIATA_Rev2.pdf (2.41 MB, Anexă) with download/delete actions
+- "Descarcă tot" button for bulk download
+- "Înapoi la lista de cereri" navigation
 
-### 3d. Auth Code Error (`/auth/auth-code-error`)
+#### UX Issues
 
-**Status**: WORKING
-**HTTP**: 200
-
-Renders a standalone error page with:
-
-- "Eroare la autentificare" heading
-- Error description
-- Two action buttons: "Încearcă din nou" (to `/login`) and "Înapoi la pagina principală" (to `/`)
-- Contact link for persistent issues
-
-### 3e. Accept Invite (`/auth/accept-invite`)
-
-**Status**: WORKING (with expected validation error)
-**HTTP**: 200
-**Screenshot**: `.planning/codebase/screenshots/16-accept-invite.png`
-
-When accessed without a valid invite token, shows:
-
-- "Acceptă invitația" / "Completează datele pentru a-ți crea contul"
-- Error: "Token de invitație lipsă. Te rugăm să verifici linkul din email."
-- "Contactează suportul" link to `mailto:support@primariata.work`
-
-### 3f. Update Password (`/auth/update-password`)
-
-**Status**: WORKING (HTTP 200 confirmed via curl)
-
-### 3g. Password Reset Success (`/auth/password-reset-success`)
-
-**Status**: WORKING (HTTP 200 confirmed via curl)
+- Status badge shows raw enum value "in_verificare" instead of localized "În verificare"
 
 ---
 
-## 4. Dashboard / App Routes (`/app/[judet]/[localitate]`)
+## Section 3: Documente
 
-**Status**: AUTH GUARD WORKING - Proper redirects for unauthenticated users
+**URL:** https://www.primariata.work/app/alba/alba-iulia-ab/documente
+**Status:** BROKEN — Critical Bug (404)
+**Screenshot:** `08-documente-404.png`
 
-### Auth Guard Behavior
+### What Fails
 
-All `/app/*` routes are protected by the middleware auth guard. When an unauthenticated user attempts to access:
+- Page returns HTTP 404 — the route does not exist in Next.js App Router
+- Shows custom 404 page: "Oooppss ... pagina nu a fost găsită :("
+- Console error: `[ERROR] Failed to load resource: 404 @ https://www.primariata.work/app/alba/alba-iulia-ab/documente`
+- The Documente link in the sidebar navigates to this 404
+- Every other page generates a 404 console error for this route due to Next.js RSC prefetching
 
-- `/app/ilfov/buftea` → redirects to `/auth/login?redirectTo=%2Fapp%2Filfov%2Fbuftea`
-- `/app/alba/abrud-ab` → redirects to `/auth/login?redirectTo=%2Fapp%2Falba%2Fabrud-ab`
+### Impact
 
-The `redirectTo` query parameter correctly encodes the original URL so the user is sent to their intended destination after login.
-
-### Available App Sub-Routes (from filesystem)
-
-Located in `/src/app/app/[judet]/[localitate]/`:
-
-- `/` - Main dashboard page
-- `/cereri` - Cereri (requests) management
-- `/notificari` - Notifications
-- `/plati` - Payments
-- `/profil` - User profile
-- `/setari` - Settings
-- `/admin` - Local admin panel
-
-All require authentication. Content not tested without valid session.
-
-### App Dashboard (requires auth)
-
-Located in `/src/app/app/dashboard/`:
-
-- A general dashboard route (separate from location-specific app route)
+- Critical: The "Documente" section in the sidebar is completely non-functional
+- The "Documente Recente" widget on the dashboard shows empty state possibly as a consequence
+- Every page load generates a console error due to sidebar prefetching this broken route
 
 ---
 
-## 5. Admin Panel (`/admin/*`)
+## Section 4: Plăți & Taxe
 
-**Status**: AUTH GUARD WORKING - Shows login modal for unauthenticated users
-**Screenshot**: `.planning/codebase/screenshots/10-admin-login.png`
+**URL:** https://www.primariata.work/app/alba/alba-iulia-ab/plati
+**Status:** WORKING
+**Screenshot:** `09-plati-list.png`
 
-### Admin Layout
+### What Works
 
-The admin panel has a persistent left sidebar visible even without authentication:
+- Page loads with payment history table
+- 5 payment records displayed:
+  1. B-SE-2025-00030, 50 RON, Plătit, —, 04 ian 2026, 14:59
+  2. B-SE-2026-00001, 100 RON, Plătit, —, 04 ian 2026, 14:38
+  3. B-SE-2026-00001, 100 RON, Plătit, Card, 04 ian 2026, 14:16
+  4. B-SE-2026-00001, 100 RON, În așteptare, —, 04 ian 2026, 14:11
+  5. B-SE-2026-00001, 100 RON, În așteptare, —, 04 ian 2026, 13:26
+- Status badges: "Plătit" (green), "În așteptare" (yellow)
+- Action buttons: view (eye icon), download for paid items
+- Filter bar: search, status dropdown, period picker, sort
+- View toggle: Tabel / Card
+- Table columns: Cerere, Sumă, Status, Metodă, Data Plată, Acțiuni
+- Total: 250 RON paid (matches dashboard stat)
 
-- **Logo**: primariaTa with ❤️
-- **Navigation links**:
-  - Global Admin → `/admin/primariata`
-  - Survey Platform → `/admin/survey`
-  - Echipă (Vechi) → `/admin/users`
-  - Setări Admin → `/admin/settings`
-- **Version**: v1.0.0 - primariaTa
+### Console Errors
 
-### Admin Auth Guard
+- Same persistent `/documente` 404 prefetch error
 
-When accessing `/admin/login`:
+### UX Issues
 
-- Shows the full admin layout with sidebar
-- Main content shows "Admin Survey Platform" login modal
-- Modal contains: primariaTa logo, "Admin Survey Platform" title, "Autentifică-te pentru a accesa dashboard-ul de administrare" subtitle, "Autentificare cu Google" button only (no email/password)
-- Note: "Doar administratorii și super-administratorii pot accesa această platformă"
-
-When accessing `/admin/primariata`, `/admin/survey` directly:
-
-- Both redirect to `/admin/login`
-- Auth check shows "Verificare autentificare..." while checking
-
-### Admin API Errors
-
-When accessing admin routes while unauthenticated, two API calls fail:
-
-- `GET /api/notifications?page=1&limit=10&sort=created_at&order=desc` → 401 Unauthorized
-
-These errors are expected for unauthenticated sessions but the admin panel shows them as console errors rather than gracefully hiding the notification fetch.
+- No "pay now" action for "În așteptare" payments visible in the table — user can't initiate a new payment from this list
 
 ---
 
-## 6. Survey Platform (`/survey`, `/survey/start`)
+## Section 5: Notificări
 
-### 6a. Survey Landing (`/survey`)
+**URL:** https://www.primariata.work/app/alba/alba-iulia-ab/notificari
+**Status:** WORKING
+**Screenshots:** `10-notificari.png`, `11-notificari-marked-read.png`
 
-**Status**: FULLY WORKING
-**HTTP**: 200
-**Screenshot**: `.planning/codebase/screenshots/11-survey-page.png`
+### What Works
 
-**Content**:
+- Page loads with notification list
+- Initial state: 2 unread notifications
+- Notifications:
+  1. "Lipsește document pentru cererea #2026-002" — Prioritate Medie, with "Încarcă document" CTA and "Marchează citit" button
+  2. "Plată urgentă taxă impozit" — Urgent, "Plătește acum" CTA and "Marchează citit" button
+- Tabs: Toate, Urgente, Arhivă
+- Filters: search, tip, prioritate, status dropdowns
+- "Marchează toate ca citite" button (enabled when there are unread)
+- Marking individual notification as read works instantly: badge count updates from 2→1 in sidebar, header bell, and page heading
+- "Dismiss notification" (X) button on each notification
+- Supabase Realtime subscription active: `[LOG] Realtime subscription status: SUBSCRIBED`
+- Notification badge in header bell and sidebar both update correctly
 
-- Separate layout (no location header, only theme toggle and Admin link)
-- Hero: "Ajută-ne să construim primariaTa❤️\_ - Primăria digitală ideală"
-- Stats: ~5 min / 10-12 întrebări / 100% Anonim
+### Console Errors
+
+- Same persistent `/documente` 404 prefetch error
+
+### UX Issues
+
+- "Marchează toate ca citite" button was disabled on initial load, enabled after snapshot refresh — this may be a timing/hydration issue
+
+---
+
+## Section 6: Setări
+
+**URL:** https://www.primariata.work/app/alba/alba-iulia-ab/setari
+**Status:** WORKING
+**Screenshots:** `12-setari-dashboard.png`, `13-setari-profil.png`
+
+### What Works
+
+- 5 settings tabs: Dashboard, Profil, Notificări, Securitate, Aspect
+
+#### Dashboard Tab (default)
+
+- "Preferințe Dashboard" section
+- "Widget vreme" toggle — currently ON (checked)
+- "Mod compact" toggle — currently OFF
+- "Salvează preferințe" button
+
+#### Profil Tab
+
+- "Informații profil" section
+- Nume complet: "Octavian MIHAI" (editable)
+- Email: "octmihai@gmail.com" (disabled — "Email-ul nu poate fi modificat după creare")
+- Telefon: "+40 745 163 828" (editable)
+- "Salvează modificări" button
+
+### Not Tested
+
+- Notificări preferences tab content
+- Securitate tab content (password change?)
+- Aspect tab content (theme preferences?)
+- Actual saving of profile/preferences (did not submit forms)
+
+### Console Errors
+
+- Same persistent `/documente` 404 prefetch error
+
+---
+
+## Section 7: Location Change
+
+**Status:** PARTIAL
+**Screenshot:** `14-location-picker.png`
+
+### Behavior Observed
+
+- Header location button: "Alba Iulia Ab, Jud. Alba" — clicking it navigates back to dashboard (does not open any picker inline)
+- Dashboard "Schimbă locația" button: Navigates to the landing page (`/`) — the Spline landing page with the primariaTa hero section and "Continuă" button
+- There is NO inline location picker modal — the location change flow requires going through the landing page flow again
+- The setting page also has a "Schimbă locația" link that redirects to the landing page
+
+### UX Issues
+
+- The UX is disruptive: changing location requires going through the full landing experience again
+- No way to return to current location easily after clicking "Schimbă locația"
+
+---
+
+## Section 8: User Menu
+
+**URL:** Dashboard
+**Status:** WORKING (with visual bug)
+**Screenshot:** `15-user-menu.png`
+
+### What Works
+
+- Clicking the user avatar/button opens a dropdown menu
+- Menu content (from accessibility tree):
+  - User info section: "Octavian MIHAI", "octmihai@gmail.com"
+  - Separator
+  - "Profilul Meu" menu item
+  - "Setări" menu item
+  - Separator
+  - "Deconectare" (logout) menu item
+
+### Visual Bug
+
+- The dropdown renders but appears visually clipped/positioned off-screen to the right — only the bottom portion with email and "Deconectare" is visible in the screenshot
+- The "Profilul Meu" and "Setări" items are in the accessibility tree but not visible in the screenshot
+- This appears to be a CSS overflow/positioning issue with the dropdown
+
+---
+
+## Section 9: Admin Panel
+
+### 9a. /admin (direct URL)
+
+**URL:** https://www.primariata.work/admin
+**Status:** BROKEN — 404
+**Screenshot:** `16-admin-404.png`
+
+- Returns 404 custom page
+- No redirect to `/admin/login` or `/admin/primariata`
+
+### 9b. /admin/login (redirect)
+
+**URL:** https://www.primariata.work/admin/login
+**Status:** WORKING
+**Screenshot:** `19-admin-login-redirect.png`
+
+- Navigating to `/admin/login` auto-redirects to `/admin/survey` (since user is already authenticated as Super Admin)
+- Admin sidebar shows: Global Admin, Survey Platform, Echipă (Vechi), Setări Admin
+- Shows "Panel, Jud. Admin" location in header
+
+### 9c. Admin Survey Dashboard
+
+**URL:** https://www.primariata.work/admin/survey
+**Status:** WORKING
+**Screenshot:** `19-admin-login-redirect.png`
+
+- Full dashboard loaded: "Dashboard Chestionare"
+- User profile card: Octavian MIHAI, octmihai@gmail.com, Super Admin badge
+- "Analiză Cercetare AI" CTA for advanced analysis
+- LIVE indicator with "Ultima actualizare: Niciodată"
+- Charts:
+  - Distribuție Tip Respondent: Cetățeni 89%, Funcționari 11% (pie chart)
+  - Top 10 Localități bar chart (data visible: Brașov, Sector 4 București, Mada Hunedoara, Vaslui Vaslui, etc.)
+- Sort/filter controls: sort by Număr răspunsuri, Afișează top 10
+- "Reimprospătare" and "Setări" buttons
+
+### 9d. Admin Global Dashboard
+
+**URL:** https://www.primariata.work/admin/primariata
+**Status:** WORKING
+**Screenshot:** `20-admin-global.png`
+
+- "Dashboard Global Admin" with admin shield icon
+- Stats: Total Primării 5, Administratori 2, Funcționari 2, Cetățeni 9
+- Quick access cards: Administrare Primării, Administrare Admins, Setări Platformă, Dashboard Chestionare
+
+### 9e. Admin Primării List
+
+**URL:** https://www.primariata.work/admin/primariata/primarii
+**Status:** WORKING
+**Screenshot:** `24-admin-primarii.png`
+
+- Lists 5 primării: Abrud (Jud. Alba), Arad (Jud. Arad), Cluj-Napoca (Jud. Cluj), Buftea (Jud. Ilfov), Sector 1 (Jud. București)
+- All marked "Activ"
+- "Adaugă Primărie (în curând)" — button disabled (feature not yet implemented)
+- "Vezi Detalii" buttons — disabled (feature not yet implemented)
+
+### 9f. Admin Settings (/admin/settings)
+
+**URL:** https://www.primariata.work/admin/settings
+**Status:** BROKEN — 404
+
+- Returns 404 custom page
+- This route appears in the admin sidebar navigation but doesn't exist
+- Console error: `[ERROR] Failed to load resource: 404 @ /admin/settings`
+- Same error fires on every admin page load due to Next.js RSC prefetching
+
+---
+
+## Section 10: Survey System
+
+### 10a. Survey Landing
+
+**URL:** https://www.primariata.work/survey
+**Status:** WORKING
+**Screenshot:** `17-survey-landing.png`
+
+- Title: "Ajută-ne să construim primariaTa"
+- Hero text (partially obscured by dark theme rendering)
+- Stats: ~5 min, 10-12 întrebări, 100% Anonim
 - "Începe chestionarul" and "Înapoi la pagina principală" buttons
-- "De ce este important?" section with 4 reason cards
-- "Cum funcționează?" step-by-step guide (4 steps)
+- "De ce este important?" section with 4 benefit cards
+- "Cum funcționează?" section with 4 steps
 - "Ești gata să începi?" CTA section
-- Footer with GitHub link and academic project note
+- Footer: GDPR disclaimer, GitHub link
+- Top right: theme toggle, "Admin" button linking to /admin/login
+- No console errors
 
-### 6b. Survey Wizard - Step 1 (`/survey/start`)
+### 10b. Survey Start
 
-**Status**: FULLY WORKING
-**HTTP**: 200
-**Screenshot**: `.planning/codebase/screenshots/12-survey-start-step1.png`
+**URL:** https://www.primariata.work/survey/start
+**Status:** WORKING
+**Screenshot:** `18-survey-start.png`
 
-**Wizard Progress**: "Pasul 1 din 5 - 20%"
-
-**Form Fields (Step 1 - Date personale)**:
-
-- Prenume \* (required, placeholder: Ion)
-- Nume \* (required, placeholder: Popescu)
-- Email (opțional, placeholder: ion.popescu@example.com)
-- Categorie de vârstă (opțional) - combobox dropdown
-- Județ \* (required) - combobox, initially "Se încarcă județele..." then loads from DB
-- Localitate \* (required) - combobox, disabled until județ selected
-- GDPR consent checkbox with link to `/survey/privacy-policy`
-- GDPR rights details section with `gdpr@primariata.work` contact
-- "Înapoi" and "Continuă" navigation buttons
-- Footer: "Datele tale sunt protejate și confidențiale"
-
-The Județ dropdown initially loads asynchronously from the database, indicating the survey loads location data independently from the main app location store.
+- Step 1 of 5 (20% progress bar)
+- "Date personale" form:
+  - Prenume\* (required)
+  - Nume\* (required)
+  - Email (optional) with hint text
+  - Categorie de vârstă (optional select)
+  - Județ\* (loading, then select)
+  - Localitate\* (disabled until județ selected)
+  - GDPR consent checkbox with "Politica de Confidențialitate și Protecția Datelor" link
+  - GDPR rights section: contactează gdpr@primariata.work
+- Navigation: Înapoi, Continuă buttons
+- No console errors on this page
 
 ---
 
-## 7. Legal Pages
+## Section 11: Console Errors & Network Failures
 
-### 7a. Termeni și Condiții (`/termeni`)
+### Persistent Error (ALL pages)
 
-**Status**: FULLY WORKING
-**HTTP**: 200
-**Screenshot**: `.planning/codebase/screenshots/13-termeni-page.png`
+**Error:** `Failed to load resource: the server responded with a status of 404 () @ https://www.primariata.work/app/alba/alba-iulia-ab/documente?_rsc=`
 
-10 sections of legal content:
+- **Root cause:** The `/documente` page doesn't exist (404) but the Next.js sidebar link causes RSC (React Server Component) prefetching on every navigation
+- **Impact:** Console is polluted with this error on every page load
+- **Frequency:** Every single page in the /app/alba/alba-iulia-ab/\* path
 
-1. Acceptarea Termenilor
-2. Descrierea Serviciului
-3. Înregistrarea și Utilizarea Contului
-4. Protecția Datelor
-5. Utilizarea Responsabilă și Conduita Utilizatorilor
-6. Limitarea Răspunderii
-7. Proprietate Intelectuală
-8. Modificări ale Termenilor
-9. Rezilierea Contului
-10. Legea Aplicabilă și Jurisdicție
+### Page-Specific Errors
 
-Last updated: 2 martie 2026. Contact: `contact@primariata.ro`
-
-### 7b. Politica de Confidențialitate (`/confidentialitate`)
-
-**Status**: FULLY WORKING
-**HTTP**: 200
-
-Comprehensive GDPR-compliant privacy policy including:
-
-- Date colectate (furnizate direct + automat)
-- Scopul prelucrării
-- Drepturile utilizatorilor (Acces, Rectificare, Ștergere, Portabilitate)
-- Baza legală a prelucrării
-- Partajarea datelor ("NU vindem datele tale!")
-- Securitate (SSL/TLS, hash parole)
-- Durata păstrării
-- Cookie policy (nu folosește tracking cookies)
-- Protecția minorilor (sub 16 ani)
-- Contact DPO: `dpo@primariata.ro`
-- ANSPDCP reference
+| Page               | Error                                  | HTTP Code      |
+| ------------------ | -------------------------------------- | -------------- |
+| Dashboard (search) | `/api/dashboard/search/plati?q=cerere` | 404            |
+| /cereri/new        | `/api/cereri/new`                      | 500            |
+| /cereri/new        | `/api/cereri/new/documents`            | 404            |
+| /documente         | `/app/alba/alba-iulia-ab/documente`    | 404            |
+| /admin             | `/admin`                               | 404            |
+| /admin/settings    | `/admin/settings`                      | 404            |
+| Admin pages        | `/admin/settings?_rsc=`                | 404 (prefetch) |
 
 ---
 
-## 8. Error Pages
+## Section 12: Responsive Testing
 
-### 8a. 404 Not Found
+**Mobile Viewport:** 375x812 (iPhone equivalent)
+**Screenshots:** `21-mobile-dashboard.png`, `22-mobile-menu-open.png`
 
-**Status**: WORKING - Custom branded page
-**Screenshot**: `.planning/codebase/screenshots/14-404-page.png`
+### What Works on Mobile
 
-Custom 404 page with:
+- Sidebar is hidden on mobile — replaced by hamburger menu ("Toggle menu" button)
+- Hamburger menu opens a full-screen overlay sidebar showing all navigation links with notification badge
+- Header adapts: shows hamburger + location pin icon + theme toggle + notification bell + user avatar
+- Dashboard content stacks vertically on mobile
+- Notification banner renders
+- Map widget renders (Spline/Hana)
+- Cereri Active widget adapts to mobile layout
+- Statistici Financiare data accessible (chart may be smaller)
+- All navigation links work on mobile
 
-- Large red "404" text
-- "Oooppss ... pagina nu a fost găsită :(" message
-- "Se pare că pagina pe care o cauți nu există sau a fost mutată."
-- Two action buttons: "Înapoi acasă" (to `/`) and "Explorează aplicația" (to `/survey`)
-- Animated grid background (same as landing page)
+### Mobile UX Issues
 
-### 8b. Auth Code Error Page (`/auth/auth-code-error`)
-
-**Status**: WORKING (tested above in Auth section)
-
----
-
-## 9. API Routes
-
-### Tested Endpoints
-
-| Endpoint                     | Method | Status | Response                                                                                    |
-| ---------------------------- | ------ | ------ | ------------------------------------------------------------------------------------------- |
-| `/api/localitati?judet_id=1` | GET    | 200    | Full localitati list for Alba (JSON array)                                                  |
-| `/api/localitati?judetId=1`  | GET    | 400    | Validation error - wrong param name                                                         |
-| `/api/user/profile`          | GET    | 401    | `{"success":false,"error":{"message":"Not authenticated","code":"AUTH_REQUIRED"}}`          |
-| `/api/cereri`                | GET    | 401    | `{"success":false,"error":{"code":"UNAUTHORIZED","message":"Autentificare necesară"}}`      |
-| `/api/tipuri-cereri`         | GET    | 401    | `{"success":false,"error":{"code":"UNAUTHORIZED","message":"Trebuie să fii autentificat"}}` |
-| `/api/notifications`         | GET    | 401    | `{"error":"Unauthorized"}`                                                                  |
-| `/api/survey/submit`         | POST   | 400    | `{"error":"Missing required fields"}`                                                       |
-| `/api/debug`                 | GET    | 404    | Not found (debug route returns HTML 404)                                                    |
-| `/api/location`              | GET    | 404    | Not an API route - 404 page returned                                                        |
-| `/api/dashboard`             | GET    | 404    | Not an API route - 404 page returned                                                        |
-| `/api/payments`              | GET    | 404    | Not found                                                                                   |
-| `/api/admin/cereri`          | GET    | 404    | Not found                                                                                   |
-
-### API Route Inventory (`/src/app/api/`)
-
-```
-admin/
-  survey/
-  users/
-cereri/
-  [id]/
-  bulk-cancel/
-  route.ts
-csp-violations/
-dashboard/         (Note: returns 404 - likely a page route not API)
-debug/
-  auth-users/
-  users/
-localitati/        (Working - returns locality data from DB)
-location/          (Note: returns 404 - likely a page route not API)
-mock-certsign/
-notifications/
-  [id]/
-  route.ts
-payments/
-plati/
-survey/
-  research/
-  submit/
-tipuri-cereri/
-user/
-  profile/
-webhooks/
-```
-
-### API Authentication Consistency
-
-There are minor inconsistencies in error response formats across endpoints:
-
-- `/api/user/profile`: `{"success":false,"error":{"message":"...","code":"..."}}`
-- `/api/cereri`: `{"success":false,"error":{"code":"...","message":"..."},"meta":{"timestamp":"..."}}`
-- `/api/notifications`: `{"error":"Unauthorized"}` (simplified format)
-- `/api/tipuri-cereri`: `{"success":false,"error":{"code":"...","message":"..."},"meta":{"timestamp":"..."}}`
-
-The notifications endpoint uses a different (simpler) error format than the others.
+- The location pin in header is smaller than location text on desktop — hard to know it's clickable
+- "Schimbă locația" text may be cut off in header on very narrow screens
+- Gamification points discrepancy: Shows "25 pts" on mobile vs "50 pts" on desktop (same session)
 
 ---
 
-## 10. Navigation Flow Tests
+## Critical Bugs Found
 
-### Flow 1: New User Complete Journey
+### Bug 1: /documente page is 404
 
-1. `http://localhost:3000/` → Landing page loads (PASS)
-2. Click "Continuă" → Location picker appears (PASS)
-3. Select location and click "Continuă" → Location saved to localStorage, redirect to `/auth/login` (PASS)
-4. Login page shows saved location badge (PASS)
-5. Login with invalid credentials → Error message shown (PASS)
-6. Click "Înregistrează-te" → Register page loads (PASS)
-7. Click "termenii și condițiile" → Termeni page loads (PASS)
-8. Back to register, "politica de confidențialitate" → Confidentialitate page loads (PASS)
+**Severity:** CRITICAL
+**URL:** /app/alba/alba-iulia-ab/documente
+**Behavior:** Returns 404. The entire Documente section is missing from the app.
+**Impact:** Sidebar link is dead. Every page load generates a console 404 error.
+**Likely Cause:** The Next.js App Router page file for `src/app/app/[judet]/[localitate]/documente/page.tsx` either doesn't exist or throws an error at build/runtime.
 
-### Flow 2: Auth Guard Protection
+### Bug 2: /cereri/new returns 500
 
-1. Access `/app/alba/abrud-ab` → Redirect to `/auth/login?redirectTo=%2Fapp%2Falba%2Fabrud-ab` (PASS)
-2. Access `/admin/primariata` → Redirect to `/admin/login` (PASS)
-3. Access `/admin/survey` → Redirect to `/admin/login` (PASS)
-4. Access any protected API without auth → 401 Unauthorized with proper JSON error (PASS)
+**Severity:** CRITICAL
+**URL:** /app/alba/alba-iulia-ab/cereri/new
+**Behavior:** API endpoint `POST /api/cereri/new` returns 500 Internal Server Error. The page shows "Eroare la încărcarea cererii" alert.
+**Impact:** The "Cerere Nouă" quick action on the Dashboard links to this broken route.
+**Note:** The /cereri/wizard route works fine — suggesting a routing mismatch.
 
-### Flow 3: Survey Flow
+### Bug 3: /admin and /admin/settings are 404
 
-1. `/survey` → Survey landing page (PASS)
-2. Click "Începe chestionarul" → `/survey/start` (PASS)
-3. Step 1 form renders with all fields (PASS)
-4. Județ dropdown loads asynchronously (PASS - confirmed by watching "Se încarcă județele..." state)
+**Severity:** HIGH
+**URL:** /admin, /admin/settings
+**Behavior:** Both return 404.
+**Impact:** The admin sidebar links to "Setări Admin" don't work.
 
-### Flow 4: Admin Invite Flow
+### Bug 4: Search API for plăți returns 404
 
-1. `/auth/accept-invite` (without token) → Error "Token de invitație lipsă" (PASS)
-2. `/auth/reset-password` → Password reset form renders (PASS)
-3. `/auth/auth-code-error` → Error page renders (PASS)
+**Severity:** MEDIUM
+**URL:** /api/dashboard/search/plati
+**Behavior:** The dashboard search box makes requests to this non-existent endpoint.
+**Impact:** Search returns no results for any query; partial functionality only (cereri may work, plăți always fail).
 
----
+### Bug 5: Status badge shows raw enum value
 
-## 11. Responsive Behavior
+**Severity:** LOW
+**Location:** Cerere detail page header badge
+**Behavior:** Shows "in_verificare" (raw database enum value) instead of "În verificare" (localized string).
 
-**Testing viewport**: 1366x768 (default Playwright viewport)
+### Bug 6: User menu dropdown visual clipping
 
-All pages tested appear to render correctly at desktop viewport. The layout uses Tailwind CSS responsive classes. Mobile testing was not conducted in this snapshot.
+**Severity:** LOW
+**Location:** Header user avatar dropdown
+**Behavior:** Dropdown appears partially off-screen; "Profilul Meu" and "Setări" items not visible visually (but accessible via keyboard/AT).
 
-The admin panel sidebar collapses/expands via a "Toggle sidebar" button. The auth pages use a split-panel layout (left: branding/location info, right: form).
+### Bug 7: Wrong map location in dashboard
 
----
+**Severity:** MEDIUM
+**Location:** Dashboard Spline/map widget
+**Behavior:** Map shows Bucharest location (Primăria Sectorului 1, Strada Comana) instead of Alba Iulia. The 3D map is not tenant-aware.
 
-## 12. Console Errors Summary
+### Bug 8: Gamification points inconsistency
 
-| Error                                               | Pages Affected              | Severity | Root Cause                                                                                     |
-| --------------------------------------------------- | --------------------------- | -------- | ---------------------------------------------------------------------------------------------- |
-| `Creating a worker from 'blob:...'` (Sentry Replay) | All pages                   | LOW      | Sentry Session Replay trying to create a Web Worker from blob URL - dev environment limitation |
-| Supabase auth 400 (invalid credentials)             | Login after bad credentials | EXPECTED | Correct behavior - invalid login attempt                                                       |
-| Notifications API 401                               | Admin panel                 | MEDIUM   | Admin header fetches notifications without checking auth state first                           |
-| [Client Instrumentation Hook] Slow execution        | All pages                   | LOW      | Sentry instrumentation performance warning                                                     |
+**Severity:** LOW
+**Location:** Dashboard gamification widget
+**Behavior:** Shows "50 pts" on desktop and "25 pts" on mobile in the same session. Possibly a rendering/state issue.
 
----
+### Bug 9: Cerere deadline overdue, no special indicator
 
-## 13. Working Functionality
+**Severity:** MEDIUM
+**Location:** Cerere B-SE-2026-00001 detail
+**Behavior:** Termen estimat is "03 februarie 2026" (nearly 1 month overdue as of 2026-03-02) but the status still shows "In Verificare" with no overdue alert on the detail page. Dashboard does show a warning on the card.
 
-### CONFIRMED WORKING
+### Bug 10: "Documente Recente" widget always empty
 
-1. **Landing Page** - Full animated hero, features section, footer
-2. **Location Picker** - Wheel picker with all 42 județe and 13,841+ localitati
-3. **Location Persistence** - Saved to localStorage, shown in auth pages
-4. **Auth Guard (Middleware)** - Protects all `/app/*` routes with redirect + `redirectTo` param
-5. **Login Form** - Email/password, Google OAuth button, error states, remember me checkbox
-6. **Register Form** - Full name, email, password, confirm password, GDPR consent
-7. **Password Reset** - Email input form
-8. **Accept Invite** - Token validation with proper error when token missing
-9. **Admin Panel Layout** - Sidebar navigation, header with location/theme/notifications/user menu
-10. **Admin Auth Guard** - Redirects all admin routes to login when unauthenticated
-11. **Survey Landing Page** - Complete marketing page with stats
-12. **Survey Wizard Step 1** - Form with all personal data fields, GDPR consent
-13. **Legal Pages** - Termeni, Confidentialitate - full GDPR-compliant content
-14. **404 Custom Page** - Branded with grid animation
-15. **Auth Code Error Page** - Proper error display
-16. **API Auth Protection** - All protected APIs return 401 with proper JSON
-17. **Localitati API** - Returns full locality data from Supabase database
-18. **Survey Submit API** - Validates required fields (returns 400 for missing fields)
-19. **CSP Headers** - Applied on all responses
-20. **Security Headers** - X-Frame-Options, X-Content-Type-Options, Referrer-Policy
+**Severity:** MEDIUM
+**Location:** Dashboard left panel
+**Behavior:** Shows "Niciun document recent / Documentele încărcate vor apărea aici" even though the user has documents attached to cereri (e.g., RAPORT_COMPLET_PRIMARIATA_Rev2.pdf on B-SE-2026-00001). Widget may be fetching from a broken /documente endpoint.
 
 ---
 
-## 14. Broken / Issues Found
+## UX Issues Found
 
-### BROKEN / ISSUES
-
-1. **Admin Notifications 401 Race Condition**
-   The admin panel header fetches notifications immediately on mount without checking if user is authenticated. Results in console errors showing `GET /api/notifications?... 401` for unauthenticated users. Should check auth state before making the request.
-
-2. **Test Pages Return 404**
-   Several test directories in `/src/app/` are empty or have no `page.tsx`:
-   - `/test-landing/` - empty directory (no page.tsx)
-   - `/test-ui/` - has page.tsx but returned 404
-   - Other test-\* routes return 404
-     This suggests test routes were created as directories but page files were not committed.
-
-3. **`/api/location` and `/api/dashboard` Return HTML 404**
-   These paths are not actual API routes - they return Next.js 404 HTML pages. If these are intended API endpoints, they haven't been implemented.
-
-4. **Inconsistent API Error Response Formats**
-   - `/api/notifications` returns `{"error":"Unauthorized"}` (minimal)
-   - Other APIs return `{"success":false,"error":{...},"meta":{"timestamp":"..."}}` (structured)
-     Should standardize error responses across all API routes.
-
-5. **Footer Links Are Anchors (Unimplemented)**
-   Landing page footer links (Funcționalități, Prețuri, Documentație, Despre noi, etc.) all point to `#` anchors that don't scroll to any content. These sections haven't been built yet.
-
-6. **Social Media Links Unimplemented**
-   Instagram, Facebook, Twitter, LinkedIn icons in footer all point to `#`.
-
-7. **Admin Panel Shows for Unauthenticated Users**
-   The admin sidebar with navigation links is visible to unauthenticated users before the login modal appears. This is a UI issue - the sidebar should either be hidden or show a locked state for unauthenticated users.
-
-8. **Theme Toggle Disabled on Auth Pages**
-   The "Toggle theme" button appears disabled (grayed out) on some auth page snapshots, though it works on the landing page and admin panel. May be a timing issue with next-themes hydration.
-
-9. **Landing Page Stats Show 0 During Loading**
-   The hero section initially shows LOCALITATI: 0, DISPONIBIL: 0/0, COZI: 100 before loading actual data. Loading states could be improved.
+1. **Location change flow is disruptive** — "Schimbă locația" exits the app entirely to the landing page, breaking the user's context
+2. **Sidebar "Documente" link leads to 404** — Users clicking it get a jarring 404 error page outside the app shell
+3. **Dashboard quick action "Cerere Nouă" links to broken /cereri/new** — Should link to /cereri/wizard instead
+4. **User menu dropdown partially hidden** — Poor positioning on the right edge of the screen
+5. **Missing "pay now" action in payments list** — "În așteptare" payments have no way to initiate payment from the list
+6. **Notification banner collapsed state** — The banner starts expanded on fresh load but the expand/collapse chevron behavior needs testing
+7. **Admin "Setări Admin" link leads to 404** — Admin sidebar navigation item is dead
+8. **Admin "Adaugă Primărie" and "Vezi Detalii"** buttons are disabled without clear explanation to the user
+9. **Survey page hero section partially obscured** — Dark overlay makes hero text hard to read
+10. **/admin direct URL returns 404** — Should redirect to /admin/login or /admin/survey
 
 ---
 
-## 15. Screenshots Index
+## Screenshots Index
 
-| File                                                         | Description                                                    |
-| ------------------------------------------------------------ | -------------------------------------------------------------- |
-| `.planning/codebase/screenshots/01-login-page.png`           | Boot animation screen (Peladi ERP - dev server was switched)   |
-| `.planning/codebase/screenshots/02-login-after-boot.png`     | Post-boot login screen (Peladi ERP context - different server) |
-| `.planning/codebase/screenshots/03-root-page.png`            | Root page black screen (JS chunk compilation issue - pre-fix)  |
-| `.planning/codebase/screenshots/04-auth-login.png`           | Auth login black screen (pre-fix)                              |
-| `.planning/codebase/screenshots/05-landing-page-loaded.png`  | Landing page Hero section fully loaded                         |
-| `.planning/codebase/screenshots/06-after-continua-click.png` | Location picker (wheel picker UI)                              |
-| `.planning/codebase/screenshots/07-auth-login-full.png`      | Auth login page fully styled                                   |
-| `.planning/codebase/screenshots/08-auth-register.png`        | Auth register page fully styled                                |
-| `.planning/codebase/screenshots/09-reset-password.png`       | Password reset form                                            |
-| `.planning/codebase/screenshots/10-admin-login.png`          | Admin panel with login modal                                   |
-| `.planning/codebase/screenshots/11-survey-page.png`          | Survey landing page                                            |
-| `.planning/codebase/screenshots/12-survey-start-step1.png`   | Survey wizard Step 1                                           |
-| `.planning/codebase/screenshots/13-termeni-page.png`         | Terms & Conditions page                                        |
-| `.planning/codebase/screenshots/14-404-page.png`             | Custom 404 error page                                          |
-| `.planning/codebase/screenshots/15-login-error.png`          | Login error state (invalid credentials)                        |
-| `.planning/codebase/screenshots/16-accept-invite.png`        | Accept invite page (missing token error)                       |
-| `.planning/codebase/screenshots/17-landing-full-hero.png`    | Login page (from redirect after location select)               |
+All screenshots are stored at `/Users/thor/Documents/GitHub/primariata.work/`:
+
+| File                            | Description                                                         |
+| ------------------------------- | ------------------------------------------------------------------- |
+| `01-dashboard-full.png`         | Dashboard full view on load                                         |
+| `02-dashboard-search.png`       | Dashboard search box with "cerere" typed, showing "Niciun rezultat" |
+| `03-cereri-new-error.png`       | /cereri/new showing "Eroare la încărcarea cererii"                  |
+| `04-cereri-list.png`            | Cererile Mele full list with 29 cereri, table view                  |
+| `05-cerere-detail.png`          | B-SE-2026-00001 detail page with status timeline                    |
+| `06-cereri-wizard-loading.png`  | /cereri/wizard Step 1 — type selection loaded                       |
+| `07-wizard-step2-details.png`   | /cereri/wizard Step 2 — Certificat de Naștere form                  |
+| `08-documente-404.png`          | /documente showing custom 404 page                                  |
+| `09-plati-list.png`             | Plăți & Taxe list with 5 payment records                            |
+| `10-notificari.png`             | Notificări page with 2 unread notifications                         |
+| `11-notificari-marked-read.png` | After marking first notification as read (1 remaining)              |
+| `12-setari-dashboard.png`       | Setări — Dashboard preferences tab                                  |
+| `13-setari-profil.png`          | Setări — Profil tab with user data                                  |
+| `14-location-picker.png`        | Location change — redirects to landing page                         |
+| `15-user-menu.png`              | User menu dropdown (visually clipped)                               |
+| `16-admin-404.png`              | /admin returning 404                                                |
+| `17-survey-landing.png`         | Survey landing page                                                 |
+| `18-survey-start.png`           | Survey Step 1 — Date personale form                                 |
+| `19-admin-login-redirect.png`   | /admin/login redirecting to /admin/survey                           |
+| `20-admin-global.png`           | /admin/primariata Global Admin dashboard                            |
+| `21-mobile-dashboard.png`       | Dashboard in 375x812 mobile viewport                                |
+| `22-mobile-menu-open.png`       | Mobile hamburger menu open                                          |
+| `23-dashboard-scrolled.png`     | Dashboard scrolled showing widgets and notification banner          |
+| `24-admin-primarii.png`         | Admin primarii list with 5 entries                                  |
 
 ---
 
-## 16. Overall Functionality Assessment
+## Feature Completeness Assessment
 
-### Score: 7.5/10
+### Fully Implemented & Working
 
-**Strong Points**:
+- Authentication (Google OAuth via Supabase)
+- Dashboard with all major widgets
+- Cereri list with filtering, sorting, pagination
+- Cerere detail view
+- Cerere wizard (4-step flow, at least Steps 1-2 verified)
+- Plăți list
+- Notificări with real-time Supabase subscription
+- Mark notification as read (real-time badge update)
+- Setări — profile & dashboard preferences UI
+- User menu (functional, visual bug)
+- Admin — Survey Dashboard analytics
+- Admin — Global Admin dashboard
+- Admin — Primarii list
+- Survey landing page
+- Survey wizard Step 1 (date personale)
+- Mobile responsive layout with hamburger menu
+- Dark theme (light mode toggle available but not tested fully)
+- Weather widget (8°C, Alba)
+- Sidebar with notification badge
+- Gamification widget
+- Sidebar collapse (Toggle sidebar button)
 
-- Complete authentication flow (login, register, reset password, invite system)
-- Solid auth guard with proper redirect preservation
-- Beautiful, consistent dark-theme UI across all pages
-- Location selection works end-to-end (picker → storage → auth redirect)
-- Survey platform fully functional (wizard, data collection, GDPR consent)
-- Legal pages comprehensive and current
-- Database integration working (13,841+ localitati loaded from Supabase)
-- Error handling on most user-facing forms
-- Proper security headers (CSP, X-Frame-Options, etc.)
-- Custom 404 page with proper branding
-- Vercel Analytics and Speed Insights integrated
+### Partially Implemented
 
-**Gaps / Areas for Improvement**:
+- Dashboard search (cereri results appear to work, plăți endpoint 404)
+- Location change (functional but UX is poor — redirects to landing)
+- Cerere wizard Steps 3-4 (not tested)
+- Setări — Notificări, Securitate, Aspect tabs (not verified)
+- Admin — Admins list (/admin/primariata/admins — not tested)
 
-- Authenticated routes (citizen dashboard, cereri wizard, plăți, profil) not testable without valid Supabase user session
-- Admin authenticated features not testable
-- Footer links and social media links are placeholder `#` anchors
-- API error response format inconsistency across endpoints
-- Admin panel makes unauthenticated API calls before auth check completes
-- Notifications API has different error format than other APIs
-- Several test-\* route directories are empty
+### Not Implemented / Broken
 
-**Production Readiness** (for public pages):
+- Documente page (404)
+- /cereri/new route (500 error — should use /cereri/wizard)
+- /admin direct URL (404)
+- /admin/settings (404)
+- Admin "Adaugă Primărie" feature (disabled)
+- Admin "Setări Admin" link (dead)
+- Pay now action from payments list
 
-- Landing Page: READY
-- Auth Pages: READY (pending Supabase email delivery testing)
-- Survey Platform: READY (Steps 1+, needs full wizard validation testing)
-- Legal Pages: READY
-- 404 Page: READY
-- Admin Panel (public part): NEEDS FIX (notification 401 race condition)
+---
 
-**Not Yet Testable** (requires authenticated session):
+## Recommendations (Priority Order)
 
-- `/app/[judet]/[localitate]` citizen dashboard
-- `/app/[judet]/[localitate]/cereri` - cereri creation wizard
-- `/app/[judet]/[localitate]/plati` - payments
-- `/app/[judet]/[localitate]/profil` - profile management
-- `/app/[judet]/[localitate]/setari` - settings
-- `/admin/primariata` - global admin dashboard
-- `/admin/survey` - survey research dashboard
-- All protected API endpoints with actual data
+### P0 — Fix Immediately
+
+1. Create or fix `/app/alba/alba-iulia-ab/documente` page — currently 404, all users hitting dead link
+2. Fix `/api/cereri/new` 500 error — or redirect Dashboard "Cerere Nouă" to `/cereri/wizard`
+3. Create `/admin/settings` page or remove the sidebar link
+
+### P1 — Fix Soon
+
+4. Fix User menu dropdown CSS positioning (overflow/z-index issue)
+5. Fix status badge to show localized string ("În verificare") not raw enum ("in_verificare")
+6. Fix map widget to show correct location (Alba Iulia, not Bucharest)
+7. Fix "Documente Recente" widget to actually load documents
+
+### P2 — UX Improvements
+
+8. Improve location change UX — consider inline modal picker instead of full redirect
+9. Add "pay now" action for pending payments in the payments list
+10. Fix gamification points inconsistency between mobile and desktop
+11. Add /admin redirect to /admin/login or /admin/survey
+12. Suppress RSC prefetch error for /documente (fix the page or add a placeholder)
+
+---
+
+_Document generated by automated E2E testing with Playwright MCP on 2026-03-02_
