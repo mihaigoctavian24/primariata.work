@@ -34,7 +34,6 @@ export default async function ResearchAnalysisPage() {
     .single();
 
   if (!userData || !["admin", "super_admin"].includes(userData.rol)) {
-    await authClient.auth.signOut();
     redirect("/admin/login");
   }
 

@@ -50,13 +50,8 @@ export default async function SurveyAdminPage() {
   });
 
   if (!userData || !["admin", "super_admin"].includes(userData.rol)) {
-    // User is authenticated but not admin - redirect to admin login with logout
+    // User is authenticated but not admin - redirect without destroying session
     logger.error("❌ Access denied - not admin", { userData, userError });
-
-    // Sign out the user before redirecting
-    await authClient.auth.signOut();
-
-    // Redirect to admin login page where they'll see an error message
     redirect("/admin/login");
   }
 

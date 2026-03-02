@@ -45,9 +45,9 @@ export default function AdminLoginPage() {
             router.push("/admin/survey");
             return;
           } else {
-            // User is logged in but not admin - logout and show error
-            await supabase.auth.signOut();
-            setError("Acces restricționat: Contul tău nu are permisiuni de administrator.");
+            // Non-admin user - redirect to home, don't destroy session
+            router.push("/");
+            return;
           }
         }
       } catch (err) {

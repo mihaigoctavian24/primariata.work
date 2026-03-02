@@ -50,7 +50,6 @@ export default async function GlobalAdminPage() {
   // CRITICAL: Only super_admin can access global admin dashboard
   if (!userData || userData.rol !== "super_admin") {
     logger.error("❌ Access denied - not super_admin", { userData, userError });
-    await authClient.auth.signOut();
     redirect("/admin/login");
   }
 

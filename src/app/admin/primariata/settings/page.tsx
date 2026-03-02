@@ -33,7 +33,6 @@ export default async function PlatformSettingsPage() {
     .single();
 
   if (!userData || userData.rol !== "super_admin") {
-    await authClient.auth.signOut();
     redirect("/admin/login");
   }
 
