@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -79,7 +80,7 @@ export function StaffTable({ initialStaff, currentUserRole }: StaffTableProps) {
         setStaff((prev) => [...prev, ...data.users]);
       }
     } catch (error) {
-      console.error("Error loading more staff:", error);
+      logger.error("Error loading more staff:", error);
     } finally {
       setIsLoading(false);
     }

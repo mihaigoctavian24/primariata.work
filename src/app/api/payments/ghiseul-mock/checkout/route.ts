@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from "next/server";
 import { processCheckout } from "@/lib/payments/ghiseul-mock/server";
 import type { MockTransactionId, MockCheckoutFormData } from "@/lib/payments/ghiseul-mock/types";
@@ -27,7 +28,7 @@ export async function GET(request: NextRequest) {
     .single();
 
   if (plataError || !plata) {
-    console.error("Payment not found for transaction:", transaction_id, plataError);
+    logger.error("Payment not found for transaction", { transaction_id, error: plataError });
     return new NextResponse("Invalid transaction", { status: 404 });
   }
 
@@ -418,7 +419,7 @@ export async function POST(request: NextRequest) {
           : `Plată eșuată: ${result.error_message}`,
     });
   } catch (error) {
-    console.error("[Mock Checkout] Error:", error);
+    logger.error("[Mock Checkout] Error:", error);
     return NextResponse.json(
       {
         success: false,

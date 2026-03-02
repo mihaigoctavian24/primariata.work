@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createCerereSchema, listCereriQuerySchema, CerereStatus } from "@/lib/validations/cereri";
@@ -166,7 +167,7 @@ async function getHandler(request: NextRequest) {
     const { data: cereri, error, count } = await query;
 
     if (error) {
-      console.error("Database error fetching cereri:", error);
+      logger.error("Database error fetching cereri:", error);
       const errorResponse: ApiErrorResponse = {
         success: false,
         error: {
@@ -205,7 +206,7 @@ async function getHandler(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("Unexpected error in GET /api/cereri:", error);
+    logger.error("Unexpected error in GET /api/cereri:", error);
     const errorResponse: ApiErrorResponse = {
       success: false,
       error: {
@@ -361,7 +362,7 @@ async function postHandler(request: NextRequest) {
       .single();
 
     if (insertError) {
-      console.error("Database error creating cerere:", insertError);
+      logger.error("Database error creating cerere:", insertError);
       const errorResponse: ApiErrorResponse = {
         success: false,
         error: {
@@ -385,7 +386,7 @@ async function postHandler(request: NextRequest) {
 
     return NextResponse.json(response, { status: 201 });
   } catch (error) {
-    console.error("Unexpected error in POST /api/cereri:", error);
+    logger.error("Unexpected error in POST /api/cereri:", error);
     const errorResponse: ApiErrorResponse = {
       success: false,
       error: {

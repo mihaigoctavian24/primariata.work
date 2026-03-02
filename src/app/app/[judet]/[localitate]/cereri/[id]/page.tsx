@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -81,14 +82,14 @@ export default function CerereDetailsPage({ params }: CerereDetailsPageProps) {
       const response = await fetch(`/api/cereri/${id}/documents`);
 
       if (!response.ok) {
-        console.error("Failed to fetch documents");
+        logger.error("Failed to fetch documents");
         return;
       }
 
       const data = await response.json();
       setDocuments(data.data || []);
     } catch (err) {
-      console.error("Error fetching documents:", err);
+      logger.error("Error fetching documents:", err);
     } finally {
       setLoadingDocuments(false);
     }
@@ -116,7 +117,7 @@ export default function CerereDetailsPage({ params }: CerereDetailsPageProps) {
           );
       }
     } catch (err) {
-      console.error("Error marking notifications as read:", err);
+      logger.error("Error marking notifications as read:", err);
       // Silent fail - don't interrupt user experience
     }
   }

@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
@@ -151,7 +152,7 @@ export default function CereriPage() {
           setTipuriCereri(data.data.items || []);
         }
       } catch (err) {
-        console.error("Failed to fetch tipuri cereri:", err);
+        logger.error("Failed to fetch tipuri cereri:", err);
       } finally {
         setLoadingTipuri(false);
       }
@@ -243,7 +244,7 @@ export default function CereriPage() {
 
   const handleDownload = async (cerereId: string) => {
     // TODO: Implement download documents logic
-    console.log("Download documents for cerere:", cerereId);
+    logger.debug("Download documents for cerere:", cerereId);
   };
 
   // Bulk cancel handler
@@ -337,11 +338,11 @@ export default function CereriPage() {
               zip.file(`${folderName}/${doc.nume_fisier}`, docBlob);
               documentsFound++;
             } catch (err) {
-              console.error(`Error downloading document ${doc.id}:`, err);
+              logger.error(`Error downloading document ${doc.id}:`, err);
             }
           }
         } catch (err) {
-          console.error(`Error fetching documents for cerere ${cerereId}:`, err);
+          logger.error(`Error fetching documents for cerere ${cerereId}:`, err);
           errors++;
         }
       }
@@ -368,7 +369,7 @@ export default function CereriPage() {
         `${documentsFound} ${documentsFound === 1 ? "document descărcat" : "documente descărcate"}${errors > 0 ? ` (${errors} erori)` : ""}`
       );
     } catch (err) {
-      console.error("Error creating ZIP:", err);
+      logger.error("Error creating ZIP:", err);
       toast.error("Eroare la crearea arhivei ZIP");
     }
   };

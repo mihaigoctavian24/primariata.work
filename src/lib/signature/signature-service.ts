@@ -5,6 +5,7 @@
  * Wraps the mock certSIGN API endpoints with a clean, type-safe interface
  */
 
+import { logger } from "@/lib/logger";
 import type {
   CertificateValidation,
   CertificateDetails,
@@ -55,7 +56,7 @@ export async function validateCertificate(cnp: string): Promise<CertificateValid
       reason: result.data.reason || "Certificat invalid",
     };
   } catch (error) {
-    console.error("Certificate validation error:", error);
+    logger.error("Certificate validation error:", error);
     return {
       valid: false,
       reason: "Eroare de rețea la validare certificat",
@@ -105,7 +106,7 @@ export async function getCertificate(cnp: string): Promise<CertificateDetails | 
 
     return null;
   } catch (error) {
-    console.error("Get certificate error:", error);
+    logger.error("Get certificate error:", error);
     return null;
   }
 }
@@ -156,7 +157,7 @@ export async function signDocument(request: SignatureRequest): Promise<Signature
       error: "Răspuns invalid de la server",
     };
   } catch (error) {
-    console.error("Sign document error:", error);
+    logger.error("Sign document error:", error);
     return {
       success: false,
       error: "Eroare de rețea la semnare document",
@@ -209,7 +210,7 @@ export async function signDocumentsBatch(
       error: "Răspuns invalid de la server",
     };
   } catch (error) {
-    console.error("Sign documents batch error:", error);
+    logger.error("Sign documents batch error:", error);
     return {
       success: false,
       error: "Eroare de rețea la semnare batch",
@@ -259,7 +260,7 @@ export async function verifySignature(transactionId: string): Promise<SignatureV
       error: "Răspuns invalid de la server",
     };
   } catch (error) {
-    console.error("Verify signature error:", error);
+    logger.error("Verify signature error:", error);
     return {
       success: false,
       error: "Eroare de rețea la verificare semnătură",

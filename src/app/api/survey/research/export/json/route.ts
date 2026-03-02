@@ -4,6 +4,7 @@
  * Generates comprehensive JSON export
  */
 
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
@@ -39,7 +40,7 @@ export async function GET(request: NextRequest) {
     const respondentType = searchParams.get("respondent_type") as "citizen" | "official" | null;
     const includeRawData = searchParams.get("include_raw_data") === "true";
 
-    console.log(
+    logger.debug(
       `[JSON Export] User: ${user.email}, Type: ${respondentType}, Raw: ${includeRawData}`
     );
 
@@ -58,7 +59,7 @@ export async function GET(request: NextRequest) {
     const { data: respondents, error: respondentsError } = await respondentsQuery;
 
     if (respondentsError) {
-      console.error("[JSON Export] Respondents error:", respondentsError);
+      logger.error("[JSON Export] Respondents error:", respondentsError);
       return NextResponse.json({ error: "Failed to fetch respondents" }, { status: 500 });
     }
 
@@ -75,7 +76,7 @@ export async function GET(request: NextRequest) {
     const { data: insights, error: insightsError } = await insightsQuery;
 
     if (insightsError) {
-      console.error("[JSON Export] Insights error:", insightsError);
+      logger.error("[JSON Export] Insights error:", insightsError);
       return NextResponse.json({ error: "Failed to fetch insights" }, { status: 500 });
     }
 
@@ -124,7 +125,7 @@ export async function GET(request: NextRequest) {
 
     const filename = `survey-data-${new Date().toISOString().split("T")[0]}.json`;
 
-    console.log(`[JSON Export] ✅ Generated with ${respondents?.length || 0} respondents`);
+    logger.debug(`[JSON Export] ✅ Generated with ${respondents?.length || 0} respondents`);
 
     return new NextResponse(jsonContent, {
       headers: {
@@ -134,7 +135,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("[JSON Export] Error:", error);
+    logger.error("[JSON Export] Error:", error);
     return NextResponse.json(
       {
         error: "Failed to generate JSON",

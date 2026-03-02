@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import { useState } from "react";
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -75,7 +76,7 @@ export function ResetPasswordForm({ className = "" }: ResetPasswordFormProps) {
       setUserEmail(data.email);
       setEmailSent(true);
     } catch (err) {
-      console.error("Password reset error:", err);
+      logger.error("Password reset error:", err);
       setError(
         err instanceof Error
           ? err.message

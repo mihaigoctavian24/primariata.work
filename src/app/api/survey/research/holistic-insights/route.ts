@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
@@ -34,13 +35,13 @@ export async function GET(request: Request) {
 
     const { data: insights, error } = await query;
 
-    console.log("[Holistic Insights] Query result:", {
+    logger.debug("[Holistic Insights] Query result:", {
       count: insights?.length || 0,
       error: error?.message,
     });
 
     if (error) {
-      console.error("[Holistic Insights] Fetch error:", error);
+      logger.error("[Holistic Insights] Fetch error:", error);
       return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 
@@ -49,7 +50,7 @@ export async function GET(request: Request) {
       insights: insights || [],
     });
   } catch (error) {
-    console.error("[Holistic Insights] Error:", error);
+    logger.error("[Holistic Insights] Error:", error);
     return NextResponse.json(
       {
         success: false,

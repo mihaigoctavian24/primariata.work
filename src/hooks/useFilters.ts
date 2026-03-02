@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import { useState, useCallback, useMemo } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 
@@ -59,7 +60,7 @@ export function useFilters<T extends Record<string, unknown>>(options: UseFilter
           setPresets(JSON.parse(saved));
         }
       } catch (error) {
-        console.error("Failed to load filter presets:", error);
+        logger.error("Failed to load filter presets:", error);
       }
     }
   }, []);
@@ -162,7 +163,7 @@ export function useFilters<T extends Record<string, unknown>>(options: UseFilter
         try {
           localStorage.setItem("filter-presets", JSON.stringify(newPresets));
         } catch (error) {
-          console.error("Failed to save filter preset:", error);
+          logger.error("Failed to save filter preset:", error);
         }
       }
 
@@ -192,7 +193,7 @@ export function useFilters<T extends Record<string, unknown>>(options: UseFilter
         try {
           localStorage.setItem("filter-presets", JSON.stringify(newPresets));
         } catch (error) {
-          console.error("Failed to delete filter preset:", error);
+          logger.error("Failed to delete filter preset:", error);
         }
       }
     },

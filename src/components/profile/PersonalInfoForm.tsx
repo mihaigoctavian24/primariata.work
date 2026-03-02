@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -49,7 +50,7 @@ export function PersonalInfoForm({ onSuccess, onError }: PersonalInfoFormProps) 
           setValue("cnp", user.user_metadata?.cnp || "");
         }
       } catch (err) {
-        console.error("Failed to fetch user data:", err);
+        logger.error("Failed to fetch user data:", err);
         onError?.("Eroare la încărcarea datelor utilizatorului");
       } finally {
         setFetchingData(false);

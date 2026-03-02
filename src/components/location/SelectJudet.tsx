@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import { useEffect, useState } from "react";
 import {
   Select,
@@ -39,7 +40,7 @@ export function SelectJudet({ onSelect, defaultValue, disabled = false }: Select
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Eroare la încărcarea județelor";
       setError(errorMessage);
-      console.error("Error fetching județe:", err);
+      logger.error("Error fetching județe:", err);
     } finally {
       setLoading(false);
     }

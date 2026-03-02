@@ -5,6 +5,7 @@
  * Single interface, automatic routing based on GHISEUL_MODE environment variable.
  */
 
+import { logger } from "@/lib/logger";
 import type {
   PaymentInitiationRequest,
   PaymentInitiationResponse,
@@ -34,7 +35,7 @@ export class GhiseulClient {
       ...config,
     };
 
-    console.log(`[GhiseulClient] Initialized in ${this.config.mode} mode`);
+    logger.debug(`[GhiseulClient] Initialized in ${this.config.mode} mode`);
   }
 
   /**
@@ -234,7 +235,7 @@ export class GhiseulClient {
   private verifyWebhookProduction(__signature: string): boolean {
     // This would implement the real Ghișeul.ro signature verification
     // For now, return false to prevent accepting unverified webhooks
-    console.warn("[GhiseulClient] Production webhook verification not implemented");
+    logger.warn("[GhiseulClient] Production webhook verification not implemented");
     return false;
   }
 }

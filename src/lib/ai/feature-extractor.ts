@@ -8,6 +8,7 @@
  * - ROI calculation (impact/effort estimates)
  */
 
+import { logger } from "@/lib/logger";
 import { chatCompletion, AI_MODELS } from "./openai-client";
 import type {
   FeatureExtractionInput,
@@ -25,7 +26,7 @@ import type {
 export async function extractFeatures(
   input: FeatureExtractionInput
 ): Promise<FeatureExtractionOutput> {
-  console.log(`🔍 Extracting features for ${input.respondentType}...`);
+  logger.debug(`🔍 Extracting features for ${input.respondentType}...`);
 
   // Extract explicit features from multiple choice
   const explicitFeatures = await extractExplicitFeatures(
@@ -45,7 +46,7 @@ export async function extractFeatures(
   // Calculate priority matrix
   const priorityMatrix = calculatePriorityMatrix(allFeatures);
 
-  console.log(`✅ Feature extraction complete: ${allFeatures.length} features identified`);
+  logger.debug(`✅ Feature extraction complete: ${allFeatures.length} features identified`);
 
   return {
     features: allFeatures,
@@ -180,7 +181,7 @@ Identifică funcționalitățile menționate și returnează JSON-ul.`;
 
     return features.slice(0, 15); // Max 15 implicit features
   } catch (error) {
-    console.error("❌ Implicit feature extraction failed:", error);
+    logger.error("❌ Implicit feature extraction failed:", error);
     return [];
   }
 }
@@ -462,7 +463,7 @@ ${features.map((f) => f.feature).join("\n")}`;
 
     return result;
   } catch (error) {
-    console.error("❌ Feature categorization failed:", error);
+    logger.error("❌ Feature categorization failed:", error);
 
     // Fallback: single category
     return new Map([["Toate funcționalitățile", features]]);

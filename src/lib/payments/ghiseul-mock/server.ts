@@ -5,6 +5,7 @@
  * Used by API routes to simulate Ghișeul.ro behavior.
  */
 
+import { logger } from "@/lib/logger";
 import type {
   MockPaymentRequest,
   MockPaymentResponse,
@@ -48,7 +49,7 @@ export async function initializePayment(request: MockPaymentRequest): Promise<Mo
   // Create payment session
   const response = initiatePayment(request);
 
-  console.log(
+  logger.debug(
     `[Mock Gateway] Payment initiated: ${response.transaction_id} for ${request.amount} RON`
   );
 
@@ -108,7 +109,7 @@ export async function processCheckout(formData: MockCheckoutFormData): Promise<M
     callback_url
   );
 
-  console.log(
+  logger.debug(
     `[Mock Gateway] Payment processed: ${result.transaction_id} - Status: ${result.status}`
   );
 
@@ -309,7 +310,7 @@ export function logTransaction(
 
   // In development, log to console
   if (process.env.NODE_ENV === "development") {
-    console.log(`[Mock Gateway ${level.toUpperCase()}]`, JSON.stringify(logEntry, null, 2));
+    logger.debug(`[Mock Gateway ${level.toUpperCase()}]`, JSON.stringify(logEntry, null, 2));
   }
 
   // In production, this would go to a logging service (Sentry, CloudWatch, etc.)

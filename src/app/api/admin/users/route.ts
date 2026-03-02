@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient, createServiceRoleClient } from "@/lib/supabase/server";
 import { staffFiltersSchema } from "@/lib/validations/staff-invite";
@@ -117,7 +118,7 @@ export async function GET(request: NextRequest) {
     const { data: users, error: usersError, count } = await query;
 
     if (usersError) {
-      console.error("Failed to fetch users:", usersError);
+      logger.error("Failed to fetch users:", usersError);
       return NextResponse.json(
         { error: "Failed to fetch users", details: usersError.message },
         { status: 500 }
@@ -148,7 +149,7 @@ export async function GET(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error in GET /api/admin/users:", error);
+    logger.error("Error in GET /api/admin/users:", error);
     return NextResponse.json(
       {
         error: "Internal server error",

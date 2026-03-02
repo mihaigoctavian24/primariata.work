@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import { useState, useMemo } from "react";
 import {
   Dialog,
@@ -176,7 +177,7 @@ export function ExportDialog({
       await onExport(selectedFormat, options);
       setExportComplete(true);
     } catch (error) {
-      console.error("Export failed:", error);
+      logger.error("Export failed:", error);
       setExportError(error instanceof Error ? error.message : "Export failed");
     }
   };

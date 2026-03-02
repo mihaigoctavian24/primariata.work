@@ -8,6 +8,7 @@
  * - Key findings extraction
  */
 
+import { logger } from "@/lib/logger";
 import { chatCompletion, AI_MODELS } from "./openai-client";
 import type {
   AIInsight,
@@ -36,7 +37,7 @@ export async function generateExecutiveSummary(input: {
   overallSentiment: { overall: number; label: string };
   questionAnalyses: QuestionAnalysisResult[];
 }): Promise<ExecutiveSummary> {
-  console.log("📝 Generating executive summary...");
+  logger.debug("📝 Generating executive summary...");
 
   // Extract key findings using AI
   const keyFindings = await extractKeyFindings(input.questionAnalyses);
@@ -127,7 +128,7 @@ Returnează JSON:
     const result = JSON.parse(response.content);
     return Array.isArray(result.keyFindings) ? result.keyFindings.slice(0, 5) : [];
   } catch (error) {
-    console.error("❌ Key findings extraction failed:", error);
+    logger.error("❌ Key findings extraction failed:", error);
 
     // Fallback findings
     return [
@@ -162,7 +163,7 @@ export async function generateQuestionInsight(input: {
   featureAnalysis?: FeatureExtractionOutput;
   demographicAnalysis?: DemographicAnalysisOutput;
 }): Promise<AIInsight> {
-  console.log(`💡 Generating insight for ${input.questionId}...`);
+  logger.debug(`💡 Generating insight for ${input.questionId}...`);
 
   // Generate AI summary
   const aiSummary = await generateAISummary(input);
@@ -281,7 +282,7 @@ Returnează JSON:
     const result = JSON.parse(response.content);
     return result.summary ?? "Rezumat indisponibil.";
   } catch (error) {
-    console.error("❌ AI summary generation failed:", error);
+    logger.error("❌ AI summary generation failed:", error);
     return `Analiză pentru ${input.questionText} cu ${input.totalResponses} răspunsuri.`;
   }
 }
@@ -385,7 +386,7 @@ Returnează JSON:
 
     return [];
   } catch (error) {
-    console.error("❌ Recommendations generation failed:", error);
+    logger.error("❌ Recommendations generation failed:", error);
     return [];
   }
 }
@@ -417,7 +418,7 @@ function calculateConfidenceScore(totalResponses: number): number {
 export async function generateAllInsights(
   questionAnalyses: QuestionAnalysisResult[]
 ): Promise<AIInsight[]> {
-  console.log(`🔄 Generating insights for ${questionAnalyses.length} questions...`);
+  logger.debug(`🔄 Generating insights for ${questionAnalyses.length} questions...`);
 
   const insights: AIInsight[] = [];
 
@@ -449,7 +450,7 @@ export async function generateAllInsights(
     }
   }
 
-  console.log(`✅ Generated ${insights.length} insights`);
+  logger.debug(`✅ Generated ${insights.length} insights`);
 
   return insights;
 }
@@ -548,7 +549,7 @@ Returnează JSON:
     const result = JSON.parse(response.content);
     return Array.isArray(result.comparativeInsights) ? result.comparativeInsights.slice(0, 5) : [];
   } catch (error) {
-    console.error("❌ Comparative insights generation failed:", error);
+    logger.error("❌ Comparative insights generation failed:", error);
     return [];
   }
 }
@@ -598,7 +599,7 @@ export async function generateHolisticInsights(input: {
   completionTokens: number;
   confidenceScore: number;
 }> {
-  console.log(`🎯 Generating HOLISTIC insights for ${input.surveyType} survey...`);
+  logger.debug(`🎯 Generating HOLISTIC insights for ${input.surveyType} survey...`);
 
   // Prepare comprehensive context for OpenAI
   const questionContext = input.questions
@@ -727,7 +728,7 @@ Generează analiza strategică holistică.`;
       confidenceScore: result.confidenceScore || 0.8,
     };
   } catch (error) {
-    console.error(`❌ Holistic insights generation failed for ${input.surveyType}:`, error);
+    logger.error(`❌ Holistic insights generation failed for ${input.surveyType}:`, error);
     throw error;
   }
 }

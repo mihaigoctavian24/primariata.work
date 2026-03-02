@@ -5,6 +5,7 @@
  * Used for cerere status updates and important notifications
  */
 
+import { logger } from "@/lib/logger";
 import { createServiceRoleClient } from "@/lib/supabase/server";
 
 // Twilio API configuration
@@ -47,7 +48,7 @@ async function checkRateLimit(userId: string): Promise<boolean> {
     .gte("created_at", oneDayAgo.toISOString());
 
   if (error) {
-    console.error("Error checking rate limit:", error);
+    logger.error("Error checking rate limit:", error);
     return false; // Allow on error (fail open)
   }
 
@@ -91,7 +92,7 @@ async function getSMSTemplate(type: string, cerereId: string): Promise<string | 
     .single();
 
   if (error || !cerere) {
-    console.error("Error fetching cerere for SMS:", error);
+    logger.error("Error fetching cerere for SMS:", error);
     return null;
   }
 
@@ -134,7 +135,7 @@ async function sendTwilioSMS(
 ): Promise<{ success: boolean; sid?: string; error?: string }> {
   // Check if Twilio is configured
   if (!TWILIO_ACCOUNT_SID || !TWILIO_AUTH_TOKEN || !TWILIO_PHONE_NUMBER) {
-    console.error("Twilio credentials not configured");
+    logger.error("Twilio credentials not configured");
     return {
       success: false,
       error: "Twilio credentials missing",
@@ -165,20 +166,20 @@ async function sendTwilioSMS(
     const data = await response.json();
 
     if (!response.ok) {
-      console.error("Twilio API error:", data);
+      logger.error("Twilio API error:", data);
       return {
         success: false,
         error: data.message || "Twilio API error",
       };
     }
 
-    console.log(`SMS sent successfully: ${data.sid} to ${to}`);
+    logger.debug(`SMS sent successfully: ${data.sid} to ${to}`);
     return {
       success: true,
       sid: data.sid,
     };
   } catch (error) {
-    console.error("Error sending SMS:", error);
+    logger.error("Error sending SMS:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -199,7 +200,7 @@ async function isSMSEnabled(userId: string): Promise<boolean> {
     .single();
 
   if (error) {
-    console.error("Error checking SMS preference:", error);
+    logger.error("Error checking SMS preference:", error);
     return false; // Default to disabled on error
   }
 
@@ -230,7 +231,7 @@ export async function sendSMS(request: SMSRequest): Promise<SMSResponse> {
     // 1. Check if user has SMS enabled
     const smsEnabled = await isSMSEnabled(userId);
     if (!smsEnabled) {
-      console.log(`SMS notifications disabled for user ${userId}`);
+      logger.debug(`SMS notifications disabled for user ${userId}`);
       return {
         success: false,
         error: "SMS notifications disabled by user",
@@ -240,7 +241,7 @@ export async function sendSMS(request: SMSRequest): Promise<SMSResponse> {
     // 2. Check rate limit
     const withinLimit = await checkRateLimit(userId);
     if (!withinLimit) {
-      console.warn(`Rate limit exceeded for user ${userId}`);
+      logger.warn(`Rate limit exceeded for user ${userId}`);
       await logSMS(userId, toPhone, type, false, undefined, "Rate limit exceeded");
       return {
         success: false,
@@ -251,7 +252,7 @@ export async function sendSMS(request: SMSRequest): Promise<SMSResponse> {
     // 3. Get SMS template
     const message = await getSMSTemplate(type, cerereId);
     if (!message) {
-      console.error(`Failed to generate SMS template for type: ${type}`);
+      logger.error(`Failed to generate SMS template for type: ${type}`);
       return {
         success: false,
         error: "Failed to generate SMS message",
@@ -277,7 +278,7 @@ export async function sendSMS(request: SMSRequest): Promise<SMSResponse> {
       };
     }
   } catch (error) {
-    console.error("Unexpected error sending SMS:", error);
+    logger.error("Unexpected error sending SMS:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error occurred",

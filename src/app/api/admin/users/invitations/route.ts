@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient, createServiceRoleClient } from "@/lib/supabase/server";
 import { invitationFiltersSchema } from "@/lib/validations/staff-invite";
@@ -107,7 +108,7 @@ export async function GET(request: NextRequest) {
     const { data: invitations, error: invitationsError, count } = await query;
 
     if (invitationsError) {
-      console.error("Failed to fetch invitations:", invitationsError);
+      logger.error("Failed to fetch invitations:", invitationsError);
       return NextResponse.json(
         { error: "Failed to fetch invitations", details: invitationsError.message },
         { status: 500 }
@@ -138,7 +139,7 @@ export async function GET(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error in GET /api/admin/users/invitations:", error);
+    logger.error("Error in GET /api/admin/users/invitations:", error);
     return NextResponse.json(
       {
         error: "Internal server error",

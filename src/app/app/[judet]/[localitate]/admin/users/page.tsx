@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { createServiceRoleClient, createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import { Users, UserPlus, Mail } from "lucide-react";
@@ -40,7 +41,7 @@ export default async function PrimarieStaffPage({
     .single();
 
   // Debug logging
-  console.log("🔍 Primărie Staff Admin Auth Debug:", {
+  logger.debug("🔍 Primărie Staff Admin Auth Debug:", {
     userId: user.id,
     userEmail: user.email,
     userData,
@@ -52,7 +53,7 @@ export default async function PrimarieStaffPage({
 
   if (!userData || !["admin", "super_admin"].includes(userData.rol)) {
     // User is authenticated but not admin - redirect to admin login with logout
-    console.error("❌ Access denied - not admin", { userData, userError });
+    logger.error("❌ Access denied - not admin", { userData, userError });
 
     // Sign out the user before redirecting
     await authClient.auth.signOut();

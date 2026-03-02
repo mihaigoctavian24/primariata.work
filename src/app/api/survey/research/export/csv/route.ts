@@ -4,6 +4,7 @@
  * Generates CSV export of survey data
  */
 
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
@@ -38,7 +39,7 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const respondentType = searchParams.get("respondent_type") as "citizen" | "official" | null;
 
-    console.log(`[CSV Export] User: ${user.email}, Type: ${respondentType}`);
+    logger.debug(`[CSV Export] User: ${user.email}, Type: ${respondentType}`);
 
     // 3. Fetch data from Supabase
 
@@ -54,7 +55,7 @@ export async function GET(request: NextRequest) {
     const { data: respondents, error: respondentsError } = await respondentsQuery;
 
     if (respondentsError) {
-      console.error("[CSV Export] Error:", respondentsError);
+      logger.error("[CSV Export] Error:", respondentsError);
       return NextResponse.json({ error: "Failed to fetch data" }, { status: 500 });
     }
 
@@ -101,7 +102,7 @@ export async function GET(request: NextRequest) {
 
     const filename = `survey-responses-${new Date().toISOString().split("T")[0]}.csv`;
 
-    console.log(`[CSV Export] ✅ Generated ${respondents?.length || 0} rows`);
+    logger.debug(`[CSV Export] ✅ Generated ${respondents?.length || 0} rows`);
 
     return new NextResponse(csvContent, {
       headers: {
@@ -111,7 +112,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("[CSV Export] Error:", error);
+    logger.error("[CSV Export] Error:", error);
     return NextResponse.json(
       {
         error: "Failed to generate CSV",

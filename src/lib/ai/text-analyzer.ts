@@ -8,6 +8,7 @@
  * - Quote selection
  */
 
+import { logger } from "@/lib/logger";
 import { chatCompletion, AI_MODELS } from "./openai-client";
 import type {
   TextAnalysisInput,
@@ -24,7 +25,7 @@ import type {
  * Analyze text responses using AI
  */
 export async function analyzeTextResponses(input: TextAnalysisInput): Promise<TextAnalysisOutput> {
-  console.log(`🔍 Analyzing ${input.responses.length} text responses for ${input.questionId}...`);
+  logger.debug(`🔍 Analyzing ${input.responses.length} text responses for ${input.questionId}...`);
 
   // Filter out empty responses
   const validResponses = input.responses.filter((r) => r && r.trim().length > 0);
@@ -127,13 +128,13 @@ Analizează aceste răspunsuri și returnează JSON-ul cerut.`;
         : [],
     };
 
-    console.log(
+    logger.debug(
       `✅ Text analysis complete: ${result.themes.length} themes, sentiment: ${result.sentiment.label}`
     );
 
     return result;
   } catch (error) {
-    console.error("❌ Text analysis failed:", error);
+    logger.error("❌ Text analysis failed:", error);
 
     // Return fallback result
     return {
@@ -189,7 +190,7 @@ Returnează JSON: { "overall": -1.0 to 1.0, "label": "positive|negative|neutral|
       confidence: sentiment.confidence ?? 0.7,
     };
   } catch (error) {
-    console.error("❌ Sentiment detection failed:", error);
+    logger.error("❌ Sentiment detection failed:", error);
     return {
       overall: 0,
       label: "neutral",
@@ -241,7 +242,7 @@ Returnează JSON array de maxim ${maxThemes} teme:
     const themes = JSON.parse(response.content);
     return Array.isArray(themes) ? themes.slice(0, maxThemes) : [];
   } catch (error) {
-    console.error("❌ Theme extraction failed:", error);
+    logger.error("❌ Theme extraction failed:", error);
     return [];
   }
 }
@@ -280,7 +281,7 @@ Frazele trebuie să fie exacte din text, nu modificate.`;
     const phrases = JSON.parse(response.content);
     return Array.isArray(phrases) ? phrases.slice(0, maxPhrases) : [];
   } catch (error) {
-    console.error("❌ Key phrase extraction failed:", error);
+    logger.error("❌ Key phrase extraction failed:", error);
     return [];
   }
 }

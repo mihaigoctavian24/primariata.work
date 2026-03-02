@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { useState, useEffect } from "react";
 import type { WheelPickerOption } from "@/components/wheel-picker";
 import type { ApiResponse, ApiErrorResponse, Judet } from "@/types/api";
@@ -58,7 +59,7 @@ export function useJudeteWheelPicker(): UseJudeteWheelPickerReturn {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Eroare la încărcarea județelor";
       setError(errorMessage);
-      console.error("Error fetching județe:", err);
+      logger.error("Error fetching județe:", err);
     } finally {
       setLoading(false);
     }

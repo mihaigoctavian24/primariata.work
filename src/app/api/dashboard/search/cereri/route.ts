@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
@@ -64,7 +65,7 @@ export async function GET(request: Request) {
       .limit(10);
 
     if (cereriError) {
-      console.error("Error searching cereri:", cereriError);
+      logger.error("Error searching cereri:", cereriError);
       return NextResponse.json(
         { success: false, error: "Failed to search cereri" },
         { status: 500 }
@@ -87,7 +88,7 @@ export async function GET(request: Request) {
       data: transformedCereri,
     });
   } catch (error) {
-    console.error("Unexpected error in cereri search:", error);
+    logger.error("Unexpected error in cereri search:", error);
     return NextResponse.json({ success: false, error: "Internal server error" }, { status: 500 });
   }
 }

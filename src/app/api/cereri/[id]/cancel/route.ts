@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -144,7 +145,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       .single();
 
     if (updateError) {
-      console.error("Database error cancelling cerere:", updateError);
+      logger.error("Database error cancelling cerere:", updateError);
       const errorResponse: ApiErrorResponse = {
         success: false,
         error: {
@@ -172,7 +173,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
-    console.error("Unexpected error in POST /api/cereri/[id]/cancel:", error);
+    logger.error("Unexpected error in POST /api/cereri/[id]/cancel:", error);
     const errorResponse: ApiErrorResponse = {
       success: false,
       error: {

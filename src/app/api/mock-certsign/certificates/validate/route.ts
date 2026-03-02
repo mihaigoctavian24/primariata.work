@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import type { ApiResponse, ApiErrorResponse } from "@/types/api";
@@ -191,7 +192,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("Unexpected error in POST /api/mock-certsign/certificates/validate:", error);
+    logger.error("Unexpected error in POST /api/mock-certsign/certificates/validate:", error);
     const errorResponse: ApiErrorResponse = {
       success: false,
       error: {

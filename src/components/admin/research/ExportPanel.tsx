@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -47,7 +48,7 @@ export function ExportPanel({ totalResponses }: ExportPanelProps) {
       setPdfSuccess(true);
       setTimeout(() => setPdfSuccess(false), 3000);
     } catch (error) {
-      console.error("PDF export failed:", error);
+      logger.error("PDF export failed:", error);
     } finally {
       setPdfLoading(false);
     }
@@ -77,7 +78,7 @@ export function ExportPanel({ totalResponses }: ExportPanelProps) {
       setExcelSuccess(true);
       setTimeout(() => setExcelSuccess(false), 3000);
     } catch (error) {
-      console.error("Excel export failed:", error);
+      logger.error("Excel export failed:", error);
     } finally {
       setExcelLoading(false);
     }

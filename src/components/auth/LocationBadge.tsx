@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { MapPin, ChevronDown } from "lucide-react";
@@ -79,7 +80,7 @@ export function LocationBadge({
           });
         }
       } catch (error) {
-        console.error("Failed to fetch location data:", error);
+        logger.error("Failed to fetch location data:", error);
       } finally {
         setLoading(false);
       }

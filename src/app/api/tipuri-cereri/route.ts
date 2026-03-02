@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import type { ApiResponse, ApiErrorResponse, TipCerere } from "@/types/api";
@@ -96,7 +97,7 @@ export async function GET() {
       .order("nume", { ascending: true });
 
     if (error) {
-      console.error("Database error fetching tipuri_cereri:", error);
+      logger.error("Database error fetching tipuri_cereri:", error);
       const errorResponse: ApiErrorResponse = {
         success: false,
         error: {
@@ -126,7 +127,7 @@ export async function GET() {
       },
     });
   } catch (error) {
-    console.error("Unexpected error in GET /api/tipuri-cereri:", error);
+    logger.error("Unexpected error in GET /api/tipuri-cereri:", error);
     const errorResponse: ApiErrorResponse = {
       success: false,
       error: {

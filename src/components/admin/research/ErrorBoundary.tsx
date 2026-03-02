@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import React, { Component, ErrorInfo, ReactNode } from "react";
 import { AlertTriangle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -35,7 +36,11 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error("Error Boundary caught an error:", error, errorInfo);
+    logger.error("Error Boundary caught an error", {
+      error: error.message,
+      stack: error.stack,
+      componentStack: errorInfo?.componentStack,
+    });
 
     // You can log to an error reporting service here
     // e.g., Sentry.captureException(error, { extra: errorInfo });

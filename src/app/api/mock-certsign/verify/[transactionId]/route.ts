@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import type { ApiResponse, ApiErrorResponse } from "@/types/api";
@@ -200,7 +201,7 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error("Unexpected error in GET /api/mock-certsign/verify/[transactionId]:", error);
+    logger.error("Unexpected error in GET /api/mock-certsign/verify/[transactionId]:", error);
     const errorResponse: ApiErrorResponse = {
       success: false,
       error: {

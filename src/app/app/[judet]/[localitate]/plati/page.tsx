@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { LayoutGrid, Table2, ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react";
@@ -105,7 +106,7 @@ export default function PlatiPage() {
         toast.error("Chitanța nu este disponibilă");
       }
     } catch (error) {
-      console.error("Download error:", error);
+      logger.error("Download error:", error);
       toast.error("Eroare la descărcarea chitanței");
     }
   };

@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { SurveyLayout } from "@/components/survey/SurveyLayout";
@@ -105,7 +106,7 @@ export default function SurveyStartPage() {
       // Move to completion step
       setCurrentStep(5);
     } catch (error) {
-      console.error("Error submitting survey:", error);
+      logger.error("Error submitting survey:", error);
       toast.error("Eroare la trimiterea chestionarului", {
         description: error instanceof Error ? error.message : "Vă rugăm să încercați din nou.",
       });

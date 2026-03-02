@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import { useRouter } from "next/navigation";
 import { useCallback } from "react";
 import { WizardStep } from "@/types/wizard";
@@ -78,7 +79,7 @@ export default function CreateCererePage() {
 
         toast.success("Draft salvat cu succes");
       } catch (error) {
-        console.error("Error saving draft:", error);
+        logger.error("Error saving draft:", error);
         toast.error(error instanceof Error ? error.message : "Eroare la salvarea draft-ului");
         throw error;
       }
@@ -112,7 +113,7 @@ export default function CreateCererePage() {
       clearState();
       router.push("../cereri");
     } catch (error) {
-      console.error("Error abandoning draft:", error);
+      logger.error("Error abandoning draft:", error);
       toast.error(error instanceof Error ? error.message : "Eroare la abandonarea draft-ului");
     }
   }, [state.draftId, clearState, router]);
@@ -175,7 +176,7 @@ export default function CreateCererePage() {
       // Redirect to cereri list
       router.push("../cereri");
     } catch (error) {
-      console.error("Error submitting cerere:", error);
+      logger.error("Error submitting cerere:", error);
       toast.error(error instanceof Error ? error.message : "Eroare la trimiterea cererii");
       throw error;
     }

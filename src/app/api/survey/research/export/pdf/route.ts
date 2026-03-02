@@ -4,6 +4,7 @@
  * Generates executive research report as PDF
  */
 
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import jsPDF from "jspdf";
@@ -47,7 +48,7 @@ export async function GET(request: NextRequest) {
     const respondentType = searchParams.get("respondent_type") as "citizen" | "official" | null;
     const includeRawData = searchParams.get("include_raw_data") === "true";
 
-    console.log(
+    logger.debug(
       `[PDF Export] User: ${user.email}, Type: ${respondentType}, Raw: ${includeRawData}`
     );
 
@@ -66,7 +67,7 @@ export async function GET(request: NextRequest) {
     const { data: respondents, error: respondentsError } = await respondentsQuery;
 
     if (respondentsError) {
-      console.error("[PDF Export] Respondents error:", respondentsError);
+      logger.error("[PDF Export] Respondents error:", respondentsError);
       return NextResponse.json({ error: "Failed to fetch respondents" }, { status: 500 });
     }
 
@@ -83,7 +84,7 @@ export async function GET(request: NextRequest) {
     const { data: insights, error: insightsError } = await insightsQuery;
 
     if (insightsError) {
-      console.error("[PDF Export] Insights error:", insightsError);
+      logger.error("[PDF Export] Insights error:", insightsError);
       return NextResponse.json({ error: "Failed to fetch insights" }, { status: 500 });
     }
 
@@ -256,7 +257,7 @@ export async function GET(request: NextRequest) {
     const buffer = await pdfBlob.arrayBuffer();
 
     const executionTime = Date.now() - startTime;
-    console.log(`[PDF Export] ✅ Generated in ${executionTime}ms`);
+    logger.debug(`[PDF Export] ✅ Generated in ${executionTime}ms`);
 
     const filename = `research-report-${new Date().toISOString().split("T")[0]}.pdf`;
 
@@ -268,7 +269,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("[PDF Export] Error:", error);
+    logger.error("[PDF Export] Error:", error);
     return NextResponse.json(
       {
         error: "Failed to generate PDF",

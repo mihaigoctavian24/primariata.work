@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import type { ApiResponse, ApiErrorResponse, Localitate } from "@/types/api";
@@ -81,7 +82,7 @@ async function handler(request: NextRequest) {
     const { data: localitati, error } = await query;
 
     if (error) {
-      console.error("Database error fetching localități:", error);
+      logger.error("Database error fetching localități:", error);
       const errorResponse: ApiErrorResponse = {
         success: false,
         error: {
@@ -110,7 +111,7 @@ async function handler(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("Unexpected error in GET /api/localitati:", error);
+    logger.error("Unexpected error in GET /api/localitati:", error);
     const errorResponse: ApiErrorResponse = {
       success: false,
       error: {

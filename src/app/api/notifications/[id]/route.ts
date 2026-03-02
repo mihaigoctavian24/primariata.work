@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { createClient } from "@/lib/supabase/server";
 import { updateNotificationSchema } from "@/lib/validations/notifications";
 import { NextResponse } from "next/server";
@@ -69,7 +70,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       .single();
 
     if (updateError) {
-      console.error("Error updating notification:", updateError);
+      logger.error("Error updating notification:", updateError);
       return NextResponse.json({ error: "Failed to update notification" }, { status: 500 });
     }
 
@@ -89,7 +90,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       },
     });
   } catch (error) {
-    console.error("Unexpected error in PATCH /api/notifications/[id]:", error);
+    logger.error("Unexpected error in PATCH /api/notifications/[id]:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

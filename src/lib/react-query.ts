@@ -3,6 +3,7 @@
  * Centralized configuration for TanStack Query (React Query)
  */
 
+import { logger } from "@/lib/logger";
 import { QueryClient, DefaultOptions, MutationCache, QueryCache } from "@tanstack/react-query";
 
 // Default query options
@@ -53,7 +54,7 @@ const queryCache = new QueryCache({
   onError: (error, query) => {
     // Log errors in development
     if (process.env.NODE_ENV === "development") {
-      console.error("Query Error:", {
+      logger.error("Query Error:", {
         error,
         queryKey: query.queryKey,
       });
@@ -65,7 +66,7 @@ const queryCache = new QueryCache({
   onSuccess: (data, query) => {
     // Optional: Log successful queries in development
     if (process.env.NODE_ENV === "development") {
-      console.log("Query Success:", {
+      logger.debug("Query Success:", {
         queryKey: query.queryKey,
         data,
       });
@@ -78,7 +79,7 @@ const mutationCache = new MutationCache({
   onError: (error, variables, context, mutation) => {
     // Log errors in development
     if (process.env.NODE_ENV === "development") {
-      console.error("Mutation Error:", {
+      logger.error("Mutation Error:", {
         error,
         variables,
         mutationKey: mutation.options.mutationKey,
@@ -90,7 +91,7 @@ const mutationCache = new MutationCache({
   onSuccess: (data, variables, context, mutation) => {
     // Optional: Log successful mutations in development
     if (process.env.NODE_ENV === "development") {
-      console.log("Mutation Success:", {
+      logger.debug("Mutation Success:", {
         mutationKey: mutation.options.mutationKey,
         data,
       });

@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { createServiceRoleClient, createClient } from "@/lib/supabase/server";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -60,7 +61,7 @@ export default async function PrimarieAdminPage({
     .single();
 
   // Debug logging
-  console.log("🔍 Primărie Admin Auth Debug:", {
+  logger.debug("🔍 Primărie Admin Auth Debug:", {
     userId: user.id,
     userEmail: user.email,
     userData,
@@ -72,7 +73,7 @@ export default async function PrimarieAdminPage({
 
   // CRITICAL: Only admin and super_admin can access primărie admin dashboard
   if (!userData || !["admin", "super_admin"].includes(userData.rol)) {
-    console.error("❌ Access denied - not admin", { userData, userError });
+    logger.error("❌ Access denied - not admin", { userData, userError });
     await authClient.auth.signOut();
     redirect("/auth/login");
   }
@@ -92,7 +93,7 @@ export default async function PrimarieAdminPage({
 
   // CRITICAL: primarie_id must exist for admin
   if (!primarieId) {
-    console.error("❌ Admin user has no primarie_id");
+    logger.error("❌ Admin user has no primarie_id");
     redirect("/auth/login");
   }
 

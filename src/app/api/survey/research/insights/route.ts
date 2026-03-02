@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
@@ -118,7 +119,7 @@ export async function GET(request: NextRequest) {
       }
     );
   } catch (error) {
-    console.error("[Insights Fetch] Error:", error);
+    logger.error("[Insights Fetch] Error:", error);
 
     return NextResponse.json(
       {
@@ -180,7 +181,7 @@ export async function DELETE() {
       .neq("id", "");
 
     if (cacheError) {
-      console.error(`[Cache Clear] Warning: ${cacheError.message}`);
+      logger.error(`[Cache Clear] Warning: ${cacheError.message}`);
     }
 
     return NextResponse.json({
@@ -188,7 +189,7 @@ export async function DELETE() {
       message: "All insights and cache cleared successfully",
     });
   } catch (error) {
-    console.error("[Insights Delete] Error:", error);
+    logger.error("[Insights Delete] Error:", error);
 
     return NextResponse.json(
       {

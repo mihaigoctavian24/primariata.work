@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
@@ -52,7 +53,7 @@ export async function GET() {
       .eq("solicitant_id", user.id);
 
     if (cereriError) {
-      console.error("Error fetching service breakdown:", cereriError);
+      logger.error("Error fetching service breakdown:", cereriError);
       return NextResponse.json(
         { success: false, error: "Failed to fetch service breakdown" },
         { status: 500 }
@@ -102,7 +103,7 @@ export async function GET() {
       },
     });
   } catch (error) {
-    console.error("Unexpected error in service-breakdown:", error);
+    logger.error("Unexpected error in service-breakdown:", error);
     return NextResponse.json({ success: false, error: "Internal server error" }, { status: 500 });
   }
 }

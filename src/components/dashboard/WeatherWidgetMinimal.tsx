@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Cloud, CloudRain, CloudSnow, CloudSun, Sun, Wind, Droplets, Loader2 } from "lucide-react";
@@ -71,7 +72,7 @@ export function WeatherWidgetMinimal({
 
         setWeather(weatherData);
       } catch (err) {
-        console.error("Weather fetch error:", err);
+        logger.error("Weather fetch error:", err);
       } finally {
         setIsLoading(false);
       }

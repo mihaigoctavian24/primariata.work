@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect, useRef } from "react";
@@ -234,7 +235,7 @@ export function HeroSection({
       ]);
 
       if (!judeteResponse.ok || !localitatiResponse.ok) {
-        console.error("Failed to fetch location details");
+        logger.error("Failed to fetch location details");
         return;
       }
 
@@ -249,7 +250,7 @@ export function HeroSection({
       );
 
       if (!judet || !localitate) {
-        console.error("Location not found");
+        logger.error("Location not found");
         return;
       }
 
@@ -262,7 +263,7 @@ export function HeroSection({
 
       router.push("/auth/login");
     } catch (error) {
-      console.error("Error saving location:", error);
+      logger.error("Error saving location:", error);
     }
   };
 

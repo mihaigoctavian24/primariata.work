@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { webhookPlataUpdateSchema, PlataStatus } from "@/lib/validations/plati";
@@ -28,7 +29,7 @@ export async function POST(request: NextRequest) {
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
     if (!supabaseUrl || !supabaseServiceKey) {
-      console.error("Missing Supabase credentials for webhook handler");
+      logger.error("Missing Supabase credentials for webhook handler");
       const errorResponse: ApiErrorResponse = {
         success: false,
         error: {
@@ -57,7 +58,7 @@ export async function POST(request: NextRequest) {
       validatedData = webhookPlataUpdateSchema.parse(body);
     } catch (error) {
       if (error instanceof ZodError) {
-        console.error("Invalid webhook payload:", error.format());
+        logger.error("Invalid webhook payload:", error.format());
         const errorResponse: ApiErrorResponse = {
           success: false,
           error: {
@@ -80,7 +81,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (findError || !plata) {
-      console.error("Payment not found for transaction:", validatedData.transaction_id);
+      logger.error("Payment not found for transaction:", validatedData.transaction_id);
       const errorResponse: ApiErrorResponse = {
         success: false,
         error: {
@@ -94,7 +95,7 @@ export async function POST(request: NextRequest) {
 
     // Prevent duplicate processing (idempotency)
     if (plata.status === PlataStatus.SUCCESS || plata.status === PlataStatus.REFUNDED) {
-      console.warn("Payment already finalized:", plata.id, "status:", plata.status);
+      logger.warn("Payment already finalized", { plataId: plata.id, status: plata.status });
       return NextResponse.json(
         {
           success: true,
@@ -117,7 +118,7 @@ export async function POST(request: NextRequest) {
       .eq("id", plata.id);
 
     if (updateError) {
-      console.error("Error updating payment:", updateError);
+      logger.error("Error updating payment:", updateError);
       const errorResponse: ApiErrorResponse = {
         success: false,
         error: {
@@ -145,7 +146,7 @@ export async function POST(request: NextRequest) {
       });
 
       if (chitantaError) {
-        console.error("Error creating chitanta:", chitantaError);
+        logger.error("Error creating chitanta:", chitantaError);
         // Don't fail the webhook - chitanta can be regenerated later
       }
 
@@ -159,7 +160,7 @@ export async function POST(request: NextRequest) {
         .eq("id", plata.cerere_id);
 
       if (cerereUpdateError) {
-        console.error("Error updating cerere payment status:", cerereUpdateError);
+        logger.error("Error updating cerere payment status:", cerereUpdateError);
         // Don't fail the webhook - cerere status can be fixed manually
       }
 
@@ -177,7 +178,7 @@ export async function POST(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("Unexpected error in POST /api/webhooks/ghiseul:", error);
+    logger.error("Unexpected error in POST /api/webhooks/ghiseul:", error);
     const errorResponse: ApiErrorResponse = {
       success: false,
       error: {

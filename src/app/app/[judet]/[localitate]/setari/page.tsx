@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import { use, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
@@ -103,7 +104,7 @@ export default function SettingsPage({ params }: SettingsPageProps) {
           setPhone(user.user_metadata?.phone || "");
         }
       } catch (error) {
-        console.error("Error loading profile:", error);
+        logger.error("Error loading profile:", error);
         toast.error("Nu s-au putut încărca datele profilului");
       } finally {
         setIsLoadingProfile(false);
@@ -195,7 +196,7 @@ export default function SettingsPage({ params }: SettingsPageProps) {
 
       toast.success("Profilul a fost actualizat cu succes");
     } catch (error) {
-      console.error("Error saving profile:", error);
+      logger.error("Error saving profile:", error);
       toast.error("Nu s-a putut salva profilul. Încearcă din nou.");
     } finally {
       setIsSavingProfile(false);
@@ -215,7 +216,7 @@ export default function SettingsPage({ params }: SettingsPageProps) {
 
       toast.success("Preferințele de notificări au fost salvate");
     } catch (error) {
-      console.error("Error saving notifications:", error);
+      logger.error("Error saving notifications:", error);
       toast.error("Nu s-au putut salva preferințele");
     } finally {
       setIsSavingNotifications(false);
@@ -268,7 +269,7 @@ export default function SettingsPage({ params }: SettingsPageProps) {
       toast.success("Parola a fost schimbată cu succes");
     } catch (error: unknown) {
       const err = error as Error;
-      console.error("Error changing password:", err);
+      logger.error("Error changing password:", err);
       if (err.message?.includes("New password should be different")) {
         toast.error("Parola nouă trebuie să fie diferită de cea curentă");
       } else {
@@ -300,7 +301,7 @@ export default function SettingsPage({ params }: SettingsPageProps) {
 
       toast.success("Preferințele de aspect au fost salvate");
     } catch (error) {
-      console.error("Error saving appearance:", error);
+      logger.error("Error saving appearance:", error);
       toast.error("Nu s-au putut salva preferințele");
     }
   };

@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import { use, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
@@ -82,7 +83,7 @@ export default function PlataDetailsPage({
         setPlata(data.data.plata);
         setChitanta(data.data.chitanta);
       } catch (err) {
-        console.error("Fetch error:", err);
+        logger.error("Fetch error:", err);
         setError(err instanceof Error ? err.message : "Eroare la încărcarea plății");
       } finally {
         setIsLoading(false);

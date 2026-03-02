@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { createServiceRoleClient, createClient } from "@/lib/supabase/server";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -36,7 +37,7 @@ export default async function GlobalAdminPage() {
     .single();
 
   // Debug logging
-  console.log("🔍 Global Admin Auth Debug:", {
+  logger.debug("🔍 Global Admin Auth Debug:", {
     userId: user.id,
     userEmail: user.email,
     userData,
@@ -48,7 +49,7 @@ export default async function GlobalAdminPage() {
 
   // CRITICAL: Only super_admin can access global admin dashboard
   if (!userData || userData.rol !== "super_admin") {
-    console.error("❌ Access denied - not super_admin", { userData, userError });
+    logger.error("❌ Access denied - not super_admin", { userData, userError });
     await authClient.auth.signOut();
     redirect("/admin/login");
   }

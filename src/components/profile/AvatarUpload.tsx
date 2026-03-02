@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import { useState, useRef, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -27,41 +28,41 @@ export function AvatarUpload({
 
   // Sync preview with currentAvatarUrl prop when it changes (e.g., after page refresh)
   useEffect(() => {
-    console.log("🔄 AvatarUpload: currentAvatarUrl prop changed to:", currentAvatarUrl);
+    logger.debug("🔄 AvatarUpload: currentAvatarUrl prop changed to:", currentAvatarUrl);
     setPreview(currentAvatarUrl || null);
   }, [currentAvatarUrl]);
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) {
-      console.log("❌ No file selected");
+      logger.debug("❌ No file selected");
       return;
     }
 
-    console.log("📁 File selected:", file.name, file.size, file.type);
+    logger.debug("File selected", { name: file.name, size: file.size, type: file.type });
 
     // Validate file
     const validation = avatarUploadSchema.safeParse({ file });
     if (!validation.success) {
       const errorMessage = validation.error.issues[0]?.message || "Fișier invalid";
-      console.error("❌ Validation failed:", errorMessage);
+      logger.error("❌ Validation failed:", errorMessage);
       setError(errorMessage);
       onUploadError?.(errorMessage);
       return;
     }
 
-    console.log("✅ Validation passed");
+    logger.debug("✅ Validation passed");
 
     // Show preview
     const reader = new FileReader();
     reader.onloadend = () => {
       setPreview(reader.result as string);
-      console.log("📸 Preview set");
+      logger.debug("📸 Preview set");
     };
     reader.readAsDataURL(file);
 
     // Upload to Supabase Storage
-    console.log("⬆️ Starting upload...");
+    logger.debug("⬆️ Starting upload...");
     await uploadAvatar(file);
   };
 
@@ -71,7 +72,7 @@ export function AvatarUpload({
       setError(null);
 
       const supabase = createClient();
-      console.log("🔐 Getting user...");
+      logger.debug("🔐 Getting user...");
 
       // Get current user
       const {
@@ -82,14 +83,14 @@ export function AvatarUpload({
         throw new Error("Utilizator neautentificat");
       }
 
-      console.log("👤 User authenticated:", user.id);
+      logger.debug("👤 User authenticated:", user.id);
 
       // Upload to Supabase Storage
       const fileExt = file.name.split(".").pop();
       const fileName = `${user.id}-${Date.now()}.${fileExt}`;
       const filePath = `avatars/${fileName}`;
 
-      console.log("📤 Uploading to:", filePath);
+      logger.debug("📤 Uploading to:", filePath);
 
       const { error: uploadError } = await supabase.storage
         .from("user-avatars")
@@ -99,18 +100,18 @@ export function AvatarUpload({
         });
 
       if (uploadError) {
-        console.error("❌ Upload error:", uploadError);
+        logger.error("❌ Upload error:", uploadError);
         throw uploadError;
       }
 
-      console.log("✅ Upload successful!");
+      logger.debug("✅ Upload successful!");
 
       // Get public URL
       const {
         data: { publicUrl },
       } = supabase.storage.from("user-avatars").getPublicUrl(filePath);
 
-      console.log("🔗 Public URL:", publicUrl);
+      logger.debug("🔗 Public URL:", publicUrl);
 
       // Update user metadata
       const { error: updateError } = await supabase.auth.updateUser({
@@ -120,18 +121,18 @@ export function AvatarUpload({
       });
 
       if (updateError) {
-        console.error("❌ Update user error:", updateError);
+        logger.error("❌ Update user error:", updateError);
         throw updateError;
       }
 
-      console.log("✅ User metadata updated!");
+      logger.debug("✅ User metadata updated!");
 
       // Success
       onUploadSuccess?.(publicUrl);
       setPreview(publicUrl);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Eroare la încărcarea imaginii";
-      console.error("💥 Upload failed:", err);
+      logger.error("💥 Upload failed:", err);
       setError(errorMessage);
       onUploadError?.(errorMessage);
     } finally {

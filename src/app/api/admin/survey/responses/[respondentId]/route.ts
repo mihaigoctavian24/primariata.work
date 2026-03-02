@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceRoleClient, createClient } from "@/lib/supabase/server";
 
@@ -44,13 +45,13 @@ export async function GET(
       .order("created_at");
 
     if (error) {
-      console.error("Error fetching responses:", error);
+      logger.error("Error fetching responses:", error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
     return NextResponse.json(responses);
   } catch (error) {
-    console.error("Unexpected error:", error);
+    logger.error("Unexpected error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
@@ -99,7 +100,7 @@ export async function DELETE(
       .eq("respondent_id", respondentId);
 
     if (responsesError) {
-      console.error("Error deleting responses:", responsesError);
+      logger.error("Error deleting responses:", responsesError);
       return NextResponse.json({ error: responsesError.message }, { status: 500 });
     }
 
@@ -110,13 +111,13 @@ export async function DELETE(
       .eq("id", respondentId);
 
     if (respondentError) {
-      console.error("Error deleting respondent:", respondentError);
+      logger.error("Error deleting respondent:", respondentError);
       return NextResponse.json({ error: respondentError.message }, { status: 500 });
     }
 
     return NextResponse.json({ success: true, message: "Respondent șters cu succes" });
   } catch (error) {
-    console.error("Unexpected error:", error);
+    logger.error("Unexpected error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

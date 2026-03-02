@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -65,7 +66,7 @@ export function NotificationPreferencesForm({
             .single();
 
           if (fetchError) {
-            console.error("Failed to fetch notification preferences:", fetchError);
+            logger.error("Failed to fetch notification preferences:", fetchError);
             onError?.("Eroare la încărcarea preferințelor de notificare");
             return;
           }
@@ -77,7 +78,7 @@ export function NotificationPreferencesForm({
           }
         }
       } catch (err) {
-        console.error("Failed to fetch preferences:", err);
+        logger.error("Failed to fetch preferences:", err);
         onError?.("Eroare la încărcarea preferințelor de notificare");
       } finally {
         setFetchingData(false);

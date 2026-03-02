@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import { RealtimeProvider } from "./RealtimeProvider";
 import { ResearchTabs } from "./ResearchTabs";
 import { ErrorBoundary } from "@/components/admin/research/ErrorBoundary";
@@ -52,7 +53,7 @@ export function ResearchPageClient(props: ResearchPageClientProps) {
    * In the future, we could implement client-side data fetching
    */
   const handleDataUpdate = useCallback(() => {
-    console.log("[ResearchPageClient] Refreshing page due to new data...");
+    logger.debug("[ResearchPageClient] Refreshing page due to new data...");
     router.refresh();
   }, [router]);
 

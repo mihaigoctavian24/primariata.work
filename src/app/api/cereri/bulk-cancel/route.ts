@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { CerereStatus, canCancelCerere, type CerereStatusType } from "@/lib/validations/cereri";
@@ -88,7 +89,7 @@ export async function POST(request: NextRequest) {
       .is("deleted_at", null);
 
     if (fetchError) {
-      console.error("Database error fetching cereri:", fetchError);
+      logger.error("Database error fetching cereri:", fetchError);
       const errorResponse: ApiErrorResponse = {
         success: false,
         error: {
@@ -156,7 +157,7 @@ export async function POST(request: NextRequest) {
         .in("id", cereriToCancel);
 
       if (updateError) {
-        console.error("Database error cancelling cereri:", updateError);
+        logger.error("Database error cancelling cereri:", updateError);
         // Mark all as failed if transaction fails
         for (const id of cereriToCancel) {
           const cerere = existingCereri.find((c) => c.id === id);
@@ -205,7 +206,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
-    console.error("Unexpected error in POST /api/cereri/bulk-cancel:", error);
+    logger.error("Unexpected error in POST /api/cereri/bulk-cancel:", error);
     const errorResponse: ApiErrorResponse = {
       success: false,
       error: {

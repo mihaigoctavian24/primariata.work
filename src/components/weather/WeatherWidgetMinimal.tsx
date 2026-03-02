@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import { useState, useEffect } from "react";
 import { Cloud, CloudRain, CloudSnow, CloudSun, Sun, Wind, Droplets } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -74,7 +75,7 @@ export function WeatherWidgetMinimal({
         // Use WeatherAPI.com (same as original WeatherWidget)
         const apiKey = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY;
         if (!apiKey) {
-          console.warn("⚠️ WeatherAPI.com API key not configured");
+          logger.warn("⚠️ WeatherAPI.com API key not configured");
           setError(true);
           setLoading(false);
           return;
@@ -102,7 +103,7 @@ export function WeatherWidgetMinimal({
         });
         setLoading(false);
       } catch (err) {
-        console.error("❌ Weather fetch error:", err);
+        logger.error("❌ Weather fetch error:", err);
         setError(true);
         setLoading(false);
       }

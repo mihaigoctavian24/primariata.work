@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { CerereStatus } from "@/lib/validations/cereri";
@@ -118,7 +119,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       .single();
 
     if (updateError) {
-      console.error("Database error submitting cerere:", updateError);
+      logger.error("Database error submitting cerere:", updateError);
       const errorResponse: ApiErrorResponse = {
         success: false,
         error: {
@@ -147,14 +148,14 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         );
 
         if (!smsResult.success) {
-          console.error("Failed to send cerere submitted SMS:", smsResult.error);
+          logger.error("Failed to send cerere submitted SMS:", smsResult.error);
           // Don't fail the request - cerere was submitted successfully
         } else {
-          console.log(`SMS sent to ${utilizator.telefon} for cerere ${updatedCerere.id}`);
+          logger.debug(`SMS sent to ${utilizator.telefon} for cerere ${updatedCerere.id}`);
         }
       }
     } catch (smsError) {
-      console.error("Error sending cerere submitted SMS:", smsError);
+      logger.error("Error sending cerere submitted SMS:", smsError);
       // Don't fail the request - cerere was submitted successfully
     }
 
@@ -172,7 +173,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
-    console.error("Unexpected error in POST /api/cereri/[id]/submit:", error);
+    logger.error("Unexpected error in POST /api/cereri/[id]/submit:", error);
     const errorResponse: ApiErrorResponse = {
       success: false,
       error: {

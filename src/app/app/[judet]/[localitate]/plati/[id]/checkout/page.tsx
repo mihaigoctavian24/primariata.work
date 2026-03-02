@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import { use, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CreditCard, AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
@@ -129,7 +130,7 @@ export default function CheckoutPage({
         toast.error(errorMessage);
       }
     } catch (err) {
-      console.error("Payment error:", err);
+      logger.error("Payment error:", err);
       setError("Eroare la procesarea plății");
       toast.error("Eroare la procesarea plății");
     } finally {

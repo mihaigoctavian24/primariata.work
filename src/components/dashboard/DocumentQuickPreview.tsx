@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 /**
  * IMPORTANT: This component MUST be dynamically imported with ssr: false
  *
@@ -83,7 +84,7 @@ export function DocumentQuickPreview({
   };
 
   const onDocumentLoadError = (error: Error) => {
-    console.error("PDF load error:", error);
+    logger.error("PDF load error:", error);
     setError("Nu s-a putut încărca documentul");
     setIsLoading(false);
   };

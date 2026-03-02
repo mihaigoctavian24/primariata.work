@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -161,13 +162,13 @@ export function LocationWheelPickerForm({
 
     // Don't search if user is manually interacting with wheel picker
     if (isUserInteracting) {
-      console.log("🔍 Search: User is interacting, skipping search");
+      logger.debug("🔍 Search: User is interacting, skipping search");
       return;
     }
 
     // Only search if we have 3+ characters and localități are loaded
     if (localitateSearch.length < 3 || localitatiOptions.length === 0) {
-      console.log("🔍 Search: Not enough chars or no options", {
+      logger.debug("🔍 Search: Not enough chars or no options", {
         searchLength: localitateSearch.length,
         optionsLength: localitatiOptions.length,
       });
@@ -178,7 +179,7 @@ export function LocationWheelPickerForm({
     // This ensures progressive refinement as user types each letter
     // Normalize search term (remove diacritics)
     const searchNormalized = normalizeDiacritics(localitateSearch);
-    console.log("🔍 Search triggered:", {
+    logger.debug("🔍 Search triggered:", {
       original: localitateSearch,
       normalized: searchNormalized,
       totalOptions: localitatiOptions.length,
@@ -226,18 +227,17 @@ export function LocationWheelPickerForm({
         return a.index - b.index;
       });
 
-    console.log(
-      "🔍 Matches found:",
-      validMatches.length,
-      validMatches.slice(0, 3).map((m) => ({
+    logger.debug("Matches found", {
+      count: validMatches.length,
+      topMatches: validMatches.slice(0, 3).map((m) => ({
         label: m.option.label,
         score: m.score,
         type: m.matchType,
-      }))
-    );
+      })),
+    });
 
     if (validMatches.length === 0) {
-      console.log("🔍 No matches found");
+      logger.debug("🔍 No matches found");
       return; // No match found
     }
 
@@ -246,7 +246,7 @@ export function LocationWheelPickerForm({
     if (!bestMatch) return;
     const targetIndex = bestMatch.index;
     const targetValue = bestMatch.option.value;
-    console.log("🔍 Best match:", {
+    logger.debug("🔍 Best match:", {
       label: bestMatch.option.label,
       score: bestMatch.score,
       type: bestMatch.matchType,
@@ -284,7 +284,7 @@ export function LocationWheelPickerForm({
     const distance = Math.abs(targetIndex - currentIndex);
     const direction = targetIndex > currentIndex ? 1 : -1;
 
-    console.log("🔍 Starting scroll animation:", {
+    logger.debug("🔍 Starting scroll animation:", {
       from: currentIndex,
       to: targetIndex,
       distance,
@@ -392,7 +392,7 @@ export function LocationWheelPickerForm({
         // Redirect to dashboard with new location
         router.push(`/app/${judet.slug}/${localitate.slug}`);
       } catch (error) {
-        console.error("Failed to set primarie_id:", error);
+        logger.error("Failed to set primarie_id:", error);
         toast.error("Eroare la salvarea locației", {
           description: error instanceof Error ? error.message : "Te rugăm să încerci din nou.",
         });

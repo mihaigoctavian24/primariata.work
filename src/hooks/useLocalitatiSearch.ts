@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import type { ApiResponse, ApiErrorResponse, Localitate } from "@/types/api";
 
@@ -112,7 +113,7 @@ export function useLocalitatiSearch({
       const errorMessage =
         err instanceof Error ? err.message : "Eroare la încărcarea localităților";
       setError(errorMessage);
-      console.error("Error fetching localități:", err);
+      logger.error("Error fetching localități:", err);
     } finally {
       if (!abortController.signal.aborted) {
         setLoading(false);

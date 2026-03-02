@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextResponse } from "next/server";
 import { createClient, createServiceRoleClient } from "@/lib/supabase/server";
 import { inviteStaffSchema } from "@/lib/validations/staff-invite";
@@ -171,7 +172,7 @@ export async function POST(request: Request) {
       .single();
 
     if (invitationError || !invitation) {
-      console.error("Failed to create invitation:", invitationError);
+      logger.error("Failed to create invitation:", invitationError);
       return NextResponse.json(
         { error: "Failed to create invitation", details: invitationError?.message },
         { status: 500 }
@@ -206,12 +207,12 @@ export async function POST(request: Request) {
       });
 
       if (emailResponse.error) {
-        console.error("Failed to send invitation email:", emailResponse.error);
+        logger.error("Failed to send invitation email:", emailResponse.error);
         // Don't fail the request - invitation is created, email can be resent
         // Log the error but continue
       }
     } catch (emailError) {
-      console.error("Error sending invitation email:", emailError);
+      logger.error("Error sending invitation email:", emailError);
       // Non-critical - invitation is still created
     }
 
@@ -236,7 +237,7 @@ export async function POST(request: Request) {
       { status: 201 }
     );
   } catch (error) {
-    console.error("Error in POST /api/admin/users/invite:", error);
+    logger.error("Error in POST /api/admin/users/invite:", error);
     return NextResponse.json(
       {
         error: "Internal server error",

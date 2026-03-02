@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -50,7 +51,7 @@ export default function AdminLoginPage() {
           }
         }
       } catch (err) {
-        console.error("Error checking auth status:", err);
+        logger.error("Error checking auth status:", err);
       } finally {
         setIsChecking(false);
       }

@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
@@ -82,7 +83,7 @@ export async function GET(request: Request) {
     const { data: documents, error: documentsError } = await query;
 
     if (documentsError) {
-      console.error("Error fetching documents:", documentsError);
+      logger.error("Error fetching documents:", documentsError);
       return NextResponse.json(
         { success: false, error: "Failed to fetch documents" },
         { status: 500 }
@@ -107,7 +108,7 @@ export async function GET(request: Request) {
       data: transformedDocuments,
     });
   } catch (error) {
-    console.error("Unexpected error in documents:", error);
+    logger.error("Unexpected error in documents:", error);
     return NextResponse.json({ success: false, error: "Internal server error" }, { status: 500 });
   }
 }
@@ -149,7 +150,7 @@ export async function POST(request: Request) {
       message: "Document view tracked (feature pending implementation)",
     });
   } catch (error) {
-    console.error("Unexpected error in POST documents:", error);
+    logger.error("Unexpected error in POST documents:", error);
     return NextResponse.json({ success: false, error: "Internal server error" }, { status: 500 });
   }
 }

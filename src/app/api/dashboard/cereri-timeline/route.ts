@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
@@ -63,7 +64,7 @@ export async function GET() {
       .limit(10);
 
     if (cereriError) {
-      console.error("Error fetching cereri timeline:", cereriError);
+      logger.error("Error fetching cereri timeline:", cereriError);
       return NextResponse.json(
         { success: false, error: "Failed to fetch cereri timeline" },
         { status: 500 }
@@ -100,7 +101,7 @@ export async function GET() {
       data: timeline,
     });
   } catch (error) {
-    console.error("Unexpected error in cereri-timeline:", error);
+    logger.error("Unexpected error in cereri-timeline:", error);
     return NextResponse.json({ success: false, error: "Internal server error" }, { status: 500 });
   }
 }

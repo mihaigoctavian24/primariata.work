@@ -4,6 +4,7 @@
  * Generates comprehensive survey analysis Excel workbook
  */
 
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import ExcelJS from "exceljs";
@@ -46,7 +47,7 @@ export async function GET(request: NextRequest) {
     const respondentType = searchParams.get("respondent_type") as "citizen" | "official" | null;
     const includeRawData = searchParams.get("include_raw_data") === "true";
 
-    console.log(
+    logger.debug(
       `[Excel Export] User: ${user.email}, Type: ${respondentType}, Raw: ${includeRawData}`
     );
 
@@ -65,7 +66,7 @@ export async function GET(request: NextRequest) {
     const { data: respondents, error: respondentsError } = await respondentsQuery;
 
     if (respondentsError) {
-      console.error("[Excel Export] Respondents error:", respondentsError);
+      logger.error("[Excel Export] Respondents error:", respondentsError);
       return NextResponse.json({ error: "Failed to fetch respondents" }, { status: 500 });
     }
 
@@ -82,7 +83,7 @@ export async function GET(request: NextRequest) {
     const { data: insights, error: insightsError } = await insightsQuery;
 
     if (insightsError) {
-      console.error("[Excel Export] Insights error:", insightsError);
+      logger.error("[Excel Export] Insights error:", insightsError);
       return NextResponse.json({ error: "Failed to fetch insights" }, { status: 500 });
     }
 
@@ -309,7 +310,7 @@ export async function GET(request: NextRequest) {
     const buffer = await workbook.xlsx.writeBuffer();
 
     const executionTime = Date.now() - startTime;
-    console.log(`[Excel Export] ✅ Generated in ${executionTime}ms`);
+    logger.debug(`[Excel Export] ✅ Generated in ${executionTime}ms`);
 
     const filename = `survey-data-${new Date().toISOString().split("T")[0]}.xlsx`;
 
@@ -321,7 +322,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("[Excel Export] Error:", error);
+    logger.error("[Excel Export] Error:", error);
     return NextResponse.json(
       {
         error: "Failed to generate Excel",

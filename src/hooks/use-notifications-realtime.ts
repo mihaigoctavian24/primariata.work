@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
@@ -47,13 +48,13 @@ export function useNotificationsRealtime() {
         } = await supabase.auth.getUser();
 
         if (userError) {
-          console.error("Failed to get user for realtime subscription:", userError);
+          logger.error("Failed to get user for realtime subscription:", userError);
           setConnectionStatus("error");
           return;
         }
 
         if (!user) {
-          console.warn("No user found, skipping realtime subscription");
+          logger.warn("No user found, skipping realtime subscription");
           setConnectionStatus("error");
           return;
         }
@@ -70,7 +71,10 @@ export function useNotificationsRealtime() {
               filter: `utilizator_id=eq.${user.id}`, // Only this user's notifications
             },
             (payload) => {
-              console.log("Notification change detected:", payload.eventType, payload);
+              logger.debug("Notification change detected", {
+                eventType: payload.eventType,
+                payload,
+              });
 
               // Invalidate all notification queries to trigger refetch
               queryClient.invalidateQueries({ queryKey: ["notifications"] });
@@ -100,13 +104,13 @@ export function useNotificationsRealtime() {
             }
           )
           .subscribe((status) => {
-            console.log("Realtime subscription status:", status);
+            logger.debug("Realtime subscription status:", status);
 
             if (status === "SUBSCRIBED") {
               setConnectionStatus("connected");
             } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
               setConnectionStatus("error");
-              console.error("Realtime subscription error:", status);
+              logger.error("Realtime subscription error:", status);
 
               // Show error toast only once per error
               toast.error("Conexiune întreruptă", {
@@ -116,7 +120,7 @@ export function useNotificationsRealtime() {
             }
           });
       } catch (error) {
-        console.error("Failed to setup realtime subscription:", error);
+        logger.error("Failed to setup realtime subscription:", error);
         setConnectionStatus("error");
 
         toast.error("Eroare de conexiune", {
@@ -131,7 +135,7 @@ export function useNotificationsRealtime() {
     // Cleanup subscription on unmount
     return () => {
       if (channel) {
-        console.log("Cleaning up realtime subscription");
+        logger.debug("Cleaning up realtime subscription");
         supabase.removeChannel(channel);
       }
     };

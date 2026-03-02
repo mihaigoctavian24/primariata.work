@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient, createServiceRoleClient } from "@/lib/supabase/server";
 import { createPlataSchema, listPlatiQuerySchema, PlataStatus } from "@/lib/validations/plati";
@@ -123,7 +124,7 @@ export async function GET(request: NextRequest) {
     const { data: plati, error, count } = await query;
 
     if (error) {
-      console.error("Database error fetching plati:", error);
+      logger.error("Database error fetching plati:", error);
       const errorResponse: ApiErrorResponse = {
         success: false,
         error: {
@@ -161,7 +162,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("Unexpected error in GET /api/plati:", error);
+    logger.error("Unexpected error in GET /api/plati:", error);
     const errorResponse: ApiErrorResponse = {
       success: false,
       error: {
@@ -322,7 +323,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (plataError) {
-      console.error("Database error creating plata:", plataError);
+      logger.error("Database error creating plata:", plataError);
       const errorResponse: ApiErrorResponse = {
         success: false,
         error: {
@@ -360,12 +361,12 @@ export async function POST(request: NextRequest) {
     let gatewayResponse;
     try {
       gatewayResponse = await ghiseulClient.initiatePayment(paymentRequest);
-      console.log(`[Payment] Gateway response for plata ${plata.id}:`, {
+      logger.debug(`[Payment] Gateway response for plata ${plata.id}:`, {
         transaction_id: gatewayResponse.transaction_id,
         redirect_url: gatewayResponse.redirect_url,
       });
     } catch (error) {
-      console.error("Payment gateway error:", error);
+      logger.error("Payment gateway error:", error);
       const errorResponse: ApiErrorResponse = {
         success: false,
         error: {
@@ -387,10 +388,10 @@ export async function POST(request: NextRequest) {
       .eq("id", plata.id);
 
     if (updateError) {
-      console.error("Error updating plata with transaction_id:", updateError);
+      logger.error("Error updating plata with transaction_id:", updateError);
       // Don't fail - payment was initiated, just log the error
     } else {
-      console.log(
+      logger.debug(
         `[Payment] Updated plata ${plata.id} with transaction_id: ${gatewayResponse.transaction_id}`
       );
     }
@@ -409,7 +410,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(response, { status: 201 });
   } catch (error) {
-    console.error("Unexpected error in POST /api/plati:", error);
+    logger.error("Unexpected error in POST /api/plati:", error);
     const errorResponse: ApiErrorResponse = {
       success: false,
       error: {

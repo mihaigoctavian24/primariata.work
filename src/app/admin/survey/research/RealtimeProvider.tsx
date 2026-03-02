@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { RealtimeChannel } from "@supabase/supabase-js";
@@ -32,7 +33,7 @@ export function RealtimeProvider({ children, onDataUpdate }: RealtimeProviderPro
    */
   const handleNewData = useCallback(
     (type: "respondent" | "response") => {
-      console.log(`[Realtime] New ${type} detected`);
+      logger.debug(`[Realtime] New ${type} detected`);
 
       // Increment counter
       setNewResponsesCount((prev) => prev + 1);
@@ -47,8 +48,8 @@ export function RealtimeProvider({ children, onDataUpdate }: RealtimeProviderPro
 
       // Debounce: wait 2 seconds before refreshing data
       debounceTimer.current = setTimeout(() => {
-        console.log("[Realtime] Triggering data refresh");
-        console.log(
+        logger.debug("[Realtime] Triggering data refresh");
+        logger.debug(
           `[Realtime] 🔄 Date noi primite: ${newResponsesCount + 1} răspuns${newResponsesCount > 0 ? "uri" : ""} nou${newResponsesCount > 0 ? "e" : ""}`
         );
 
@@ -62,7 +63,7 @@ export function RealtimeProvider({ children, onDataUpdate }: RealtimeProviderPro
         // Schedule AI analysis after 5 minutes of inactivity
         analysisTimer.current = setTimeout(
           () => {
-            console.log("[Realtime] Triggering auto-analysis after 5 min inactivity");
+            logger.debug("[Realtime] Triggering auto-analysis after 5 min inactivity");
 
             // Trigger AI analysis
             fetch("/api/survey/research/analyze", {
@@ -72,7 +73,7 @@ export function RealtimeProvider({ children, onDataUpdate }: RealtimeProviderPro
             })
               .then((res) => {
                 if (res.ok) {
-                  console.log(
+                  logger.debug(
                     "[Realtime] ✅ Analiză completă - datele au fost procesate automat cu AI"
                   );
                   // Refresh data again to show new analysis
@@ -82,7 +83,7 @@ export function RealtimeProvider({ children, onDataUpdate }: RealtimeProviderPro
                 }
               })
               .catch((err) => {
-                console.error("[Realtime] Auto-analysis failed:", err);
+                logger.error("[Realtime] Auto-analysis failed:", err);
               });
           },
           5 * 60 * 1000
@@ -98,7 +99,7 @@ export function RealtimeProvider({ children, onDataUpdate }: RealtimeProviderPro
   useEffect(() => {
     const supabase = createClient();
 
-    console.log("[Realtime] Setting up subscriptions...");
+    logger.debug("[Realtime] Setting up subscriptions...");
 
     // Subscribe to survey_respondents table
     respondentsChannel.current = supabase
@@ -111,12 +112,12 @@ export function RealtimeProvider({ children, onDataUpdate }: RealtimeProviderPro
           table: "survey_respondents",
         },
         (payload) => {
-          console.log("[Realtime] New respondent:", payload);
+          logger.debug("[Realtime] New respondent:", payload);
           handleNewData("respondent");
         }
       )
       .subscribe((status) => {
-        console.log("[Realtime] Respondents channel status:", status);
+        logger.debug("[Realtime] Respondents channel status:", status);
         if (status === "SUBSCRIBED") {
           setIsConnected(true);
         }
@@ -133,17 +134,17 @@ export function RealtimeProvider({ children, onDataUpdate }: RealtimeProviderPro
           table: "survey_responses",
         },
         (payload) => {
-          console.log("[Realtime] New response:", payload);
+          logger.debug("[Realtime] New response:", payload);
           handleNewData("response");
         }
       )
       .subscribe((status) => {
-        console.log("[Realtime] Responses channel status:", status);
+        logger.debug("[Realtime] Responses channel status:", status);
       });
 
     // Cleanup on unmount
     return () => {
-      console.log("[Realtime] Cleaning up subscriptions...");
+      logger.debug("[Realtime] Cleaning up subscriptions...");
 
       if (respondentsChannel.current) {
         supabase.removeChannel(respondentsChannel.current);

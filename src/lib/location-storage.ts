@@ -1,3 +1,5 @@
+import { logger } from "@/lib/logger";
+
 /**
  * Location Storage Management
  * Handles localStorage + cookie persistence for selected location (județ + localitate)
@@ -35,9 +37,9 @@ export function saveLocation(location: Omit<SavedLocation, "savedAt">): void {
     const cookieValue = encodeURIComponent(JSON.stringify(dataToSave));
     document.cookie = `${COOKIE_NAME}=${cookieValue}; path=/; max-age=${COOKIE_MAX_AGE}; samesite=lax`;
 
-    console.log("[location-storage] Location saved:", dataToSave);
+    logger.debug("[location-storage] Location saved:", dataToSave);
   } catch (error) {
-    console.error("[location-storage] Failed to save location:", error);
+    logger.error("[location-storage] Failed to save location:", error);
   }
 }
 
@@ -71,7 +73,7 @@ export function getLocation(): SavedLocation | null {
 
     return null;
   } catch (error) {
-    console.error("[location-storage] Failed to get location:", error);
+    logger.error("[location-storage] Failed to get location:", error);
     return null;
   }
 }
@@ -89,9 +91,9 @@ export function clearLocation(): void {
     // Clear cookie by setting max-age=0
     document.cookie = `${COOKIE_NAME}=; path=/; max-age=0; samesite=lax`;
 
-    console.log("[location-storage] Location cleared");
+    logger.debug("[location-storage] Location cleared");
   } catch (error) {
-    console.error("[location-storage] Failed to clear location:", error);
+    logger.error("[location-storage] Failed to clear location:", error);
   }
 }
 
@@ -146,7 +148,7 @@ export async function validateLocation(location: SavedLocation): Promise<boolean
 
     return localitateExists;
   } catch (error) {
-    console.error("[location-storage] Failed to validate location:", error);
+    logger.error("[location-storage] Failed to validate location:", error);
     return false;
   }
 }

@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -93,7 +94,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         return NextResponse.json(errorResponse, { status: 404 });
       }
 
-      console.error("Database error fetching cerere:", error);
+      logger.error("Database error fetching cerere:", error);
       const errorResponse: ApiErrorResponse = {
         success: false,
         error: {
@@ -123,7 +124,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       },
     });
   } catch (error) {
-    console.error("Unexpected error in GET /api/cereri/[id]:", error);
+    logger.error("Unexpected error in GET /api/cereri/[id]:", error);
     const errorResponse: ApiErrorResponse = {
       success: false,
       error: {
@@ -292,7 +293,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       .single();
 
     if (updateError) {
-      console.error("Database error updating cerere:", updateError);
+      logger.error("Database error updating cerere:", updateError);
       const errorResponse: ApiErrorResponse = {
         success: false,
         error: {
@@ -316,7 +317,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
-    console.error("Unexpected error in PATCH /api/cereri/[id]:", error);
+    logger.error("Unexpected error in PATCH /api/cereri/[id]:", error);
     const errorResponse: ApiErrorResponse = {
       success: false,
       error: {
@@ -423,7 +424,7 @@ export async function DELETE(
       .eq("id", id);
 
     if (deleteError) {
-      console.error("Database error deleting cerere:", deleteError);
+      logger.error("Database error deleting cerere:", deleteError);
       const errorResponse: ApiErrorResponse = {
         success: false,
         error: {
@@ -447,7 +448,7 @@ export async function DELETE(
 
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
-    console.error("Unexpected error in DELETE /api/cereri/[id]:", error);
+    logger.error("Unexpected error in DELETE /api/cereri/[id]:", error);
     const errorResponse: ApiErrorResponse = {
       success: false,
       error: {

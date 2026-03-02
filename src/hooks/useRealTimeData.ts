@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -121,7 +122,7 @@ export function useRealTimeData<T>({
   // Handle errors
   useEffect(() => {
     if (query.error) {
-      console.error("Real-time data error:", query.error);
+      logger.error("Real-time data error:", query.error);
 
       if (onError) {
         onError(query.error as Error);

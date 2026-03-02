@@ -3,6 +3,7 @@
  * Using jsPDF and html2canvas
  */
 
+import { logger } from "@/lib/logger";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 
@@ -279,7 +280,7 @@ async function addChartsPage(
       doc.addImage(imgData, "PNG", margin, yPosition, imgWidth, imgHeight);
       yPosition += imgHeight + 10;
     } catch (error) {
-      console.error("Error rendering chart to PDF:", error);
+      logger.error("Error rendering chart to PDF:", error);
     }
   }
 

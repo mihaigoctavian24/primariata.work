@@ -3,6 +3,7 @@
  * Handles large datasets that might timeout on client-side
  */
 
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
@@ -103,7 +104,7 @@ export async function POST(request: NextRequest) {
     const { data: responses, error: queryError } = await query;
 
     if (queryError) {
-      console.error("Query error:", queryError);
+      logger.error("Query error:", queryError);
       return NextResponse.json({ error: "Failed to fetch responses" }, { status: 500 });
     }
 
@@ -146,7 +147,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "Unsupported format" }, { status: 400 });
     }
   } catch (error) {
-    console.error("Export error:", error);
+    logger.error("Export error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
@@ -275,7 +276,7 @@ export async function GET(_request: NextRequest) {
       estimatedTime: Math.ceil((count || 0) / 100), // seconds
     });
   } catch (error) {
-    console.error("Export metadata error:", error);
+    logger.error("Export metadata error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

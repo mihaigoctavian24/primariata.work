@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceRoleClient } from "@/lib/supabase/server";
 import { createClient } from "@/lib/supabase/server";
@@ -145,7 +146,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("Real-time API error:", error);
+    logger.error("Real-time API error:", error);
 
     return NextResponse.json(
       {

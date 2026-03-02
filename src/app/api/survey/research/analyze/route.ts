@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { generateHolisticInsights } from "@/lib/ai/insight-generator";
@@ -30,7 +31,7 @@ import type { SurveyRespondent, SurveyResponse } from "@/types/survey";
  */
 export async function POST(request: NextRequest) {
   try {
-    console.log("[AI Analysis] POST request received");
+    logger.debug("[AI Analysis] POST request received");
 
     // Authentication check
     const supabase = await createClient();
@@ -39,7 +40,7 @@ export async function POST(request: NextRequest) {
       error: authError,
     } = await supabase.auth.getUser();
 
-    console.log("[AI Analysis] Auth check:", { user: user?.id, authError: authError?.message });
+    logger.debug("[AI Analysis] Auth check:", { user: user?.id, authError: authError?.message });
 
     if (authError || !user) {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
@@ -52,7 +53,7 @@ export async function POST(request: NextRequest) {
       .eq("id", user.id)
       .single();
 
-    console.log("[AI Analysis] Profile check:", { rol: profile?.rol });
+    logger.debug("[AI Analysis] Profile check:", { rol: profile?.rol });
 
     if (!profile || (profile.rol !== "admin" && profile.rol !== "super_admin")) {
       return NextResponse.json(
@@ -74,9 +75,9 @@ export async function POST(request: NextRequest) {
           forceRefresh?: boolean;
         };
       }
-      console.log("[AI Analysis] Request body:", body);
+      logger.debug("[AI Analysis] Request body:", body);
     } catch {
-      console.log("[AI Analysis] No JSON body, using defaults");
+      logger.debug("[AI Analysis] No JSON body, using defaults");
     }
     const { questionId, respondentType, forceRefresh = false } = body;
 
@@ -124,7 +125,7 @@ export async function POST(request: NextRequest) {
       .select("*")
       .order("order_index", { ascending: true });
 
-    console.log("[AI Analysis] Questions query result:", {
+    logger.debug("[AI Analysis] Questions query result:", {
       questionsCount: questions?.length || 0,
       questionsArray: questions,
       error: questionsError,
@@ -168,7 +169,7 @@ export async function POST(request: NextRequest) {
     ) as SurveyResponse[];
 
     // Start HOLISTIC analysis per survey type
-    console.log(
+    logger.debug(
       `[AI Analysis] Starting HOLISTIC analysis for ${filteredRespondents.length} respondents`
     );
 
@@ -176,7 +177,7 @@ export async function POST(request: NextRequest) {
     const citizenQuestions = questions?.filter((q) => q.survey_type === "citizen") || [];
     const officialQuestions = questions?.filter((q) => q.survey_type === "official") || [];
 
-    console.log(
+    logger.debug(
       `[AI Analysis] Questions: ${citizenQuestions.length} citizen, ${officialQuestions.length} official`
     );
 
@@ -196,7 +197,7 @@ export async function POST(request: NextRequest) {
       const surveyQuestions = surveyType === "citizen" ? citizenQuestions : officialQuestions;
       const surveyRespondents = filteredRespondents.filter((r) => r.respondent_type === surveyType);
 
-      console.log(
+      logger.debug(
         `[AI Analysis] Generating holistic insights for ${surveyType}: ${surveyQuestions.length} questions, ${surveyRespondents.length} respondents`
       );
 
@@ -228,11 +229,11 @@ export async function POST(request: NextRequest) {
         .eq("survey_type", surveyType);
 
       if (deleteError) {
-        console.warn(
+        logger.warn(
           `[AI Analysis] Failed to delete old holistic insight for ${surveyType}: ${deleteError.message}`
         );
       } else {
-        console.log(`[AI Analysis] Deleted old holistic insight for ${surveyType}`);
+        logger.debug(`[AI Analysis] Deleted old holistic insight for ${surveyType}`);
       }
 
       // Store new holistic insight
@@ -256,11 +257,11 @@ export async function POST(request: NextRequest) {
       ]);
 
       if (insertError) {
-        console.error(
+        logger.error(
           `[AI Analysis] Failed to store holistic insight for ${surveyType}: ${insertError.message}`
         );
       } else {
-        console.log(
+        logger.debug(
           `[AI Analysis] ✅ Stored holistic insight for ${surveyType}: ${insight.recommendations.length} recommendations, ${insight.featureRequests.length} features`
         );
       }
@@ -277,7 +278,7 @@ export async function POST(request: NextRequest) {
       (sum, i) => sum + i.recommendations.length,
       0
     );
-    console.log(
+    logger.debug(
       `[AI Analysis] Analysis complete: ${holisticInsights.length} survey types, ${totalRecommendations} total recommendations`
     );
 
@@ -303,11 +304,11 @@ export async function POST(request: NextRequest) {
     });
 
     if (metadataError) {
-      console.error(`[AI Analysis] Failed to store metadata: ${metadataError.message}`);
+      logger.error(`[AI Analysis] Failed to store metadata: ${metadataError.message}`);
     }
 
     // Generate and cache correlations
-    console.log("[AI Analysis] Generating correlation analysis...");
+    logger.debug("[AI Analysis] Generating correlation analysis...");
     try {
       const correlationResult = await calculateCorrelations({
         respondents: filteredRespondents as unknown as Parameters<
@@ -343,20 +344,20 @@ export async function POST(request: NextRequest) {
         });
 
       if (correlationInsertError) {
-        console.error(
+        logger.error(
           `[AI Analysis] Failed to store correlation analysis: ${correlationInsertError.message}`
         );
       } else {
-        console.log(
+        logger.debug(
           `[AI Analysis] ✅ Stored correlation analysis: ${correlationResult.correlations.length} correlations`
         );
       }
     } catch (correlationError) {
-      console.error("[AI Analysis] Correlation analysis failed:", correlationError);
+      logger.error("[AI Analysis] Correlation analysis failed:", correlationError);
     }
 
     // Generate and cache cohorts
-    console.log("[AI Analysis] Generating cohort analysis...");
+    logger.debug("[AI Analysis] Generating cohort analysis...");
     try {
       const cohortResult = await analyzeCohorts({
         respondents: filteredRespondents as unknown as Parameters<
@@ -388,16 +389,14 @@ export async function POST(request: NextRequest) {
       });
 
       if (cohortInsertError) {
-        console.error(
-          `[AI Analysis] Failed to store cohort analysis: ${cohortInsertError.message}`
-        );
+        logger.error(`[AI Analysis] Failed to store cohort analysis: ${cohortInsertError.message}`);
       } else {
-        console.log(
+        logger.debug(
           `[AI Analysis] ✅ Stored cohort analysis: ${cohortResult.cohorts.length} cohorts`
         );
       }
     } catch (cohortError) {
-      console.error("[AI Analysis] Cohort analysis failed:", cohortError);
+      logger.error("[AI Analysis] Cohort analysis failed:", cohortError);
     }
 
     // Cache the result (24 hour TTL)
@@ -418,7 +417,7 @@ export async function POST(request: NextRequest) {
     ]);
 
     if (cacheError) {
-      console.error(`[AI Analysis] Failed to cache result: ${cacheError.message}`);
+      logger.error(`[AI Analysis] Failed to cache result: ${cacheError.message}`);
     }
 
     // Return success response
@@ -430,7 +429,7 @@ export async function POST(request: NextRequest) {
       cached: false,
     });
   } catch (error) {
-    console.error("[AI Analysis] Error:", error);
+    logger.error("[AI Analysis] Error:", error);
 
     return NextResponse.json(
       {
@@ -473,7 +472,7 @@ export async function GET() {
       lastAnalysis: metadata,
     });
   } catch (error) {
-    console.error("[AI Analysis Status] Error:", error);
+    logger.error("[AI Analysis Status] Error:", error);
 
     return NextResponse.json(
       {

@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { PDFDocument } from "pdf-lib";
@@ -282,7 +283,7 @@ export async function POST(request: NextRequest) {
           status: "success",
         });
       } catch (docError) {
-        console.error(`Error signing document for cerere ${doc.cerere_id}:`, docError);
+        logger.error(`Error signing document for cerere ${doc.cerere_id}:`, docError);
         results.push({
           cerere_id: doc.cerere_id,
           status: "failed",
@@ -303,7 +304,7 @@ export async function POST(request: NextRequest) {
         .from("signature_audit_log")
         .insert(auditLogEntries);
       if (auditError) {
-        console.error("Failed to create audit log entries:", auditError);
+        logger.error("Failed to create audit log entries:", auditError);
       }
     }
 
@@ -323,7 +324,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (batchLogError) {
-      console.error("Failed to create batch log entry:", batchLogError);
+      logger.error("Failed to create batch log entry:", batchLogError);
     }
 
     // Return batch results
@@ -361,7 +362,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("Unexpected error in POST /api/mock-certsign/sign/batch:", error);
+    logger.error("Unexpected error in POST /api/mock-certsign/sign/batch:", error);
     const errorResponse: ApiErrorResponse = {
       success: false,
       error: {

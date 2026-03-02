@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceRoleClient } from "@/lib/supabase/server";
 import { webhookPlataUpdateSchema, PlataStatus } from "@/lib/validations/plati";
@@ -39,7 +40,7 @@ export async function POST(request: NextRequest) {
       validatedData = webhookPlataUpdateSchema.parse(body);
     } catch (error) {
       if (error instanceof ZodError) {
-        console.error("Webhook validation error:", error.format());
+        logger.error("Webhook validation error:", error.format());
         const errorResponse: ApiErrorResponse = {
           success: false,
           error: {
@@ -67,7 +68,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (findError || !plata) {
-      console.error("Payment not found for transaction:", transaction_id);
+      logger.error("Payment not found for transaction:", transaction_id);
       const errorResponse: ApiErrorResponse = {
         success: false,
         error: {
@@ -81,7 +82,7 @@ export async function POST(request: NextRequest) {
 
     // Prevent status updates if payment already finalized
     if (plata.status === PlataStatus.SUCCESS || plata.status === PlataStatus.REFUNDED) {
-      console.warn(
+      logger.warn(
         `Attempt to update finalized payment ${plata.id} from ${plata.status} to ${status}`
       );
       const errorResponse: ApiErrorResponse = {
@@ -115,7 +116,7 @@ export async function POST(request: NextRequest) {
       .eq("id", plata.id);
 
     if (updateError) {
-      console.error("Error updating plata:", updateError);
+      logger.error("Error updating plata:", updateError);
       const errorResponse: ApiErrorResponse = {
         success: false,
         error: {
@@ -141,7 +142,7 @@ export async function POST(request: NextRequest) {
           .eq("id", plata.cerere_id);
 
         if (cerereUpdateError) {
-          console.error("Error updating cerere plata_efectuata:", cerereUpdateError);
+          logger.error("Error updating cerere plata_efectuata:", cerereUpdateError);
           // Don't fail the webhook - payment was successful
         }
       }
@@ -160,10 +161,10 @@ export async function POST(request: NextRequest) {
         .single();
 
       if (chitantaError) {
-        console.error("Error creating chitanta:", chitantaError);
+        logger.error("Error creating chitanta:", chitantaError);
         // Don't fail the webhook - payment was successful, chitanta can be generated later
       } else {
-        console.log(`Chitanță created: ${chitanta.numar_chitanta} for plata ${plata.id}`);
+        logger.debug(`Chitanță created: ${chitanta.numar_chitanta} for plata ${plata.id}`);
       }
 
       // Send email notification to user
@@ -183,14 +184,14 @@ export async function POST(request: NextRequest) {
             const emailResult = await sendPaymentCompletedEmail(user.email, fullName, plata.id);
 
             if (!emailResult.success) {
-              console.error("Failed to send payment email:", emailResult.error);
+              logger.error("Failed to send payment email:", emailResult.error);
               // Don't fail webhook - payment was successful
             } else {
-              console.log(`Payment confirmation email sent to ${user.email}`);
+              logger.debug(`Payment confirmation email sent to ${user.email}`);
             }
           }
         } catch (emailError) {
-          console.error("Error sending payment email:", emailError);
+          logger.error("Error sending payment email:", emailError);
           // Don't fail webhook - payment was successful
         }
 
@@ -210,20 +211,20 @@ export async function POST(request: NextRequest) {
             );
 
             if (!smsResult.success) {
-              console.error("Failed to send payment SMS:", smsResult.error);
+              logger.error("Failed to send payment SMS:", smsResult.error);
               // Don't fail webhook - payment was successful
             } else {
-              console.log(`SMS sent to ${utilizator.telefon} for payment ${plata.id}`);
+              logger.debug(`SMS sent to ${utilizator.telefon} for payment ${plata.id}`);
             }
           }
         } catch (smsError) {
-          console.error("Error sending payment SMS:", smsError);
+          logger.error("Error sending payment SMS:", smsError);
           // Don't fail webhook - payment was successful
         }
       }
     }
 
-    console.log(`Webhook processed: transaction ${transaction_id} → status ${status}`);
+    logger.debug(`Webhook processed: transaction ${transaction_id} → status ${status}`);
 
     const response: ApiResponse<{ message: string; plata_id: string }> = {
       success: true,
@@ -239,7 +240,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
-    console.error("Unexpected error in POST /api/plati/webhook:", error);
+    logger.error("Unexpected error in POST /api/plati/webhook:", error);
     const errorResponse: ApiErrorResponse = {
       success: false,
       error: {

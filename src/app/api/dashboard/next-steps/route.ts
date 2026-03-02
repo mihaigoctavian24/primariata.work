@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import type { NextStep, NextStepType } from "@/types/dashboard";
@@ -199,7 +200,7 @@ export async function GET() {
       data: steps,
     });
   } catch (error) {
-    console.error("Unexpected error in next-steps:", error);
+    logger.error("Unexpected error in next-steps:", error);
     return NextResponse.json({ success: false, error: "Internal server error" }, { status: 500 });
   }
 }

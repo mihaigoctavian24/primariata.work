@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/server";
@@ -337,7 +338,7 @@ export async function GET() {
       },
     });
   } catch (error) {
-    console.error("Error fetching survey stats:", error);
+    logger.error("Error fetching survey stats:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

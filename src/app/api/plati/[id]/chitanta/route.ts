@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import type { ApiErrorResponse } from "@/types/api";
@@ -120,7 +121,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     });
     */
   } catch (error) {
-    console.error("Unexpected error in GET /api/plati/[id]/chitanta:", error);
+    logger.error("Unexpected error in GET /api/plati/[id]/chitanta:", error);
     const errorResponse: ApiErrorResponse = {
       success: false,
       error: {

@@ -8,6 +8,7 @@
  * - Error scenarios
  */
 
+import { logger } from "@/lib/logger";
 import crypto from "crypto";
 import type {
   MockTransactionId,
@@ -305,9 +306,9 @@ function scheduleWebhookCallback(
         webhook_sent_at: new Date().toISOString(),
       });
 
-      console.log(`[Mock Webhook] Sent to ${callbackUrl} for ${transactionId}`);
+      logger.debug(`[Mock Webhook] Sent to ${callbackUrl} for ${transactionId}`);
     } catch (error) {
-      console.error(`[Mock Webhook] Failed to send webhook for ${transactionId}:`, error);
+      logger.error(`[Mock Webhook] Failed to send webhook for ${transactionId}:`, error);
     }
   }, webhookDelay);
 }

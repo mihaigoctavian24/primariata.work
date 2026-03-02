@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { createClient } from "@/lib/supabase/server";
 import { listNotificationsQuerySchema, markAllAsReadSchema } from "@/lib/validations/notifications";
 import { NextRequest, NextResponse } from "next/server";
@@ -103,7 +104,7 @@ export async function GET(request: NextRequest) {
     const { data: notifications, error: fetchError, count } = await query;
 
     if (fetchError) {
-      console.error("Error fetching notifications:", fetchError);
+      logger.error("Error fetching notifications:", fetchError);
       return NextResponse.json({ error: "Failed to fetch notifications" }, { status: 500 });
     }
 
@@ -139,7 +140,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("Unexpected error in GET /api/notifications:", error);
+    logger.error("Unexpected error in GET /api/notifications:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
@@ -196,7 +197,7 @@ export async function POST(request: NextRequest) {
     const { error: updateError, count } = await query.select();
 
     if (updateError) {
-      console.error("Error marking notifications as read:", updateError);
+      logger.error("Error marking notifications as read:", updateError);
       return NextResponse.json({ error: "Failed to mark notifications as read" }, { status: 500 });
     }
 
@@ -209,7 +210,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("Unexpected error in POST /api/notifications:", error);
+    logger.error("Unexpected error in POST /api/notifications:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -121,7 +122,7 @@ export function LoginForm({
       const errorMsg = "A apărut o eroare. Te rugăm să încerci din nou.";
       setError(errorMsg);
       onError?.(errorMsg);
-      console.error("Login error:", err);
+      logger.error("Login error:", err);
     } finally {
       setIsLoading(false);
     }
@@ -150,7 +151,7 @@ export function LoginForm({
       const errorMsg = "A apărut o eroare la autentificarea cu Google.";
       setError(errorMsg);
       onError?.(errorMsg);
-      console.error("Google sign-in error:", err);
+      logger.error("Google sign-in error:", err);
       setIsGoogleLoading(false);
     }
   }

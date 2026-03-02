@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
@@ -25,7 +26,7 @@ export async function GET() {
       .order("order_index", { ascending: true });
 
     if (questionsError) {
-      console.error("[Question Analysis] Questions fetch error:", questionsError);
+      logger.error("[Question Analysis] Questions fetch error:", questionsError);
       return NextResponse.json({ success: false, error: questionsError.message }, { status: 500 });
     }
 
@@ -35,7 +36,7 @@ export async function GET() {
       .select("*");
 
     if (responsesError) {
-      console.error("[Question Analysis] Responses fetch error:", responsesError);
+      logger.error("[Question Analysis] Responses fetch error:", responsesError);
       return NextResponse.json({ success: false, error: responsesError.message }, { status: 500 });
     }
 
@@ -162,7 +163,7 @@ export async function GET() {
       }
     }
 
-    console.log(
+    logger.debug(
       `[Question Analysis] Generated analysis for ${citizenInsights.length} citizen questions, ${officialInsights.length} official questions`
     );
 
@@ -172,7 +173,7 @@ export async function GET() {
       officialInsights,
     });
   } catch (error) {
-    console.error("[Question Analysis] Error:", error);
+    logger.error("[Question Analysis] Error:", error);
     return NextResponse.json(
       {
         success: false,

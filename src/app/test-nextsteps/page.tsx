@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import { NextStepsWidget } from "@/components/dashboard/NextStepsWidget";
 import type { NextStep } from "@/types/dashboard";
 
@@ -60,8 +61,8 @@ export default function TestNextStepsPage() {
 
           <NextStepsWidget
             steps={mockSteps}
-            onStepClick={(step) => console.log("Clicked:", step)}
-            onDismiss={(stepId) => console.log("Dismissed:", stepId)}
+            onStepClick={(step) => logger.debug("Clicked:", step)}
+            onDismiss={(stepId) => logger.debug("Dismissed:", stepId)}
           />
         </div>
 

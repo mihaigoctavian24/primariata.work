@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import { useState, useEffect, useCallback } from "react";
 import { WizardStep, WizardState, UploadedFile } from "@/types/wizard";
 import { TipCerere } from "@/types/api";
@@ -78,7 +79,7 @@ export function useWizardState() {
 
         // CRITICAL: Validate ownership
         if (parsed.userId && parsed.userId !== userId) {
-          console.warn("[SECURITY] Mismatched user data detected, clearing wizard state");
+          logger.warn("[SECURITY] Mismatched user data detected, clearing wizard state");
           localStorage.removeItem(storageKey);
           setIsHydrated(true);
           return;
@@ -87,7 +88,7 @@ export function useWizardState() {
         // Optional: Check expiration (e.g., 7 days)
         const EXPIRATION_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
         if (parsed.savedAt && Date.now() - parsed.savedAt > EXPIRATION_MS) {
-          console.info("[INFO] Wizard state expired, clearing");
+          logger.info("[INFO] Wizard state expired, clearing");
           localStorage.removeItem(storageKey);
           setIsHydrated(true);
           return;
@@ -95,7 +96,7 @@ export function useWizardState() {
 
         setState(parsed);
       } catch (error) {
-        console.error("Failed to parse wizard state:", error);
+        logger.error("Failed to parse wizard state:", error);
         localStorage.removeItem(storageKey);
       }
     }

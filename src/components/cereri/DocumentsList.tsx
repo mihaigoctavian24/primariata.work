@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import { useState, useEffect } from "react";
 import { Download, File, FileText, Image, Trash2, Shield } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -84,7 +85,7 @@ export function DocumentsList({ cerereId, documents, onDocumentDeleted }: Docume
           .eq("status", "success");
 
         if (error) {
-          console.error("Error fetching signatures:", error);
+          logger.error("Error fetching signatures:", error);
           setLoadingSignatures(false);
           return;
         }
@@ -100,7 +101,7 @@ export function DocumentsList({ cerereId, documents, onDocumentDeleted }: Docume
 
         setSignatures(sigMap);
       } catch (error) {
-        console.error("Error fetching signatures:", error);
+        logger.error("Error fetching signatures:", error);
       } finally {
         setLoadingSignatures(false);
       }
@@ -130,7 +131,7 @@ export function DocumentsList({ cerereId, documents, onDocumentDeleted }: Docume
 
       toast.success("Document descărcat cu succes");
     } catch (error) {
-      console.error("Download error:", error);
+      logger.error("Download error:", error);
       toast.error(error instanceof Error ? error.message : "Eroare la descărcarea documentului");
     } finally {
       setDownloading(null);
@@ -156,7 +157,7 @@ export function DocumentsList({ cerereId, documents, onDocumentDeleted }: Docume
         onDocumentDeleted();
       }
     } catch (error) {
-      console.error("Delete error:", error);
+      logger.error("Delete error:", error);
       toast.error(error instanceof Error ? error.message : "Eroare la ștergerea documentului");
     } finally {
       setDeleting(null);

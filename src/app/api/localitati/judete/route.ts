@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import type { ApiResponse, ApiErrorResponse, Judet } from "@/types/api";
@@ -35,7 +36,7 @@ export async function GET() {
 
     // Handle database errors
     if (error) {
-      console.error("Database error fetching județe:", error);
+      logger.error("Database error fetching județe:", error);
 
       const errorResponse: ApiErrorResponse = {
         success: false,
@@ -71,7 +72,7 @@ export async function GET() {
       },
     });
   } catch (error) {
-    console.error("Unexpected error in GET /api/localitati/judete:", error);
+    logger.error("Unexpected error in GET /api/localitati/judete:", error);
 
     const errorResponse: ApiErrorResponse = {
       success: false,

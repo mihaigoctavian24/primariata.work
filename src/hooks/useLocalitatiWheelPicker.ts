@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { useState, useEffect, useRef } from "react";
 import type { WheelPickerOption } from "@/components/wheel-picker";
 import type { ApiResponse, ApiErrorResponse, Localitate } from "@/types/api";
@@ -100,7 +101,7 @@ export function useLocalitatiWheelPicker({
       const errorMessage =
         err instanceof Error ? err.message : "Eroare la încărcarea localităților";
       setError(errorMessage);
-      console.error("Error fetching localități:", err);
+      logger.error("Error fetching localități:", err);
     } finally {
       if (!abortController.signal.aborted) {
         setLoading(false);

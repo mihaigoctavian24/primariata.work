@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import { useState, useEffect, useCallback } from "react";
 import {
   Dialog,
@@ -51,7 +52,7 @@ export function ResponsesDialog({ open, onOpenChange, respondent }: ResponsesDia
       const data = await response.json();
       setResponses(data || []);
     } catch (error) {
-      console.error("Error fetching responses:", error);
+      logger.error("Error fetching responses:", error);
       setResponses([]);
     } finally {
       setLoading(false);

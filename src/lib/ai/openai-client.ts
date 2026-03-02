@@ -4,6 +4,7 @@
  * Singleton client for OpenAI API with error handling, retries, and rate limiting
  */
 
+import { logger } from "@/lib/logger";
 import OpenAI from "openai";
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 
@@ -30,7 +31,7 @@ export function getOpenAIClient(): OpenAI {
       maxRetries: 3, // Retry failed requests up to 3 times
     });
 
-    console.log("✅ OpenAI client initialized successfully");
+    logger.debug("✅ OpenAI client initialized successfully");
   }
 
   return openaiClient;
@@ -160,7 +161,7 @@ export async function chatCompletion(
       finishReason: choice.finish_reason,
     };
   } catch (error) {
-    console.error("❌ OpenAI API Error:", error);
+    logger.error("❌ OpenAI API Error:", error);
 
     if (error instanceof OpenAI.APIError) {
       // Handle specific OpenAI errors
@@ -219,7 +220,7 @@ export async function* streamChatCompletion(
       }
     }
   } catch (error) {
-    console.error("❌ OpenAI Streaming Error:", error);
+    logger.error("❌ OpenAI Streaming Error:", error);
     throw error;
   }
 }
@@ -270,10 +271,10 @@ export async function testOpenAIConnection(): Promise<boolean> {
       maxTokens: 10,
     });
 
-    console.log("✅ OpenAI connection test successful:", response.content);
+    logger.debug("✅ OpenAI connection test successful:", response.content);
     return true;
   } catch (error) {
-    console.error("❌ OpenAI connection test failed:", error);
+    logger.error("❌ OpenAI connection test failed:", error);
     return false;
   }
 }

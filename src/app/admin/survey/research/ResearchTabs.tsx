@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import { useState, useEffect, useMemo } from "react";
 import {
   TrendingUp,
@@ -148,7 +149,7 @@ export function ResearchTabs({
         setHolisticInsights(data.insights || []);
       }
     } catch (error) {
-      console.error("Error fetching holistic insights:", error);
+      logger.error("Error fetching holistic insights:", error);
       toast.error("Eroare la încărcarea insight-urilor", {
         description: "Nu s-au putut încărca datele de analiză AI",
       });
@@ -167,12 +168,12 @@ export function ResearchTabs({
           citizenInsights: data.citizenInsights || [],
           officialInsights: data.officialInsights || [],
         });
-        console.log(
+        logger.debug(
           `[Question Analysis] Loaded ${data.citizenInsights?.length || 0} citizen questions, ${data.officialInsights?.length || 0} official questions`
         );
       }
     } catch (error) {
-      console.error("Error fetching question analysis:", error);
+      logger.error("Error fetching question analysis:", error);
       toast.error("Eroare la încărcarea analizei întrebărilor", {
         description: "Nu s-au putut încărca datele de analiză pe întrebări",
       });
@@ -188,10 +189,10 @@ export function ResearchTabs({
       if (response.ok) {
         const data = await response.json();
         setCorrelationData(data);
-        console.log(`[Correlations] Loaded ${data.correlations?.length || 0} correlations`);
+        logger.debug(`[Correlations] Loaded ${data.correlations?.length || 0} correlations`);
       }
     } catch (error) {
-      console.error("Error fetching correlations:", error);
+      logger.error("Error fetching correlations:", error);
       toast.error("Eroare la încărcarea corelațiilor", {
         description: "Nu s-au putut încărca datele de corelații statistice",
       });
@@ -207,10 +208,10 @@ export function ResearchTabs({
       if (response.ok) {
         const data = await response.json();
         setCohortData(data);
-        console.log(`[Cohorts] Loaded ${data.cohorts?.length || 0} cohorts`);
+        logger.debug(`[Cohorts] Loaded ${data.cohorts?.length || 0} cohorts`);
       }
     } catch (error) {
-      console.error("Error fetching cohorts:", error);
+      logger.error("Error fetching cohorts:", error);
       toast.error("Eroare la încărcarea cohortelor", {
         description: "Nu s-au putut încărca datele de analiză pe cohorte",
       });
@@ -224,7 +225,7 @@ export function ResearchTabs({
     toast.info("🤖 Generare analiză AI în curs...", {
       description: "Se procesează răspunsurile și se generează insight-uri strategice",
     });
-    console.log("🤖 Generare Analiză Holistică AI - Procesare răspunsuri...");
+    logger.debug("🤖 Generare Analiză Holistică AI - Procesare răspunsuri...");
 
     try {
       const response = await fetch("/api/survey/research/analyze", {
@@ -243,7 +244,7 @@ export function ResearchTabs({
             (sum: number, i: HolisticInsight) => sum + (i.feature_requests?.length || 0),
             0
           ) || 0;
-        console.log(`✅ Analiză Holistică Completă - ${totalRecs} recomandări strategice!`);
+        logger.debug(`✅ Analiză Holistică Completă - ${totalRecs} recomandări strategice!`);
 
         toast.success("✅ Analiză holistică completă!", {
           description: `${totalRecs} recomandări strategice și ${totalFeatures} funcționalități identificate`,
@@ -253,14 +254,14 @@ export function ResearchTabs({
         await fetchHolisticInsights(); // Refresh holistic insights
       } else {
         const error = await response.json();
-        console.error("❌ Eroare:", error);
+        logger.error("❌ Eroare:", error);
         toast.error("Eroare la generarea analizei", {
           description: error.error || "Nu s-a putut genera analiza AI",
           duration: 5000,
         });
       }
     } catch (error) {
-      console.error("❌ Eroare:", error);
+      logger.error("❌ Eroare:", error);
       toast.error("Eroare de rețea", {
         description: "Nu s-a putut conecta la serverul de analiză AI",
         duration: 5000,

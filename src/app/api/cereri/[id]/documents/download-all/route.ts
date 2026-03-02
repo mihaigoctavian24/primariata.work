@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import type { ApiErrorResponse } from "@/types/api";
@@ -74,7 +75,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       .order("created_at", { ascending: true });
 
     if (documentsError) {
-      console.error("Database error fetching documents:", documentsError);
+      logger.error("Database error fetching documents:", documentsError);
       const errorResponse: ApiErrorResponse = {
         success: false,
         error: {
@@ -111,14 +112,14 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
           .createSignedUrl(doc.storage_path, 3600); // 1 hour validity
 
         if (signedUrlError || !signedUrlData) {
-          console.error(`Failed to generate signed URL for ${doc.nume_fisier}:`, signedUrlError);
+          logger.error(`Failed to generate signed URL for ${doc.nume_fisier}:`, signedUrlError);
           continue; // Skip this file and continue with others
         }
 
         // Download file content
         const fileResponse = await fetch(signedUrlData.signedUrl);
         if (!fileResponse.ok) {
-          console.error(`Failed to download ${doc.nume_fisier}: ${fileResponse.statusText}`);
+          logger.error(`Failed to download ${doc.nume_fisier}: ${fileResponse.statusText}`);
           continue;
         }
 
@@ -128,7 +129,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         // Add to ZIP with original filename
         zip.file(doc.nume_fisier, fileBuffer);
       } catch (err) {
-        console.error(`Error processing file ${doc.nume_fisier}:`, err);
+        logger.error(`Error processing file ${doc.nume_fisier}:`, err);
         // Continue with other files
       }
     }
@@ -153,7 +154,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       },
     });
   } catch (error) {
-    console.error("Unexpected error in GET /api/cereri/[id]/documents/download-all:", error);
+    logger.error("Unexpected error in GET /api/cereri/[id]/documents/download-all:", error);
     const errorResponse: ApiErrorResponse = {
       success: false,
       error: {

@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { PDFDocument } from "pdf-lib";
@@ -249,7 +250,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (auditError) {
-      console.error("Failed to create audit log entry:", auditError);
+      logger.error("Failed to create audit log entry:", auditError);
       // Don't fail the request, just log the error
     }
 
@@ -282,7 +283,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("Unexpected error in POST /api/mock-certsign/sign:", error);
+    logger.error("Unexpected error in POST /api/mock-certsign/sign:", error);
     const errorResponse: ApiErrorResponse = {
       success: false,
       error: {

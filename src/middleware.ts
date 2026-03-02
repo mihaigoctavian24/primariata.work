@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
@@ -67,7 +68,7 @@ export async function middleware(request: NextRequest) {
         const { judetSlug, localitateSlug } = JSON.parse(savedLocation);
         redirectPath = `/app/${judetSlug}/${localitateSlug}`;
       } catch (e) {
-        console.error("Failed to parse saved location:", e);
+        logger.error("Failed to parse saved location:", e);
       }
     }
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import { useTheme } from "next-themes";
 import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { motion, useMotionValue, useVelocity, animate, PanInfo } from "framer-motion";
@@ -185,7 +186,7 @@ function WheelPicker({
 
       // Only animate if the position is significantly different (more than half an item)
       if (Math.abs(currentYValue - targetY) > ITEM_HEIGHT / 2) {
-        console.log("🎯 Wheel picker: Animating to new value (external)", {
+        logger.debug("🎯 Wheel picker: Animating to new value (external)", {
           value,
           currentIndex,
           targetY,

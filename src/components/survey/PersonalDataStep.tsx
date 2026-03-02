@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -82,7 +83,7 @@ export function PersonalDataStep({ defaultValues, onSubmit, onBack }: PersonalDa
           setJudete(data.data);
         }
       } catch (err) {
-        console.error("Error fetching județe:", err);
+        logger.error("Error fetching județe:", err);
       }
     };
     fetchJudete();

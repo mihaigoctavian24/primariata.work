@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
@@ -36,7 +37,7 @@ export async function GET(request: Request) {
 
           // Sync location to database
           if (savedLocation.localitateId) {
-            console.log("[auth/callback] Syncing location to database:", {
+            logger.debug("[auth/callback] Syncing location to database:", {
               localitateId: savedLocation.localitateId,
             });
 
@@ -64,15 +65,15 @@ export async function GET(request: Request) {
                   .eq("id", user.id);
 
                 if (updateError) {
-                  console.error("[auth/callback] Failed to sync location:", updateError);
+                  logger.error("[auth/callback] Failed to sync location:", updateError);
                 } else {
-                  console.log("[auth/callback] ✅ Location synced successfully to database");
+                  logger.debug("[auth/callback] ✅ Location synced successfully to database");
                 }
               }
             }
           }
         } catch (e) {
-          console.error("[auth/callback] Failed to sync location:", e);
+          logger.error("[auth/callback] Failed to sync location:", e);
           // Don't block auth flow if location sync fails
         }
       }
@@ -89,7 +90,7 @@ export async function GET(request: Request) {
               redirectPath = `/app/${savedLocation.judetSlug}/${savedLocation.localitateSlug}`;
             }
           } catch (e) {
-            console.error("[auth/callback] Failed to parse location cookie:", e);
+            logger.error("[auth/callback] Failed to parse location cookie:", e);
             // Fallback to homepage if cookie is corrupted
           }
         }

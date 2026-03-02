@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { withRateLimit, getSupabaseUserId } from "@/lib/middleware/rate-limit";
@@ -70,7 +71,7 @@ async function handler(request: NextRequest) {
       .order("created_at", { ascending: true });
 
     if (platiError) {
-      console.error("Error fetching plati monthly:", platiError);
+      logger.error("Error fetching plati monthly:", platiError);
       return NextResponse.json(
         { success: false, error: "Failed to fetch payments data" },
         { status: 500 }
@@ -155,7 +156,7 @@ async function handler(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("Unexpected error in plati-monthly:", error);
+    logger.error("Unexpected error in plati-monthly:", error);
     return NextResponse.json({ success: false, error: "Internal server error" }, { status: 500 });
   }
 }

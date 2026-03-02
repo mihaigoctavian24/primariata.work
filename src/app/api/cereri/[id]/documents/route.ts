@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import type { ApiResponse, ApiErrorResponse } from "@/types/api";
@@ -131,7 +132,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       });
 
     if (uploadError) {
-      console.error("Storage upload error:", uploadError);
+      logger.error("Storage upload error:", uploadError);
       const errorResponse: ApiErrorResponse = {
         success: false,
         error: {
@@ -163,7 +164,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       .single();
 
     if (dbError) {
-      console.error("Database insert error:", dbError);
+      logger.error("Database insert error:", dbError);
 
       // Cleanup storage if DB insert fails
       await supabase.storage.from("documents").remove([storagePath]);
@@ -191,7 +192,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     return NextResponse.json(response, { status: 201 });
   } catch (error) {
-    console.error("Unexpected error in POST /api/cereri/[id]/documents:", error);
+    logger.error("Unexpected error in POST /api/cereri/[id]/documents:", error);
     const errorResponse: ApiErrorResponse = {
       success: false,
       error: {
@@ -275,7 +276,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       .order("created_at", { ascending: false });
 
     if (documentsError) {
-      console.error("Database error fetching documents:", documentsError);
+      logger.error("Database error fetching documents:", documentsError);
       const errorResponse: ApiErrorResponse = {
         success: false,
         error: {
@@ -299,7 +300,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
-    console.error("Unexpected error in GET /api/cereri/[id]/documents:", error);
+    logger.error("Unexpected error in GET /api/cereri/[id]/documents:", error);
     const errorResponse: ApiErrorResponse = {
       success: false,
       error: {

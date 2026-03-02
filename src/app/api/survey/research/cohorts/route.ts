@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { analyzeCohorts } from "@/lib/ai/cohort-analyzer";
@@ -20,7 +21,7 @@ export async function GET() {
       .maybeSingle();
 
     if (cached) {
-      console.log(`[Cohorts API] Returning cached data from ${cached.created_at}`);
+      logger.debug(`[Cohorts API] Returning cached data from ${cached.created_at}`);
       return NextResponse.json({
         cohorts: cached.cohorts || [],
         metrics: cached.metrics || [],
@@ -32,14 +33,14 @@ export async function GET() {
     }
 
     // No cache available - calculate fresh
-    console.log("[Cohorts API] No cache found, calculating fresh data");
+    logger.debug("[Cohorts API] No cache found, calculating fresh data");
 
     const { data: respondents, error: respondentsError } = await supabase
       .from("survey_respondents")
       .select("*");
 
     if (respondentsError) {
-      console.error("Error fetching respondents:", respondentsError);
+      logger.error("Error fetching respondents:", respondentsError);
       return NextResponse.json(
         { error: "Failed to fetch respondents", details: respondentsError.message },
         { status: 500 }
@@ -65,7 +66,7 @@ export async function GET() {
       .select("*");
 
     if (responsesError) {
-      console.error("Error fetching responses:", responsesError);
+      logger.error("Error fetching responses:", responsesError);
       return NextResponse.json(
         { error: "Failed to fetch responses", details: responsesError.message },
         { status: 500 }
@@ -87,7 +88,7 @@ export async function GET() {
     }
 
     // Analyze cohorts
-    console.log(
+    logger.debug(
       `[Cohorts API] Analyzing ${respondents.length} respondents with ${responses.length} responses`
     );
 
@@ -97,13 +98,13 @@ export async function GET() {
       cohortType: "all",
     });
 
-    console.log(
+    logger.debug(
       `[Cohorts API] Found ${result.cohorts.length} cohorts with ${result.comparisons.length} comparisons`
     );
 
     return NextResponse.json(result);
   } catch (error) {
-    console.error("[Cohorts API] Unexpected error:", error);
+    logger.error("[Cohorts API] Unexpected error:", error);
     return NextResponse.json(
       {
         error: "Internal server error",

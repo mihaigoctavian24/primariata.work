@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
@@ -25,27 +26,27 @@ export default function ProfilePage() {
     async function fetchUserData() {
       try {
         const supabase = createClient();
-        console.log("🔄 Profile page: Fetching user data...");
+        logger.debug("🔄 Profile page: Fetching user data...");
         const {
           data: { user },
         } = await supabase.auth.getUser();
 
         if (user) {
-          console.log("👤 Profile page: User data:", {
+          logger.debug("👤 Profile page: User data:", {
             full_name: user.user_metadata?.full_name,
             avatar_url: user.user_metadata?.avatar_url,
           });
           setUserFullName(user.user_metadata?.full_name || "");
           setCurrentAvatarUrl(user.user_metadata?.avatar_url || "");
-          console.log(
+          logger.debug(
             "✅ Profile page: State updated with avatar_url:",
             user.user_metadata?.avatar_url
           );
         } else {
-          console.log("❌ Profile page: No user found");
+          logger.debug("❌ Profile page: No user found");
         }
       } catch (err) {
-        console.error("💥 Profile page: Failed to fetch user data:", err);
+        logger.error("💥 Profile page: Failed to fetch user data:", err);
       }
     }
 

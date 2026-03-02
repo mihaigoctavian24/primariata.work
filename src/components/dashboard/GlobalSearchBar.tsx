@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Fuse from "fuse.js";
@@ -186,7 +187,7 @@ export function GlobalSearchBar({
         setResults(rankedResults);
         setSelectedIndex(0);
       } catch (error) {
-        console.error("Search error:", error);
+        logger.error("Search error:", error);
         setResults([]);
       } finally {
         setIsLoading(false);

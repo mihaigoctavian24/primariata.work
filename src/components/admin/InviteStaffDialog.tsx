@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -93,7 +94,7 @@ export function InviteStaffDialog({ primarieId, trigger }: InviteStaffDialogProp
       // Refresh the page to show the new invitation
       window.location.reload();
     } catch (error) {
-      console.error("Error sending invitation:", error);
+      logger.error("Error sending invitation:", error);
       toast.error("Eroare la trimiterea invitației", {
         description: error instanceof Error ? error.message : "A apărut o eroare necunoscută",
         duration: 4000,

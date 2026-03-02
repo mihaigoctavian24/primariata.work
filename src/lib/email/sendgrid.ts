@@ -5,6 +5,7 @@
  * Uses SendGrid API through edge function for transactional emails
  */
 
+import { logger } from "@/lib/logger";
 import { createServiceRoleClient } from "@/lib/supabase/server";
 import type { EmailRequest, EmailResponse } from "./types";
 
@@ -44,7 +45,7 @@ export async function sendEmail(request: EmailRequest): Promise<EmailResponse> {
     });
 
     if (error) {
-      console.error("Error invoking send-email function:", error);
+      logger.error("Error invoking send-email function:", error);
       return {
         success: false,
         error: error.message || "Failed to send email",
@@ -54,7 +55,7 @@ export async function sendEmail(request: EmailRequest): Promise<EmailResponse> {
 
     // Check if edge function returned error
     if (data && data.error) {
-      console.error("Edge function returned error:", data.error);
+      logger.error("Edge function returned error:", data.error);
       return {
         success: false,
         error: data.error,
@@ -62,14 +63,14 @@ export async function sendEmail(request: EmailRequest): Promise<EmailResponse> {
       };
     }
 
-    console.log(`Email sent successfully: ${request.type} to ${request.toEmail}`);
+    logger.debug(`Email sent successfully: ${request.type} to ${request.toEmail}`);
 
     return {
       success: true,
       message: data?.message || "Email sent successfully",
     };
   } catch (error) {
-    console.error("Unexpected error sending email:", error);
+    logger.error("Unexpected error sending email:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error occurred",

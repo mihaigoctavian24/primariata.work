@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import { useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
@@ -99,7 +100,7 @@ export function useCereriNotifications(userId: string | null, enabled: boolean =
                 });
               }
             } catch (error) {
-              console.error("Failed to create notification record:", error);
+              logger.error("Failed to create notification record:", error);
             }
           }
         }

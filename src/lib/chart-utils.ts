@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import html2canvas from "html2canvas";
 
 /**
@@ -65,7 +66,7 @@ export async function exportChartAsPNG(
       quality
     );
   } catch (error) {
-    console.error("Failed to export chart as PNG:", error);
+    logger.error("Failed to export chart as PNG:", error);
     throw error;
   }
 }
@@ -104,7 +105,7 @@ export function exportChartAsSVG(element: HTMLElement, options: ExportOptions = 
     link.click();
     URL.revokeObjectURL(url);
   } catch (error) {
-    console.error("Failed to export chart as SVG:", error);
+    logger.error("Failed to export chart as SVG:", error);
     throw error;
   }
 }

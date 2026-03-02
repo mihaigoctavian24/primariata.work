@@ -21,6 +21,10 @@ export type { UseMetricAnimationOptions } from "./useMetricAnimation";
 export { useTableState } from "./useTableState";
 export type { UseTableStateOptions, SortConfig } from "./useTableState";
 
+// User profile hook
+export { useUserProfile } from "./use-user-profile";
+export type { UserProfile } from "@/app/api/user/profile/route";
+
 // Notifications hooks
 export { useNotificationsRealtime } from "./use-notifications-realtime";
 export { useNotificationsActions } from "./use-notifications-actions";

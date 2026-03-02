@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import { useRef, useState } from "react";
 import {
   PieChart,
@@ -110,7 +111,7 @@ export function InteractiveChart({
         exportChartAsSVG(chartRef.current, { filename });
       }
     } catch (error) {
-      console.error("Export failed:", error);
+      logger.error("Export failed:", error);
     } finally {
       setIsExporting(false);
     }

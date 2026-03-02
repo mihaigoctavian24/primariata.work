@@ -7,33 +7,50 @@ const isProduction = process.env.NODE_ENV === "production";
 // Create Logtail logger instance (only sends to Better Stack when token present)
 const logtailLogger = betterStackToken ? new LogtailLogger() : null;
 
+/**
+ * Normalize a context value into a Record<string, unknown> suitable for structured logging.
+ * Handles: Error objects, plain objects, primitives, null/undefined.
+ */
+function normalizeContext(context: unknown): Record<string, unknown> | undefined {
+  if (context === undefined || context === null || context === "") {
+    return undefined;
+  }
+  if (context instanceof Error) {
+    return { message: context.message, stack: context.stack, name: context.name };
+  }
+  if (typeof context === "object" && !Array.isArray(context)) {
+    return context as Record<string, unknown>;
+  }
+  return { value: context };
+}
+
 export const logger = {
-  debug(message: string, context?: Record<string, unknown>): void {
+  debug(message: string, context?: unknown): void {
     if (!isProduction) {
       console.debug(`[DEBUG] ${message}`, context ?? "");
     }
     // debug never sent to Better Stack
   },
 
-  info(message: string, context?: Record<string, unknown>): void {
+  info(message: string, context?: unknown): void {
     if (!isProduction) {
       console.info(`[INFO] ${message}`, context ?? "");
     }
     // info not sent to Better Stack in production (noise reduction)
   },
 
-  warn(message: string, context?: Record<string, unknown>): void {
+  warn(message: string, context?: unknown): void {
     if (!isProduction) {
       console.warn(`[WARN] ${message}`, context ?? "");
     }
-    logtailLogger?.warn(message, context);
+    logtailLogger?.warn(message, normalizeContext(context));
   },
 
-  error(message: string, context?: Record<string, unknown>): void {
+  error(message: string, context?: unknown): void {
     if (!isProduction) {
       console.error(`[ERROR] ${message}`, context ?? "");
     }
-    logtailLogger?.error(message, context);
+    logtailLogger?.error(message, normalizeContext(context));
   },
 
   security(event: SecurityEvent): void {

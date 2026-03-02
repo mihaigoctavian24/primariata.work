@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import type { ApiResponse, ApiErrorResponse } from "@/types/api";
@@ -88,7 +89,7 @@ async function handler(request: NextRequest) {
         .eq("id", user.id);
 
       if (updateError) {
-        console.error("Database error updating utilizator:", updateError);
+        logger.error("Database error updating utilizator:", updateError);
         const errorResponse: ApiErrorResponse = {
           success: false,
           error: {
@@ -113,7 +114,7 @@ async function handler(request: NextRequest) {
       });
 
       if (insertError) {
-        console.error("Database error creating utilizator:", insertError);
+        logger.error("Database error creating utilizator:", insertError);
         const errorResponse: ApiErrorResponse = {
           success: false,
           error: {
@@ -137,7 +138,7 @@ async function handler(request: NextRequest) {
 
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
-    console.error("Unexpected error in POST /api/location/set:", error);
+    logger.error("Unexpected error in POST /api/location/set:", error);
     const errorResponse: ApiErrorResponse = {
       success: false,
       error: {

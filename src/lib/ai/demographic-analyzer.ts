@@ -8,6 +8,7 @@
  * - Statistical correlations (chi-square, Pearson)
  */
 
+import { logger } from "@/lib/logger";
 import { chatCompletion, AI_MODELS } from "./openai-client";
 import type { DemographicAnalysisInput, DemographicAnalysisOutput } from "@/types/survey-ai";
 
@@ -21,7 +22,7 @@ import type { DemographicAnalysisInput, DemographicAnalysisOutput } from "@/type
 export async function analyzeDemographics(
   input: DemographicAnalysisInput
 ): Promise<DemographicAnalysisOutput> {
-  console.log(`📊 Analyzing demographics for ${input.respondents.length} respondents...`);
+  logger.debug(`📊 Analyzing demographics for ${input.respondents.length} respondents...`);
 
   // Age distribution
   const ageDistribution = calculateAgeDistribution(input.respondents);
@@ -35,7 +36,7 @@ export async function analyzeDemographics(
   // Statistical correlations
   const correlations = await identifyCorrelations(input.respondents, input.responses);
 
-  console.log(`✅ Demographic analysis complete`);
+  logger.debug(`✅ Demographic analysis complete`);
 
   return {
     ageDistribution,
@@ -594,7 +595,7 @@ Interpretează această corelație.`;
     const result = JSON.parse(response.content);
     return result.interpretation ?? "Corelație identificată.";
   } catch (error) {
-    console.error("❌ Correlation interpretation failed:", error);
+    logger.error("❌ Correlation interpretation failed:", error);
 
     // Fallback interpretation
     const strength =

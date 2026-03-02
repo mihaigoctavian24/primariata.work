@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -185,7 +186,7 @@ export function AcceptInviteForm({ token }: AcceptInviteFormProps) {
 
       setIsValidating(false);
     } catch (err) {
-      console.error("Error validating invitation:", err);
+      logger.error("Error validating invitation:", err);
       setError("A apărut o eroare la validarea invitației. Te rugăm să încerci din nou.");
       setIsValidating(false);
     }
@@ -230,7 +231,7 @@ export function AcceptInviteForm({ token }: AcceptInviteFormProps) {
         )}`
       );
     } catch (err: unknown) {
-      console.error("Error accepting invitation:", err);
+      logger.error("Error accepting invitation:", err);
 
       // Type-safe error handling
       if (err instanceof Error) {

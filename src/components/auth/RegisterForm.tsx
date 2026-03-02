@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -143,7 +144,7 @@ export function RegisterForm({
       const errorMsg = "A apărut o eroare. Te rugăm să încerci din nou.";
       setError(errorMsg);
       onError?.(errorMsg);
-      console.error("Registration error:", err);
+      logger.error("Registration error:", err);
     } finally {
       setIsLoading(false);
     }
@@ -172,7 +173,7 @@ export function RegisterForm({
       const errorMsg = "A apărut o eroare la înregistrarea cu Google.";
       setError(errorMsg);
       onError?.(errorMsg);
-      console.error("Google sign-up error:", err);
+      logger.error("Google sign-up error:", err);
       setIsGoogleLoading(false);
     }
   }
@@ -195,7 +196,7 @@ export function RegisterForm({
       }
     } catch (err) {
       setError("A apărut o eroare la retrimiterea emailului.");
-      console.error("Resend email error:", err);
+      logger.error("Resend email error:", err);
     } finally {
       setResendLoading(false);
     }

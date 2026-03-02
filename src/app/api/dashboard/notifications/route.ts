@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { withRateLimit, getSupabaseUserId } from "@/lib/middleware/rate-limit";
@@ -43,7 +44,7 @@ async function getHandler(_req: NextRequest) {
       .limit(10);
 
     if (notificationsError) {
-      console.error("Error fetching notifications:", notificationsError);
+      logger.error("Error fetching notifications:", notificationsError);
       return NextResponse.json(
         { success: false, error: "Failed to fetch notifications" },
         { status: 500 }
@@ -72,7 +73,7 @@ async function getHandler(_req: NextRequest) {
       data: transformedNotifications,
     });
   } catch (error) {
-    console.error("Unexpected error in notifications:", error);
+    logger.error("Unexpected error in notifications:", error);
     return NextResponse.json({ success: false, error: "Internal server error" }, { status: 500 });
   }
 }
@@ -168,7 +169,7 @@ async function patchHandler(request: NextRequest) {
       .eq("utilizator_id", user!.id); // Additional security layer beyond ownership check
 
     if (updateError) {
-      console.error("Error updating notification:", updateError);
+      logger.error("Error updating notification:", updateError);
       return NextResponse.json(
         { success: false, error: "Failed to update notification" },
         { status: 500 }
@@ -180,7 +181,7 @@ async function patchHandler(request: NextRequest) {
       message: `Notification ${action}ed successfully`,
     });
   } catch (error) {
-    console.error("Unexpected error in PATCH notifications:", error);
+    logger.error("Unexpected error in PATCH notifications:", error);
     return NextResponse.json({ success: false, error: "Internal server error" }, { status: 500 });
   }
 }

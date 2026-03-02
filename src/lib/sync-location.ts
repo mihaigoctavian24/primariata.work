@@ -3,6 +3,7 @@
  * Syncs localStorage location to database after authentication
  */
 
+import { logger } from "@/lib/logger";
 import { getLocation } from "./location-storage";
 
 /**
@@ -19,11 +20,11 @@ export async function syncLocationToDatabase(): Promise<{
     const location = getLocation();
 
     if (!location) {
-      console.log("[sync-location] No saved location found in localStorage");
+      logger.debug("[sync-location] No saved location found in localStorage");
       return { success: true }; // Not an error - user may not have selected location yet
     }
 
-    console.log("[sync-location] Syncing location to database:", {
+    logger.debug("[sync-location] Syncing location to database:", {
       localitateId: location.localitateId,
       judetSlug: location.judetSlug,
       localitateSlug: location.localitateSlug,
@@ -41,17 +42,17 @@ export async function syncLocationToDatabase(): Promise<{
     if (!response.ok) {
       const error = await response.json();
       const errorMessage = error.error?.message || "Failed to sync location to database";
-      console.error("[sync-location] API error:", errorMessage);
+      logger.error("[sync-location] API error:", errorMessage);
       return { success: false, error: errorMessage };
     }
 
     const data = await response.json();
-    console.log("[sync-location] ✅ Location synced successfully to database:", data);
+    logger.debug("[sync-location] ✅ Location synced successfully to database:", data);
 
     return { success: true };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    console.error("[sync-location] Failed to sync location:", errorMessage);
+    logger.error("[sync-location] Failed to sync location:", errorMessage);
     return { success: false, error: errorMessage };
   }
 }
@@ -74,7 +75,7 @@ export async function hasLocationInDatabase(): Promise<boolean> {
     const data = await response.json();
     return data.hasLocation === true;
   } catch (error) {
-    console.error("[sync-location] Failed to check location:", error);
+    logger.error("[sync-location] Failed to check location:", error);
     return false;
   }
 }

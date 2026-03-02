@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -58,13 +59,13 @@ export function DashboardHeader({
   useEffect(() => {
     async function fetchUser() {
       const supabase = createClient();
-      console.log("🔄 Header: Fetching user data...");
+      logger.debug("🔄 Header: Fetching user data...");
       const {
         data: { user: authUser },
       } = await supabase.auth.getUser();
 
       if (authUser) {
-        console.log("👤 Header: User data:", {
+        logger.debug("👤 Header: User data:", {
           full_name: authUser.user_metadata?.full_name,
           avatar_url: authUser.user_metadata?.avatar_url,
         });
@@ -73,12 +74,12 @@ export function DashboardHeader({
           full_name: authUser.user_metadata?.full_name,
           avatar_url: authUser.user_metadata?.avatar_url,
         });
-        console.log(
+        logger.debug(
           "✅ Header: State updated with avatar_url:",
           authUser.user_metadata?.avatar_url
         );
       } else {
-        console.log("❌ Header: No user found");
+        logger.debug("❌ Header: No user found");
       }
     }
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import { useEffect, useState } from "react";
 import {
   Select,
@@ -52,7 +53,7 @@ export function SelectLocalitate({
         const errorMessage =
           err instanceof Error ? err.message : "Eroare la încărcarea localităților";
         setError(errorMessage);
-        console.error("Error fetching localități:", err);
+        logger.error("Error fetching localități:", err);
       } finally {
         setLoading(false);
       }
@@ -82,7 +83,7 @@ export function SelectLocalitate({
       const errorMessage =
         err instanceof Error ? err.message : "Eroare la încărcarea localităților";
       setError(errorMessage);
-      console.error("Error fetching localități:", err);
+      logger.error("Error fetching localități:", err);
     } finally {
       setLoading(false);
     }

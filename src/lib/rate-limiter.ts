@@ -15,6 +15,7 @@
  * - Horizontal scalability
  */
 
+import { logger } from "@/lib/logger";
 import { headers } from "next/headers";
 
 // Rate limit tiers with requests and window duration
@@ -62,7 +63,7 @@ function startCleanup() {
     }
 
     if (cleanedCount > 0) {
-      console.log(`[RateLimiter] Cleaned ${cleanedCount} expired entries`);
+      logger.debug(`[RateLimiter] Cleaned ${cleanedCount} expired entries`);
     }
   }, CLEANUP_INTERVAL);
 }

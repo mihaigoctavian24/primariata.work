@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import type { Notification } from "@/types/notifications";
@@ -172,7 +173,7 @@ export function useNotificationsActions() {
         queryClient.setQueryData(["notifications"], context.previousData);
       }
 
-      console.error("Error marking notification as read:", error);
+      logger.error("Error marking notification as read:", error);
       toast.error("Eroare la marcarea notificării ca citită", {
         duration: 3000,
         position: "bottom-right",
@@ -240,7 +241,7 @@ export function useNotificationsActions() {
         queryClient.setQueryData(["notifications"], context.previousData);
       }
 
-      console.error("Error marking notification as unread:", error);
+      logger.error("Error marking notification as unread:", error);
       toast.error("Eroare la marcarea notificării ca necitită", {
         duration: 3000,
         position: "bottom-right",
@@ -303,7 +304,7 @@ export function useNotificationsActions() {
         queryClient.setQueryData(["notifications"], context.previousData);
       }
 
-      console.error("Error dismissing notification:", error);
+      logger.error("Error dismissing notification:", error);
       toast.error("Eroare la respingerea notificării", {
         duration: 3000,
         position: "bottom-right",
@@ -374,7 +375,7 @@ export function useNotificationsActions() {
         queryClient.setQueryData(["notifications"], context.previousData);
       }
 
-      console.error("Error archiving notification:", error);
+      logger.error("Error archiving notification:", error);
       toast.error("Eroare la arhivarea notificării", {
         duration: 3000,
         position: "bottom-right",
@@ -471,7 +472,7 @@ export function useNotificationsActions() {
         queryClient.setQueryData(["notifications"], context.previousData);
       }
 
-      console.error("Error marking all as read:", error);
+      logger.error("Error marking all as read:", error);
       toast.error("Eroare la marcarea tuturor notificărilor", {
         duration: 3000,
         position: "bottom-right",

@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { createServiceRoleClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 import type { PersonalDataForm, RespondentType, SurveyAnswer } from "@/types/survey";
@@ -51,7 +52,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (respondentError) {
-      console.error("Error inserting respondent:", respondentError);
+      logger.error("Error inserting respondent:", respondentError);
       return NextResponse.json(
         { error: "Failed to save respondent data", details: respondentError.message },
         { status: 500 }
@@ -110,7 +111,7 @@ export async function POST(request: NextRequest) {
       .insert(responsesToInsert);
 
     if (responsesError) {
-      console.error("Error inserting responses:", responsesError);
+      logger.error("Error inserting responses:", responsesError);
       return NextResponse.json(
         { error: "Failed to save survey responses", details: responsesError.message },
         { status: 500 }
@@ -124,7 +125,7 @@ export async function POST(request: NextRequest) {
       message: "Survey submitted successfully",
     });
   } catch (error) {
-    console.error("Unexpected error:", error);
+    logger.error("Unexpected error:", error);
     return NextResponse.json(
       {
         error: "Internal server error",

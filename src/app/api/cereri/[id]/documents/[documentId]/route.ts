@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import type { ApiResponse, ApiErrorResponse } from "@/types/api";
@@ -94,7 +95,7 @@ export async function GET(
       .createSignedUrl(document.storage_path, 3600);
 
     if (signedUrlError || !signedUrlData) {
-      console.error("Signed URL generation error:", signedUrlError);
+      logger.error("Signed URL generation error:", signedUrlError);
       const errorResponse: ApiErrorResponse = {
         success: false,
         error: {
@@ -122,7 +123,7 @@ export async function GET(
 
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
-    console.error("Unexpected error in GET /api/cereri/[id]/documents/[documentId]:", error);
+    logger.error("Unexpected error in GET /api/cereri/[id]/documents/[documentId]:", error);
     const errorResponse: ApiErrorResponse = {
       success: false,
       error: {
@@ -222,7 +223,7 @@ export async function DELETE(
       .is("deleted_at", null);
 
     if (deleteError) {
-      console.error("Database delete error:", deleteError);
+      logger.error("Database delete error:", deleteError);
       const errorResponse: ApiErrorResponse = {
         success: false,
         error: {
@@ -246,7 +247,7 @@ export async function DELETE(
 
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
-    console.error("Unexpected error in DELETE /api/cereri/[id]/documents/[documentId]:", error);
+    logger.error("Unexpected error in DELETE /api/cereri/[id]/documents/[documentId]:", error);
     const errorResponse: ApiErrorResponse = {
       success: false,
       error: {

@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -94,7 +95,7 @@ export function UpdatePasswordForm({ className = "" }: UpdatePasswordFormProps) 
           );
         }
       } catch (err) {
-        console.error("Token verification error:", err);
+        logger.error("Token verification error:", err);
         setTokenValid(false);
         setError("A apărut o eroare la verificarea link-ului. Te rugăm să încerci din nou.");
       }
@@ -124,7 +125,7 @@ export function UpdatePasswordForm({ className = "" }: UpdatePasswordFormProps) 
       // Redirect to success page
       router.push("/auth/password-reset-success");
     } catch (err) {
-      console.error("Password update error:", err);
+      logger.error("Password update error:", err);
       setError(
         err instanceof Error
           ? err.message
