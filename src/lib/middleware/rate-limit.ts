@@ -16,7 +16,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { checkRateLimit, getRateLimitIdentifier, type RateLimitTier } from "@/lib/rate-limiter";
-import * as Sentry from "@sentry/nextjs";
+import { logger } from "@/lib/logger";
 
 /**
  * Rate limit middleware wrapper for Next.js API routes
@@ -67,10 +67,13 @@ export function withRateLimit<T extends NextRequest = NextRequest>(
       };
 
       if (!result.allowed) {
-        // Rate limit exceeded - log to Sentry
-        Sentry.captureMessage("Rate limit exceeded", {
-          level: "warning",
-          extra: {
+        // Rate limit exceeded - log as security event
+        logger.security({
+          type: "csrf",
+          action: "csrf_failure",
+          success: false,
+          metadata: {
+            reason: "rate_limit_exceeded",
             tier,
             identifier,
             url: req.url,
@@ -108,13 +111,11 @@ export function withRateLimit<T extends NextRequest = NextRequest>(
       return response;
     } catch (error) {
       // Log error but don't block request on rate limiter failure
-      console.error("[RateLimit] Middleware error:", error);
-      Sentry.captureException(error, {
-        extra: {
-          tier,
-          url: req.url,
-          method: req.method,
-        },
+      logger.error("[RateLimit] Middleware error", {
+        error: error instanceof Error ? { message: error.message, stack: error.stack } : error,
+        tier,
+        url: req.url,
+        method: req.method,
       });
 
       // Fail open - allow request through if rate limiter fails
@@ -148,7 +149,9 @@ export async function getSupabaseUserId(_req: NextRequest): Promise<string | und
 
     return user?.id;
   } catch (error) {
-    console.error("[RateLimit] Failed to get user ID:", error);
+    logger.error("[RateLimit] Failed to get user ID", {
+      error: error instanceof Error ? { message: error.message, stack: error.stack } : error,
+    });
     return undefined;
   }
 }

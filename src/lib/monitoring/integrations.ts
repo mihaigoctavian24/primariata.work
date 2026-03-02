@@ -3,7 +3,7 @@
  *
  * Tracks performance and health metrics for external integrations:
  * - certSIGN (document signing)
- * - Ghișeul.ro (payments)
+ * - Ghiseul.ro (payments)
  *
  * Metrics tracked:
  * - Response times
@@ -11,7 +11,7 @@
  * - Error types and frequencies
  */
 
-import * as Sentry from "@sentry/nextjs";
+import { logger } from "@/lib/logger";
 
 // Integration types
 export enum IntegrationType {
@@ -63,66 +63,35 @@ const RESPONSE_TIME_THRESHOLDS = {
 export function trackIntegrationMetrics(metrics: IntegrationMetrics): void {
   const { integration, operation, success, responseTime, error, metadata } = metrics;
 
-  // TODO: Refactor metrics tracking in #99 - Enhanced Error Tracking
-  // Sentry metrics API changed in recent versions
-  // Track integration event with custom context for now
-  Sentry.captureEvent({
-    message: `Integration: ${integration}.${operation}`,
-    level: "info",
-    tags: {
-      integration,
-      operation,
-      success: success.toString(),
-    },
-    contexts: {
-      integration_metrics: {
-        integration,
-        operation,
-        success,
-        response_time_ms: responseTime,
-        ...metadata,
-      },
-    },
+  logger.info(`Integration: ${integration}.${operation}`, {
+    integration,
+    operation,
+    success,
+    responseTimeMs: responseTime,
+    ...metadata,
   });
 
   // Alert if response time exceeds threshold
   const threshold = RESPONSE_TIME_THRESHOLDS[integration];
   if (responseTime > threshold) {
-    Sentry.captureMessage(`Slow integration response: ${integration}.${operation}`, {
-      level: "warning",
-      tags: {
-        integration,
-        operation,
-      },
-      extra: {
-        responseTime,
-        threshold,
-        metadata,
-      },
+    logger.warn(`Slow integration response: ${integration}.${operation}`, {
+      integration,
+      operation,
+      responseTime,
+      threshold,
+      ...metadata,
     });
   }
 
   // Capture errors
   if (!success && error) {
-    Sentry.captureException(new Error(error.message), {
-      tags: {
-        integration,
-        operation,
-      },
-      extra: {
-        errorCode: error.code,
-        responseTime,
-        metadata,
-      },
-    });
-  }
-
-  // Log for debugging (only in development)
-  if (process.env.NODE_ENV === "development") {
-    console.log(`[Integration Metrics] ${integration}.${operation}`, {
-      success,
-      responseTime: `${responseTime}ms`,
-      error: error?.message,
+    logger.error(`Integration error: ${integration}.${operation} - ${error.message}`, {
+      integration,
+      operation,
+      errorCode: error.code,
+      errorStack: error.stack,
+      responseTime,
+      ...metadata,
     });
   }
 }
@@ -167,7 +136,7 @@ export async function measureIntegrationOperation<T>(
 
 /**
  * Calculate daily success rate for an integration
- * Note: This requires custom Sentry queries or external analytics
+ * Note: This requires custom Better Stack queries or external analytics
  */
 export interface IntegrationHealthMetrics {
   integration: IntegrationType;
@@ -181,7 +150,16 @@ export interface IntegrationHealthMetrics {
 /**
  * Generate alert configuration for integration monitoring
  */
-export function getIntegrationAlertConfig() {
+export function getIntegrationAlertConfig(): {
+  successRate: { threshold: number; window: string; integrations: IntegrationType[] };
+  responseTime: {
+    threshold: number;
+    percentile: number;
+    window: string;
+    integrations: IntegrationType[];
+  };
+  errorSpike: { threshold: number; window: string; integrations: IntegrationType[] };
+} {
   return {
     // Alert if success rate drops below 95% in last hour
     successRate: {

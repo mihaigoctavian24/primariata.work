@@ -1,4 +1,4 @@
-import { withSentryConfig } from "@sentry/nextjs";
+import { withBetterStack } from "@logtail/next";
 import type { NextConfig } from "next";
 
 /**
@@ -13,15 +13,13 @@ function buildCSPHeader(isDev: boolean): string {
     // Default fallback - restrict everything by default
     "default-src": ["'self'"],
 
-    // Scripts - allow Next.js, Vercel Analytics, Sentry
+    // Scripts - allow Next.js, Vercel Analytics
     "script-src": [
       "'self'",
       isDev ? "'unsafe-eval'" : "", // Required for Next.js dev mode HMR
       "'unsafe-inline'", // Required for Next.js styled-jsx and inline scripts
       "https://vercel.live", // Vercel Toolbar
       "https://va.vercel-scripts.com", // Vercel Analytics
-      "https://*.sentry.io", // Sentry error tracking
-      "https://browser.sentry-cdn.com", // Sentry SDK
     ].filter(Boolean),
 
     // Styles - allow inline styles for Tailwind CSS, shadcn/ui
@@ -43,12 +41,11 @@ function buildCSPHeader(isDev: boolean): string {
     // Fonts - Google Fonts, data URLs
     "font-src": ["'self'", "data:", "https://fonts.gstatic.com"],
 
-    // Connect - API calls to Supabase, Sentry, Vercel, WeatherAPI
+    // Connect - API calls to Supabase, Vercel, WeatherAPI
     "connect-src": [
       "'self'",
       "https://*.supabase.co", // Supabase API and Realtime
       "wss://*.supabase.co", // Supabase Realtime WebSocket
-      "https://*.sentry.io", // Sentry error reporting
       "https://vercel.live", // Vercel Toolbar
       "https://va.vercel-scripts.com", // Vercel Analytics
       "https://vitals.vercel-insights.com", // Vercel Speed Insights
@@ -70,7 +67,7 @@ function buildCSPHeader(isDev: boolean): string {
     // Forms - only submit to same origin
     "form-action": ["'self'"],
 
-    // Upgrade insecure requests (HTTP → HTTPS) - production only
+    // Upgrade insecure requests (HTTP -> HTTPS) - production only
     ...(isDev ? {} : { "upgrade-insecure-requests": [] }),
   };
 
@@ -205,30 +202,5 @@ const nextConfig: NextConfig = {
   },
 };
 
-// Wrap the config with Sentry for automatic error tracking
-export default withSentryConfig(nextConfig, {
-  // For all available options, see:
-  // https://github.com/getsentry/sentry-webpack-plugin#options
-
-  org: process.env.SENTRY_ORG,
-  project: process.env.SENTRY_PROJECT,
-
-  // Only print logs for uploading source maps in CI
-  silent: !process.env.CI,
-
-  // For all available options, see:
-  // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
-
-  // Upload a larger set of source maps for prettier stack traces (increases build time)
-  widenClientFileUpload: true,
-
-  // Automatically annotate React components to show their full name in breadcrumbs and session replay
-  reactComponentAnnotation: {
-    enabled: true,
-  },
-
-  // Route browser requests to Sentry through a Next.js rewrite to circumvent ad-blockers.
-  // This can increase your server load as well as your hosting bill.
-  // Note: Check that the Sentry DSN provided in your environment variables is valid before deploying.
-  tunnelRoute: "/monitoring",
-});
+// Wrap the config with Better Stack for structured logging
+export default withBetterStack(nextConfig);

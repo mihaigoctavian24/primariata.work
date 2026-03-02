@@ -14,7 +14,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import type { ApiErrorResponse } from "@/types/api";
-import * as Sentry from "@sentry/nextjs";
+import { logger } from "@/lib/logger";
 
 /**
  * User roles in the system
@@ -79,7 +79,7 @@ export async function requireAuth(request: Request): Promise<NextResponse | null
       success: false,
       error: {
         code: "UNAUTHORIZED",
-        message: "Autentificare necesară",
+        message: "Autentificare necesara",
       },
       meta: { timestamp: new Date().toISOString() },
     };
@@ -116,7 +116,7 @@ export async function requireOwnership(
       success: false,
       error: {
         code: "UNAUTHORIZED",
-        message: "Autentificare necesară",
+        message: "Autentificare necesara",
       },
       meta: { timestamp: new Date().toISOString() },
     };
@@ -143,7 +143,7 @@ export async function requireOwnership(
       success: false,
       error: {
         code: "FORBIDDEN",
-        message: `Nu aveți permisiunea de a accesa acest ${resourceType}`,
+        message: `Nu aveti permisiunea de a accesa acest ${resourceType}`,
       },
       meta: { timestamp: new Date().toISOString() },
     };
@@ -177,7 +177,7 @@ export async function requireRole(
       success: false,
       error: {
         code: "UNAUTHORIZED",
-        message: "Autentificare necesară",
+        message: "Autentificare necesara",
       },
       meta: { timestamp: new Date().toISOString() },
     };
@@ -193,7 +193,7 @@ export async function requireRole(
     .single();
 
   if (error || !userData) {
-    console.error("Error fetching user role:", error);
+    logger.error("Error fetching user role", { error: error?.message, userId: user.id });
     const errorResponse: ApiErrorResponse = {
       success: false,
       error: {
@@ -227,7 +227,7 @@ export async function requireRole(
       success: false,
       error: {
         code: "FORBIDDEN",
-        message: "Nu aveți permisiunea necesară pentru această acțiune",
+        message: "Nu aveti permisiunea necesara pentru aceasta actiune",
         details: {
           required_roles: allowedRoles,
         },
@@ -278,11 +278,11 @@ export function validateUUID(id: string, paramName: string = "id"): NextResponse
 /**
  * Security event logger
  *
- * Logs security-related events to Sentry for monitoring and alerting.
+ * Logs security-related events to Better Stack for monitoring and alerting.
  * Events are categorized by type (auth, authz, data_access, config_change)
  * and include contextual information for security analysis.
  */
-interface SecurityEvent {
+interface SecurityEventLocal {
   type: "auth" | "authz" | "data_access" | "config_change";
   action: string;
   userId?: string;
@@ -291,38 +291,19 @@ interface SecurityEvent {
   metadata?: Record<string, unknown>;
 }
 
-export function logSecurityEvent(event: SecurityEvent) {
-  // Log to console for development
-  const logLevel = event.success ? "info" : "warn";
-  console[logLevel]("[Security Event]", {
+export function logSecurityEvent(event: SecurityEventLocal): void {
+  const context: Record<string, unknown> = {
     type: event.type,
     action: event.action,
     userId: event.userId || "anonymous",
+    ip: event.ip,
     success: event.success,
-    metadata: event.metadata,
-  });
+    ...event.metadata,
+  };
 
-  // Send to Sentry for production monitoring
-  try {
-    Sentry.captureMessage(`Security Event: ${event.type} - ${event.action}`, {
-      level: event.success ? "info" : "warning",
-      contexts: {
-        security: {
-          type: event.type,
-          action: event.action,
-          userId: event.userId,
-          ip: event.ip,
-          success: event.success,
-          metadata: event.metadata,
-        },
-      },
-      tags: {
-        security_event: event.type,
-        security_action: event.action,
-        security_success: event.success.toString(),
-      },
-    });
-  } catch (error) {
-    console.error("Failed to log security event to Sentry:", error);
+  if (event.success) {
+    logger.info(`[Security Event] ${event.type} - ${event.action}`, context);
+  } else {
+    logger.warn(`[Security Event] ${event.type} - ${event.action}`, context);
   }
 }

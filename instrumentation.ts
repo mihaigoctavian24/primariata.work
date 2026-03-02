@@ -1,13 +1,7 @@
-import * as Sentry from "@sentry/nextjs";
+import { logger } from "@/lib/logger";
 
-export async function register() {
-  if (process.env.NEXT_RUNTIME === "nodejs") {
-    await import("./sentry.server.config");
-  }
-
-  if (process.env.NEXT_RUNTIME === "edge") {
-    await import("./sentry.edge.config");
-  }
+export async function register(): Promise<void> {
+  // @logtail/next handles its own initialization via withBetterStack
 }
 
 export function onRequestError(
@@ -28,26 +22,17 @@ export function onRequestError(
     revalidateReason: "on-demand" | "stale" | undefined;
     renderType: "dynamic" | "dynamic-resume";
   }
-) {
-  Sentry.captureException(err, {
-    contexts: {
-      nextjs: {
-        request: {
-          path: request.path,
-          method: request.method,
-          headers: request.headers,
-        },
-        router: {
-          kind: context.routerKind,
-          path: context.routePath,
-          type: context.routeType,
-        },
-        render: {
-          source: context.renderSource,
-          type: context.renderType,
-        },
-        revalidate: context.revalidateReason,
-      },
-    },
+): void {
+  logger.error(`Request error: ${err.message}`, {
+    digest: err.digest,
+    path: request.path,
+    method: request.method,
+    routerKind: context.routerKind,
+    routePath: context.routePath,
+    routeType: context.routeType,
+    renderSource: context.renderSource,
+    revalidateReason: context.revalidateReason,
+    renderType: context.renderType,
+    stack: err.stack,
   });
 }
