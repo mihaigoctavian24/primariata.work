@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Skeleton } from "@/components/ui/skeleton";
 import { WeatherWidgetMinimal } from "@/components/weather/WeatherWidgetMinimal";
 import { NotificationDropdown } from "@/components/notifications/NotificationDropdown";
 
@@ -152,10 +153,12 @@ export function DashboardHeader({
           <button
             onClick={handleChangeLocation}
             className="text-muted-foreground hover:text-foreground group flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200"
-            aria-label={`Schimbă locația curentă: ${locationName || "Loading..."}`}
+            aria-label={`Schimbă locația curentă: ${locationName || "Se incarca..."}`}
           >
             <MapPin className="text-primary h-4 w-4" />
-            <span className="hidden sm:inline">{locationName || "Loading..."}</span>
+            <span className="hidden sm:inline">
+              {locationName || <Skeleton className="inline-block h-4 w-24" />}
+            </span>
             <ChevronDown className="h-3 w-3 opacity-50 transition-transform group-hover:translate-y-0.5" />
           </button>
         </div>

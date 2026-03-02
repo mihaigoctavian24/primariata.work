@@ -18,7 +18,6 @@ export function QuickActions({ judet, localitate }: QuickActionsProps) {
       transition={{ delay: 0.6, duration: 0.3 }}
       className="bg-card border-border/40 rounded-lg border p-6 shadow-sm"
     >
-      <h3 className="mb-4 text-lg font-semibold">Acțiuni Rapide</h3>
       <div className="flex flex-col gap-3 sm:flex-row">
         <Link href={`/app/${judet}/${localitate}/cereri/new`} className="flex-1">
           <Button className="w-full" size="lg">
