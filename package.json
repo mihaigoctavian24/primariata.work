@@ -41,6 +41,7 @@
     "lhci:server": "pnpm build && pnpm start & npx wait-on http://localhost:3000"
   },
   "dependencies": {
+    "@edge-csrf/nextjs": "2.5.3-cloudflare-rc1",
     "@gsap/react": "^2.1.2",
     "@hookform/resolvers": "^5.2.2",
     "@logtail/next": "^0.3.1",
