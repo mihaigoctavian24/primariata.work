@@ -19,10 +19,10 @@ Requirements for production-ready release. Each maps to roadmap phases.
 
 ### Monitoring & Infrastructure
 
-- [ ] **MON-01**: Better Stack replaces Sentry for error tracking, structured logging, and uptime monitoring
-- [ ] **MON-02**: Web Vitals (LCP, FID, CLS) are reported to Better Stack via BetterStackWebVitals component
-- [ ] **MON-03**: All error boundaries and React Query error handlers report to Better Stack instead of Sentry
-- [ ] **MON-04**: Sentry packages and config files fully removed from codebase
+- [x] **MON-01**: Better Stack replaces Sentry for error tracking, structured logging, and uptime monitoring
+- [x] **MON-02**: Web Vitals (LCP, FID, CLS) are reported to Better Stack via BetterStackWebVitals component
+- [x] **MON-03**: All error boundaries and React Query error handlers report to Better Stack instead of Sentry
+- [x] **MON-04**: Sentry packages and config files fully removed from codebase
 
 ### Bug Fixes
 
@@ -162,10 +162,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SEC-05 | Phase 1: Security Foundation | Complete |
 | SEC-06 | Phase 1: Security Foundation | Complete |
 | SEC-07 | Phase 1: Security Foundation | Complete |
-| MON-01 | Phase 2: Infrastructure & Stabilization | Pending |
-| MON-02 | Phase 2: Infrastructure & Stabilization | Pending |
-| MON-03 | Phase 2: Infrastructure & Stabilization | Pending |
-| MON-04 | Phase 2: Infrastructure & Stabilization | Pending |
+| MON-01 | Phase 2: Infrastructure & Stabilization | Complete |
+| MON-02 | Phase 2: Infrastructure & Stabilization | Complete |
+| MON-03 | Phase 2: Infrastructure & Stabilization | Complete |
+| MON-04 | Phase 2: Infrastructure & Stabilization | Complete |
 | FIX-01 | Phase 2: Infrastructure & Stabilization | Complete |
 | FIX-02 | Phase 2: Infrastructure & Stabilization | Complete |
 | FIX-03 | Phase 2: Infrastructure & Stabilization | Complete |
