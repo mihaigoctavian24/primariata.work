@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-03-02T22:14:21Z"
+last_updated: "2026-03-02T22:42:15Z"
 progress:
   total_phases: 2
   completed_phases: 2
-  total_plans: 10
-  completed_plans: 10
+  total_plans: 11
+  completed_plans: 11
 ---
 
 # Project State
@@ -18,22 +18,22 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-02)
 
 **Core value:** Citizens can submit cereri and complete plati digitally for any primarie where they're registered, with complete data isolation between primarii and proper role-based access for all user types.
-**Current focus:** Phase 2 complete. All plans 02-01 through 02-07 executed. Ready for Phase 3.
+**Current focus:** Phase 2 complete. All plans 02-01 through 02-08 executed. Ready for Phase 3.
 
 ## Current Position
 
 Phase: 2 of 8 (Infrastructure & Stabilization) -- COMPLETE
-Plan: 7 of 7 in current phase (all plans complete)
+Plan: 8 of 8 in current phase (all plans complete)
 Status: Phase 2 complete. Ready for Phase 3.
-Last activity: 2026-03-03 -- Completed 02-07-PLAN.md (Remaining bugs + Map widget theme-aware upgrade)
+Last activity: 2026-03-03 -- Completed 02-08-PLAN.md (Remove signOut from per-primarie admin guards)
 
-Progress: [##########______] 63%
+Progress: [###########_____] 69%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 10
-- Average duration: 5.3 min
+- Total plans completed: 11
+- Average duration: 5.0 min
 - Total execution time: 0.9 hours
 
 **By Phase:**
@@ -41,10 +41,10 @@ Progress: [##########______] 63%
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-security-foundation | 3 | 23 min | 7.7 min |
-| 02-infrastructure-stabilization | 7 | 30 min | 4.3 min |
+| 02-infrastructure-stabilization | 8 | 32 min | 4.0 min |
 
 **Recent Trend:**
-- Last 5 plans: 02-03 (5 min), 02-05 (3 min), 02-04 (3 min), 02-06 (3 min), 02-07 (8 min)
+- Last 5 plans: 02-05 (3 min), 02-04 (3 min), 02-06 (3 min), 02-07 (8 min), 02-08 (2 min)
 - Trend: consistent
 
 *Updated after each plan completion*
@@ -94,6 +94,7 @@ Recent decisions affecting current work:
 - [02-07]: SVG divIcon marker instead of Leaflet default PNGs to avoid webpack/Next.js icon loading issue
 - [02-07]: Cross-primarie guard uses saved_location cookie rather than DB query for lightweight middleware check
 - [02-07]: prefetch={false} on sidebar links as defensive fix alongside 02-04 cookie/slug fixes
+- [02-08]: Per-primarie admin guards redirect without signOut() -- matches 02-05 super-admin pattern for session preservation
 
 ### Pending Todos
 
@@ -108,5 +109,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-03
-Stopped at: Completed 02-07-PLAN.md -- Remaining bugs + Map widget theme-aware upgrade. Phase 2 complete.
+Stopped at: Completed 02-08-PLAN.md -- Remove signOut from per-primarie admin guards. Phase 2 fully complete.
 Resume file: None
