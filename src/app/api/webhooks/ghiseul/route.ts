@@ -2,19 +2,22 @@ import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { webhookPlataUpdateSchema, PlataStatus } from "@/lib/validations/plati";
+import { getGhiseulClient } from "@/lib/payments/ghiseul-client";
 import type { ApiErrorResponse } from "@/types/api";
 import { ZodError } from "zod";
 
 /**
  * POST /api/webhooks/ghiseul
- * Webhook handler for async payment notifications from Ghișeul.ro
- *
- * This endpoint updates payment status based on gateway callbacks
- * and generates chitanță PDF for successful payments.
+ * Consolidated webhook handler for payment notifications from Ghiseul.ro
  *
  * Security:
- * - Uses service role key (bypasses RLS)
- * - TODO Phase 2: Add webhook signature verification
+ * - HMAC-SHA256 signature verification with replay protection
+ * - Excluded from CSRF middleware (verified via x-ghiseul-signature instead)
+ * - Uses service role client (bypasses RLS -- webhooks have no user context)
+ *
+ * Headers expected:
+ * - x-ghiseul-signature: HMAC-SHA256 hex signature
+ * - x-ghiseul-timestamp: Unix timestamp of webhook creation
  *
  * Body:
  * - transaction_id: External payment transaction ID
@@ -22,8 +25,38 @@ import { ZodError } from "zod";
  * - gateway_response (optional): Full gateway response
  * - metoda_plata (optional): Payment method
  */
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
+    // Read raw body for HMAC verification (must be done before parsing)
+    const rawBody = await request.text();
+    const signature = request.headers.get("x-ghiseul-signature") ?? "";
+    const timestamp = request.headers.get("x-ghiseul-timestamp") ?? "";
+
+    // Verify webhook signature
+    const client = getGhiseulClient();
+    const verification = client.verifyWebhook(rawBody, signature, timestamp);
+
+    if (!verification.valid) {
+      logger.security({
+        type: "webhook",
+        action: "webhook_rejected",
+        success: false,
+        metadata: {
+          reason: verification.reason,
+          hasSignature: !!signature,
+          hasTimestamp: !!timestamp,
+        },
+      });
+      return NextResponse.json({ error: "Invalid webhook signature" }, { status: 401 });
+    }
+
+    logger.security({
+      type: "webhook",
+      action: "webhook_verified",
+      success: true,
+      metadata: { timestamp },
+    });
+
     // Use service role client to bypass RLS (webhooks don't have user context)
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -43,14 +76,21 @@ export async function POST(request: NextRequest) {
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // TODO Phase 2: Verify webhook signature from Ghișeul.ro
-    // const signature = request.headers.get('X-Ghiseul-Signature');
-    // if (!verifySignature(signature, body)) {
-    //   return NextResponse.json({ error: 'Invalid signature' }, { status: 403 });
-    // }
-
-    // Parse request body
-    const body = await request.json();
+    // Parse the verified payload
+    let body: unknown;
+    try {
+      body = JSON.parse(rawBody);
+    } catch {
+      const errorResponse: ApiErrorResponse = {
+        success: false,
+        error: {
+          code: "PARSE_ERROR",
+          message: "Invalid JSON in webhook payload",
+        },
+        meta: { timestamp: new Date().toISOString() },
+      };
+      return NextResponse.json(errorResponse, { status: 400 });
+    }
 
     // Validate webhook payload
     let validatedData;
@@ -58,7 +98,7 @@ export async function POST(request: NextRequest) {
       validatedData = webhookPlataUpdateSchema.parse(body);
     } catch (error) {
       if (error instanceof ZodError) {
-        logger.error("Invalid webhook payload:", error.format());
+        logger.error("Invalid webhook payload", error.format());
         const errorResponse: ApiErrorResponse = {
           success: false,
           error: {
@@ -81,7 +121,9 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (findError || !plata) {
-      logger.error("Payment not found for transaction:", validatedData.transaction_id);
+      logger.error("Payment not found for transaction", {
+        transactionId: validatedData.transaction_id,
+      });
       const errorResponse: ApiErrorResponse = {
         success: false,
         error: {
@@ -95,7 +137,10 @@ export async function POST(request: NextRequest) {
 
     // Prevent duplicate processing (idempotency)
     if (plata.status === PlataStatus.SUCCESS || plata.status === PlataStatus.REFUNDED) {
-      logger.warn("Payment already finalized", { plataId: plata.id, status: plata.status });
+      logger.warn("Payment already finalized", {
+        plataId: plata.id,
+        status: plata.status,
+      });
       return NextResponse.json(
         {
           success: true,
@@ -118,7 +163,7 @@ export async function POST(request: NextRequest) {
       .eq("id", plata.id);
 
     if (updateError) {
-      logger.error("Error updating payment:", updateError);
+      logger.error("Error updating payment", updateError);
       const errorResponse: ApiErrorResponse = {
         success: false,
         error: {
@@ -131,22 +176,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(errorResponse, { status: 500 });
     }
 
-    // If payment successful, generate chitanță and update cerere
+    // If payment successful, generate chitanta and update cerere
     if (validatedData.status === PlataStatus.SUCCESS) {
-      // TODO Phase 3: Generate chitanță PDF
-      // const pdfUrl = await generateChitantaPDF(plata);
-
-      // For now, create chitanta record with placeholder PDF URL
+      // Create chitanta record with placeholder PDF URL
       const placeholderPdfUrl = `chitante/placeholder-${plata.id}.pdf`;
 
       const { error: chitantaError } = await supabase.from("chitante").insert({
         plata_id: plata.id,
         pdf_url: placeholderPdfUrl,
-        // numar_chitanta auto-generated by trigger
       });
 
       if (chitantaError) {
-        logger.error("Error creating chitanta:", chitantaError);
+        logger.error("Error creating chitanta", chitantaError);
         // Don't fail the webhook - chitanta can be regenerated later
       }
 
@@ -160,12 +201,9 @@ export async function POST(request: NextRequest) {
         .eq("id", plata.cerere_id);
 
       if (cerereUpdateError) {
-        logger.error("Error updating cerere payment status:", cerereUpdateError);
+        logger.error("Error updating cerere payment status", cerereUpdateError);
         // Don't fail the webhook - cerere status can be fixed manually
       }
-
-      // TODO Phase 5: Send email confirmation with chitanta
-      // await sendEmailNotification(plata.utilizator_id, 'payment_success', { chitanta });
     }
 
     return NextResponse.json(
@@ -178,7 +216,7 @@ export async function POST(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    logger.error("Unexpected error in POST /api/webhooks/ghiseul:", error);
+    logger.error("Unexpected error in POST /api/webhooks/ghiseul", error);
     const errorResponse: ApiErrorResponse = {
       success: false,
       error: {

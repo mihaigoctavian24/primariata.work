@@ -1,7 +1,8 @@
 import { createServerClient } from "@supabase/ssr";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import type { Database } from "@/types/database.types";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 /**
  * Create a Supabase client for use in Server Components and Server Actions
@@ -37,13 +38,20 @@ import type { Database } from "@/types/database.types";
  * }
  * ```
  */
-export async function createClient() {
+export async function createClient(): Promise<SupabaseClient<Database>> {
   const cookieStore = await cookies();
+  const headersList = await headers();
+  const primarieId = headersList.get("x-primarie-id");
 
   return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
+      global: {
+        headers: {
+          ...(primarieId ? { "x-primarie-id": primarieId } : {}),
+        },
+      },
       cookies: {
         getAll() {
           return cookieStore.getAll();
@@ -78,7 +86,7 @@ export async function createClient() {
  *
  * @returns Typed Supabase client with service role privileges
  */
-export function createServiceRoleClient() {
+export function createServiceRoleClient(): SupabaseClient<Database> {
   return createSupabaseClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,

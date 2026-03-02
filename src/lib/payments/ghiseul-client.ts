@@ -5,12 +5,12 @@
  * Single interface, automatic routing based on GHISEUL_MODE environment variable.
  */
 
+import crypto from "crypto";
 import { logger } from "@/lib/logger";
 import type {
   PaymentInitiationRequest,
   PaymentInitiationResponse,
   PaymentStatusResponse,
-  PaymentCallback,
   PaymentGatewayConfig,
   PaymentStatus,
 } from "./types";
@@ -19,6 +19,14 @@ import type { MockTransactionId } from "./ghiseul-mock/types";
 // Mock implementation imports (only used when GHISEUL_MODE=mock)
 import { initializePayment, queryPaymentStatus } from "./ghiseul-mock/server";
 import { verifyWebhookSignature } from "./ghiseul-mock/simulator";
+
+/**
+ * Result of webhook signature verification
+ */
+export interface WebhookVerificationResult {
+  valid: boolean;
+  reason?: string;
+}
 
 /**
  * Payment gateway client class
@@ -71,19 +79,21 @@ export class GhiseulClient {
   }
 
   /**
-   * Verify webhook signature
+   * Verify webhook signature with HMAC-SHA256 and replay protection
    *
-   * Validates that webhook callback is authentic.
+   * In production mode: verifies HMAC-SHA256 signature with timestamp-based replay protection.
+   * In mock mode: delegates to the mock verifier (extracts transaction_id and status from payload).
    *
-   * @param payload - Webhook payload
-   * @param signature - Provided signature
-   * @returns true if signature is valid
+   * @param payload - Raw webhook payload string (for HMAC computation on raw bytes)
+   * @param signature - HMAC-SHA256 hex signature from x-ghiseul-signature header
+   * @param timestamp - Unix timestamp string from x-ghiseul-timestamp header
+   * @returns Verification result with valid flag and optional reason
    */
-  verifyWebhook(payload: PaymentCallback, signature: string): boolean {
+  verifyWebhook(payload: string, signature: string, timestamp: string): WebhookVerificationResult {
     if (this.config.mode === "mock") {
-      return this.verifyWebhookMock(payload.transaction_id, payload.status, signature);
+      return this.verifyWebhookMock(payload, signature);
     } else {
-      return this.verifyWebhookProduction(signature);
+      return this.verifyWebhookProduction(payload, signature, timestamp);
     }
   }
 
@@ -143,9 +153,22 @@ export class GhiseulClient {
 
   /**
    * Verify webhook (mock)
+   *
+   * Parses the raw payload to extract transaction_id and status,
+   * then delegates to the mock simulator's signature verification.
    */
-  private verifyWebhookMock(transactionId: string, status: string, signature: string): boolean {
-    return verifyWebhookSignature(transactionId, status as PaymentStatus, signature);
+  private verifyWebhookMock(payload: string, signature: string): WebhookVerificationResult {
+    try {
+      const parsed = JSON.parse(payload) as { transaction_id: string; status: string };
+      const isValid = verifyWebhookSignature(
+        parsed.transaction_id,
+        parsed.status as PaymentStatus,
+        signature
+      );
+      return { valid: isValid, reason: isValid ? undefined : "Invalid mock signature" };
+    } catch {
+      return { valid: false, reason: "Failed to parse webhook payload" };
+    }
   }
 
   // =============================================================================
@@ -229,14 +252,41 @@ export class GhiseulClient {
   /**
    * Verify webhook (production)
    *
-   * TODO: Implement when real Ghișeul.ro webhook signature scheme is known
+   * HMAC-SHA256 signature verification with timestamp-based replay protection.
+   * Signed payload format: "{timestamp}.{payload}"
+   * Rejects webhooks older than 5 minutes.
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  private verifyWebhookProduction(__signature: string): boolean {
-    // This would implement the real Ghișeul.ro signature verification
-    // For now, return false to prevent accepting unverified webhooks
-    logger.warn("[GhiseulClient] Production webhook verification not implemented");
-    return false;
+  private verifyWebhookProduction(
+    payload: string,
+    signature: string,
+    timestamp: string
+  ): WebhookVerificationResult {
+    // Replay protection: reject webhooks older than 5 minutes
+    const maxAgeSeconds = 300;
+    const webhookTime = parseInt(timestamp, 10);
+    const now = Math.floor(Date.now() / 1000);
+
+    if (isNaN(webhookTime) || Math.abs(now - webhookTime) > maxAgeSeconds) {
+      return { valid: false, reason: "Webhook timestamp expired or invalid" };
+    }
+
+    // Compute expected signature: HMAC-SHA256(secret, "{timestamp}.{payload}")
+    const signedPayload = `${timestamp}.${payload}`;
+    const expectedSignature = crypto
+      .createHmac("sha256", this.config.webhookSecret)
+      .update(signedPayload)
+      .digest("hex");
+
+    // Timing-safe comparison to prevent timing attacks
+    const expectedBuffer = Buffer.from(expectedSignature, "hex");
+    const receivedBuffer = Buffer.from(signature, "hex");
+
+    if (expectedBuffer.length !== receivedBuffer.length) {
+      return { valid: false, reason: "Signature length mismatch" };
+    }
+
+    const isValid = crypto.timingSafeEqual(expectedBuffer, receivedBuffer);
+    return { valid: isValid, reason: isValid ? undefined : "Invalid signature" };
   }
 }
 
