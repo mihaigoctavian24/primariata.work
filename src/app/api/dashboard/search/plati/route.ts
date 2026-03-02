@@ -45,6 +45,18 @@ export async function GET(request: Request) {
       );
     }
 
+    // Build OR filter for text fields
+    // PostgREST does not support ::text casts in filter strings,
+    // so we search text columns directly and handle numeric suma separately
+    const sanitized = query.trim();
+    const orFilters = [`status.ilike.%${sanitized}%`, `metoda_plata.ilike.%${sanitized}%`];
+
+    // If the query looks like a number, also match suma exactly
+    const numericQuery = parseFloat(sanitized);
+    if (!isNaN(numericQuery)) {
+      orFilters.push(`suma.eq.${numericQuery}`);
+    }
+
     // Search plati with multiple field matching
     const { data: plati, error: platiError } = await supabase
       .from("plati")
@@ -60,7 +72,7 @@ export async function GET(request: Request) {
       `
       )
       .eq("utilizator_id", user.id)
-      .or(`suma::text.ilike.%${query}%,status.ilike.%${query}%,metoda_plata.ilike.%${query}%`)
+      .or(orFilters.join(","))
       .order("updated_at", { ascending: false })
       .limit(10);
 
