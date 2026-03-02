@@ -13,7 +13,7 @@ Transform the existing ~70% functional platform into a production-ready multi-te
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [ ] **Phase 1: Security Foundation** - Multi-tenant data isolation architecture, RLS migration, security hardening
-- [ ] **Phase 2: Infrastructure & Stabilization** - Monitoring replacement, broken route fixes, search fix, consistency fixes
+- [x] **Phase 2: Infrastructure & Stabilization** - Monitoring replacement, broken route fixes, search fix, consistency fixes
 - [ ] **Phase 3: Registration & Approval** - Multi-primarie registration flow with admin approval workflow
 - [ ] **Phase 4: Cereri Processing** - Status workflow engine, audit trail, document validation, SLA tracking
 - [ ] **Phase 5: Staff Dashboards** - Functionar, Admin, and Primar dashboards with staff notifications
@@ -50,15 +50,16 @@ Plans:
   3. /admin and /admin/settings routes load for super_admin users
   4. Dashboard search returns results across cereri and plati without 404
   5. Better Stack receives error reports, structured logs, and Web Vitals; Sentry packages are fully removed
-**Plans**: 6 plans (2 parallel in Wave 1, 1 in Wave 2, 2 parallel gap closure in Wave 3, 1 gap closure in Wave 4)
+**Plans**: 7 plans (2 parallel in Wave 1, 1 in Wave 2, 2 parallel gap closure in Wave 3, 2 gap closure in Wave 4)
 
 Plans:
 - [x] 02-01: Monitoring migration -- BetterStackWebVitals, React Query/ErrorBoundary cleanup, Sentry removal (MON-01, MON-02, MON-03, MON-04) [Wave 1]
 - [x] 02-02: Route fixes -- /cereri/new redirect, /admin redirect, /admin/settings redirect, /documente skeleton (FIX-01, FIX-02, FIX-03, FIX-04) [Wave 1]
 - [x] 02-03: Data display fixes -- dashboard search plati, gamification points, map widget coordinates (FIX-05, FIX-06, FIX-07) [Wave 2, depends on 02-01]
-- [ ] 02-04: GAP CLOSURE -- Middleware routing fixes: slug fallback, cookie preservation, /admin protection, /profil access, CSP OpenStreetMap (GAPs 1,3,5,6,10,11) [Wave 3]
-- [ ] 02-05: GAP CLOSURE -- Admin session fixes: remove signOut calls, create /auth/logout, fix profile cache key, admin layout guard (GAPs 2,3,7,10) [Wave 3]
-- [ ] 02-06: GAP CLOSURE -- Dashboard stats API fix, notificari hydration mismatch (GAPs 4,8,9) [Wave 4, depends on 02-04]
+- [x] 02-04: GAP CLOSURE -- Middleware routing fixes: slug fallback, cookie preservation, /admin protection, /profil access, CSP OpenStreetMap (GAPs 1,3,5,6,10,11) [Wave 3]
+- [x] 02-05: GAP CLOSURE -- Admin session fixes: remove signOut calls, create /auth/logout, fix profile cache key, admin layout guard (GAPs 2,3,7,10) [Wave 3]
+- [x] 02-06: GAP CLOSURE -- Dashboard stats API fix, notificari hydration mismatch (GAPs 4,8,9) [Wave 4, depends on 02-04]
+- [x] 02-07: GAP CLOSURE -- Remaining bugs + Map widget theme-aware upgrade: Leaflet map, duplicate heading, loading flash, cross-primarie guard, redirectTo sanitization, sidebar prefetch (FIX-05, FIX-06, FIX-07) [Wave 4, depends on 02-04, 02-05]
 
 ### Phase 3: Registration & Approval
 **Goal**: Users can register on any active primarie and receive approval from that primarie's admin before accessing modules
@@ -162,7 +163,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Security Foundation | 3/3 | Complete | 2026-03-02 |
-| 2. Infrastructure & Stabilization | 3/6 | In Progress (gap closure) | - |
+| 2. Infrastructure & Stabilization | 7/7 | Complete | 2026-03-03 |
 | 3. Registration & Approval | 0/1 | Not started | - |
 | 4. Cereri Processing | 0/2 | Not started | - |
 | 5. Staff Dashboards | 0/3 | Not started | - |
@@ -172,4 +173,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 
 ---
 *Roadmap created: 2026-03-02*
-*Last updated: 2026-03-02*
+*Last updated: 2026-03-03*
