@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Inter } from "next/font/google";
 import localFont from "next/font/local";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { BetterStackWebVitals } from "@logtail/next/webVitals";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
@@ -124,6 +125,7 @@ export default function RootLayout({
       <body
         className={`${montreal.variable} ${inter.variable} ${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <BetterStackWebVitals />
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
           {children}
           <Toaster />

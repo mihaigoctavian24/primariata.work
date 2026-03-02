@@ -52,16 +52,10 @@ const queryConfig: DefaultOptions = {
 // Query cache for global error handling
 const queryCache = new QueryCache({
   onError: (error, query) => {
-    // Log errors in development
-    if (process.env.NODE_ENV === "development") {
-      logger.error("Query Error:", {
-        error,
-        queryKey: query.queryKey,
-      });
-    }
-
-    // TODO: Add error tracking service integration (e.g., Sentry)
-    // For now, errors are handled at the component level
+    logger.error("Query Error", {
+      error: error instanceof Error ? error.message : String(error),
+      queryKey: query.queryKey,
+    });
   },
   onSuccess: (data, query) => {
     // Optional: Log successful queries in development
@@ -76,17 +70,11 @@ const queryCache = new QueryCache({
 
 // Mutation cache for global error handling
 const mutationCache = new MutationCache({
-  onError: (error, variables, context, mutation) => {
-    // Log errors in development
-    if (process.env.NODE_ENV === "development") {
-      logger.error("Mutation Error:", {
-        error,
-        variables,
-        mutationKey: mutation.options.mutationKey,
-      });
-    }
-
-    // TODO: Add error tracking service integration
+  onError: (error, _variables, _context, mutation) => {
+    logger.error("Mutation Error", {
+      error: error instanceof Error ? error.message : String(error),
+      mutationKey: mutation.options.mutationKey,
+    });
   },
   onSuccess: (data, variables, context, mutation) => {
     // Optional: Log successful mutations in development

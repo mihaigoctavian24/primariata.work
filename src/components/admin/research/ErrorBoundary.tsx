@@ -42,8 +42,7 @@ export class ErrorBoundary extends Component<Props, State> {
       componentStack: errorInfo?.componentStack,
     });
 
-    // You can log to an error reporting service here
-    // e.g., Sentry.captureException(error, { extra: errorInfo });
+    // Errors are reported to Better Stack via logger.error() above
   }
 
   handleReset = () => {

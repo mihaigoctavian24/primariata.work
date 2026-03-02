@@ -49,9 +49,6 @@ export class ErrorBoundary extends Component<Props, State> {
       stack: error.stack,
       componentStack: errorInfo?.componentStack,
     });
-
-    // TODO M4: Integrate with Sentry or other error tracking service
-    // Sentry.captureException(error, { extra: errorInfo });
   }
 
   handleReset = () => {
@@ -103,6 +100,15 @@ export class ErrorBoundary extends Component<Props, State> {
 
             <Button onClick={() => window.history.back()} variant="outline">
               Înapoi
+            </Button>
+
+            <Button
+              onClick={() => {
+                window.location.href = "/";
+              }}
+              variant="outline"
+            >
+              Înapoi la Dashboard
             </Button>
           </div>
         </div>
