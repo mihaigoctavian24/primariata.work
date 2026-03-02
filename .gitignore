@@ -165,3 +165,4 @@ scripts/gh/*
 /playwright/.cache/
 .playwright-mcp/
 test-email-webhook.js
+.planning/
