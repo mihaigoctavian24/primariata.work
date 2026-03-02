@@ -49,7 +49,9 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
 
   const isProtectedRoute = request.nextUrl.pathname.startsWith("/app");
   const isAuthRoute = request.nextUrl.pathname.startsWith("/auth");
-  const isWebhookRoute = request.nextUrl.pathname.startsWith("/api/webhooks/");
+  const isWebhookRoute =
+    request.nextUrl.pathname.startsWith("/api/webhooks/") ||
+    request.nextUrl.pathname === "/api/plati/webhook";
 
   // --- Auth redirects ---
   if (isProtectedRoute && !user) {
