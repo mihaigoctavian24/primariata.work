@@ -1,6 +1,8 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { createClient } from "@/lib/supabase/client";
 import type { UserProfile } from "@/app/api/user/profile/route";
 import type { ApiResponse } from "@/types/api";
 
@@ -31,8 +33,18 @@ interface UseUserProfileResult {
  * }
  */
 export function useUserProfile(): UseUserProfileResult {
+  const [userId, setUserId] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUserId(user?.id ?? undefined);
+    });
+  }, []);
+
   const { data, isLoading, isError, error, refetch } = useQuery<ApiResponse<UserProfile>>({
-    queryKey: ["user", "profile"],
+    queryKey: ["user", "profile", userId],
+    enabled: !!userId,
     queryFn: async () => {
       const response = await fetch("/api/user/profile", {
         method: "GET",

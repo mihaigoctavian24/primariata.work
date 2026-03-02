@@ -106,10 +106,8 @@ export function DashboardHeader({
     setWeatherLocation(judetFormatted);
   }, [judet, localitate]);
 
-  const handleLogout = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    router.push("/auth/login");
+  const handleLogout = (): void => {
+    router.push("/auth/logout");
   };
 
   const handleChangeLocation = () => {
