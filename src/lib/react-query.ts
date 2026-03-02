@@ -76,7 +76,7 @@ const mutationCache = new MutationCache({
       mutationKey: mutation.options.mutationKey,
     });
   },
-  onSuccess: (data, variables, context, mutation) => {
+  onSuccess: (data, _variables, _context, mutation) => {
     // Optional: Log successful mutations in development
     if (process.env.NODE_ENV === "development") {
       logger.debug("Mutation Success:", {

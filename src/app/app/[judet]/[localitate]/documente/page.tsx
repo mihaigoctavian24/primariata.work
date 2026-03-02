@@ -10,7 +10,7 @@ interface DocumentePageProps {
 }
 
 export default function DocumentePage({ params }: DocumentePageProps): React.JSX.Element {
-  const { judet, localitate } = use(params);
+  use(params);
 
   return (
     <div className="space-y-8">
