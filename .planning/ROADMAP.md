@@ -53,8 +53,8 @@ Plans:
 **Plans**: 3 plans (2 parallel in Wave 1, 1 sequential in Wave 2)
 
 Plans:
-- [ ] 02-01: Monitoring migration -- BetterStackWebVitals, React Query/ErrorBoundary cleanup, Sentry removal (MON-01, MON-02, MON-03, MON-04) [Wave 1]
-- [ ] 02-02: Route fixes -- /cereri/new redirect, /admin redirect, /admin/settings redirect, /documente skeleton (FIX-01, FIX-02, FIX-03, FIX-04) [Wave 1]
+- [x] 02-01: Monitoring migration -- BetterStackWebVitals, React Query/ErrorBoundary cleanup, Sentry removal (MON-01, MON-02, MON-03, MON-04) [Wave 1]
+- [x] 02-02: Route fixes -- /cereri/new redirect, /admin redirect, /admin/settings redirect, /documente skeleton (FIX-01, FIX-02, FIX-03, FIX-04) [Wave 1]
 - [ ] 02-03: Data display fixes -- dashboard search plati, gamification points, map widget coordinates (FIX-05, FIX-06, FIX-07) [Wave 2, depends on 02-01]
 
 ### Phase 3: Registration & Approval
@@ -159,7 +159,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Security Foundation | 3/3 | Complete | 2026-03-02 |
-| 2. Infrastructure & Stabilization | 1/3 | In progress | - |
+| 2. Infrastructure & Stabilization | 2/3 | In Progress | - |
 | 3. Registration & Approval | 0/1 | Not started | - |
 | 4. Cereri Processing | 0/2 | Not started | - |
 | 5. Staff Dashboards | 0/3 | Not started | - |
