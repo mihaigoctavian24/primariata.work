@@ -29,7 +29,12 @@ interface FuncționarDashboardProps {
  */
 export function FuncționarDashboard({ judet, localitate, profile }: FuncționarDashboardProps) {
   const router = useRouter();
-  const { stats, isLoading: statsLoading, error: statsError, refetch } = useDashboardStats();
+  const {
+    stats,
+    isLoading: statsLoading,
+    error: statsError,
+    refetch,
+  } = useDashboardStats({ judet, localitate });
 
   return (
     <>

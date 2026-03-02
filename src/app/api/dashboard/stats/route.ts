@@ -1,6 +1,6 @@
 import { logger } from "@/lib/logger";
-import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { type NextRequest, NextResponse } from "next/server";
+import { createClient, createServiceRoleClient } from "@/lib/supabase/server";
 import type { ApiResponse, ApiErrorResponse } from "@/types/api";
 
 export interface DashboardStats {
@@ -16,15 +16,19 @@ export interface DashboardStats {
 }
 
 /**
- * GET /api/dashboard/stats
- * Get dashboard statistics for the authenticated user
+ * GET /api/dashboard/stats?judet=slug&localitate=slug
+ * Get dashboard statistics for the authenticated user within a specific primarie
+ *
+ * Query params:
+ * - judet: județ slug (required)
+ * - localitate: localitate slug (required)
  *
  * Returns:
  * - Total cereri count
  * - Cereri by status groups (in progress, finalized)
  * - Total payments count and sum
  */
-export async function GET() {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const supabase = await createClient();
 
@@ -39,18 +43,58 @@ export async function GET() {
         success: false,
         error: {
           code: "UNAUTHORIZED",
-          message: "Autentificare necesară",
+          message: "Autentificare necesara",
         },
         meta: { timestamp: new Date().toISOString() },
       };
       return NextResponse.json(errorResponse, { status: 401 });
     }
 
+    // Resolve primarie context from query params
+    const judet = request.nextUrl.searchParams.get("judet");
+    const localitate = request.nextUrl.searchParams.get("localitate");
+
+    if (!judet || !localitate) {
+      const errorResponse: ApiErrorResponse = {
+        success: false,
+        error: {
+          code: "BAD_REQUEST",
+          message: "Parametrii judet si localitate sunt necesari",
+        },
+        meta: { timestamp: new Date().toISOString() },
+      };
+      return NextResponse.json(errorResponse, { status: 400 });
+    }
+
+    // Resolve primarie from slugs using service role (bypasses RLS for lookup)
+    const serviceClient = createServiceRoleClient();
+    const { data: primarie } = await serviceClient
+      .from("primarii")
+      .select("id, localitati!inner(slug, judete!inner(slug))")
+      .eq("localitati.slug", localitate)
+      .eq("localitati.judete.slug", judet)
+      .eq("activa", true)
+      .single();
+
+    if (!primarie) {
+      const errorResponse: ApiErrorResponse = {
+        success: false,
+        error: {
+          code: "NOT_FOUND",
+          message: "Primaria nu a fost gasita",
+        },
+        meta: { timestamp: new Date().toISOString() },
+      };
+      return NextResponse.json(errorResponse, { status: 404 });
+    }
+
     // Fetch cereri statistics
-    // RLS ensures users only see their own cereri
+    // RLS still runs (user must own the cereri), but we also filter by primarie_id
+    // since the /api/* routes don't receive the x-primarie-id header from middleware
     const { data: cereriData, error: cereriError } = await supabase
       .from("cereri")
-      .select("status", { count: "exact", head: false });
+      .select("status", { count: "exact", head: false })
+      .eq("primarie_id", primarie.id);
 
     if (cereriError) {
       throw cereriError;
@@ -65,10 +109,11 @@ export async function GET() {
       cereriData?.filter((c) => ["aprobat", "respins", "anulat"].includes(c.status)).length || 0;
 
     // Fetch payments statistics
-    // RLS ensures users only see their own payments
+    // Same approach: RLS + explicit primarie_id filter
     const { data: platiData, error: platiError } = await supabase
       .from("plati")
-      .select("suma, status");
+      .select("suma, status")
+      .eq("primarie_id", primarie.id);
 
     if (platiError) {
       throw platiError;
@@ -105,7 +150,7 @@ export async function GET() {
       success: false,
       error: {
         code: "INTERNAL_ERROR",
-        message: "Eroare la încărcarea statisticilor",
+        message: "Eroare la incarcarea statisticilor",
         details: error instanceof Error ? { message: error.message } : undefined,
       },
       meta: { timestamp: new Date().toISOString() },

@@ -51,6 +51,22 @@ const DocumentQuickPreview = dynamic(
   { ssr: false }
 );
 
+// Dynamic import for MapWidget -- Leaflet requires window (no SSR)
+const MapWidget = dynamic(
+  () =>
+    import("@/components/dashboard/MapWidget").then((m) => ({
+      default: m.MapWidget,
+    })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="bg-muted/30 flex h-full items-center justify-center">
+        <p className="text-muted-foreground text-sm">Se incarca harta...</p>
+      </div>
+    ),
+  }
+);
+
 interface Document {
   id: string;
   nume: string;
@@ -100,7 +116,7 @@ export function CetățeanDashboard({ judet, localitate }: CetățeanDashboardPr
   const [showAllCereri, setShowAllCereri] = useState(false);
 
   // Fetch dashboard statistics
-  const { stats, isLoading: statsLoading } = useDashboardStats();
+  const { stats, isLoading: statsLoading } = useDashboardStats({ judet, localitate });
 
   // Fetch recent cereri (last 5)
   useCereriList({
@@ -197,36 +213,27 @@ export function CetățeanDashboard({ judet, localitate }: CetățeanDashboardPr
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         {/* COLUMN 1: Map + Active Request Progress Cards + Recent Documents */}
         <div className="space-y-6">
-          {/* Static Map -- shows correct primarie location */}
+          {/* Interactive Map -- shows correct primarie location with theme-aware tiles */}
           <div
             className="border-border/40 bg-card overflow-hidden rounded-lg border"
             style={{ height: "400px" }}
           >
-            <div className="relative h-full w-full">
-              {mapCoordinates ? (
-                <>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={`https://staticmap.openstreetmap.de/staticmap.php?center=${mapCoordinates.lat},${mapCoordinates.lng}&zoom=13&size=600x400&maptype=mapnik&markers=${mapCoordinates.lat},${mapCoordinates.lng},red-pushpin`}
-                    alt={`Harta ${localitateNume}`}
-                    className="h-full w-full object-cover"
-                    loading="lazy"
-                  />
-                  <div className="absolute right-0 bottom-0 left-0 bg-black/50 p-3 backdrop-blur-sm">
-                    <p className="text-sm font-medium text-white">{localitateNume}</p>
-                  </div>
-                </>
-              ) : localitateQuery.isLoading ? (
-                <div className="flex h-full items-center justify-center">
-                  <p className="text-muted-foreground text-sm">Se incarca harta...</p>
-                </div>
-              ) : (
-                <div className="flex h-full flex-col items-center justify-center gap-2">
-                  <p className="text-foreground text-lg font-semibold">{localitateNume}</p>
-                  <p className="text-muted-foreground text-sm">Coordonatele nu sunt disponibile</p>
-                </div>
-              )}
-            </div>
+            {mapCoordinates ? (
+              <MapWidget
+                lat={mapCoordinates.lat}
+                lng={mapCoordinates.lng}
+                locationName={localitateNume}
+              />
+            ) : localitateQuery.isLoading ? (
+              <div className="flex h-full items-center justify-center">
+                <p className="text-muted-foreground text-sm">Se incarca harta...</p>
+              </div>
+            ) : (
+              <div className="flex h-full flex-col items-center justify-center gap-2">
+                <p className="text-foreground text-lg font-semibold">{localitateNume}</p>
+                <p className="text-muted-foreground text-sm">Coordonatele nu sunt disponibile</p>
+              </div>
+            )}
           </div>
 
           {/* Active Request Progress Cards */}

@@ -30,7 +30,12 @@ interface AdminDashboardProps {
  */
 export function AdminDashboard({ judet, localitate, profile }: AdminDashboardProps) {
   const router = useRouter();
-  const { stats, isLoading: statsLoading, error: statsError, refetch } = useDashboardStats();
+  const {
+    stats,
+    isLoading: statsLoading,
+    error: statsError,
+    refetch,
+  } = useDashboardStats({ judet, localitate });
 
   const isSuperAdmin = profile.rol === "super_admin";
 

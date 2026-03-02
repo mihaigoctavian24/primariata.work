@@ -29,7 +29,12 @@ interface PrimarDashboardProps {
  */
 export function PrimarDashboard({ judet, localitate, profile }: PrimarDashboardProps) {
   const router = useRouter();
-  const { stats, isLoading: statsLoading, error: statsError, refetch } = useDashboardStats();
+  const {
+    stats,
+    isLoading: statsLoading,
+    error: statsError,
+    refetch,
+  } = useDashboardStats({ judet, localitate });
 
   return (
     <>

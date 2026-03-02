@@ -29,21 +29,21 @@ function buildCSPHeader(isDev: boolean): string {
       "https://fonts.googleapis.com", // Google Fonts
     ],
 
-    // Images - allow Google OAuth avatars, Supabase storage, data URLs, OpenStreetMap tiles
+    // Images - allow Google OAuth avatars, Supabase storage, data URLs, OpenStreetMap/CARTO tiles
     "img-src": [
       "'self'",
       "data:", // Base64 encoded images
       "blob:", // Blob URLs for dynamic images
       "https://lh3.googleusercontent.com", // Google OAuth profile pictures
       "https://*.supabase.co", // Supabase Storage CDN
-      "https://staticmap.openstreetmap.de", // OpenStreetMap static map tiles
-      "https://tile.openstreetmap.org", // OpenStreetMap tile server
+      "https://*.tile.openstreetmap.org", // OpenStreetMap tile server (Leaflet)
+      "https://*.basemaps.cartocdn.com", // CARTO dark tiles (Leaflet dark mode)
     ],
 
     // Fonts - Google Fonts, data URLs
     "font-src": ["'self'", "data:", "https://fonts.gstatic.com"],
 
-    // Connect - API calls to Supabase, Vercel, WeatherAPI
+    // Connect - API calls to Supabase, Vercel, WeatherAPI, Map tiles
     "connect-src": [
       "'self'",
       "https://*.supabase.co", // Supabase API and Realtime
@@ -52,6 +52,8 @@ function buildCSPHeader(isDev: boolean): string {
       "https://va.vercel-scripts.com", // Vercel Analytics
       "https://vitals.vercel-insights.com", // Vercel Speed Insights
       "https://api.weatherapi.com", // WeatherAPI for WeatherWidget
+      "https://*.tile.openstreetmap.org", // OpenStreetMap tiles (Leaflet)
+      "https://*.basemaps.cartocdn.com", // CARTO dark tiles (Leaflet dark mode)
       isDev ? "ws://localhost:*" : "", // Next.js dev server WebSocket (HMR)
       isDev ? "http://localhost:*" : "", // Local API calls in dev
     ].filter(Boolean),
