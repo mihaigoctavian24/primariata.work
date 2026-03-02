@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AnimatePresence } from "framer-motion";
 import { Bell, BellOff, Archive } from "lucide-react";
@@ -33,7 +33,31 @@ import type { NotificationTypeEnum } from "@/lib/validations/notifications";
  * - Empty states for different tabs
  * - Loading states with skeletons
  */
-export default function NotificariPage() {
+/**
+ * Suspense-wrapped page export to prevent hydration mismatch from useSearchParams()
+ * Next.js 15 requires useSearchParams() to be inside a Suspense boundary
+ */
+export default function NotificariPage(): React.JSX.Element {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen flex-col">
+          <div className="flex-1 p-6">
+            <div className="space-y-4">
+              {Array.from({ length: 5 }).map((_, index) => (
+                <NotificationCardSkeleton key={index} />
+              ))}
+            </div>
+          </div>
+        </div>
+      }
+    >
+      <NotificariContent />
+    </Suspense>
+  );
+}
+
+function NotificariContent(): React.JSX.Element {
   const router = useRouter();
   const searchParams = useSearchParams();
 
