@@ -361,7 +361,7 @@ https://primariata.work/api/webhooks/ghiseul
 
 1. Update production environment variables
 2. Monitor first transactions closely
-3. Check Sentry for any integration errors
+3. Check Better Stack for any integration errors
 4. Verify webhooks received and processed
 
 ## Troubleshooting
@@ -474,7 +474,7 @@ When implementing real Ghișeul.ro integration:
 2. **Signature Verification**: Implement real Ghișeul.ro signature verification scheme
 3. **Error Handling**: Add production-specific error codes and messages
 4. **Rate Limiting**: Implement retry logic for failed API calls
-5. **Monitoring**: Add Sentry tracking for payment failures
+5. **Monitoring**: Payment failures are tracked via Better Stack structured logging
 6. **Compliance**: Ensure PCI DSS compliance for card data handling
 
 ## Support

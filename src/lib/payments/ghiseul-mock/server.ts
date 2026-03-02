@@ -313,5 +313,5 @@ export function logTransaction(
     logger.debug(`[Mock Gateway ${level.toUpperCase()}]`, JSON.stringify(logEntry, null, 2));
   }
 
-  // In production, this would go to a logging service (Sentry, CloudWatch, etc.)
+  // In production, errors are logged via Better Stack (see src/lib/logger.ts)
 }
