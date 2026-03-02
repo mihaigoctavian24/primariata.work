@@ -245,6 +245,7 @@ export function DashboardSidebar({
                   <Link
                     key={link.href}
                     href={link.href}
+                    prefetch={false}
                     className={cn(
                       "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
                       active
@@ -330,6 +331,7 @@ export function DashboardSidebar({
                 <Link
                   key={link.href}
                   href={link.href}
+                  prefetch={false}
                   className={cn(
                     "flex h-10 w-10 items-center justify-center rounded-lg transition-colors",
                     active
