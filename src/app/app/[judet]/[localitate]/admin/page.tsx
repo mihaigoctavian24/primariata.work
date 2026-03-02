@@ -74,7 +74,6 @@ export default async function PrimarieAdminPage({
   // CRITICAL: Only admin and super_admin can access primărie admin dashboard
   if (!userData || !["admin", "super_admin"].includes(userData.rol)) {
     logger.error("❌ Access denied - not admin", { userData, userError });
-    await authClient.auth.signOut();
     redirect("/auth/login");
   }
 
