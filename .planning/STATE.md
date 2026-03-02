@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-03-02T22:03:48.133Z"
+last_updated: "2026-03-02T22:10:10Z"
 progress:
   total_phases: 2
   completed_phases: 1
   total_plans: 10
-  completed_plans: 8
+  completed_plans: 9
 ---
 
 # Project State
@@ -18,22 +18,22 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-02)
 
 **Core value:** Citizens can submit cereri and complete plati digitally for any primarie where they're registered, with complete data isolation between primarii and proper role-based access for all user types.
-**Current focus:** Phase 2 in progress. Plans 02-01 through 02-05 complete. 02-06, 02-07 remaining.
+**Current focus:** Phase 2 in progress. Plans 02-01 through 02-06 complete. 02-07 remaining.
 
 ## Current Position
 
 Phase: 2 of 8 (Infrastructure & Stabilization)
-Plan: 6 of 7 in current phase (02-01, 02-02, 02-03, 02-04, 02-05 complete; 02-06, 02-07 remaining)
+Plan: 7 of 7 in current phase (02-01 through 02-06 complete; 02-07 remaining)
 Status: Executing Phase 2 plans
-Last activity: 2026-03-02 -- Completed 02-04-PLAN.md (Middleware & CSP fixes, seed test data)
+Last activity: 2026-03-02 -- Completed 02-06-PLAN.md (Dashboard stats & notificari fixes)
 
-Progress: [########________] 50%
+Progress: [#########_______] 56%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 8
-- Average duration: 5.3 min
+- Total plans completed: 9
+- Average duration: 4.9 min
 - Total execution time: 0.7 hours
 
 **By Phase:**
@@ -41,10 +41,10 @@ Progress: [########________] 50%
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-security-foundation | 3 | 23 min | 7.7 min |
-| 02-infrastructure-stabilization | 5 | 19 min | 3.8 min |
+| 02-infrastructure-stabilization | 6 | 22 min | 3.7 min |
 
 **Recent Trend:**
-- Last 5 plans: 02-02 (3 min), 02-01 (5 min), 02-03 (5 min), 02-05 (3 min), 02-04 (3 min)
+- Last 5 plans: 02-01 (5 min), 02-03 (5 min), 02-05 (3 min), 02-04 (3 min), 02-06 (3 min)
 - Trend: consistent, improving
 
 *Updated after each plan completion*
@@ -87,6 +87,9 @@ Recent decisions affecting current work:
 - [02-05]: DashboardHeader navigates to /auth/logout instead of client-side signOut to avoid race condition
 - [02-05]: userId added to React Query profile cache key for cross-user isolation
 - [02-05]: Admin layout auth guard is defense-in-depth alongside middleware protection
+- [02-06]: API routes resolve primarie from judet/localitate slugs via service role when middleware header unavailable
+- [02-06]: Explicit primarie_id filter on API queries is defense-in-depth (RLS still runs as AND)
+- [02-06]: useSearchParams() must be inside Suspense boundary for Next.js 15 hydration compliance
 
 ### Pending Todos
 
@@ -101,5 +104,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-03
-Stopped at: Completed 02-04-PLAN.md -- Middleware & CSP fixes, seed test data
+Stopped at: Completed 02-06-PLAN.md -- Dashboard stats & notificari fixes
 Resume file: None
