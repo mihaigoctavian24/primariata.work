@@ -30,6 +30,33 @@ const queryClient = new QueryClient({
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+
+  // Check authentication before rendering admin UI
+  useEffect(() => {
+    async function checkAuth(): Promise<void> {
+      try {
+        const { createClient } = await import("@/lib/supabase/client");
+        const supabase = createClient();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+
+        if (!user) {
+          window.location.href = "/admin/login";
+          return;
+        }
+
+        setIsAuthenticated(true);
+      } catch {
+        window.location.href = "/admin/login";
+      } finally {
+        setIsCheckingAuth(false);
+      }
+    }
+    checkAuth();
+  }, []);
 
   // Detect mobile viewport
   useEffect(() => {
@@ -63,6 +90,18 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { href: "/admin/users", label: "Echipă (Vechi)", icon: Users }, // Temporary - old location
     { href: "/admin/settings", label: "Setări Admin", icon: Settings },
   ];
+
+  if (isCheckingAuth) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="text-muted-foreground text-sm">Se verifica autorizarea...</div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
     <QueryClientProvider client={queryClient}>
