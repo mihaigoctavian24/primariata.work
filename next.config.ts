@@ -29,13 +29,15 @@ function buildCSPHeader(isDev: boolean): string {
       "https://fonts.googleapis.com", // Google Fonts
     ],
 
-    // Images - allow Google OAuth avatars, Supabase storage, data URLs
+    // Images - allow Google OAuth avatars, Supabase storage, data URLs, OpenStreetMap tiles
     "img-src": [
       "'self'",
       "data:", // Base64 encoded images
       "blob:", // Blob URLs for dynamic images
       "https://lh3.googleusercontent.com", // Google OAuth profile pictures
       "https://*.supabase.co", // Supabase Storage CDN
+      "https://staticmap.openstreetmap.de", // OpenStreetMap static map tiles
+      "https://tile.openstreetmap.org", // OpenStreetMap tile server
     ],
 
     // Fonts - Google Fonts, data URLs
@@ -54,8 +56,8 @@ function buildCSPHeader(isDev: boolean): string {
       isDev ? "http://localhost:*" : "", // Local API calls in dev
     ].filter(Boolean),
 
-    // Frames - allow Spline 3D embeds, disable frame-ancestors for clickjacking protection
-    "frame-src": ["'self'", "https://*.spline.design"],
+    // Frames - disable frame-ancestors for clickjacking protection
+    "frame-src": ["'self'"],
     "frame-ancestors": ["'none'"],
 
     // Objects - disable plugins (Flash, Java, etc.)
