@@ -231,9 +231,11 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
   // --- CSRF protection ---
   // Skip for webhook routes (they use HMAC verification instead)
   // Skip for safe methods (GET, HEAD, OPTIONS)
+  // Skip for Next.js Server Actions (they have built-in CSRF via Next-Action header + origin check)
   const isSafeMethod = ["GET", "HEAD", "OPTIONS"].includes(request.method);
+  const isServerAction = request.headers.has("Next-Action");
 
-  if (!isWebhookRoute && !isSafeMethod) {
+  if (!isWebhookRoute && !isSafeMethod && !isServerAction) {
     try {
       await csrfProtect(request, supabaseResponse);
     } catch (err) {
