@@ -3,6 +3,7 @@
 import { createClient, createServiceRoleClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { logger } from "@/lib/logger";
+import { notifyAdminNewRegistration } from "@/actions/admin-registration";
 
 interface RegistrationResult {
   success: boolean;
@@ -55,6 +56,23 @@ export async function registerAtPrimarie(primarieId: string): Promise<Registrati
   if (error) {
     logger.error("Failed to register at primarie:", error);
     return { success: false, error: "Registration failed" };
+  }
+
+  // Notify admins about the new registration (fire and forget)
+  try {
+    const { data: userData } = await serviceClient
+      .from("utilizatori")
+      .select("prenume, nume")
+      .eq("id", user.id)
+      .single();
+    const userName = userData
+      ? `${userData.prenume} ${userData.nume}`
+      : (user.email ?? "Utilizator");
+    notifyAdminNewRegistration(primarieId, userName).catch((err) =>
+      logger.error("Failed to notify admin:", err)
+    );
+  } catch {
+    // Non-critical -- don't fail registration
   }
 
   revalidatePath("/app");

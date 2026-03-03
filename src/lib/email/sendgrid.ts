@@ -202,3 +202,43 @@ export async function sendWeeklyDigestEmail(
     cerereInProgress,
   });
 }
+
+/**
+ * Send registration approved notification
+ */
+export async function sendRegistrationApprovedEmail(
+  toEmail: string,
+  toName: string,
+  primarieName: string,
+  dashboardLink: string
+): Promise<EmailResponse> {
+  return sendEmail({
+    type: "registration_approved",
+    toEmail,
+    toName,
+    primarieName,
+    dashboardLink,
+  });
+}
+
+/**
+ * Send registration rejected notification
+ */
+export async function sendRegistrationRejectedEmail(
+  toEmail: string,
+  toName: string,
+  primarieName: string,
+  rejectionReason: string,
+  reapplyLink: string,
+  primarieEmail?: string
+): Promise<EmailResponse> {
+  return sendEmail({
+    type: "registration_rejected",
+    toEmail,
+    toName,
+    primarieName,
+    rejectionReason,
+    reapplyLink,
+    primarieEmail,
+  });
+}

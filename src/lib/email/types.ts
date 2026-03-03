@@ -16,7 +16,9 @@ export type EmailType =
   | "batch_signature_completed"
   | "welcome"
   | "password_reset"
-  | "weekly_digest";
+  | "weekly_digest"
+  | "registration_approved"
+  | "registration_rejected";
 
 export interface BaseEmailRequest {
   type: EmailType;
@@ -59,6 +61,20 @@ export interface WeeklyDigestEmailRequest extends BaseEmailRequest {
   cerereInProgress?: number;
 }
 
+export interface RegistrationApprovedEmailRequest extends BaseEmailRequest {
+  type: "registration_approved";
+  primarieName: string;
+  dashboardLink: string;
+}
+
+export interface RegistrationRejectedEmailRequest extends BaseEmailRequest {
+  type: "registration_rejected";
+  primarieName: string;
+  rejectionReason: string;
+  reapplyLink: string;
+  primarieEmail?: string;
+}
+
 export type EmailRequest =
   | CerereEmailRequest
   | PaymentEmailRequest
@@ -66,7 +82,9 @@ export type EmailRequest =
   | BatchSignatureEmailRequest
   | WelcomeEmailRequest
   | PasswordResetEmailRequest
-  | WeeklyDigestEmailRequest;
+  | WeeklyDigestEmailRequest
+  | RegistrationApprovedEmailRequest
+  | RegistrationRejectedEmailRequest;
 
 export interface EmailResponse {
   success: boolean;

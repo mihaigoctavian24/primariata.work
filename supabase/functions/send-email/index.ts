@@ -23,7 +23,9 @@ interface EmailRequest {
     | "welcome"
     | "password_reset"
     | "weekly_digest"
-    | "staff_invitation";
+    | "staff_invitation"
+    | "registration_approved"
+    | "registration_rejected";
   cerereId?: string;
   toEmail: string;
   toName: string;
@@ -43,6 +45,12 @@ interface EmailRequest {
   expiresAt?: string;
   rol?: string;
   inviterName?: string;
+  // Registration approval/rejection fields
+  primarieName?: string;
+  dashboardLink?: string;
+  rejectionReason?: string;
+  reapplyLink?: string;
+  primarieEmail?: string;
 }
 
 interface CerereData {
@@ -134,9 +142,14 @@ serve(async (req: Request) => {
       type
     );
     const isSignatureEmail = ["document_signed", "batch_signature_completed"].includes(type);
-    const isAuthEmail = ["staff_invitation", "welcome", "password_reset", "weekly_digest"].includes(
-      type
-    );
+    const isAuthEmail = [
+      "staff_invitation",
+      "welcome",
+      "password_reset",
+      "weekly_digest",
+      "registration_approved",
+      "registration_rejected",
+    ].includes(type);
     const isCerereEmail = !isPaymentEmail && !isSignatureEmail && !isAuthEmail;
 
     // Initialize data variables
@@ -591,6 +604,66 @@ function buildEmailMessage(
       };
     }
 
+    case "registration_approved": {
+      if (!authData) {
+        throw new Error("Auth data required for registration_approved email");
+      }
+
+      const { primarieName, dashboardLink } = authData;
+
+      if (!primarieName || !dashboardLink) {
+        throw new Error("Missing required fields for registration_approved email");
+      }
+
+      return {
+        to: { email: toEmail, name: toName },
+        from: { email: SENDGRID_FROM_EMAIL, name: SENDGRID_FROM_NAME },
+        subject: `Inregistrare aprobata - ${primarieName}`,
+        text: buildTextTemplate("registration_approved", {
+          toName,
+          primarieName,
+          dashboardLink,
+        }),
+        html: buildHtmlTemplate("registration_approved", {
+          toName,
+          primarieName,
+          dashboardLink,
+        }),
+      };
+    }
+
+    case "registration_rejected": {
+      if (!authData) {
+        throw new Error("Auth data required for registration_rejected email");
+      }
+
+      const { primarieName, rejectionReason, reapplyLink, primarieEmail } = authData;
+
+      if (!primarieName || !rejectionReason || !reapplyLink) {
+        throw new Error("Missing required fields for registration_rejected email");
+      }
+
+      return {
+        to: { email: toEmail, name: toName },
+        from: { email: SENDGRID_FROM_EMAIL, name: SENDGRID_FROM_NAME },
+        subject: `Inregistrare respinsa - ${primarieName}`,
+        text: buildTextTemplate("registration_rejected", {
+          toName,
+          primarieName,
+          rejectionReason,
+          reapplyLink,
+          primarieEmail: primarieEmail || "",
+        }),
+        html: buildHtmlTemplate("registration_rejected", {
+          toName,
+          primarieName,
+          rejectionReason,
+          reapplyLink,
+          primarieEmail: primarieEmail || "",
+        }),
+      };
+    }
+
     default:
       throw new Error(`Unknown email type: ${type}`);
   }
@@ -733,6 +806,33 @@ ${data.inviteLink}
 După acceptarea invitației, veți avea acces la platforma Primăriata cu permisiunile specifice rolului dumneavoastră.
 
 Dacă nu recunoașteți această invitație, vă rugăm să o ignorați.
+
+Cu stimă,
+Echipa Primăriata
+    `.trim(),
+
+    registration_approved: `
+Bună ziua ${data.toName},
+
+Vă informăm că înregistrarea dumneavoastră la ${data.primarieName} a fost aprobată!
+
+Acum aveți acces complet la platforma Primăriata. Puteți depune cereri online, urmări statusul acestora, efectua plăți și gestiona documentele dumneavoastră digital.
+
+Accesați dashboard-ul dumneavoastră: ${data.dashboardLink}
+
+Cu stimă,
+Echipa Primăriata
+    `.trim(),
+
+    registration_rejected: `
+Bună ziua ${data.toName},
+
+Din păcate, înregistrarea dumneavoastră la ${data.primarieName} a fost respinsă.
+
+Motiv: ${data.rejectionReason}
+
+Dacă considerați că această decizie a fost luată din greșeală, puteți aplica din nou accesând: ${data.reapplyLink}
+${data.primarieEmail ? `\nPentru mai multe informații, contactați primăria la: ${data.primarieEmail}` : ""}
 
 Cu stimă,
 Echipa Primăriata
@@ -1069,6 +1169,61 @@ function buildHtmlTemplate(type: string, data: Record<string, string>): string {
     welcome: welcomeTemplate,
     password_reset: passwordResetTemplate,
     weekly_digest: weeklyDigestTemplate,
+    registration_approved: layout(`
+      <h2 style="margin: 0 0 20px 0; color: #059669; font-size: 24px; font-weight: 600;">Inregistrare aprobata!</h2>
+      <p style="margin: 0 0 15px 0; color: #52525b; font-size: 16px; line-height: 1.5;">Buna ziua <strong>${data.toName}</strong>,</p>
+      <p style="margin: 0 0 15px 0; color: #52525b; font-size: 16px; line-height: 1.5;">
+        Va informam ca inregistrarea dumneavoastra la <strong>${data.primarieName}</strong> a fost aprobata!
+      </p>
+      <div style="background-color: #d1fae5; padding: 20px; border-radius: 6px; border-left: 4px solid #059669; margin: 25px 0;">
+        <p style="margin: 0 0 10px 0; color: #065f46; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Ce puteti face acum</p>
+        <ul style="margin: 0; padding-left: 20px; color: #047857;">
+          <li style="margin-bottom: 8px;">Depuneti cereri online fara sa vizitati primaria</li>
+          <li style="margin-bottom: 8px;">Urmariti statusul cererilor in timp real</li>
+          <li style="margin-bottom: 8px;">Platiti taxele online cu cardul</li>
+          <li style="margin-bottom: 8px;">Descarcati documentele semnate digital</li>
+        </ul>
+      </div>
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="${data.dashboardLink}" style="display: inline-block; background-color: #059669; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-size: 16px; font-weight: 600;">Acceseaza dashboard-ul</a>
+      </div>
+      <p style="margin: 30px 0 0 0; color: #71717a; font-size: 14px; line-height: 1.5;">
+        Cu stima,<br>
+        <strong>Echipa Primariata</strong>
+      </p>
+    `),
+
+    registration_rejected: layout(`
+      <h2 style="margin: 0 0 20px 0; color: #dc2626; font-size: 24px; font-weight: 600;">Inregistrare respinsa</h2>
+      <p style="margin: 0 0 15px 0; color: #52525b; font-size: 16px; line-height: 1.5;">Buna ziua <strong>${data.toName}</strong>,</p>
+      <p style="margin: 0 0 15px 0; color: #52525b; font-size: 16px; line-height: 1.5;">
+        Din pacate, inregistrarea dumneavoastra la <strong>${data.primarieName}</strong> a fost respinsa.
+      </p>
+      <div style="background-color: #fee2e2; padding: 20px; border-radius: 6px; border-left: 4px solid #dc2626; margin: 25px 0;">
+        <p style="margin: 0 0 10px 0; color: #991b1b; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Motiv</p>
+        <p style="margin: 0; color: #7f1d1d; font-size: 16px; line-height: 1.5;">${data.rejectionReason}</p>
+      </div>
+      <p style="margin: 0 0 25px 0; color: #52525b; font-size: 16px; line-height: 1.5;">
+        Daca considerati ca aceasta decizie a fost luata din greseala, puteti aplica din nou.
+      </p>
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="${data.reapplyLink}" style="display: inline-block; background-color: #be3144; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-size: 16px; font-weight: 600;">Aplica din nou</a>
+      </div>
+      ${
+        data.primarieEmail
+          ? `
+      <p style="margin: 0 0 15px 0; color: #52525b; font-size: 14px; line-height: 1.5;">
+        Pentru mai multe informatii, contactati primaria la: <a href="mailto:${data.primarieEmail}" style="color: #be3144;">${data.primarieEmail}</a>
+      </p>
+      `
+          : ""
+      }
+      <p style="margin: 30px 0 0 0; color: #71717a; font-size: 14px; line-height: 1.5;">
+        Cu stima,<br>
+        <strong>Echipa Primariata</strong>
+      </p>
+    `),
+
     staff_invitation: layout(`
       <h2 style="margin: 0 0 20px 0; color: #be3144; font-size: 24px; font-weight: 600;">👥 Invitație în echipă</h2>
       <p style="margin: 0 0 15px 0; color: #52525b; font-size: 16px; line-height: 1.5;">Bună ziua <strong>${data.toName}</strong>,</p>
