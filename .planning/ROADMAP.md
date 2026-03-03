@@ -105,12 +105,12 @@ Plans:
   3. Admin can edit primarie info and notification preferences from admin settings
   4. Primar dashboard shows cereri requiring primar-level approval, financial overview by period/type, and staff metrics
   5. Staff receive in-app notifications when citizens submit new cereri or when cereri require their action
-**Plans**: TBD
+**Plans**: 3 plans (1 in Wave 1, 2 parallel in Wave 2)
 
 Plans:
-- [ ] 05-01: TBD
-- [ ] 05-02: TBD
-- [ ] 05-03: TBD
+- [ ] 05-01-PLAN.md -- DB migration (notification triggers, Realtime fix, primarii UPDATE RLS) + Server Actions for all dashboard data (NOT-01, NOT-02, DASH-05, DASH-09) [Wave 1]
+- [ ] 05-02-PLAN.md -- Functionar dashboard (real stats + cereri queue) + Admin dashboard (user counts, cereri overview, activity feed) + admin settings page (DASH-01, DASH-02, DASH-03, DASH-04, DASH-05, DASH-06, DASH-07, DASH-08) [Wave 2, depends on 05-01]
+- [ ] 05-03-PLAN.md -- Primar dashboard (approval queue with inline approve/reject, financial overview, staff metrics) (DASH-09, DASH-10) [Wave 2, depends on 05-01]
 
 ### Phase 6: Citizen Features
 **Goal**: Citizens have a complete document library, receive PDF receipts for payments, and see their primarie on an interactive map
