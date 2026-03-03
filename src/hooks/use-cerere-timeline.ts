@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { createClient } from "@/lib/supabase/client";
+import { getCerereTimeline } from "@/actions/cereri-detail";
 
 /**
  * A single entry in the cerere timeline (cerere_istoric table).
@@ -23,8 +23,12 @@ export interface CerereIstoricEntry {
 /**
  * React Query hook for fetching the cerere timeline (cerere_istoric).
  *
- * Queries cerere_istoric with a join to utilizatori for actor names.
- * If the user is not staff, filters to vizibil_cetatean = true only.
+ * Calls the getCerereTimeline Server Action which runs server-side
+ * with the correct x-primarie-id header context from middleware,
+ * ensuring RLS policies work correctly.
+ *
+ * If the user is not staff, the Server Action filters to
+ * vizibil_cetatean = true only.
  * Results are ordered chronologically (ascending) for timeline display.
  *
  * @param cerereId - The cerere UUID to fetch the timeline for
@@ -35,46 +39,13 @@ export function useCerereTimeline(cerereId: string, isStaff: boolean) {
   return useQuery<CerereIstoricEntry[]>({
     queryKey: ["cerere-timeline", cerereId, isStaff],
     queryFn: async (): Promise<CerereIstoricEntry[]> => {
-      const supabase = createClient();
+      const result = await getCerereTimeline(cerereId, isStaff);
 
-      // cerere_istoric is a new table not yet in generated database types.
-      // Use type assertion to access it via the Supabase client.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const client = supabase as any;
-
-      let query = client
-        .from("cerere_istoric")
-        .select(
-          `
-          id,
-          cerere_id,
-          tip,
-          old_status,
-          new_status,
-          motiv,
-          documente_solicitate,
-          actor_id,
-          vizibil_cetatean,
-          created_at,
-          actor:utilizatori!actor_id(prenume, nume)
-        `
-        )
-        .eq("cerere_id", cerereId)
-        .order("created_at", { ascending: true });
-
-      // Citizens only see public entries (RLS already filters this,
-      // but adding explicit filter for defense-in-depth)
-      if (!isStaff) {
-        query = query.eq("vizibil_cetatean", true);
+      if (!result.success) {
+        throw new Error(result.error);
       }
 
-      const { data, error } = await query;
-
-      if (error) {
-        throw error;
-      }
-
-      return (data as CerereIstoricEntry[]) ?? [];
+      return result.data;
     },
     enabled: !!cerereId,
     staleTime: 30 * 1000,

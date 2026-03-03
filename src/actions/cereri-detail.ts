@@ -10,6 +10,7 @@ import {
   type CerereStatusType,
 } from "@/lib/validations/cereri";
 import type { Cerere } from "@/types/api";
+import type { CerereIstoricEntry } from "@/hooks/use-cerere-timeline";
 
 /**
  * Standard result type for detail Server Actions.
@@ -28,6 +29,13 @@ type CerereDetailsResult = { success: true; data: Cerere } | { success: false; e
  * Result type for getCerereDocuments.
  */
 type CerereDocumentsResult = { success: true; data: unknown[] } | { success: false; error: string };
+
+/**
+ * Result type for getCerereTimeline.
+ */
+type CerereTimelineResult =
+  | { success: true; data: CerereIstoricEntry[] }
+  | { success: false; error: string };
 
 /**
  * Fetch cerere details by ID with tip_cerere join.
@@ -240,6 +248,79 @@ export async function cancelCerere(cerereId: string, motiv: string): Promise<Act
     return { success: true };
   } catch (error) {
     logger.error("Unexpected error in cancelCerere:", error);
+    return { success: false, error: "A aparut o eroare neasteptata" };
+  }
+}
+
+/**
+ * Fetch the timeline (cerere_istoric) for a cerere.
+ *
+ * Uses createClient() from server.ts which inherits x-primarie-id
+ * from the page request context (set by middleware). This ensures
+ * RLS policies receive the correct primarie context, unlike direct
+ * browser-side Supabase calls which bypass middleware.
+ *
+ * @param cerereId - The cerere UUID
+ * @param isStaff - Whether the user is staff (sees all entries including internal notes)
+ * @returns CerereTimelineResult with timeline entries or error
+ */
+export async function getCerereTimeline(
+  cerereId: string,
+  isStaff: boolean
+): Promise<CerereTimelineResult> {
+  try {
+    const supabase = await createClient();
+
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return { success: false, error: "Autentificare necesara" };
+    }
+
+    // cerere_istoric is a new table not yet in generated database types.
+    // Use type assertion to access it via the Supabase client.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const client = supabase as any;
+
+    let query = client
+      .from("cerere_istoric")
+      .select(
+        `
+        id,
+        cerere_id,
+        tip,
+        old_status,
+        new_status,
+        motiv,
+        documente_solicitate,
+        actor_id,
+        vizibil_cetatean,
+        created_at,
+        actor:utilizatori!actor_id(prenume, nume)
+      `
+      )
+      .eq("cerere_id", cerereId)
+      .order("created_at", { ascending: true });
+
+    // Citizens only see public entries (RLS already filters this,
+    // but adding explicit filter for defense-in-depth)
+    if (!isStaff) {
+      query = query.eq("vizibil_cetatean", true);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      logger.error("Database error fetching cerere timeline:", error);
+      return { success: false, error: "Eroare la incarcarea istoricului" };
+    }
+
+    return { success: true, data: (data as CerereIstoricEntry[]) ?? [] };
+  } catch (error) {
+    logger.error("Unexpected error in getCerereTimeline:", error);
     return { success: false, error: "A aparut o eroare neasteptata" };
   }
 }
