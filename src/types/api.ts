@@ -88,7 +88,7 @@ export interface TipCerere {
   nume: string;
   descriere: string | null;
   campuri_formular: Record<string, unknown>;
-  documente_necesare: string[] | null;
+  documente_necesare: DocRequirement[] | null;
   termen_legal_zile: number | null;
   necesita_taxa: boolean;
   valoare_taxa: number | null;
@@ -118,6 +118,8 @@ export interface Cerere {
   plata_efectuata_la: string | null;
   data_termen: string | null;
   data_finalizare: string | null;
+  sla_paused_at?: string | null;
+  sla_total_paused_days?: number;
   created_at: string;
   updated_at: string;
   // Joined data (optional)
@@ -168,4 +170,32 @@ export interface Chitanta {
   pdf_url: string;
   data_emitere: string;
   created_at: string;
+}
+
+/**
+ * Document requirement definition from tipuri_cereri.documente_necesare JSONB.
+ * Describes a document type required for a specific cerere type.
+ */
+export interface DocRequirement {
+  tip: string;
+  denumire: string;
+  obligatoriu: boolean;
+}
+
+/**
+ * Cerere Istoric entry for timeline display.
+ * Represents a status change, internal note, or document request.
+ */
+export interface CerereIstoricEntry {
+  id: string;
+  cerere_id: string;
+  tip: "status_change" | "nota_interna" | "document_request";
+  old_status: string | null;
+  new_status: string | null;
+  motiv: string | null;
+  documente_solicitate: Array<{ tip: string; denumire: string; motiv?: string }> | null;
+  actor_id: string;
+  vizibil_cetatean: boolean;
+  created_at: string;
+  actor?: { prenume: string; nume: string } | null;
 }

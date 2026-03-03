@@ -21,6 +21,7 @@ export const CerereStatus = {
   IN_VERIFICARE: "in_verificare",
   INFO_SUPLIMENTARE: "info_suplimentare",
   IN_PROCESARE: "in_procesare",
+  IN_APROBARE: "in_aprobare",
   APROBATA: "aprobata",
   RESPINSA: "respinsa",
   ANULATA: "anulata",
@@ -240,7 +241,9 @@ export function canCancelCerere(status: CerereStatusType): boolean {
   return (
     status !== CerereStatus.ANULATA &&
     status !== CerereStatus.FINALIZATA &&
-    status !== CerereStatus.RESPINSA
+    status !== CerereStatus.RESPINSA &&
+    status !== CerereStatus.IN_APROBARE &&
+    status !== CerereStatus.APROBATA
   );
 }
 
@@ -260,6 +263,7 @@ export function getCerereStatusLabel(status: CerereStatusType): string {
     [CerereStatus.IN_VERIFICARE]: "În verificare",
     [CerereStatus.INFO_SUPLIMENTARE]: "Informații suplimentare",
     [CerereStatus.IN_PROCESARE]: "În procesare",
+    [CerereStatus.IN_APROBARE]: "În aprobare",
     [CerereStatus.APROBATA]: "Aprobată",
     [CerereStatus.RESPINSA]: "Respinsă",
     [CerereStatus.ANULATA]: "Anulată",
@@ -280,6 +284,7 @@ export function getCerereStatusColor(status: CerereStatusType): string {
     [CerereStatus.IN_VERIFICARE]: "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400",
     [CerereStatus.INFO_SUPLIMENTARE]: "bg-orange-500/10 text-orange-700 dark:text-orange-400",
     [CerereStatus.IN_PROCESARE]: "bg-purple-500/10 text-purple-700 dark:text-purple-400",
+    [CerereStatus.IN_APROBARE]: "bg-amber-500/10 text-amber-700 dark:text-amber-400",
     [CerereStatus.APROBATA]: "bg-green-500/10 text-green-700 dark:text-green-400",
     [CerereStatus.RESPINSA]: "bg-red-500/10 text-red-700 dark:text-red-400",
     [CerereStatus.ANULATA]: "bg-gray-500/10 text-gray-700 dark:text-gray-400",
@@ -295,7 +300,7 @@ export function getCerereStatusColor(status: CerereStatusType): string {
  * SECURITY: Prevents invalid status transitions
  */
 export function isValidStatusTransition(from: CerereStatusType, to: CerereStatusType): boolean {
-  // Valid transitions map
+  // Valid transitions map (role-agnostic, all possible transitions)
   const transitions: Record<CerereStatusType, CerereStatusType[]> = {
     [CerereStatus.DEPUSA]: [CerereStatus.IN_VERIFICARE, CerereStatus.ANULATA],
     [CerereStatus.IN_VERIFICARE]: [
@@ -306,10 +311,11 @@ export function isValidStatusTransition(from: CerereStatusType, to: CerereStatus
     ],
     [CerereStatus.INFO_SUPLIMENTARE]: [CerereStatus.IN_VERIFICARE, CerereStatus.ANULATA],
     [CerereStatus.IN_PROCESARE]: [
-      CerereStatus.APROBATA,
+      CerereStatus.IN_APROBARE,
       CerereStatus.RESPINSA,
       CerereStatus.ANULATA,
     ],
+    [CerereStatus.IN_APROBARE]: [CerereStatus.APROBATA, CerereStatus.RESPINSA],
     [CerereStatus.APROBATA]: [CerereStatus.FINALIZATA],
     [CerereStatus.RESPINSA]: [],
     [CerereStatus.ANULATA]: [],
