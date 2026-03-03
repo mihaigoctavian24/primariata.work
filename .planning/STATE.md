@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: in_progress
-last_updated: "2026-03-03T15:15:22.000Z"
+status: unknown
+last_updated: "2026-03-03T15:35:08.558Z"
 progress:
-  total_phases: 8
+  total_phases: 4
   completed_phases: 4
   total_plans: 16
   completed_plans: 16
@@ -18,23 +18,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-02)
 
 **Core value:** Citizens can submit cereri and complete plati digitally for any primarie where they're registered, with complete data isolation between primarii and proper role-based access for all user types.
-**Current focus:** Phase 4 complete. Cereri processing with workflow engine and UI components. Ready for Phase 5 (Staff Dashboards).
+**Current focus:** Phase 4 complete. Cereri processing with workflow engine, UI components, and detail page fix. Ready for Phase 5 (Staff Dashboards).
 
 ## Current Position
 
 Phase: 4 of 8 (Cereri Processing) -- COMPLETE
-Plan: 2 of 2 in current phase (04-02 complete, phase done)
-Status: Phase 4 complete. All cereri processing UI: SLA indicators, dynamic timeline, status transition dialog, internal notes, SLA filtering.
-Last activity: 2026-03-03 -- Completed 04-02-PLAN.md (Cereri UI components)
+Plan: 3 of 3 in current phase (04-03 complete, phase done)
+Status: Phase 4 complete. All cereri processing: workflow engine, UI components, and detail page fix (Server Actions for RLS context).
+Last activity: 2026-03-03 -- Completed 04-03-PLAN.md (Cerere detail page fix)
 
 Progress: [################] 100% (Phase 4)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 16
-- Average duration: 5.4 min
-- Total execution time: 1.47 hours
+- Total plans completed: 17
+- Average duration: 5.3 min
+- Total execution time: 1.53 hours
 
 **By Phase:**
 
@@ -43,11 +43,11 @@ Progress: [################] 100% (Phase 4)
 | 01-security-foundation | 3 | 23 min | 7.7 min |
 | 02-infrastructure-stabilization | 8 | 32 min | 4.0 min |
 | 03-registration-approval | 3 | 16 min | 5.3 min |
-| 04-cereri-processing | 2/2 | 16 min | 8.0 min |
+| 04-cereri-processing | 3/3 | 20 min | 6.7 min |
 
 **Recent Trend:**
-- Last 5 plans: 03-02 (5 min), 03-03 (7 min), 04-01 (9 min), 04-02 (7 min)
-- Trend: stable at ~7-9 min for complex tasks
+- Last 5 plans: 03-03 (7 min), 04-01 (9 min), 04-02 (7 min), 04-03 (4 min)
+- Trend: stable at ~5-9 min; focused fix plans faster
 
 *Updated after each plan completion*
 
@@ -113,6 +113,8 @@ Recent decisions affecting current work:
 - [04-02]: SLA column hidden on mobile; compact dot shown next to StatusBadge instead
 - [04-02]: SLA filtering is client-side (calculateSla on loaded data) not API-level
 - [04-02]: Detail page role detection via direct user_primarii query (self-contained)
+- [04-03]: Server Actions replace API route fetches for cerere detail (x-primarie-id only available on /app/* paths, not /api/*)
+- [04-03]: sla_total_paused_days excluded from Server Action select (not in generated types, SlaIndicator handles undefined)
 
 ### Pending Todos
 
@@ -127,5 +129,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-03
-Stopped at: Completed 04-02-PLAN.md (Phase 4 complete)
+Stopped at: Completed 04-03-PLAN.md (Phase 4 complete, all 3 plans done)
 Resume file: Next phase (05)
