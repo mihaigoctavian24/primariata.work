@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { rejectRegistration, REJECTION_REASONS } from "@/actions/admin-registration";
+import { rejectRegistration } from "@/actions/admin-registration";
+import { REJECTION_REASONS } from "@/lib/constants/registration";
 import {
   Dialog,
   DialogContent,

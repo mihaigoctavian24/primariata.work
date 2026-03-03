@@ -5,14 +5,6 @@ import { revalidatePath } from "next/cache";
 import { logger } from "@/lib/logger";
 import { sendRegistrationApprovedEmail, sendRegistrationRejectedEmail } from "@/lib/email/sendgrid";
 
-export const REJECTION_REASONS = [
-  { value: "nu_apartine_localitatii", label: "Nu apartine localitatii" },
-  { value: "cont_duplicat", label: "Cont duplicat" },
-  { value: "informatii_incomplete", label: "Informatii incomplete" },
-  { value: "identitate_neverificata", label: "Identitate neverificabila" },
-  { value: "altul", label: "Alt motiv" },
-] as const;
-
 interface PendingRegistration {
   id: string;
   user_id: string;
@@ -119,13 +111,14 @@ export async function approveRegistration(
   // Fetch primarie info for email content
   const { data: primarieData } = await serviceClient
     .from("primarii")
-    .select("denumire, localitati!inner(slug, judete!inner(slug))")
+    .select("nume_oficial, localitati!inner(slug, judete!inner(slug))")
     .eq("id", primarieId)
     .single();
 
   const userName = userData ? `${userData.prenume} ${userData.nume}` : "Utilizator";
   const userEmail = userData?.email ?? "";
-  const primarieName = (primarieData as unknown as { denumire: string })?.denumire ?? "Primaria";
+  const primarieName =
+    (primarieData as unknown as { nume_oficial: string })?.nume_oficial ?? "Primaria";
 
   // Resolve dashboard link from primarie's judet/localitate slugs
   let dashboardLink = `${process.env.NEXT_PUBLIC_APP_URL || "https://primariata.work"}/app`;
@@ -139,8 +132,8 @@ export async function approveRegistration(
   // Send approval email (fire and forget)
   try {
     if (userEmail) {
-      sendRegistrationApprovedEmail(userEmail, userName, primarieName, dashboardLink).catch((err) =>
-        logger.error("Failed to send approval email:", err)
+      sendRegistrationApprovedEmail(userEmail, userName, primarieName, dashboardLink).catch(
+        (err: unknown) => logger.error("Failed to send approval email:", err)
       );
     }
   } catch {
@@ -218,13 +211,14 @@ export async function rejectRegistration(
   // Fetch primarie info
   const { data: primarieData } = await serviceClient
     .from("primarii")
-    .select("denumire, localitati!inner(slug, judete!inner(slug))")
+    .select("nume_oficial, localitati!inner(slug, judete!inner(slug))")
     .eq("id", primarieId)
     .single();
 
   const userName = userData ? `${userData.prenume} ${userData.nume}` : "Utilizator";
   const userEmail = userData?.email ?? "";
-  const primarieName = (primarieData as unknown as { denumire: string })?.denumire ?? "Primaria";
+  const primarieName =
+    (primarieData as unknown as { nume_oficial: string })?.nume_oficial ?? "Primaria";
 
   // Build re-apply link
   let reapplyLink = `${process.env.NEXT_PUBLIC_APP_URL || "https://primariata.work"}/app`;
@@ -239,7 +233,7 @@ export async function rejectRegistration(
   try {
     if (userEmail) {
       sendRegistrationRejectedEmail(userEmail, userName, primarieName, reason, reapplyLink).catch(
-        (err) => logger.error("Failed to send rejection email:", err)
+        (err: unknown) => logger.error("Failed to send rejection email:", err)
       );
     }
   } catch {
