@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-03-03T17:26:08.200Z"
+last_updated: "2026-03-03T22:14:47Z"
 progress:
-  total_phases: 4
+  total_phases: 5
   completed_phases: 4
-  total_plans: 17
-  completed_plans: 17
+  total_plans: 18
+  completed_plans: 18
 ---
 
 # Project State
@@ -18,23 +18,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-02)
 
 **Core value:** Citizens can submit cereri and complete plati digitally for any primarie where they're registered, with complete data isolation between primarii and proper role-based access for all user types.
-**Current focus:** Phase 4 complete. Cereri processing with workflow engine, UI components, and detail page fix. Ready for Phase 5 (Staff Dashboards).
+**Current focus:** Phase 5 in progress. Staff dashboards infrastructure complete (05-01). Building functionar and admin dashboard UIs next.
 
 ## Current Position
 
-Phase: 4 of 8 (Cereri Processing) -- COMPLETE
-Plan: 3 of 3 in current phase (04-03 complete, phase done)
-Status: Phase 4 complete. All cereri processing: workflow engine, UI components, and detail page fix (Server Actions for RLS context).
-Last activity: 2026-03-03 -- Completed 04-03-PLAN.md (Cerere detail page fix)
+Phase: 5 of 8 (Staff Dashboards) -- IN PROGRESS
+Plan: 1 of 3 in current phase (05-01 complete)
+Status: Staff dashboards infrastructure built: DB triggers for selective notifications (NOT-01/NOT-02), Realtime fix, primarii UPDATE RLS, 5 Server Actions for dashboard data.
+Last activity: 2026-03-04 -- Completed 05-01-PLAN.md (Staff dashboards infra)
 
-Progress: [################] 100% (Phase 4)
+Progress: [#####-----------] 33% (Phase 5)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 17
-- Average duration: 5.3 min
-- Total execution time: 1.53 hours
+- Total plans completed: 18
+- Average duration: 5.2 min
+- Total execution time: 1.60 hours
 
 **By Phase:**
 
@@ -44,10 +44,11 @@ Progress: [################] 100% (Phase 4)
 | 02-infrastructure-stabilization | 8 | 32 min | 4.0 min |
 | 03-registration-approval | 3 | 16 min | 5.3 min |
 | 04-cereri-processing | 3/3 | 20 min | 6.7 min |
+| 05-staff-dashboards | 1/3 | 4 min | 4.0 min |
 
 **Recent Trend:**
-- Last 5 plans: 03-03 (7 min), 04-01 (9 min), 04-02 (7 min), 04-03 (4 min)
-- Trend: stable at ~5-9 min; focused fix plans faster
+- Last 5 plans: 04-01 (9 min), 04-02 (7 min), 04-03 (4 min), 05-01 (4 min)
+- Trend: accelerating; infrastructure plans completing faster
 
 *Updated after each plan completion*
 
@@ -115,6 +116,11 @@ Recent decisions affecting current work:
 - [04-02]: Detail page role detection via direct user_primarii query (self-contained)
 - [04-03]: Server Actions replace API route fetches for cerere detail (x-primarie-id only available on /app/* paths, not /api/*)
 - [04-03]: sla_total_paused_days excluded from Server Action select (not in generated types, SlaIndicator handles undefined)
+- [05-01]: Separate AFTER INSERT trigger (notify_new_cerere) for NOT-01 -- cleaner than extending BEFORE UPDATE trigger
+- [05-01]: Used existing 'action_required' notification type for staff notifications (avoids CHECK constraint modification)
+- [05-01]: createServiceRoleClient() for primarie settings UPDATE as defense-in-depth alongside new RLS UPDATE policy
+- [05-01]: Config JSONB merge reads current config first then spreads new values (preserves existing keys)
+- [05-01]: Generic all-staff notification loop removed from notify_cerere_status_change; only citizen resubmit and in_aprobare trigger staff notifications
 
 ### Pending Todos
 
@@ -128,6 +134,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-03
-Stopped at: Completed 04-03-PLAN.md (Phase 4 complete, all 3 plans done)
-Resume file: Next phase (05)
+Last session: 2026-03-04
+Stopped at: Completed 05-01-PLAN.md
+Resume file: .planning/phases/05-staff-dashboards/05-01-SUMMARY.md

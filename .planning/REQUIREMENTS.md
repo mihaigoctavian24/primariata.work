@@ -49,11 +49,11 @@ Requirements for production-ready release. Each maps to roadmap phases.
 - [ ] **DASH-02**: Functionar can change cerere status (depusa -> in verificare -> in procesare -> finalizata/respinsa)
 - [ ] **DASH-03**: Functionar can add internal notes/comments on cereri (visible only to staff)
 - [ ] **DASH-04**: Functionar can request additional documents from citizen (triggers notification)
-- [ ] **DASH-05**: Admin (primarie-level) dashboard shows real user counts, cereri overview by status, and basic analytics
+- [x] **DASH-05**: Admin (primarie-level) dashboard shows real user counts, cereri overview by status, and basic analytics
 - [ ] **DASH-06**: Admin dashboard includes registration approval queue
 - [ ] **DASH-07**: Admin dashboard includes staff invitation management (build on existing invitation system)
 - [ ] **DASH-08**: Admin settings page allows primarie info editing, notification preferences
-- [ ] **DASH-09**: Primar dashboard shows cereri requiring approval, financial overview (revenue by period/type), staff metrics
+- [x] **DASH-09**: Primar dashboard shows cereri requiring approval, financial overview (revenue by period/type), staff metrics
 - [ ] **DASH-10**: Primar can approve/reject cereri that require primar-level approval with reason
 
 ### Cereri Processing
@@ -81,8 +81,8 @@ Requirements for production-ready release. Each maps to roadmap phases.
 
 ### Notifications
 
-- [ ] **NOT-01**: Staff (functionar) receive in-app notifications when citizen submits new cerere
-- [ ] **NOT-02**: Staff receive notifications on cerere status changes requiring their action
+- [x] **NOT-01**: Staff (functionar) receive in-app notifications when citizen submits new cerere
+- [x] **NOT-02**: Staff receive notifications on cerere status changes requiring their action
 - [ ] **NOT-03**: Cross-primarie notification aggregation -- user sees notifications from all primarii where registered
 - [ ] **NOT-04**: Click on notification from different primarie shows confirmation popup before context switch
 - [ ] **NOT-05**: After context switch confirmation, user redirected to source module/page from notification
@@ -189,14 +189,14 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DASH-02 | Phase 5: Staff Dashboards | Pending |
 | DASH-03 | Phase 5: Staff Dashboards | Pending |
 | DASH-04 | Phase 5: Staff Dashboards | Pending |
-| DASH-05 | Phase 5: Staff Dashboards | Pending |
+| DASH-05 | Phase 5: Staff Dashboards | Complete |
 | DASH-06 | Phase 5: Staff Dashboards | Pending |
 | DASH-07 | Phase 5: Staff Dashboards | Pending |
 | DASH-08 | Phase 5: Staff Dashboards | Pending |
-| DASH-09 | Phase 5: Staff Dashboards | Pending |
+| DASH-09 | Phase 5: Staff Dashboards | Complete |
 | DASH-10 | Phase 5: Staff Dashboards | Pending |
-| NOT-01 | Phase 5: Staff Dashboards | Pending |
-| NOT-02 | Phase 5: Staff Dashboards | Pending |
+| NOT-01 | Phase 5: Staff Dashboards | Complete |
+| NOT-02 | Phase 5: Staff Dashboards | Complete |
 | DOC-01 | Phase 6: Citizen Features | Pending |
 | DOC-02 | Phase 6: Citizen Features | Pending |
 | DOC-03 | Phase 6: Citizen Features | Pending |
