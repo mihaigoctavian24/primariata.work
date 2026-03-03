@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form";
 import { motion } from "framer-motion";
 import * as z from "zod";
 import { createClient } from "@/lib/supabase/client";
+import { getLocation } from "@/lib/location-storage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -107,12 +108,17 @@ export function RegisterForm({
       setIsLoading(true);
       setError(null);
 
+      // Get saved location to pass as metadata for trigger-based user_primarii creation
+      const location = getLocation();
+
       const { data, error: signUpError } = await supabase.auth.signUp({
         email: values.email,
         password: values.password,
         options: {
           data: {
             full_name: values.fullName,
+            judet_id: location?.judetId ?? null,
+            localitate_id: location?.localitateId ?? null,
           },
           emailRedirectTo: redirectTo
             ? `${window.location.origin}/auth/callback?next=${redirectTo}`

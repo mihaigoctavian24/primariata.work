@@ -1597,7 +1597,10 @@ export type Database = {
             | "status_updated"
             | "deadline_approaching"
             | "action_required"
-            | "info";
+            | "info"
+            | "registration_approved"
+            | "registration_rejected"
+            | "registration_pending";
           priority: "urgent" | "high" | "medium" | "low";
           title: string;
           message: string;
@@ -1622,7 +1625,10 @@ export type Database = {
             | "status_updated"
             | "deadline_approaching"
             | "action_required"
-            | "info";
+            | "info"
+            | "registration_approved"
+            | "registration_rejected"
+            | "registration_pending";
           priority?: "urgent" | "high" | "medium" | "low";
           title: string;
           message: string;
@@ -1647,7 +1653,10 @@ export type Database = {
             | "status_updated"
             | "deadline_approaching"
             | "action_required"
-            | "info";
+            | "info"
+            | "registration_approved"
+            | "registration_rejected"
+            | "registration_pending";
           priority?: "urgent" | "high" | "medium" | "low";
           title?: string;
           message?: string;
@@ -1672,6 +1681,73 @@ export type Database = {
             columns: ["primarie_id"];
             isOneToOne: false;
             referencedRelation: "primarii";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      user_primarii: {
+        Row: {
+          id: string;
+          user_id: string;
+          primarie_id: string;
+          rol: "cetatean" | "functionar" | "admin" | "primar" | "super_admin";
+          status: "pending" | "approved" | "rejected" | "suspended";
+          permissions: Json;
+          departament: string | null;
+          approved_by: string | null;
+          approved_at: string | null;
+          rejection_reason: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          primarie_id: string;
+          rol?: "cetatean" | "functionar" | "admin" | "primar" | "super_admin";
+          status?: "pending" | "approved" | "rejected" | "suspended";
+          permissions?: Json;
+          departament?: string | null;
+          approved_by?: string | null;
+          approved_at?: string | null;
+          rejection_reason?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          primarie_id?: string;
+          rol?: "cetatean" | "functionar" | "admin" | "primar" | "super_admin";
+          status?: "pending" | "approved" | "rejected" | "suspended";
+          permissions?: Json;
+          departament?: string | null;
+          approved_by?: string | null;
+          approved_at?: string | null;
+          rejection_reason?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "user_primarii_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "user_primarii_primarie_id_fkey";
+            columns: ["primarie_id"];
+            isOneToOne: false;
+            referencedRelation: "primarii";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "user_primarii_approved_by_fkey";
+            columns: ["approved_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
             referencedColumns: ["id"];
           },
         ];

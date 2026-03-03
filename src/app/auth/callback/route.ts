@@ -1,5 +1,5 @@
 import { logger } from "@/lib/logger";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceRoleClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
@@ -67,7 +67,32 @@ export async function GET(request: Request) {
                 if (updateError) {
                   logger.error("[auth/callback] Failed to sync location:", updateError);
                 } else {
-                  logger.debug("[auth/callback] ✅ Location synced successfully to database");
+                  logger.debug("[auth/callback] Location synced successfully to database");
+
+                  // Create pending user_primarii for OAuth users
+                  // Uses service role client (no self-insert RLS policy)
+                  const serviceClient = createServiceRoleClient();
+                  const { data: existingAssoc } = await serviceClient
+                    .from("user_primarii")
+                    .select("id, status")
+                    .eq("user_id", user.id)
+                    .eq("primarie_id", primarie.id)
+                    .single();
+
+                  if (!existingAssoc) {
+                    const { error: assocError } = await serviceClient.from("user_primarii").insert({
+                      user_id: user.id,
+                      primarie_id: primarie.id,
+                      rol: "cetatean",
+                      status: "pending",
+                    });
+
+                    if (assocError) {
+                      logger.error("[auth/callback] Failed to create user_primarii:", assocError);
+                    } else {
+                      logger.debug("[auth/callback] Created pending user_primarii association");
+                    }
+                  }
                 }
               }
             }
