@@ -6,9 +6,9 @@ status: in_progress
 last_updated: "2026-03-03T15:15:22.000Z"
 progress:
   total_phases: 8
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 16
-  completed_plans: 15
+  completed_plans: 16
 ---
 
 # Project State
@@ -18,23 +18,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-02)
 
 **Core value:** Citizens can submit cereri and complete plati digitally for any primarie where they're registered, with complete data isolation between primarii and proper role-based access for all user types.
-**Current focus:** Phase 4 in progress. Cereri processing workflow engine. Plan 04-01 complete (workflow engine).
+**Current focus:** Phase 4 complete. Cereri processing with workflow engine and UI components. Ready for Phase 5 (Staff Dashboards).
 
 ## Current Position
 
-Phase: 4 of 8 (Cereri Processing)
-Plan: 1 of 2 in current phase (04-01 complete)
-Status: Phase 4 plan 01 done: workflow engine with DB migration, transitions, SLA, Server Actions, document validation.
-Last activity: 2026-03-03 -- Completed 04-01-PLAN.md (Workflow engine)
+Phase: 4 of 8 (Cereri Processing) -- COMPLETE
+Plan: 2 of 2 in current phase (04-02 complete, phase done)
+Status: Phase 4 complete. All cereri processing UI: SLA indicators, dynamic timeline, status transition dialog, internal notes, SLA filtering.
+Last activity: 2026-03-03 -- Completed 04-02-PLAN.md (Cereri UI components)
 
-Progress: [########--------] 50% (Phase 4)
+Progress: [################] 100% (Phase 4)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 15
+- Total plans completed: 16
 - Average duration: 5.4 min
-- Total execution time: 1.35 hours
+- Total execution time: 1.47 hours
 
 **By Phase:**
 
@@ -43,11 +43,11 @@ Progress: [########--------] 50% (Phase 4)
 | 01-security-foundation | 3 | 23 min | 7.7 min |
 | 02-infrastructure-stabilization | 8 | 32 min | 4.0 min |
 | 03-registration-approval | 3 | 16 min | 5.3 min |
-| 04-cereri-processing | 1/2 | 9 min | 9.0 min |
+| 04-cereri-processing | 2/2 | 16 min | 8.0 min |
 
 **Recent Trend:**
-- Last 5 plans: 03-01 (4 min), 03-02 (5 min), 03-03 (7 min), 04-01 (9 min)
-- Trend: slightly increasing (more complex tasks)
+- Last 5 plans: 03-02 (5 min), 03-03 (7 min), 04-01 (9 min), 04-02 (7 min)
+- Trend: stable at ~7-9 min for complex tasks
 
 *Updated after each plan completion*
 
@@ -110,6 +110,9 @@ Recent decisions affecting current work:
 - [04-01]: notify_cerere_status_change() fixed: numar_cerere->numar_inregistrare, utilizator_id->solicitant_id
 - [04-01]: SLA pause/resume in DB trigger (not app code) to prevent race conditions
 - [04-01]: in_aprobare is primar-only approval gate between in_procesare and aprobata
+- [04-02]: SLA column hidden on mobile; compact dot shown next to StatusBadge instead
+- [04-02]: SLA filtering is client-side (calculateSla on loaded data) not API-level
+- [04-02]: Detail page role detection via direct user_primarii query (self-contained)
 
 ### Pending Todos
 
@@ -124,5 +127,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-03
-Stopped at: Completed 04-01-PLAN.md
-Resume file: .planning/phases/04-cereri-processing/04-02-PLAN.md
+Stopped at: Completed 04-02-PLAN.md (Phase 4 complete)
+Resume file: Next phase (05)

@@ -63,7 +63,7 @@ Requirements for production-ready release. Each maps to roadmap phases.
 - [x] **CER-03**: Document validation enforced on cerere submit -- required documents must be present per cerere type
 - [x] **CER-04**: Deadline/SLA tracking shows overdue indicators on cereri list and dashboard
 - [x] **CER-05**: Staff and citizens receive notifications on cerere status changes
-- [ ] **CER-06**: Search across cereri works with filters (status, type, date range, reference number)
+- [x] **CER-06**: Search across cereri works with filters (status, type, date range, reference number)
 
 ### Documents
 
@@ -184,7 +184,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CER-03 | Phase 4: Cereri Processing | Complete |
 | CER-04 | Phase 4: Cereri Processing | Complete |
 | CER-05 | Phase 4: Cereri Processing | Complete |
-| CER-06 | Phase 4: Cereri Processing | Pending |
+| CER-06 | Phase 4: Cereri Processing | Complete |
 | DASH-01 | Phase 5: Staff Dashboards | Pending |
 | DASH-02 | Phase 5: Staff Dashboards | Pending |
 | DASH-03 | Phase 5: Staff Dashboards | Pending |
