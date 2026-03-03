@@ -60,7 +60,9 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
   } = await supabase.auth.getUser();
 
   const isProtectedRoute = request.nextUrl.pathname.startsWith("/app");
-  const isAuthRoute = request.nextUrl.pathname.startsWith("/auth");
+  const isAuthRoute =
+    request.nextUrl.pathname.startsWith("/auth") &&
+    !request.nextUrl.pathname.startsWith("/auth/logout");
   const isWebhookRoute =
     request.nextUrl.pathname.startsWith("/api/webhooks/") ||
     request.nextUrl.pathname === "/api/plati/webhook";
