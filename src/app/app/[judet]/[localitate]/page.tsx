@@ -1,12 +1,14 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { use, useState } from "react";
+import { use, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { MapPin, ArrowLeft, Loader2 } from "lucide-react";
 import { clearLocation } from "@/lib/location-storage";
 import { useUserProfile } from "@/hooks/use-user-profile";
+import { createClient } from "@/lib/supabase/client";
+import { PendingStatusPage } from "@/components/registration/PendingStatusPage";
 import {
   CetățeanDashboard,
   FuncționarDashboard,
@@ -28,6 +30,69 @@ export default function DashboardPage({ params }: DashboardPageProps) {
 
   // Fetch user profile with role information
   const { profile, isLoading, isError, error } = useUserProfile();
+
+  // Association status for current primarie (registration approval gate)
+  const [association, setAssociation] = useState<{
+    status: "pending" | "approved" | "rejected" | "suspended";
+    rejection_reason: string | null;
+    primarie_id: string;
+  } | null>(null);
+  const [assocLoading, setAssocLoading] = useState(true);
+  const [primarieInfo, setPrimarieInfo] = useState<{
+    id: string;
+    name: string;
+    email: string | null;
+  } | null>(null);
+
+  useEffect(() => {
+    if (!profile) return;
+
+    const currentUserId = profile.id;
+
+    async function fetchAssociation(): Promise<void> {
+      const supabase = createClient();
+
+      // Resolve primarie from URL slugs (same pattern as middleware)
+      const { data: primarie } = await supabase
+        .from("primarii")
+        .select("id, nume_oficial, email, localitati!inner(slug, judete!inner(slug))")
+        .eq("localitati.slug", localitate)
+        .eq("localitati.judete.slug", judet)
+        .eq("activa", true)
+        .single();
+
+      if (!primarie) {
+        setAssocLoading(false);
+        return;
+      }
+
+      setPrimarieInfo({
+        id: primarie.id,
+        name: primarie.nume_oficial,
+        email: primarie.email,
+      });
+
+      const { data: assoc } = await supabase
+        .from("user_primarii")
+        .select("id, status, rejection_reason, primarie_id")
+        .eq("user_id", currentUserId)
+        .eq("primarie_id", primarie.id)
+        .single();
+
+      setAssociation(
+        assoc
+          ? {
+              status: assoc.status as "pending" | "approved" | "rejected" | "suspended",
+              rejection_reason: assoc.rejection_reason,
+              primarie_id: assoc.primarie_id,
+            }
+          : null
+      );
+      setAssocLoading(false);
+    }
+
+    fetchAssociation();
+  }, [profile, judet, localitate]);
 
   const handleChangeLocation = () => {
     clearLocation();
@@ -88,6 +153,60 @@ export default function DashboardPage({ params }: DashboardPageProps) {
     );
   }
 
+  // Association loading state
+  if (assocLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="space-y-4 text-center">
+          <Loader2 className="text-primary mx-auto h-12 w-12 animate-spin" />
+          <p className="text-muted-foreground">Se verifica accesul...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Check association status -- pending/rejected/no-association shows status page
+  if (!association || association.status === "pending" || association.status === "rejected") {
+    return (
+      <PendingStatusPage
+        status={
+          association?.status === "pending"
+            ? "pending"
+            : association?.status === "rejected"
+              ? "rejected"
+              : null
+        }
+        primarieName={primarieInfo?.name ?? localitate.replace(/-/g, " ")}
+        primarieEmail={primarieInfo?.email ?? undefined}
+        rejectionReason={association?.rejection_reason}
+        primarieId={primarieInfo?.id ?? ""}
+        userId={profile.id}
+        judet={judet}
+        localitate={localitate}
+      />
+    );
+  }
+
+  // Suspended association
+  if (association.status === "suspended") {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="max-w-md space-y-4 text-center">
+          <div className="text-6xl">&#x1F6AB;</div>
+          <h2 className="text-2xl font-bold">Cont Suspendat</h2>
+          <p className="text-muted-foreground">
+            Contul tau la aceasta primarie a fost suspendat. Te rugam sa contactezi administratorul
+            primariei pentru mai multe detalii.
+          </p>
+          <Button onClick={() => router.push("/")} variant="default">
+            Inapoi Acasa
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Approved association -- render normal role-based dashboard
   return (
     <>
       {/* Page Header with Location Info */}

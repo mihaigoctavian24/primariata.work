@@ -3,12 +3,12 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { MapPin, UserPlus, Info } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { MapPin, Info } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { useRegistrationStatus } from "@/hooks/use-registration-status";
 import { RegistrationStatusCard } from "@/components/registration/RegistrationStatusCard";
+import { RegisterAtPrimarieButton } from "@/components/registration/RegisterAtPrimarieButton";
 import { reapplyAtPrimarie } from "@/actions/registration";
 
 interface PendingStatusPageProps {
@@ -174,30 +174,7 @@ export function PendingStatusPage({
                 <span className="text-foreground font-semibold">{primarieName}</span>.
                 Inregistreaza-te pentru a accesa serviciile digitale ale primariei.
               </p>
-              {/* RegisterAtPrimarieButton is rendered separately in Task 2 */}
-              <Button
-                onClick={() => {
-                  // Dynamic import to avoid circular dependency at build
-                  import("@/actions/registration").then(({ registerAtPrimarie }) => {
-                    registerAtPrimarie(primarieId).then((result) => {
-                      if (result.success) {
-                        toast.success("Cererea de inregistrare a fost trimisa!", {
-                          description: "Vei fi notificat cand va fi procesata.",
-                        });
-                        router.refresh();
-                      } else {
-                        toast.error("Eroare la inregistrare", {
-                          description: result.error ?? "Incearca din nou mai tarziu.",
-                        });
-                      }
-                    });
-                  });
-                }}
-                className="w-full"
-              >
-                <UserPlus className="mr-2 h-4 w-4" />
-                Inregistreaza-te la {primarieName}
-              </Button>
+              <RegisterAtPrimarieButton primarieId={primarieId} primarieName={primarieName} />
             </CardContent>
           </Card>
         )}
