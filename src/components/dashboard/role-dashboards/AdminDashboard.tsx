@@ -1,12 +1,15 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useDashboardStats } from "@/hooks/use-dashboard-stats";
 import { StatisticsCards } from "@/components/dashboard/StatisticsCards";
 import { QuickActions } from "@/components/dashboard/QuickActions";
 import { ErrorBoundary, InlineError } from "@/components/dashboard";
-import { Shield, Users, Settings, Activity, UserPlus, Mail } from "lucide-react";
+import { PendingRegistrationsWidget } from "@/components/admin/PendingRegistrationsWidget";
+import { createClient } from "@/lib/supabase/client";
+import { Shield, Users, Settings, Activity, UserPlus, UserCheck, Mail } from "lucide-react";
 import type { UserProfile } from "@/app/api/user/profile/route";
 
 interface AdminDashboardProps {
@@ -38,6 +41,24 @@ export function AdminDashboard({ judet, localitate, profile }: AdminDashboardPro
   } = useDashboardStats({ judet, localitate });
 
   const isSuperAdmin = profile.rol === "super_admin";
+
+  // Resolve primarieId for widgets
+  const [primarieId, setPrimarieId] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function resolvePrimarie(): Promise<void> {
+      const supabase = createClient();
+      const { data } = await supabase
+        .from("primarii")
+        .select("id, localitati!inner(slug, judete!inner(slug))")
+        .eq("localitati.slug", localitate)
+        .eq("localitati.judete.slug", judet)
+        .eq("activa", true)
+        .single();
+      if (data) setPrimarieId(data.id);
+    }
+    resolvePrimarie();
+  }, [judet, localitate]);
 
   return (
     <>
@@ -116,7 +137,16 @@ export function AdminDashboard({ judet, localitate, profile }: AdminDashboardPro
               </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+            {/* Pending Registrations Widget */}
+            {primarieId && (
+              <PendingRegistrationsWidget
+                judet={judet}
+                localitate={localitate}
+                primarieId={primarieId}
+              />
+            )}
+
+            <div className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-3">
               <button
                 onClick={() => router.push(`/app/${judet}/${localitate}/admin/users`)}
                 className="bg-primary text-primary-foreground hover:bg-primary/90 flex items-center justify-center gap-2 rounded-lg px-4 py-3 transition-colors"
@@ -130,6 +160,13 @@ export function AdminDashboard({ judet, localitate, profile }: AdminDashboardPro
               >
                 <UserPlus className="h-4 w-4" />
                 Invită Staff
+              </button>
+              <button
+                onClick={() => router.push(`/app/${judet}/${localitate}/admin/registrations`)}
+                className="flex items-center justify-center gap-2 rounded-lg bg-amber-600 px-4 py-3 text-white transition-colors hover:bg-amber-700"
+              >
+                <UserCheck className="h-4 w-4" />
+                Inregistrari Noi
               </button>
             </div>
           </div>

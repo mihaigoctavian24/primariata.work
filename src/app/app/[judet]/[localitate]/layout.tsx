@@ -7,6 +7,7 @@ import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { QueryProvider } from "@/components/providers/query-provider";
 import { useCereriNotifications } from "@/hooks/use-cereri-notifications";
+import { UserCheck } from "lucide-react";
 
 /**
  * Dashboard Layout
@@ -36,15 +37,31 @@ export default function DashboardLayout({ children, params }: DashboardLayoutPro
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
   const pathname = usePathname();
 
-  // Get current user for notifications
+  // Get current user for notifications and role detection
   useEffect(() => {
     const supabase = createClient();
     supabase.auth.getUser().then(({ data: { user } }) => {
       setUserId(user?.id || null);
+
+      // Check user role for admin sidebar links
+      if (user?.id) {
+        supabase
+          .from("user_primarii")
+          .select("rol, primarii!inner(id, localitati!inner(slug, judete!inner(slug)))")
+          .eq("user_id", user.id)
+          .eq("status", "approved")
+          .eq("primarii.localitati.slug", localitate)
+          .eq("primarii.localitati.judete.slug", judet)
+          .maybeSingle()
+          .then(({ data }) => {
+            if (data?.rol) setUserRole(data.rol);
+          });
+      }
     });
-  }, []);
+  }, [judet, localitate]);
 
   // Subscribe to real-time cereri status notifications
   useCereriNotifications(userId);
@@ -87,6 +104,18 @@ export default function DashboardLayout({ children, params }: DashboardLayoutPro
     setSidebarOpen(!sidebarOpen);
   };
 
+  // Build admin-specific sidebar links
+  const adminExtraLinks =
+    userRole === "admin" || userRole === "primar" || userRole === "super_admin"
+      ? [
+          {
+            href: `/app/${judet}/${localitate}/admin/registrations`,
+            label: "Inregistrari",
+            icon: UserCheck,
+          },
+        ]
+      : undefined;
+
   return (
     <QueryProvider>
       <div className="relative flex h-screen overflow-hidden">
@@ -105,6 +134,7 @@ export default function DashboardLayout({ children, params }: DashboardLayoutPro
           isMobile={isMobile}
           judet={judet}
           localitate={localitate}
+          extraNavigationLinks={adminExtraLinks}
         />
 
         {/* Mobile overlay */}

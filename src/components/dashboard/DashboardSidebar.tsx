@@ -45,6 +45,7 @@ interface DashboardSidebarProps {
   judet?: string;
   localitate?: string;
   customNavigationLinks?: NavigationLink[];
+  extraNavigationLinks?: NavigationLink[];
   customBadge?: {
     label: string;
     className?: string;
@@ -58,6 +59,7 @@ export function DashboardSidebar({
   judet,
   localitate,
   customNavigationLinks,
+  extraNavigationLinks,
   customBadge,
 }: DashboardSidebarProps) {
   const pathname = usePathname();
@@ -96,7 +98,7 @@ export function DashboardSidebar({
 
   const unreadCount = unreadCountData || 0;
 
-  // Use custom navigation links or default citizen links
+  // Use custom navigation links or default citizen links, with optional extra links appended
   const navigationLinks: NavigationLink[] = customNavigationLinks || [
     { href: `${baseHref}`, label: "Dashboard", icon: Home },
     { href: `${baseHref}/cereri`, label: "Cererile Mele", icon: FileText },
@@ -104,6 +106,7 @@ export function DashboardSidebar({
     { href: `${baseHref}/plati`, label: "Plăți & Taxe", icon: CreditCard },
     { href: `${baseHref}/notificari`, label: "Notificări", icon: Bell },
     { href: `${baseHref}/setari`, label: "Setări", icon: Settings },
+    ...(extraNavigationLinks ?? []),
   ];
 
   const isActiveLink = (href: string) => {
