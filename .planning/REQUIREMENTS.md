@@ -58,11 +58,11 @@ Requirements for production-ready release. Each maps to roadmap phases.
 
 ### Cereri Processing
 
-- [ ] **CER-01**: Status transitions have validation rules (not all transitions allowed from all states)
-- [ ] **CER-02**: Every status change is recorded in audit trail with actor, timestamp, and reason
-- [ ] **CER-03**: Document validation enforced on cerere submit -- required documents must be present per cerere type
-- [ ] **CER-04**: Deadline/SLA tracking shows overdue indicators on cereri list and dashboard
-- [ ] **CER-05**: Staff and citizens receive notifications on cerere status changes
+- [x] **CER-01**: Status transitions have validation rules (not all transitions allowed from all states)
+- [x] **CER-02**: Every status change is recorded in audit trail with actor, timestamp, and reason
+- [x] **CER-03**: Document validation enforced on cerere submit -- required documents must be present per cerere type
+- [x] **CER-04**: Deadline/SLA tracking shows overdue indicators on cereri list and dashboard
+- [x] **CER-05**: Staff and citizens receive notifications on cerere status changes
 - [ ] **CER-06**: Search across cereri works with filters (status, type, date range, reference number)
 
 ### Documents
@@ -179,11 +179,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | REG-04 | Phase 3: Registration & Approval | Pending |
 | REG-05 | Phase 3: Registration & Approval | Pending |
 | REG-06 | Phase 3: Registration & Approval | Complete |
-| CER-01 | Phase 4: Cereri Processing | Pending |
-| CER-02 | Phase 4: Cereri Processing | Pending |
-| CER-03 | Phase 4: Cereri Processing | Pending |
-| CER-04 | Phase 4: Cereri Processing | Pending |
-| CER-05 | Phase 4: Cereri Processing | Pending |
+| CER-01 | Phase 4: Cereri Processing | Complete |
+| CER-02 | Phase 4: Cereri Processing | Complete |
+| CER-03 | Phase 4: Cereri Processing | Complete |
+| CER-04 | Phase 4: Cereri Processing | Complete |
+| CER-05 | Phase 4: Cereri Processing | Complete |
 | CER-06 | Phase 4: Cereri Processing | Pending |
 | DASH-01 | Phase 5: Staff Dashboards | Pending |
 | DASH-02 | Phase 5: Staff Dashboards | Pending |

@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: unknown
-last_updated: "2026-03-03T12:24:43.057Z"
+status: in_progress
+last_updated: "2026-03-03T15:15:22.000Z"
 progress:
-  total_phases: 3
+  total_phases: 8
   completed_phases: 3
-  total_plans: 14
-  completed_plans: 14
+  total_plans: 16
+  completed_plans: 15
 ---
 
 # Project State
@@ -18,23 +18,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-02)
 
 **Core value:** Citizens can submit cereri and complete plati digitally for any primarie where they're registered, with complete data isolation between primarii and proper role-based access for all user types.
-**Current focus:** Phase 3 in progress. Registration + approval flows. Plan 03-02 complete (pending status UI + realtime).
+**Current focus:** Phase 4 in progress. Cereri processing workflow engine. Plan 04-01 complete (workflow engine).
 
 ## Current Position
 
-Phase: 3 of 8 (Registration & Approval) -- COMPLETE
-Plan: 3 of 3 in current phase (03-03 complete)
-Status: Phase 3 complete. All 3 plans done: registration foundation, pending status UI, admin approval workflow.
-Last activity: 2026-03-03 -- Completed 03-03-PLAN.md (Admin approval workflow)
+Phase: 4 of 8 (Cereri Processing)
+Plan: 1 of 2 in current phase (04-01 complete)
+Status: Phase 4 plan 01 done: workflow engine with DB migration, transitions, SLA, Server Actions, document validation.
+Last activity: 2026-03-03 -- Completed 04-01-PLAN.md (Workflow engine)
 
-Progress: [################] 100% (Phase 3)
+Progress: [########--------] 50% (Phase 4)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 14
-- Average duration: 5.1 min
-- Total execution time: 1.2 hours
+- Total plans completed: 15
+- Average duration: 5.4 min
+- Total execution time: 1.35 hours
 
 **By Phase:**
 
@@ -43,10 +43,11 @@ Progress: [################] 100% (Phase 3)
 | 01-security-foundation | 3 | 23 min | 7.7 min |
 | 02-infrastructure-stabilization | 8 | 32 min | 4.0 min |
 | 03-registration-approval | 3 | 16 min | 5.3 min |
+| 04-cereri-processing | 1/2 | 9 min | 9.0 min |
 
 **Recent Trend:**
-- Last 5 plans: 02-08 (2 min), 03-01 (4 min), 03-02 (5 min), 03-03 (7 min)
-- Trend: consistent
+- Last 5 plans: 03-01 (4 min), 03-02 (5 min), 03-03 (7 min), 04-01 (9 min)
+- Trend: slightly increasing (more complex tasks)
 
 *Updated after each plan completion*
 
@@ -103,6 +104,12 @@ Recent decisions affecting current work:
 - [03-02]: PendingStatusPage is full-screen replacement (no partial dashboard visible for pending users)
 - [03-02]: Realtime subscription on user_primarii triggers toast + page refresh on approval
 - [03-02]: primarii table column is `nume_oficial` not `denumire` -- corrected from plan reference
+- [04-01]: cerere_istoric uses service_role for trigger inserts (RLS would block trigger context)
+- [04-01]: Type assertion helper cerereIstoricFrom() bridges new table until types regenerated
+- [04-01]: UploadDocuments allows draft saves without all docs; submit route enforces validation
+- [04-01]: notify_cerere_status_change() fixed: numar_cerere->numar_inregistrare, utilizator_id->solicitant_id
+- [04-01]: SLA pause/resume in DB trigger (not app code) to prevent race conditions
+- [04-01]: in_aprobare is primar-only approval gate between in_procesare and aprobata
 
 ### Pending Todos
 
@@ -117,5 +124,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-03
-Stopped at: Completed 03-02-PLAN.md
-Resume file: .planning/phases/03-registration-approval/03-02-SUMMARY.md
+Stopped at: Completed 04-01-PLAN.md
+Resume file: .planning/phases/04-cereri-processing/04-02-PLAN.md
