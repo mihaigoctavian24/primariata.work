@@ -36,8 +36,8 @@ Requirements for production-ready release. Each maps to roadmap phases.
 
 ### Registration & Approval
 
-- [ ] **REG-01**: User can register freely on any active primarie
-- [ ] **REG-02**: Registration goes to pending state requiring primarie admin approval
+- [x] **REG-01**: User can register freely on any active primarie
+- [x] **REG-02**: Registration goes to pending state requiring primarie admin approval
 - [ ] **REG-03**: User sees status screen while awaiting approval (pending / approved / rejected with reason)
 - [ ] **REG-04**: Primarie admin can approve or reject registrations with optional reason from admin dashboard
 - [ ] **REG-05**: User receives email notification on approval/rejection
@@ -173,8 +173,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | FIX-05 | Phase 2: Infrastructure & Stabilization | Complete |
 | FIX-06 | Phase 2: Infrastructure & Stabilization | Complete |
 | FIX-07 | Phase 2: Infrastructure & Stabilization | Complete |
-| REG-01 | Phase 3: Registration & Approval | Pending |
-| REG-02 | Phase 3: Registration & Approval | Pending |
+| REG-01 | Phase 3: Registration & Approval | Complete |
+| REG-02 | Phase 3: Registration & Approval | Complete |
 | REG-03 | Phase 3: Registration & Approval | Pending |
 | REG-04 | Phase 3: Registration & Approval | Pending |
 | REG-05 | Phase 3: Registration & Approval | Pending |

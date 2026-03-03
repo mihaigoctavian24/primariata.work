@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: unknown
-last_updated: "2026-03-02T22:42:15Z"
+status: in-progress
+last_updated: "2026-03-03T11:03:23Z"
 progress:
-  total_phases: 2
+  total_phases: 3
   completed_phases: 2
-  total_plans: 11
-  completed_plans: 11
+  total_plans: 14
+  completed_plans: 12
 ---
 
 # Project State
@@ -18,23 +18,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-02)
 
 **Core value:** Citizens can submit cereri and complete plati digitally for any primarie where they're registered, with complete data isolation between primarii and proper role-based access for all user types.
-**Current focus:** Phase 2 complete. All plans 02-01 through 02-08 executed. Ready for Phase 3.
+**Current focus:** Phase 3 in progress. Registration + approval flows. Plan 03-01 complete (trigger extension + registration flow).
 
 ## Current Position
 
-Phase: 2 of 8 (Infrastructure & Stabilization) -- COMPLETE
-Plan: 8 of 8 in current phase (all plans complete)
-Status: Phase 2 complete. Ready for Phase 3.
-Last activity: 2026-03-03 -- Completed 02-08-PLAN.md (Remove signOut from per-primarie admin guards)
+Phase: 3 of 8 (Registration & Approval) -- IN PROGRESS
+Plan: 1 of 3 in current phase (03-01 complete)
+Status: Phase 3 started. 03-01 registration foundation complete.
+Last activity: 2026-03-03 -- Completed 03-01-PLAN.md (Registration foundation with user_primarii)
 
-Progress: [###########_____] 69%
+Progress: [############____] 75%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 11
-- Average duration: 5.0 min
-- Total execution time: 0.9 hours
+- Total plans completed: 12
+- Average duration: 4.9 min
+- Total execution time: 1.0 hours
 
 **By Phase:**
 
@@ -42,9 +42,10 @@ Progress: [###########_____] 69%
 |-------|-------|-------|----------|
 | 01-security-foundation | 3 | 23 min | 7.7 min |
 | 02-infrastructure-stabilization | 8 | 32 min | 4.0 min |
+| 03-registration-approval | 1 | 4 min | 4.0 min |
 
 **Recent Trend:**
-- Last 5 plans: 02-05 (3 min), 02-04 (3 min), 02-06 (3 min), 02-07 (8 min), 02-08 (2 min)
+- Last 5 plans: 02-06 (3 min), 02-07 (8 min), 02-08 (2 min), 03-01 (4 min)
 - Trend: consistent
 
 *Updated after each plan completion*
@@ -95,6 +96,9 @@ Recent decisions affecting current work:
 - [02-07]: Cross-primarie guard uses saved_location cookie rather than DB query for lightweight middleware check
 - [02-07]: prefetch={false} on sidebar links as defensive fix alongside 02-04 cookie/slug fixes
 - [02-08]: Per-primarie admin guards redirect without signOut() -- matches 02-05 super-admin pattern for session preservation
+- [03-01]: Service role client used for user_primarii inserts (no self-insert RLS policy exists)
+- [03-01]: invited_by added to invitation RECORD SELECT for approved_by attribution in STEP 4b
+- [03-01]: user_primarii database types added manually (Supabase CLI types generation not re-run)
 
 ### Pending Todos
 
@@ -109,5 +113,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-03
-Stopped at: Completed 02-08-PLAN.md -- Remove signOut from per-primarie admin guards. Phase 2 fully complete.
-Resume file: None
+Stopped at: Completed 03-01-PLAN.md
+Resume file: .planning/phases/03-registration-approval/03-01-SUMMARY.md
