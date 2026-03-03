@@ -71,10 +71,12 @@ Plans:
   2. Newly registered user sees a pending status screen and cannot access primarie modules until approved
   3. Primarie admin sees pending registrations in their dashboard and can approve or reject with a reason
   4. Approved user receives email notification and gains full access; rejected user sees the rejection reason
-**Plans**: TBD
+**Plans**: 3 plans (1 in Wave 1, 2 parallel in Wave 2)
 
 Plans:
-- [ ] 03-01: TBD
+- [ ] 03-01-PLAN.md -- Database + registration flow: trigger extension, Realtime, RegisterForm metadata, auth callback, Server Actions (REG-01, REG-02) [Wave 1]
+- [ ] 03-02-PLAN.md -- Pending/rejected status UI: Realtime hook, status page, dashboard integration, register button (REG-03, REG-06) [Wave 2, depends on 03-01]
+- [ ] 03-03-PLAN.md -- Admin approval + notifications: Server Actions, email templates, admin dashboard widget, registration queue (REG-04, REG-05) [Wave 2, depends on 03-01]
 
 ### Phase 4: Cereri Processing
 **Goal**: Cereri flow through a complete lifecycle with enforced rules -- from citizen submission through staff processing to resolution, with full audit trail
@@ -165,7 +167,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 |-------|----------------|--------|-----------|
 | 1. Security Foundation | 3/3 | Complete | 2026-03-02 |
 | 2. Infrastructure & Stabilization | 7/8 | Gap closure | - |
-| 3. Registration & Approval | 0/1 | Not started | - |
+| 3. Registration & Approval | 0/3 | Planned | - |
 | 4. Cereri Processing | 0/2 | Not started | - |
 | 5. Staff Dashboards | 0/3 | Not started | - |
 | 6. Citizen Features | 0/3 | Not started | - |
