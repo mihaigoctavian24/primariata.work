@@ -301,27 +301,15 @@ export async function getPrimarDashboardData(): Promise<{
     ]);
 
     // Process approval queue
-    const approvalQueue = (approvalResult.data ?? []).map(
-      (c: {
-        id: string;
-        numar_inregistrare: string;
-        created_at: string | null;
-        data_termen: string | null;
-        status: string;
-        tip_cerere: { nume: string } | null;
-        solicitant: { prenume: string; nume: string } | null;
-      }) => ({
-        id: c.id,
-        numar_inregistrare: c.numar_inregistrare,
-        tip_cerere_name: c.tip_cerere?.nume ?? "Necunoscut",
-        solicitant_name: c.solicitant
-          ? `${c.solicitant.prenume} ${c.solicitant.nume}`
-          : "Necunoscut",
-        created_at: c.created_at ?? "",
-        data_termen: c.data_termen,
-        status: c.status,
-      })
-    );
+    const approvalQueue = (approvalResult.data ?? []).map((c) => ({
+      id: c.id,
+      numar_inregistrare: c.numar_inregistrare,
+      tip_cerere_name: c.tip_cerere?.nume ?? "Necunoscut",
+      solicitant_name: c.solicitant ? `${c.solicitant.prenume} ${c.solicitant.nume}` : "Necunoscut",
+      created_at: c.created_at ?? "",
+      data_termen: c.data_termen,
+      status: c.status,
+    }));
 
     // Process financial overview
     const plati = platiResult.data ?? [];
