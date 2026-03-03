@@ -12,6 +12,7 @@ import { UploadDocuments } from "@/components/cereri/create-wizard/UploadDocumen
 import { ReviewSubmit } from "@/components/cereri/create-wizard/ReviewSubmit";
 import { TipCerere } from "@/types/api";
 import { toast } from "sonner";
+import { createDraft, updateDraft, deleteDraft, submitDraft } from "@/actions/cereri-wizard";
 
 export default function CreateCererePage() {
   const router = useRouter();
@@ -29,7 +30,7 @@ export default function CreateCererePage() {
     goToStep,
   } = useWizardState();
 
-  // Save draft to API (wrapped in useCallback to prevent recreating on every render)
+  // Save draft via Server Action (wrapped in useCallback to prevent recreating on every render)
   // MUST be before any conditional returns (Rules of Hooks)
   const saveDraft = useCallback(
     async (formData: Record<string, unknown>, observatii: string): Promise<void> => {
@@ -38,43 +39,29 @@ export default function CreateCererePage() {
           throw new Error("Nu s-a selectat tipul de cerere");
         }
 
-        const payload = {
-          tip_cerere_id: state.selectedTipCerere.id,
-          date_formular: formData,
-          observatii_solicitant: observatii || undefined,
-        };
-
-        let response;
-
         if (state.draftId) {
           // Update existing draft
-          response = await fetch(`/api/cereri/${state.draftId}`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              date_formular: formData,
-              observatii_solicitant: observatii || undefined,
-            }),
-          });
+          const result = await updateDraft(state.draftId, formData, observatii || undefined);
+
+          if (!result.success) {
+            throw new Error(result.error || "Eroare la salvarea draft-ului");
+          }
         } else {
           // Create new draft
-          response = await fetch("/api/cereri", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          });
-        }
+          const result = await createDraft(
+            state.selectedTipCerere.id,
+            formData,
+            observatii || undefined
+          );
 
-        if (!response.ok) {
-          const error = await response.json();
-          throw new Error(error.error?.message || "Eroare la salvarea draft-ului");
-        }
+          if (!result.success) {
+            throw new Error(result.error || "Eroare la salvarea draft-ului");
+          }
 
-        const data = await response.json();
-
-        // Save draft ID if this was a new draft
-        if (!state.draftId && data.data?.id) {
-          setDraftId(data.data.id);
+          // Save draft ID if this was a new draft
+          if (result.data?.id) {
+            setDraftId(result.data.id);
+          }
         }
 
         toast.success("Draft salvat cu succes");
@@ -92,21 +79,10 @@ export default function CreateCererePage() {
     try {
       if (!state.draftId) return;
 
-      const response = await fetch(`/api/cereri/${state.draftId}`, {
-        method: "DELETE",
-      });
+      const result = await deleteDraft(state.draftId);
 
-      if (!response.ok) {
-        // Try to parse error response, but handle empty/invalid JSON
-        let errorMessage = "Eroare la ștergerea draft-ului";
-        try {
-          const error = await response.json();
-          errorMessage = error.error?.message || errorMessage;
-        } catch {
-          // Response doesn't have JSON body, use status text
-          errorMessage = response.statusText || errorMessage;
-        }
-        throw new Error(errorMessage);
+      if (!result.success) {
+        throw new Error(result.error || "Eroare la stergerea draft-ului");
       }
 
       toast.success("Draft abandonat");
@@ -124,7 +100,7 @@ export default function CreateCererePage() {
       <div className="flex min-h-screen items-center justify-center">
         <div className="space-y-3 text-center">
           <div className="border-primary mx-auto h-12 w-12 animate-spin rounded-full border-b-2" />
-          <p className="text-muted-foreground text-sm">Se încarcă...</p>
+          <p className="text-muted-foreground text-sm">Se incarca...</p>
         </div>
       </div>
     );
@@ -144,27 +120,21 @@ export default function CreateCererePage() {
     goToNextStep();
   }
 
-  // Submit final cerere
+  // Submit final cerere via Server Action
   async function handleFinalSubmit() {
     try {
       if (!state.draftId) {
-        throw new Error("Nu există un draft pentru această cerere");
+        throw new Error("Nu exista un draft pentru aceasta cerere");
       }
 
-      const response = await fetch(`/api/cereri/${state.draftId}/submit`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      });
+      const result = await submitDraft(state.draftId);
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error?.message || "Eroare la trimiterea cererii");
+      if (!result.success) {
+        throw new Error(result.error || "Eroare la trimiterea cererii");
       }
-
-      const data = await response.json();
 
       toast.success(
-        `Cerere trimisă cu succes! Număr înregistrare: ${data.data.numar_inregistrare}`,
+        `Cerere trimisa cu succes! Numar inregistrare: ${result.data?.numar_inregistrare}`,
         {
           duration: 5000,
         }
