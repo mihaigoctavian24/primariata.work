@@ -1,6 +1,9 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
+import { calculateSla } from "@/lib/cereri/sla";
+import type { SlaStatus } from "@/lib/cereri/sla";
 import type { PaginatedResponse, Cerere } from "@/types/api";
 import type { CerereStatusType } from "@/lib/validations/cereri";
 
@@ -14,6 +17,7 @@ interface UseCereriListParams {
   dateTo?: Date;
   sort?: "created_at" | "updated_at" | "data_termen" | "numar_inregistrare";
   order?: "asc" | "desc";
+  slaStatus?: SlaStatus;
 }
 
 interface UseCereriListResult {
@@ -50,11 +54,12 @@ export function useCereriList(params: UseCereriListParams = {}): UseCereriListRe
     dateTo,
     sort = "created_at",
     order = "desc",
+    slaStatus,
   } = params;
 
   const queryKey = [
     "cereri",
-    { page, limit, status, tipCerereId, search, dateFrom, dateTo, sort, order },
+    { page, limit, status, tipCerereId, search, dateFrom, dateTo, sort, order, slaStatus },
   ];
 
   const { data, isLoading, isError, error, refetch } = useQuery<PaginatedResponse<Cerere>>({
@@ -105,8 +110,19 @@ export function useCereriList(params: UseCereriListParams = {}): UseCereriListRe
     placeholderData: (previousData) => previousData,
   });
 
+  // Client-side SLA filtering (applied after API response)
+  const rawCereri = data?.data.items || [];
+  const filteredCereri = useMemo(() => {
+    if (!slaStatus) return rawCereri;
+
+    return rawCereri.filter((cerere) => {
+      const sla = calculateSla(cerere.data_termen, cerere.status, cerere.sla_total_paused_days);
+      return sla.status === slaStatus;
+    });
+  }, [rawCereri, slaStatus]);
+
   return {
-    cereri: data?.data.items || [],
+    cereri: filteredCereri,
     pagination: data?.data.pagination || {
       page: 1,
       limit: 20,

@@ -16,6 +16,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { StatusBadge } from "./StatusBadge";
+import { SlaIndicator, SlaIndicatorDot } from "./SlaIndicator";
 import { canCancelCerere } from "@/lib/validations/cereri";
 import type { Cerere } from "@/types/api";
 import type { CerereStatusType } from "@/lib/validations/cereri";
@@ -275,6 +276,7 @@ export function CereriTable({
               <SortableHeader field="status">Status</SortableHeader>
               <SortableHeader field="created_at">Data Depunere</SortableHeader>
               <SortableHeader field="data_termen">Termen Estimat</SortableHeader>
+              <TableHead className="hidden lg:table-cell">SLA</TableHead>
               <TableHead className="text-right">Acțiuni</TableHead>
             </TableRow>
           </TableHeader>
@@ -282,7 +284,7 @@ export function CereriTable({
             {sortedCereri.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={(onBulkCancel || onBulkDownload) && selectableCereri.length > 0 ? 7 : 6}
+                  colSpan={(onBulkCancel || onBulkDownload) && selectableCereri.length > 0 ? 8 : 7}
                   className="text-muted-foreground h-32 text-center"
                 >
                   Nu există cereri de afișat
@@ -330,7 +332,16 @@ export function CereriTable({
                       className="cursor-pointer"
                       onClick={() => handleViewDetails(cerere.id)}
                     >
-                      <StatusBadge status={cerere.status as CerereStatusType} />
+                      <div className="flex items-center gap-1.5">
+                        <StatusBadge status={cerere.status as CerereStatusType} />
+                        <span className="lg:hidden">
+                          <SlaIndicatorDot
+                            dataTermen={cerere.data_termen}
+                            status={cerere.status}
+                            totalPausedDays={cerere.sla_total_paused_days}
+                          />
+                        </span>
+                      </div>
                     </TableCell>
                     <TableCell
                       className="cursor-pointer"
@@ -345,6 +356,17 @@ export function CereriTable({
                       {cerere.data_termen
                         ? format(new Date(cerere.data_termen), "dd MMM yyyy", { locale: ro })
                         : "—"}
+                    </TableCell>
+                    <TableCell
+                      className="hidden cursor-pointer lg:table-cell"
+                      onClick={() => handleViewDetails(cerere.id)}
+                    >
+                      <SlaIndicator
+                        dataTermen={cerere.data_termen}
+                        status={cerere.status}
+                        totalPausedDays={cerere.sla_total_paused_days}
+                        showDays
+                      />
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
@@ -416,6 +438,7 @@ function TableSkeleton() {
             <TableHead>Status</TableHead>
             <TableHead>Data Depunere</TableHead>
             <TableHead>Termen Estimat</TableHead>
+            <TableHead className="hidden lg:table-cell">SLA</TableHead>
             <TableHead className="text-right">Acțiuni</TableHead>
           </TableRow>
         </TableHeader>
@@ -436,6 +459,9 @@ function TableSkeleton() {
               </TableCell>
               <TableCell>
                 <div className="bg-muted h-4 w-20 animate-pulse rounded" />
+              </TableCell>
+              <TableCell className="hidden lg:table-cell">
+                <div className="bg-muted h-6 w-24 animate-pulse rounded-full" />
               </TableCell>
               <TableCell>
                 <div className="flex items-center justify-end gap-2">

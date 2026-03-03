@@ -15,6 +15,7 @@ import { BulkCancelDialog } from "@/components/cereri/BulkCancelDialog";
 import { useCereriList } from "@/hooks/use-cereri-list";
 import { useDebounce } from "@/hooks/use-debounce";
 import type { CerereStatusType } from "@/lib/validations/cereri";
+import type { SlaStatus } from "@/lib/cereri/sla";
 import type { TipCerere } from "@/types/api";
 import { toast } from "sonner";
 import JSZip from "jszip";
@@ -62,6 +63,9 @@ export default function CereriPage() {
   const [dateTo, setDateTo] = useState<Date | undefined>(toParam ? new Date(toParam) : undefined);
 
   const [sortBy, setSortBy] = useState<string>(searchParams.get("sort") || "created_at_desc");
+  const [slaStatus, setSlaStatus] = useState<SlaStatus | undefined>(
+    (searchParams.get("sla") as SlaStatus) || undefined
+  );
   const [page, setPage] = useState(parseInt(searchParams.get("page") || "1", 10));
 
   // Debounce search input (300ms)
@@ -110,6 +114,7 @@ export default function CereriPage() {
       if (toStr) params.set("to", toStr);
     }
     if (sortBy !== "created_at_desc") params.set("sort", sortBy);
+    if (slaStatus) params.set("sla", slaStatus);
     if (page !== 1) params.set("page", page.toString());
 
     const paramsString = params.toString();
@@ -122,6 +127,7 @@ export default function CereriPage() {
     dateFrom,
     dateTo,
     sortBy,
+    slaStatus,
     page,
     judet,
     localitate,
@@ -140,6 +146,7 @@ export default function CereriPage() {
     dateTo,
     sort: isApiSortable(sortField) ? sortField : "created_at",
     order: sortOrder,
+    slaStatus,
   });
 
   // Fetch tipuri cereri for filter
@@ -189,6 +196,7 @@ export default function CereriPage() {
     setDateFrom(undefined);
     setDateTo(undefined);
     setSortBy("created_at_desc");
+    setSlaStatus(undefined);
     setPage(1);
   };
 
@@ -434,12 +442,14 @@ export default function CereriPage() {
               dateFrom={dateFrom}
               dateTo={dateTo}
               sortBy={sortBy}
+              slaStatus={slaStatus}
               tipuriCereri={tipuriCereri}
               onStatusChange={setStatus}
               onTipCerereChange={setTipCerereId}
               onSearchChange={setSearchInput}
               onDateRangeChange={handleDateRangeChange}
               onSortChange={handleSortChange}
+              onSlaStatusChange={setSlaStatus}
               onReset={handleResetFilters}
               className="flex-1"
             />

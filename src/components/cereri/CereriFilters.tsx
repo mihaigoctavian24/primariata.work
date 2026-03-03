@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { CerereStatus, getCerereStatusLabel } from "@/lib/validations/cereri";
 import type { CerereStatusType } from "@/lib/validations/cereri";
+import type { SlaStatus } from "@/lib/cereri/sla";
 import type { TipCerere } from "@/types/api";
 import { cn } from "@/lib/utils";
 
@@ -28,12 +29,14 @@ interface CereriFiltersProps {
   dateFrom?: Date;
   dateTo?: Date;
   sortBy?: string;
+  slaStatus?: SlaStatus;
   tipuriCereri: TipCerere[];
   onStatusChange: (status?: CerereStatusType) => void;
   onTipCerereChange: (tipCerereId?: string) => void;
   onSearchChange: (search: string) => void;
   onDateRangeChange: (from?: Date, to?: Date) => void;
   onSortChange: (sortBy: string) => void;
+  onSlaStatusChange: (slaStatus?: SlaStatus) => void;
   onReset: () => void;
   className?: string;
 }
@@ -58,12 +61,14 @@ export function CereriFilters({
   dateFrom,
   dateTo,
   sortBy = "created_at_desc",
+  slaStatus,
   tipuriCereri,
   onStatusChange,
   onTipCerereChange,
   onSearchChange,
   onDateRangeChange,
   onSortChange,
+  onSlaStatusChange,
   onReset,
   className,
 }: CereriFiltersProps) {
@@ -77,6 +82,7 @@ export function CereriFilters({
     tipCerereId,
     dateFrom,
     dateTo,
+    slaStatus,
     sortBy !== "created_at_desc",
   ].filter(Boolean).length;
 
@@ -169,6 +175,25 @@ export function CereriFilters({
                 {getCerereStatusLabel(statusValue as CerereStatusType)}
               </SelectItem>
             ))}
+          </SelectContent>
+        </Select>
+
+        {/* SLA Filter */}
+        <Select
+          value={slaStatus || "all"}
+          onValueChange={(value) =>
+            onSlaStatusChange(value === "all" ? undefined : (value as SlaStatus))
+          }
+        >
+          <SelectTrigger className="w-full md:w-[160px]">
+            <SelectValue placeholder="SLA: Toate" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">SLA: Toate</SelectItem>
+            <SelectItem value="red">Depasit</SelectItem>
+            <SelectItem value="yellow">Urgent</SelectItem>
+            <SelectItem value="green">La termen</SelectItem>
+            <SelectItem value="paused">In asteptare</SelectItem>
           </SelectContent>
         </Select>
 
