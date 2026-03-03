@@ -3,13 +3,13 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { useDashboardStats } from "@/hooks/use-dashboard-stats";
-import { StatisticsCards } from "@/components/dashboard/StatisticsCards";
-import { QuickActions } from "@/components/dashboard/QuickActions";
-import { ErrorBoundary, InlineError } from "@/components/dashboard";
+import { useQuery } from "@tanstack/react-query";
+import { getAdminDashboardData } from "@/actions/dashboard-stats";
 import { PendingRegistrationsWidget } from "@/components/admin/PendingRegistrationsWidget";
+import { ActivityFeed } from "@/components/dashboard/ActivityFeed";
+import { CereriStatusOverview } from "@/components/dashboard/CereriStatusOverview";
 import { createClient } from "@/lib/supabase/client";
-import { Shield, Users, Settings, Activity, UserPlus, UserCheck, Mail } from "lucide-react";
+import { Shield, Users, Activity, UserPlus, UserCheck, Mail, Settings } from "lucide-react";
 import type { UserProfile } from "@/app/api/user/profile/route";
 
 interface AdminDashboardProps {
@@ -22,24 +22,14 @@ interface AdminDashboardProps {
  * Dashboard pentru utilizatori cu rol 'admin' sau 'super_admin'
  *
  * Features:
- * - User management overview
- * - System health monitoring
- * - Role assignments
- * - Invitation status tracking
- * - Activity logs
- * - Quick access to admin panels
- *
- * TODO (M4): Expand with full admin features
+ * - Real user counts from user_primarii (Cetateni, Functionari, Admini, Pending)
+ * - CereriStatusOverview with clickable badges navigating to /cereri filtered by status
+ * - ActivityFeed from cerere_istoric with actor names
+ * - PendingRegistrationsWidget (preserved from Phase 3)
+ * - Admin settings navigation
  */
 export function AdminDashboard({ judet, localitate, profile }: AdminDashboardProps) {
   const router = useRouter();
-  const {
-    stats,
-    isLoading: statsLoading,
-    error: statsError,
-    refetch,
-  } = useDashboardStats({ judet, localitate });
-
   const isSuperAdmin = profile.rol === "super_admin";
 
   // Resolve primarieId for widgets
@@ -60,6 +50,61 @@ export function AdminDashboard({ judet, localitate, profile }: AdminDashboardPro
     resolvePrimarie();
   }, [judet, localitate]);
 
+  // Fetch admin dashboard data from Server Action
+  const { data: adminData, isLoading } = useQuery({
+    queryKey: ["admin-dashboard-data"],
+    queryFn: async () => {
+      const result = await getAdminDashboardData();
+      if (!result.success) throw new Error(result.error);
+      return result.data!;
+    },
+    staleTime: 60 * 1000,
+    refetchOnWindowFocus: true,
+  });
+
+  const userStatCards = [
+    {
+      label: "Cetateni",
+      value: adminData?.userCounts.cetateni ?? 0,
+      icon: Users,
+      borderColor: "border-blue-200 dark:border-blue-800",
+      bgColor: "bg-blue-50 dark:bg-blue-950/30",
+      iconColor: "text-blue-600",
+      labelColor: "text-blue-600 dark:text-blue-400",
+      valueColor: "text-blue-700 dark:text-blue-300",
+    },
+    {
+      label: "Functionari",
+      value: adminData?.userCounts.functionari ?? 0,
+      icon: Users,
+      borderColor: "border-green-200 dark:border-green-800",
+      bgColor: "bg-green-50 dark:bg-green-950/30",
+      iconColor: "text-green-600",
+      labelColor: "text-green-600 dark:text-green-400",
+      valueColor: "text-green-700 dark:text-green-300",
+    },
+    {
+      label: "Admini",
+      value: adminData?.userCounts.admini ?? 0,
+      icon: Shield,
+      borderColor: "border-purple-200 dark:border-purple-800",
+      bgColor: "bg-purple-50 dark:bg-purple-950/30",
+      iconColor: "text-purple-600",
+      labelColor: "text-purple-600 dark:text-purple-400",
+      valueColor: "text-purple-700 dark:text-purple-300",
+    },
+    {
+      label: "Pending",
+      value: adminData?.userCounts.pending ?? 0,
+      icon: Mail,
+      borderColor: "border-amber-200 dark:border-amber-800",
+      bgColor: "bg-amber-50 dark:bg-amber-950/30",
+      iconColor: "text-amber-600",
+      labelColor: "text-amber-600 dark:text-amber-400",
+      valueColor: "text-amber-700 dark:text-amber-300",
+    },
+  ];
+
   return (
     <>
       {/* Welcome Banner */}
@@ -77,7 +122,7 @@ export function AdminDashboard({ judet, localitate, profile }: AdminDashboardPro
             </h2>
             <p className="text-red-100">
               {profile.prenume} {profile.nume}
-              {isSuperAdmin && " • Acces Global Platformă"}
+              {isSuperAdmin && " -- Acces Global Platforma"}
             </p>
           </div>
         </div>
@@ -85,7 +130,7 @@ export function AdminDashboard({ judet, localitate, profile }: AdminDashboardPro
 
       {/* Main Dashboard Grid */}
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-        {/* COLUMN 1: User Management + System Health */}
+        {/* COLUMN 1: User Management + Cereri Overview + Activity */}
         <div className="space-y-6 lg:col-span-2">
           {/* User Management Overview */}
           <div className="bg-card border-border/40 rounded-lg border p-6">
@@ -94,47 +139,24 @@ export function AdminDashboard({ judet, localitate, profile }: AdminDashboardPro
               Management Utilizatori
             </h2>
 
-            {/* User Stats */}
+            {/* User Stats Cards */}
             <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
-              <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-950/30">
-                <div className="mb-1 flex items-center gap-2">
-                  <Users className="h-4 w-4 text-blue-600" />
-                  <span className="text-xs font-medium text-blue-600 dark:text-blue-400">
-                    Cetățeni
-                  </span>
+              {userStatCards.map((card) => (
+                <div
+                  key={card.label}
+                  className={`rounded-lg border p-4 ${card.borderColor} ${card.bgColor}`}
+                >
+                  <div className="mb-1 flex items-center gap-2">
+                    <card.icon className={`h-4 w-4 ${card.iconColor}`} />
+                    <span className={`text-xs font-medium ${card.labelColor}`}>{card.label}</span>
+                  </div>
+                  {isLoading ? (
+                    <div className="h-8 w-12 animate-pulse rounded bg-current/10" />
+                  ) : (
+                    <p className={`text-2xl font-bold ${card.valueColor}`}>{card.value}</p>
+                  )}
                 </div>
-                <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">0</p>
-              </div>
-
-              <div className="rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-950/30">
-                <div className="mb-1 flex items-center gap-2">
-                  <Users className="h-4 w-4 text-green-600" />
-                  <span className="text-xs font-medium text-green-600 dark:text-green-400">
-                    Funcționari
-                  </span>
-                </div>
-                <p className="text-2xl font-bold text-green-700 dark:text-green-300">0</p>
-              </div>
-
-              <div className="rounded-lg border border-purple-200 bg-purple-50 p-4 dark:border-purple-800 dark:bg-purple-950/30">
-                <div className="mb-1 flex items-center gap-2">
-                  <Shield className="h-4 w-4 text-purple-600" />
-                  <span className="text-xs font-medium text-purple-600 dark:text-purple-400">
-                    Admini
-                  </span>
-                </div>
-                <p className="text-2xl font-bold text-purple-700 dark:text-purple-300">0</p>
-              </div>
-
-              <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950/30">
-                <div className="mb-1 flex items-center gap-2">
-                  <Mail className="h-4 w-4 text-amber-600" />
-                  <span className="text-xs font-medium text-amber-600 dark:text-amber-400">
-                    Invitații
-                  </span>
-                </div>
-                <p className="text-2xl font-bold text-amber-700 dark:text-amber-300">0</p>
-              </div>
+              ))}
             </div>
 
             {/* Pending Registrations Widget */}
@@ -159,7 +181,7 @@ export function AdminDashboard({ judet, localitate, profile }: AdminDashboardPro
                 className="flex items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-3 text-white transition-colors hover:bg-green-700"
               >
                 <UserPlus className="h-4 w-4" />
-                Invită Staff
+                Invita Staff
               </button>
               <button
                 onClick={() => router.push(`/app/${judet}/${localitate}/admin/registrations`)}
@@ -171,81 +193,55 @@ export function AdminDashboard({ judet, localitate, profile }: AdminDashboardPro
             </div>
           </div>
 
-          {/* System Health */}
+          {/* Cereri Status Overview (replaces System Health) */}
           <div className="bg-card border-border/40 rounded-lg border p-6">
             <h2 className="mb-4 flex items-center gap-2 text-xl font-semibold">
               <Activity className="h-5 w-5 text-green-500" />
-              Sănătate Sistem
+              Cereri -- Privire de Ansamblu
             </h2>
 
-            <div className="space-y-3">
-              <div className="flex items-center justify-between rounded-lg border border-green-200 bg-green-50 p-3 dark:border-green-800 dark:bg-green-950/30">
-                <div className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                  <span className="text-sm font-medium">Database</span>
-                </div>
-                <span className="text-xs text-green-600 dark:text-green-400">Operational</span>
+            {isLoading ? (
+              <div className="grid grid-cols-3 gap-2">
+                {Array.from({ length: 9 }).map((_, i) => (
+                  <div key={i} className="bg-muted h-16 animate-pulse rounded-lg" />
+                ))}
               </div>
-
-              <div className="flex items-center justify-between rounded-lg border border-green-200 bg-green-50 p-3 dark:border-green-800 dark:bg-green-950/30">
-                <div className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                  <span className="text-sm font-medium">Authentication</span>
-                </div>
-                <span className="text-xs text-green-600 dark:text-green-400">Operational</span>
-              </div>
-
-              <div className="flex items-center justify-between rounded-lg border border-green-200 bg-green-50 p-3 dark:border-green-800 dark:bg-green-950/30">
-                <div className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                  <span className="text-sm font-medium">Storage</span>
-                </div>
-                <span className="text-xs text-green-600 dark:text-green-400">Operational</span>
-              </div>
-
-              <div className="flex items-center justify-between rounded-lg border border-green-200 bg-green-50 p-3 dark:border-green-800 dark:bg-green-950/30">
-                <div className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                  <span className="text-sm font-medium">Email Service</span>
-                </div>
-                <span className="text-xs text-green-600 dark:text-green-400">Operational</span>
-              </div>
-            </div>
+            ) : (
+              <CereriStatusOverview
+                statusCounts={adminData?.cereriOverview ?? {}}
+                judet={judet}
+                localitate={localitate}
+              />
+            )}
           </div>
 
-          {/* Recent Activity Log */}
+          {/* Recent Activity Feed */}
           <div className="bg-card border-border/40 rounded-lg border p-6">
             <h2 className="mb-4 flex items-center gap-2 text-xl font-semibold">
               <Activity className="h-5 w-5 text-blue-500" />
-              Activitate Recentă
+              Activitate Recenta
             </h2>
 
-            <div className="border-t pt-4">
-              <p className="text-muted-foreground py-8 text-center text-sm">
-                📊 Jurnal de activitate va fi afișat aici
-                <br />
-                <span className="mt-2 block text-xs">(Feature în dezvoltare - M4)</span>
-              </p>
-            </div>
+            <ActivityFeed entries={adminData?.recentActivity ?? []} isLoading={isLoading} />
           </div>
         </div>
 
-        {/* COLUMN 2: Statistics + Quick Actions + Settings */}
+        {/* COLUMN 2: Admin Quick Actions + Settings + Role Badge */}
         <div className="space-y-6">
-          {/* Statistics Cards */}
-          <ErrorBoundary>
-            {statsError ? (
-              <InlineError error={statsError as Error} onRetry={refetch} />
-            ) : (
-              <StatisticsCards stats={stats} isLoading={statsLoading} />
-            )}
-          </ErrorBoundary>
+          {/* Setari Primarie Button */}
+          <button
+            onClick={() => router.push(`/app/${judet}/${localitate}/admin/settings`)}
+            className="flex w-full items-center justify-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 font-medium text-blue-700 transition-colors hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-950/30 dark:text-blue-300 dark:hover:bg-blue-950/50"
+          >
+            <Settings className="h-4 w-4" />
+            Setari Primarie
+          </button>
 
           {/* Admin Quick Actions */}
           <div className="bg-card border-border/40 rounded-lg border p-6">
             <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold">
               <Settings className="h-5 w-5" />
-              Acțiuni Admin
+              Actiuni Admin
             </h3>
 
             <div className="space-y-2">
@@ -253,27 +249,21 @@ export function AdminDashboard({ judet, localitate, profile }: AdminDashboardPro
                 onClick={() => router.push(`/app/${judet}/${localitate}/admin`)}
                 className="border-border hover:bg-accent w-full rounded-lg border px-4 py-2 text-left text-sm transition-colors"
               >
-                📊 Dashboard Admin Complet
+                Dashboard Admin Complet
               </button>
               <button
                 onClick={() => router.push(`/app/${judet}/${localitate}/admin/users/invite`)}
                 className="border-border hover:bg-accent w-full rounded-lg border px-4 py-2 text-left text-sm transition-colors"
               >
-                ✉️ Invită Staff Nou
+                Invita Staff Nou
               </button>
               <button
                 onClick={() => router.push(`/app/${judet}/${localitate}/admin/users/invitations`)}
                 className="border-border hover:bg-accent w-full rounded-lg border px-4 py-2 text-left text-sm transition-colors"
               >
-                📋 Invitații Pending
+                Invitatii Pending
               </button>
             </div>
-          </div>
-
-          {/* Standard Quick Actions */}
-          <div className="bg-card border-border/40 rounded-lg border p-6">
-            <h3 className="mb-4 text-lg font-semibold">Acțiuni Generale</h3>
-            <QuickActions judet={judet} localitate={localitate} />
           </div>
 
           {/* Role Badge */}
@@ -286,8 +276,8 @@ export function AdminDashboard({ judet, localitate, profile }: AdminDashboardPro
             </div>
             <p className="text-sm text-red-700 dark:text-red-300">
               {isSuperAdmin
-                ? "Acces complet la toate primăriile platformei"
-                : `Administrator pentru Primăria ${localitate.replace(/-/g, " ")}`}
+                ? "Acces complet la toate primariile platformei"
+                : `Administrator pentru Primaria ${localitate.replace(/-/g, " ")}`}
             </p>
           </div>
         </div>

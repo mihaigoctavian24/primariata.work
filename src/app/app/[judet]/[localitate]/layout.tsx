@@ -7,7 +7,7 @@ import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { QueryProvider } from "@/components/providers/query-provider";
 import { useCereriNotifications } from "@/hooks/use-cereri-notifications";
-import { UserCheck } from "lucide-react";
+import { UserCheck, Settings } from "lucide-react";
 
 /**
  * Dashboard Layout
@@ -112,6 +112,11 @@ export default function DashboardLayout({ children, params }: DashboardLayoutPro
             href: `/app/${judet}/${localitate}/admin/registrations`,
             label: "Inregistrari",
             icon: UserCheck,
+          },
+          {
+            href: `/app/${judet}/${localitate}/admin/settings`,
+            label: "Setari Primarie",
+            icon: Settings,
           },
         ]
       : undefined;
