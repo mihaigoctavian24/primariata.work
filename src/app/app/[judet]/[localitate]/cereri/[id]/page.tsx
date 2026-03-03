@@ -34,6 +34,7 @@ import { StatusTransitionDialog } from "@/components/cereri/StatusTransitionDial
 import { InternalNoteForm } from "@/components/cereri/InternalNoteForm";
 import { canCancelCerere } from "@/lib/validations/cereri";
 import { resubmitCerere } from "@/actions/cereri-workflow";
+import { getCerereDetails, getCerereDocuments, cancelCerere } from "@/actions/cereri-detail";
 import { createClient } from "@/lib/supabase/client";
 
 interface CerereDetailsPageProps {
@@ -104,17 +105,13 @@ export default function CerereDetailsPage({ params }: CerereDetailsPageProps) {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(`/api/cereri/${id}`);
+      const result = await getCerereDetails(id);
 
-      if (!response.ok) {
-        if (response.status === 404) {
-          throw new Error("Cererea nu a fost gasita");
-        }
-        throw new Error("Eroare la incarcarea cererii");
+      if (result.success) {
+        setCerere(result.data);
+      } else {
+        setError(result.error);
       }
-
-      const data = await response.json();
-      setCerere(data.data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Eroare necunoscuta");
     } finally {
@@ -126,15 +123,13 @@ export default function CerereDetailsPage({ params }: CerereDetailsPageProps) {
     try {
       setLoadingDocuments(true);
 
-      const response = await fetch(`/api/cereri/${id}/documents`);
+      const result = await getCerereDocuments(id);
 
-      if (!response.ok) {
-        logger.error("Failed to fetch documents");
-        return;
+      if (result.success) {
+        setDocuments(result.data);
+      } else {
+        logger.error("Failed to fetch documents:", result.error);
       }
-
-      const data = await response.json();
-      setDocuments(data.data || []);
     } catch (err) {
       logger.error("Error fetching documents:", err);
     } finally {
@@ -170,15 +165,10 @@ export default function CerereDetailsPage({ params }: CerereDetailsPageProps) {
     if (!cerere) return;
 
     try {
-      const response = await fetch(`/api/cereri/${cerere.id}/cancel`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ motiv_anulare: motiv }),
-      });
+      const result = await cancelCerere(cerere.id, motiv);
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error?.message || "Eroare la anularea cererii");
+      if (!result.success) {
+        throw new Error(result.error || "Eroare la anularea cererii");
       }
 
       toast.success("Cerere anulata cu succes");
