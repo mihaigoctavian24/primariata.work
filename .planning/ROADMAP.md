@@ -88,11 +88,12 @@ Plans:
   3. Overdue cereri display visual indicators based on SLA deadlines on both list and dashboard views
   4. Citizens and staff receive notifications when a cerere status changes
   5. Search across cereri works with filters for status, type, date range, and reference number
-**Plans**: 2 plans (1 in Wave 1, 1 in Wave 2)
+**Plans**: 3 plans (1 in Wave 1, 1 in Wave 2, 1 gap closure in Wave 3)
 
 Plans:
 - [ ] 04-01-PLAN.md -- Database migration + TypeScript workflow engine: cerere_istoric table, role-based status transition triggers, SLA columns, documente_necesare JSONB, Server Actions, transition matrix, SLA utility (CER-01, CER-02, CER-03, CER-04, CER-05) [Wave 1]
 - [ ] 04-02-PLAN.md -- UI components + wiring: SlaIndicator, CerereTimeline, StatusTransitionDialog, InternalNoteForm, extend CereriTable/CereriFilters, update cerere detail page (CER-01, CER-02, CER-04, CER-05, CER-06) [Wave 2, depends on 04-01]
+- [ ] 04-03-PLAN.md -- GAP CLOSURE -- Fix cerere detail page: replace API route fetches with Server Actions for x-primarie-id header inheritance (CER-01, CER-02, CER-04, CER-05, CER-06) [Wave 3, depends on 04-02]
 
 ### Phase 5: Staff Dashboards
 **Goal**: Staff can process cereri, manage registrations, and oversee primarie operations from role-appropriate dashboards
@@ -168,7 +169,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 1. Security Foundation | 3/3 | Complete | 2026-03-02 |
 | 2. Infrastructure & Stabilization | 8/8 | Complete | 2026-03-02 |
 | 3. Registration & Approval | 3/3 | Complete | 2026-03-03 |
-| 4. Cereri Processing | 1/2 | In progress | - |
+| 4. Cereri Processing | 2/3 | In progress | - |
 | 5. Staff Dashboards | 0/3 | Not started | - |
 | 6. Citizen Features | 0/3 | Not started | - |
 | 7. Cross-Primarie Notifications | 0/1 | Not started | - |
