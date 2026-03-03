@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in-progress
-last_updated: "2026-03-03T11:03:23Z"
+last_updated: "2026-03-03T11:12:55Z"
 progress:
   total_phases: 3
   completed_phases: 2
   total_plans: 14
-  completed_plans: 12
+  completed_plans: 13
 ---
 
 # Project State
@@ -18,23 +18,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-02)
 
 **Core value:** Citizens can submit cereri and complete plati digitally for any primarie where they're registered, with complete data isolation between primarii and proper role-based access for all user types.
-**Current focus:** Phase 3 in progress. Registration + approval flows. Plan 03-01 complete (trigger extension + registration flow).
+**Current focus:** Phase 3 in progress. Registration + approval flows. Plan 03-02 complete (pending status UI + realtime).
 
 ## Current Position
 
 Phase: 3 of 8 (Registration & Approval) -- IN PROGRESS
-Plan: 1 of 3 in current phase (03-01 complete)
-Status: Phase 3 started. 03-01 registration foundation complete.
-Last activity: 2026-03-03 -- Completed 03-01-PLAN.md (Registration foundation with user_primarii)
+Plan: 2 of 3 in current phase (03-02 complete)
+Status: Phase 3 in progress. 03-01 registration foundation complete. 03-02 pending status UI complete.
+Last activity: 2026-03-03 -- Completed 03-02-PLAN.md (Pending status UI with Realtime)
 
-Progress: [############____] 75%
+Progress: [#############___] 81%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 12
-- Average duration: 4.9 min
-- Total execution time: 1.0 hours
+- Total plans completed: 13
+- Average duration: 4.8 min
+- Total execution time: 1.1 hours
 
 **By Phase:**
 
@@ -42,10 +42,10 @@ Progress: [############____] 75%
 |-------|-------|-------|----------|
 | 01-security-foundation | 3 | 23 min | 7.7 min |
 | 02-infrastructure-stabilization | 8 | 32 min | 4.0 min |
-| 03-registration-approval | 1 | 4 min | 4.0 min |
+| 03-registration-approval | 2 | 9 min | 4.5 min |
 
 **Recent Trend:**
-- Last 5 plans: 02-06 (3 min), 02-07 (8 min), 02-08 (2 min), 03-01 (4 min)
+- Last 5 plans: 02-07 (8 min), 02-08 (2 min), 03-01 (4 min), 03-02 (5 min)
 - Trend: consistent
 
 *Updated after each plan completion*
@@ -99,6 +99,10 @@ Recent decisions affecting current work:
 - [03-01]: Service role client used for user_primarii inserts (no self-insert RLS policy exists)
 - [03-01]: invited_by added to invitation RECORD SELECT for approved_by attribution in STEP 4b
 - [03-01]: user_primarii database types added manually (Supabase CLI types generation not re-run)
+- [03-02]: Dashboard page gates all content behind user_primarii association status check before rendering role dashboards
+- [03-02]: PendingStatusPage is full-screen replacement (no partial dashboard visible for pending users)
+- [03-02]: Realtime subscription on user_primarii triggers toast + page refresh on approval
+- [03-02]: primarii table column is `nume_oficial` not `denumire` -- corrected from plan reference
 
 ### Pending Todos
 
@@ -113,5 +117,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-03
-Stopped at: Completed 03-01-PLAN.md
-Resume file: .planning/phases/03-registration-approval/03-01-SUMMARY.md
+Stopped at: Completed 03-02-PLAN.md
+Resume file: .planning/phases/03-registration-approval/03-02-SUMMARY.md
