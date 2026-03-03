@@ -298,8 +298,7 @@ export async function getCerereTimeline(
         documente_solicitate,
         actor_id,
         vizibil_cetatean,
-        created_at,
-        actor:utilizatori!actor_id(prenume, nume)
+        created_at
       `
       )
       .eq("cerere_id", cerereId)
@@ -318,7 +317,29 @@ export async function getCerereTimeline(
       return { success: false, error: "Eroare la incarcarea istoricului" };
     }
 
-    return { success: true, data: (data as CerereIstoricEntry[]) ?? [] };
+    // Hydrate actor names from utilizatori table
+    // (no direct FK from cerere_istoric to utilizatori — both reference auth.users)
+    const entries = (data ?? []) as CerereIstoricEntry[];
+    const actorIds = [...new Set(entries.map((e) => e.actor_id).filter(Boolean))];
+
+    if (actorIds.length > 0) {
+      const { data: actors } = await supabase
+        .from("utilizatori")
+        .select("id, prenume, nume")
+        .in("id", actorIds);
+
+      if (actors) {
+        const actorMap = new Map(actors.map((a) => [a.id, a]));
+        for (const entry of entries) {
+          const actor = actorMap.get(entry.actor_id);
+          if (actor) {
+            entry.actor = { prenume: actor.prenume, nume: actor.nume };
+          }
+        }
+      }
+    }
+
+    return { success: true, data: entries };
   } catch (error) {
     logger.error("Unexpected error in getCerereTimeline:", error);
     return { success: false, error: "A aparut o eroare neasteptata" };
