@@ -177,7 +177,7 @@ export function AdminDashboard({ judet, localitate, profile }: AdminDashboardPro
                 Gestionare Utilizatori
               </button>
               <button
-                onClick={() => router.push(`/app/${judet}/${localitate}/admin/users/invite`)}
+                onClick={() => router.push(`/app/${judet}/${localitate}/admin/users`)}
                 className="flex items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-3 text-white transition-colors hover:bg-green-700"
               >
                 <UserPlus className="h-4 w-4" />
@@ -252,13 +252,13 @@ export function AdminDashboard({ judet, localitate, profile }: AdminDashboardPro
                 Dashboard Admin Complet
               </button>
               <button
-                onClick={() => router.push(`/app/${judet}/${localitate}/admin/users/invite`)}
+                onClick={() => router.push(`/app/${judet}/${localitate}/admin/users`)}
                 className="border-border hover:bg-accent w-full rounded-lg border px-4 py-2 text-left text-sm transition-colors"
               >
                 Invita Staff Nou
               </button>
               <button
-                onClick={() => router.push(`/app/${judet}/${localitate}/admin/users/invitations`)}
+                onClick={() => router.push(`/app/${judet}/${localitate}/admin/users`)}
                 className="border-border hover:bg-accent w-full rounded-lg border px-4 py-2 text-left text-sm transition-colors"
               >
                 Invitatii Pending

@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-03-03T22:14:47Z"
+last_updated: "2026-03-03T22:26:32.653Z"
 progress:
   total_phases: 5
-  completed_phases: 4
-  total_plans: 18
-  completed_plans: 18
+  completed_phases: 5
+  total_plans: 20
+  completed_plans: 20
 ---
 
 # Project State
@@ -18,23 +18,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-02)
 
 **Core value:** Citizens can submit cereri and complete plati digitally for any primarie where they're registered, with complete data isolation between primarii and proper role-based access for all user types.
-**Current focus:** Phase 5 in progress. Staff dashboards infrastructure complete (05-01). Building functionar and admin dashboard UIs next.
+**Current focus:** Phase 5 complete. All three staff dashboard plans done (05-01 infra, 05-02 functionar/admin, 05-03 primar). Ready for Phase 6.
 
 ## Current Position
 
-Phase: 5 of 8 (Staff Dashboards) -- IN PROGRESS
-Plan: 1 of 3 in current phase (05-01 complete)
-Status: Staff dashboards infrastructure built: DB triggers for selective notifications (NOT-01/NOT-02), Realtime fix, primarii UPDATE RLS, 5 Server Actions for dashboard data.
-Last activity: 2026-03-04 -- Completed 05-01-PLAN.md (Staff dashboards infra)
+Phase: 5 of 8 (Staff Dashboards) -- COMPLETE
+Plan: 3 of 3 in current phase (all complete)
+Status: All staff dashboards complete: primar has approval queue with approve/reject, financial overview, staff metrics. Functionar and admin dashboards done in 05-02.
+Last activity: 2026-03-04 -- Completed 05-03-PLAN.md (Primar dashboard)
 
-Progress: [#####-----------] 33% (Phase 5)
+Progress: [################] 100% (Phase 5)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 18
-- Average duration: 5.2 min
-- Total execution time: 1.60 hours
+- Total plans completed: 20
+- Average duration: 5.0 min
+- Total execution time: 1.63 hours
 
 **By Phase:**
 
@@ -44,13 +44,15 @@ Progress: [#####-----------] 33% (Phase 5)
 | 02-infrastructure-stabilization | 8 | 32 min | 4.0 min |
 | 03-registration-approval | 3 | 16 min | 5.3 min |
 | 04-cereri-processing | 3/3 | 20 min | 6.7 min |
-| 05-staff-dashboards | 1/3 | 4 min | 4.0 min |
+| 05-staff-dashboards | 3/3 | 8 min | 2.7 min |
 
 **Recent Trend:**
-- Last 5 plans: 04-01 (9 min), 04-02 (7 min), 04-03 (4 min), 05-01 (4 min)
-- Trend: accelerating; infrastructure plans completing faster
+- Last 5 plans: 04-02 (7 min), 04-03 (4 min), 05-01 (4 min), 05-02 (2 min), 05-03 (2 min)
+- Trend: accelerating; dashboard plans completing in 2 min
 
 *Updated after each plan completion*
+| Phase 05 P03 | 2min | 2 tasks | 4 files |
+| Phase 05 P02 | 6 | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -121,6 +123,11 @@ Recent decisions affecting current work:
 - [05-01]: createServiceRoleClient() for primarie settings UPDATE as defense-in-depth alongside new RLS UPDATE policy
 - [05-01]: Config JSONB merge reads current config first then spreads new values (preserves existing keys)
 - [05-01]: Generic all-staff notification loop removed from notify_cerere_status_change; only citizen resubmit and in_aprobare trigger staff notifications
+- [05-03]: Reject dialog built inline in ApprovalQueue (simple Dialog + Textarea) rather than reusing StatusTransitionDialog -- simpler UX for single-action rejection
+- [05-03]: Removed StatisticsCards and Citizen Satisfaction card from PrimarDashboard -- no real data source, replaced with approval alert and real metrics
+- [Phase 05]: Reject dialog built inline in ApprovalQueue rather than reusing StatusTransitionDialog -- simpler UX for single-action rejection
+- [Phase 05]: CereriTable reused with no-op handlers in FuncționarDashboard (row click navigates to detail)
+- [Phase 05]: System Health replaced with CereriStatusOverview (real data vs fake indicators)
 
 ### Pending Todos
 
@@ -135,5 +142,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-04
-Stopped at: Completed 05-01-PLAN.md
-Resume file: .planning/phases/05-staff-dashboards/05-01-SUMMARY.md
+Stopped at: Completed 05-03-PLAN.md (Phase 5 complete)
+Resume file: .planning/phases/05-staff-dashboards/05-03-SUMMARY.md

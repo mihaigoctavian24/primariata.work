@@ -45,16 +45,16 @@ Requirements for production-ready release. Each maps to roadmap phases.
 
 ### Staff Dashboards
 
-- [ ] **DASH-01**: Functionar dashboard shows assigned cereri queue with filtering by status, type, and deadline
-- [ ] **DASH-02**: Functionar can change cerere status (depusa -> in verificare -> in procesare -> finalizata/respinsa)
-- [ ] **DASH-03**: Functionar can add internal notes/comments on cereri (visible only to staff)
-- [ ] **DASH-04**: Functionar can request additional documents from citizen (triggers notification)
+- [x] **DASH-01**: Functionar dashboard shows assigned cereri queue with filtering by status, type, and deadline
+- [x] **DASH-02**: Functionar can change cerere status (depusa -> in verificare -> in procesare -> finalizata/respinsa)
+- [x] **DASH-03**: Functionar can add internal notes/comments on cereri (visible only to staff)
+- [x] **DASH-04**: Functionar can request additional documents from citizen (triggers notification)
 - [x] **DASH-05**: Admin (primarie-level) dashboard shows real user counts, cereri overview by status, and basic analytics
-- [ ] **DASH-06**: Admin dashboard includes registration approval queue
-- [ ] **DASH-07**: Admin dashboard includes staff invitation management (build on existing invitation system)
-- [ ] **DASH-08**: Admin settings page allows primarie info editing, notification preferences
+- [x] **DASH-06**: Admin dashboard includes registration approval queue
+- [x] **DASH-07**: Admin dashboard includes staff invitation management (build on existing invitation system)
+- [x] **DASH-08**: Admin settings page allows primarie info editing, notification preferences
 - [x] **DASH-09**: Primar dashboard shows cereri requiring approval, financial overview (revenue by period/type), staff metrics
-- [ ] **DASH-10**: Primar can approve/reject cereri that require primar-level approval with reason
+- [x] **DASH-10**: Primar can approve/reject cereri that require primar-level approval with reason
 
 ### Cereri Processing
 
@@ -185,16 +185,16 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CER-04 | Phase 4: Cereri Processing | Complete |
 | CER-05 | Phase 4: Cereri Processing | Complete |
 | CER-06 | Phase 4: Cereri Processing | Complete |
-| DASH-01 | Phase 5: Staff Dashboards | Pending |
-| DASH-02 | Phase 5: Staff Dashboards | Pending |
-| DASH-03 | Phase 5: Staff Dashboards | Pending |
-| DASH-04 | Phase 5: Staff Dashboards | Pending |
+| DASH-01 | Phase 5: Staff Dashboards | Complete |
+| DASH-02 | Phase 5: Staff Dashboards | Complete |
+| DASH-03 | Phase 5: Staff Dashboards | Complete |
+| DASH-04 | Phase 5: Staff Dashboards | Complete |
 | DASH-05 | Phase 5: Staff Dashboards | Complete |
-| DASH-06 | Phase 5: Staff Dashboards | Pending |
-| DASH-07 | Phase 5: Staff Dashboards | Pending |
-| DASH-08 | Phase 5: Staff Dashboards | Pending |
+| DASH-06 | Phase 5: Staff Dashboards | Complete |
+| DASH-07 | Phase 5: Staff Dashboards | Complete |
+| DASH-08 | Phase 5: Staff Dashboards | Complete |
 | DASH-09 | Phase 5: Staff Dashboards | Complete |
-| DASH-10 | Phase 5: Staff Dashboards | Pending |
+| DASH-10 | Phase 5: Staff Dashboards | Complete |
 | NOT-01 | Phase 5: Staff Dashboards | Complete |
 | NOT-02 | Phase 5: Staff Dashboards | Complete |
 | DOC-01 | Phase 6: Citizen Features | Pending |
