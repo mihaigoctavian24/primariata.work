@@ -2,12 +2,12 @@
 
 import { useState, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
-import { Upload, File, X, Check, AlertCircle } from "lucide-react";
+import { Upload, File, X, Check, AlertCircle, FileWarning } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { TipCerere } from "@/types/api";
+import type { TipCerere, DocRequirement } from "@/types/api";
 import { UploadedFile } from "@/types/wizard";
 import { formatFileSize } from "@/lib/utils";
 import { toast } from "sonner";
@@ -42,14 +42,26 @@ export function UploadDocuments({
 }: UploadDocumentsProps) {
   const [uploading, setUploading] = useState(false);
 
-  const documenteNecesare = tipCerere.documente_necesare || [];
+  // Parse documente_necesare as DocRequirement[] (JSONB from tipuri_cereri)
+  // Runtime data may still be string[] from legacy format, so handle both
+  const rawDocs = tipCerere.documente_necesare || [];
+  const documenteNecesare: DocRequirement[] = rawDocs.map((doc: unknown) => {
+    if (typeof doc === "string") {
+      // Backward compatibility: handle legacy string[] format
+      return { tip: doc.toLowerCase(), denumire: doc, obligatoriu: true };
+    }
+    return doc as DocRequirement;
+  });
+
+  const obligatorii = documenteNecesare.filter((d) => d.obligatoriu);
+  const optionale = documenteNecesare.filter((d) => !d.obligatoriu);
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
       // Check if cerereId exists before allowing upload
       if (!cerereId) {
         toast.error(
-          "Salvează mai întâi cererea înainte de a încărca documente. Revino la pasul anterior și salvează draft-ul."
+          "Salveaza mai intai cererea inainte de a incarca documente. Revino la pasul anterior si salveaza draft-ul."
         );
         return;
       }
@@ -59,14 +71,14 @@ export function UploadDocuments({
       const newTotalSize = currentTotalSize + acceptedFiles.reduce((acc, f) => acc + f.size, 0);
 
       if (newTotalSize > MAX_TOTAL_SIZE) {
-        toast.error("Dimensiunea totală a fișierelor depășește 50MB");
+        toast.error("Dimensiunea totala a fisierelor depaseste 50MB");
         return;
       }
 
       // Validate individual file sizes
       const oversizedFiles = acceptedFiles.filter((f) => f.size > MAX_FILE_SIZE);
       if (oversizedFiles.length > 0) {
-        toast.error(`${oversizedFiles.length} fișier(e) depășesc limita de 10MB per fișier`);
+        toast.error(`${oversizedFiles.length} fisier(e) depasesc limita de 10MB per fisier`);
         return;
       }
 
@@ -96,12 +108,12 @@ export function UploadDocuments({
             f.id === uploadedFile.id
               ? {
                   ...f,
-                  error: error instanceof Error ? error.message : "Eroare la încărcare",
+                  error: error instanceof Error ? error.message : "Eroare la incarcare",
                 }
               : f
           );
           onFilesChange(allFiles);
-          toast.error(`Eroare la încărcarea fișierului ${uploadedFile.file.name}`);
+          toast.error(`Eroare la incarcarea fisierului ${uploadedFile.file.name}`);
         }
       }
 
@@ -119,7 +131,7 @@ export function UploadDocuments({
 
   async function uploadFile(uploadedFile: UploadedFile, cerereId?: string): Promise<void> {
     if (!cerereId) {
-      throw new Error("Nu există un ID de cerere pentru încărcarea documentelor");
+      throw new Error("Nu exista un ID de cerere pentru incarcarea documentelor");
     }
 
     const formData = new FormData();
@@ -132,7 +144,7 @@ export function UploadDocuments({
     });
 
     if (!response.ok) {
-      throw new Error("Eroare la încărcarea fișierului");
+      throw new Error("Eroare la incarcarea fisierului");
     }
 
     const data = await response.json();
@@ -141,7 +153,7 @@ export function UploadDocuments({
     uploadedFile.storageUrl = data.data.storage_path;
   }
 
-  function removeFile(fileId: string) {
+  function removeFile(fileId: string): void {
     const file = uploadedFiles.find((f) => f.id === fileId);
     if (file?.preview) {
       URL.revokeObjectURL(file.preview);
@@ -150,10 +162,11 @@ export function UploadDocuments({
   }
 
   function canProceed(): boolean {
+    // If no requirements, always allow proceeding
     if (documenteNecesare.length === 0) return true;
-    return (
-      uploadedFiles.length >= documenteNecesare.length && uploadedFiles.every((f) => f.uploaded)
-    );
+    // Allow proceeding if at least some files uploaded and all finished
+    // Note: actual enforcement is on submit, not here (drafts allowed without all docs)
+    return uploadedFiles.length > 0 ? uploadedFiles.every((f) => f.uploaded || f.error) : true;
   }
 
   const totalSize = uploadedFiles.reduce((acc, f) => acc + f.file.size, 0);
@@ -161,27 +174,63 @@ export function UploadDocuments({
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <h2 className="text-2xl font-semibold tracking-tight">Încarcă documentele necesare</h2>
+        <h2 className="text-2xl font-semibold tracking-tight">Incarca documentele necesare</h2>
         <p className="text-muted-foreground">
-          Adaugă documentele cerute pentru procesarea cererii tale
+          Adauga documentele cerute pentru procesarea cererii tale
         </p>
       </div>
 
-      {/* Required documents list */}
+      {/* Required documents checklist */}
       {documenteNecesare.length > 0 && (
         <Card>
           <CardContent className="pt-6">
-            <h3 className="mb-3 font-medium">Documente necesare:</h3>
-            <ul className="space-y-2">
-              {documenteNecesare.map((doc, index) => (
-                <li key={index} className="flex items-start gap-2 text-sm">
-                  <div className="bg-primary/10 mt-0.5 rounded-full p-1">
-                    <div className="bg-primary h-1.5 w-1.5 rounded-full" />
-                  </div>
-                  <span>{doc}</span>
-                </li>
-              ))}
-            </ul>
+            {obligatorii.length > 0 && (
+              <div className="mb-4">
+                <h3 className="mb-3 flex items-center gap-2 font-medium">
+                  <FileWarning className="h-4 w-4 text-red-500" />
+                  Documente obligatorii:
+                </h3>
+                <ul className="space-y-2">
+                  {obligatorii.map((doc, index) => (
+                    <li key={index} className="flex items-center gap-2 text-sm">
+                      <div className="flex h-5 w-5 items-center justify-center rounded-full bg-red-100">
+                        <span className="text-xs font-bold text-red-600">*</span>
+                      </div>
+                      <span>{doc.denumire}</span>
+                      <Badge variant="destructive" className="ml-auto text-[10px]">
+                        Obligatoriu
+                      </Badge>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {optionale.length > 0 && (
+              <div>
+                <h3 className="text-muted-foreground mb-3 font-medium">Documente optionale:</h3>
+                <ul className="space-y-2">
+                  {optionale.map((doc, index) => (
+                    <li key={index} className="flex items-center gap-2 text-sm">
+                      <div className="bg-muted mt-0.5 rounded-full p-1">
+                        <div className="bg-muted-foreground h-1.5 w-1.5 rounded-full" />
+                      </div>
+                      <span className="text-muted-foreground">{doc.denumire}</span>
+                      <Badge variant="secondary" className="ml-auto text-[10px]">
+                        Optional
+                      </Badge>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {obligatorii.length > 0 && (
+              <p className="text-muted-foreground mt-4 text-xs">
+                Documentele obligatorii vor fi verificate la trimiterea cererii. Poti salva ca draft
+                si incarca documentele mai tarziu.
+              </p>
+            )}
           </CardContent>
         </Card>
       )}
@@ -198,9 +247,9 @@ export function UploadDocuments({
         <input {...getInputProps()} />
         <Upload className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
         <h3 className="mb-2 font-medium">
-          {isDragActive ? "Eliberează pentru a încărca" : "Trage fișierele aici"}
+          {isDragActive ? "Elibereaza pentru a incarca" : "Trage fisierele aici"}
         </h3>
-        <p className="text-muted-foreground mb-4 text-sm">sau click pentru a selecta fișiere</p>
+        <p className="text-muted-foreground mb-4 text-sm">sau click pentru a selecta fisiere</p>
         <div className="text-muted-foreground flex flex-wrap justify-center gap-2 text-xs">
           <Badge variant="secondary">PDF</Badge>
           <Badge variant="secondary">JPG</Badge>
@@ -208,14 +257,14 @@ export function UploadDocuments({
           <Badge variant="secondary">DOC</Badge>
           <Badge variant="secondary">DOCX</Badge>
         </div>
-        <p className="text-muted-foreground mt-3 text-xs">Max. 10MB per fișier • Max. 50MB total</p>
+        <p className="text-muted-foreground mt-3 text-xs">Max. 10MB per fisier | Max. 50MB total</p>
       </div>
 
       {/* Uploaded files list */}
       {uploadedFiles.length > 0 && (
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h3 className="font-medium">Fișiere încărcate ({uploadedFiles.length})</h3>
+            <h3 className="font-medium">Fisiere incarcate ({uploadedFiles.length})</h3>
             <p className="text-muted-foreground text-sm">{formatFileSize(totalSize)} / 50MB</p>
           </div>
 
@@ -262,16 +311,18 @@ export function UploadDocuments({
       )}
 
       {/* Validation message */}
-      {documenteNecesare.length > 0 && !canProceed() && uploadedFiles.length > 0 && (
-        <Card className="border-orange-200 bg-orange-50">
+      {obligatorii.length > 0 && uploadedFiles.length === 0 && (
+        <Card className="border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-950/30">
           <CardContent className="p-4">
             <div className="flex items-start gap-3">
               <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-orange-600" />
               <div className="flex-1">
-                <p className="text-sm font-medium text-orange-900">Documente incomplete</p>
-                <p className="mt-1 text-sm text-orange-700">
-                  Asigură-te că ai încărcat toate documentele necesare și că încărcarea s-a
-                  finalizat cu succes.
+                <p className="text-sm font-medium text-orange-900 dark:text-orange-200">
+                  Documente obligatorii necesare
+                </p>
+                <p className="mt-1 text-sm text-orange-700 dark:text-orange-400">
+                  Acest tip de cerere necesita {obligatorii.length} document(e) obligatoriu(e). Le
+                  poti incarca acum sau le poti adauga mai tarziu inainte de trimitere.
                 </p>
               </div>
             </div>
@@ -282,11 +333,11 @@ export function UploadDocuments({
       {/* Actions */}
       <div className="flex items-center justify-between border-t pt-4">
         <Button type="button" variant="outline" onClick={onBack}>
-          Înapoi
+          Inapoi
         </Button>
 
         <Button onClick={onNext} disabled={!canProceed() || uploading}>
-          {uploading ? "Se încarcă..." : "Continuă"}
+          {uploading ? "Se incarca..." : "Continua"}
         </Button>
       </div>
     </div>

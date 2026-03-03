@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { CerereStatus } from "@/lib/validations/cereri";
 import type { ApiResponse, ApiErrorResponse, Cerere } from "@/types/api";
 import { sendCerereSubmittedSMS } from "@/lib/sms";
+import { validateRequiredDocuments } from "@/lib/cereri/document-validation";
 
 /**
  * POST /api/cereri/[id]/submit
@@ -87,9 +88,26 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       return NextResponse.json(errorResponse, { status: 400 });
     }
 
-    // TODO: Validate that required documents are uploaded
-    // This will be implemented when document upload functionality is added
-    // For now, we'll allow submission without document validation
+    // Validate that required documents are uploaded
+    const docValidation = await validateRequiredDocuments(
+      supabase,
+      id,
+      existingCerere.tip_cerere_id!
+    );
+    if (!docValidation.valid) {
+      const errorResponse: ApiErrorResponse = {
+        success: false,
+        error: {
+          code: "MISSING_DOCUMENTS",
+          message: `Lipsesc documente obligatorii: ${docValidation.missing.join(", ")}`,
+          details: {
+            missing_documents: docValidation.missing,
+          },
+        },
+        meta: { timestamp: new Date().toISOString() },
+      };
+      return NextResponse.json(errorResponse, { status: 400 });
+    }
 
     // Update cerere status to in_verificare
     const { data: updatedCerere, error: updateError } = await supabase
@@ -159,8 +177,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       // Don't fail the request - cerere was submitted successfully
     }
 
-    // TODO: Create notification for primarie staff (funcționari)
-    // This will be implemented when notification system is added
+    // Staff notifications are handled automatically by the
+    // notify_cerere_status_change() DB trigger on status change
 
     const response: ApiResponse<Cerere> = {
       success: true,
