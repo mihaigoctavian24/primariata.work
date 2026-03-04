@@ -104,7 +104,7 @@ Requirements for production-ready release. Each maps to roadmap phases.
 
 - [ ] **TEST-01**: Unit tests for authorization functions (requireAuth, requireRole, requireOwnership)
 - [ ] **TEST-02**: Unit tests for validation schemas (cereri, profile, payments, common)
-- [ ] **TEST-03**: pgTAP tests verify RLS data isolation across primarii (user A cannot see user B's data in different primarie)
+- [x] **TEST-03**: pgTAP tests verify RLS data isolation across primarii (user A cannot see user B's data in different primarie)
 - [ ] **TEST-04**: E2E tests cover complete cerere submission flow (create -> submit -> status tracking)
 - [ ] **TEST-05**: E2E tests cover payment flow (initiate -> checkout -> webhook -> receipt)
 - [ ] **TEST-06**: E2E tests cover auth flow (register -> login -> dashboard -> logout)
@@ -217,7 +217,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | GDPR-04 | Phase 8: Compliance & Testing | Pending |
 | TEST-01 | Phase 8: Compliance & Testing | Pending |
 | TEST-02 | Phase 8: Compliance & Testing | Pending |
-| TEST-03 | Phase 8: Compliance & Testing | Pending |
+| TEST-03 | Phase 8: Compliance & Testing | Complete |
 | TEST-04 | Phase 8: Compliance & Testing | Pending |
 | TEST-05 | Phase 8: Compliance & Testing | Pending |
 | TEST-06 | Phase 8: Compliance & Testing | Pending |
