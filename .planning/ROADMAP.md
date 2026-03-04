@@ -174,7 +174,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 4. Cereri Processing | 3/3 | Complete | 2026-03-03 |
 | 5. Staff Dashboards | 3/3 | Complete | 2026-03-03 |
 | 6. Citizen Features | 4/4 | Complete   | 2026-03-04 |
-| 7. Cross-Primarie Notifications | 0/2 | Not started | - |
+| 7. Cross-Primarie Notifications | 1/2 | In Progress|  |
 | 8. Compliance & Testing | 0/2 | Not started | - |
 
 ---

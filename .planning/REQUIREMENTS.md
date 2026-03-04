@@ -83,9 +83,9 @@ Requirements for production-ready release. Each maps to roadmap phases.
 
 - [x] **NOT-01**: Staff (functionar) receive in-app notifications when citizen submits new cerere
 - [x] **NOT-02**: Staff receive notifications on cerere status changes requiring their action
-- [ ] **NOT-03**: Cross-primarie notification aggregation -- user sees notifications from all primarii where registered
-- [ ] **NOT-04**: Click on notification from different primarie shows confirmation popup before context switch
-- [ ] **NOT-05**: After context switch confirmation, user redirected to source module/page from notification
+- [x] **NOT-03**: Cross-primarie notification aggregation -- user sees notifications from all primarii where registered
+- [x] **NOT-04**: Click on notification from different primarie shows confirmation popup before context switch
+- [x] **NOT-05**: After context switch confirmation, user redirected to source module/page from notification
 
 ### Map & UX
 
@@ -208,9 +208,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | MAP-01 | Phase 6: Citizen Features | Complete |
 | MAP-02 | Phase 6: Citizen Features | Complete |
 | MAP-03 | Phase 6: Citizen Features | Complete |
-| NOT-03 | Phase 7: Cross-Primarie Notifications | Pending |
-| NOT-04 | Phase 7: Cross-Primarie Notifications | Pending |
-| NOT-05 | Phase 7: Cross-Primarie Notifications | Pending |
+| NOT-03 | Phase 7: Cross-Primarie Notifications | Complete |
+| NOT-04 | Phase 7: Cross-Primarie Notifications | Complete |
+| NOT-05 | Phase 7: Cross-Primarie Notifications | Complete |
 | GDPR-01 | Phase 8: Compliance & Testing | Pending |
 | GDPR-02 | Phase 8: Compliance & Testing | Pending |
 | GDPR-03 | Phase 8: Compliance & Testing | Pending |
