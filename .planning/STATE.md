@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-02)
 
 **Core value:** Citizens can submit cereri and complete plati digitally for any primarie where they're registered, with complete data isolation between primarii and proper role-based access for all user types.
-**Current focus:** Phase 5 fully verified (10/10 UAT). DB fix: utilizatori_rol_check now includes 'primar'. Ready for Phase 6 (Citizen Features).
+**Current focus:** Phases 1-6 complete and verified. Ready for Phase 7 (Cross-Primarie Notifications).
 
 ## Current Position
 
-Phase: 6 of 8 (Citizen Features) -- IN PROGRESS
-Plan: 4 of N in current phase
-Status: Gap closure complete. Landing page has interactive Leaflet map, payment pages show TestModeBanner, documents widget uses real totalCount.
+Phase: 7 of 8 (Cross-Primarie Notifications) -- NOT STARTED
+Plan: 0 of N in current phase
+Status: Phase 6 verified and complete. Phases 1-6 all done. Next: Phase 7.
 Last activity: 2026-03-04 -- Completed 06-04-PLAN.md (Map interactivity and gap closure)
 
 Progress: [####################] ~78% (Phase 6)

@@ -15,8 +15,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 1: Security Foundation** - Multi-tenant data isolation architecture, RLS migration, security hardening
 - [ ] **Phase 2: Infrastructure & Stabilization** - Monitoring replacement, broken route fixes, search fix, consistency fixes
 - [ ] **Phase 3: Registration & Approval** - Multi-primarie registration flow with admin approval workflow
-- [ ] **Phase 4: Cereri Processing** - Status workflow engine, audit trail, document validation, SLA tracking
-- [ ] **Phase 5: Staff Dashboards** - Functionar, Admin, and Primar dashboards with staff notifications
+- [x] **Phase 4: Cereri Processing** - Status workflow engine, audit trail, document validation, SLA tracking (completed 2026-03-03)
+- [x] **Phase 5: Staff Dashboards** - Functionar, Admin, and Primar dashboards with staff notifications (completed 2026-03-03)
 - [x] **Phase 6: Citizen Features** - Documents page, PDF receipts, dynamic map, payment architecture (completed 2026-03-04)
 - [ ] **Phase 7: Cross-Primarie Notifications** - Notification aggregation across primarii, context switch UX
 - [ ] **Phase 8: Compliance & Testing** - GDPR compliance, pgTAP RLS tests, E2E test coverage
@@ -91,9 +91,9 @@ Plans:
 **Plans**: 3 plans (1 in Wave 1, 1 in Wave 2, 1 gap closure in Wave 3)
 
 Plans:
-- [ ] 04-01-PLAN.md -- Database migration + TypeScript workflow engine: cerere_istoric table, role-based status transition triggers, SLA columns, documente_necesare JSONB, Server Actions, transition matrix, SLA utility (CER-01, CER-02, CER-03, CER-04, CER-05) [Wave 1]
-- [ ] 04-02-PLAN.md -- UI components + wiring: SlaIndicator, CerereTimeline, StatusTransitionDialog, InternalNoteForm, extend CereriTable/CereriFilters, update cerere detail page (CER-01, CER-02, CER-04, CER-05, CER-06) [Wave 2, depends on 04-01]
-- [ ] 04-03-PLAN.md -- GAP CLOSURE -- Fix cerere detail page: replace API route fetches with Server Actions for x-primarie-id header inheritance (CER-01, CER-02, CER-04, CER-05, CER-06) [Wave 3, depends on 04-02]
+- [x] 04-01-PLAN.md -- Database migration + TypeScript workflow engine: cerere_istoric table, role-based status transition triggers, SLA columns, documente_necesare JSONB, Server Actions, transition matrix, SLA utility (CER-01, CER-02, CER-03, CER-04, CER-05) [Wave 1]
+- [x] 04-02-PLAN.md -- UI components + wiring: SlaIndicator, CerereTimeline, StatusTransitionDialog, InternalNoteForm, extend CereriTable/CereriFilters, update cerere detail page (CER-01, CER-02, CER-04, CER-05, CER-06) [Wave 2, depends on 04-01]
+- [x] 04-03-PLAN.md -- GAP CLOSURE -- Fix cerere detail page: replace API route fetches with Server Actions for x-primarie-id header inheritance (CER-01, CER-02, CER-04, CER-05, CER-06) [Wave 3, depends on 04-02]
 
 ### Phase 5: Staff Dashboards
 **Goal**: Staff can process cereri, manage registrations, and oversee primarie operations from role-appropriate dashboards
@@ -108,9 +108,9 @@ Plans:
 **Plans**: 3 plans (1 in Wave 1, 2 parallel in Wave 2)
 
 Plans:
-- [ ] 05-01-PLAN.md -- DB migration (notification triggers, Realtime fix, primarii UPDATE RLS) + Server Actions for all dashboard data (NOT-01, NOT-02, DASH-05, DASH-09) [Wave 1]
-- [ ] 05-02-PLAN.md -- Functionar dashboard (real stats + cereri queue) + Admin dashboard (user counts, cereri overview, activity feed) + admin settings page (DASH-01, DASH-02, DASH-03, DASH-04, DASH-05, DASH-06, DASH-07, DASH-08) [Wave 2, depends on 05-01]
-- [ ] 05-03-PLAN.md -- Primar dashboard (approval queue with inline approve/reject, financial overview, staff metrics) (DASH-09, DASH-10) [Wave 2, depends on 05-01]
+- [x] 05-01-PLAN.md -- DB migration (notification triggers, Realtime fix, primarii UPDATE RLS) + Server Actions for all dashboard data (NOT-01, NOT-02, DASH-05, DASH-09) [Wave 1]
+- [x] 05-02-PLAN.md -- Functionar dashboard (real stats + cereri queue) + Admin dashboard (user counts, cereri overview, activity feed) + admin settings page (DASH-01, DASH-02, DASH-03, DASH-04, DASH-05, DASH-06, DASH-07, DASH-08) [Wave 2, depends on 05-01]
+- [x] 05-03-PLAN.md -- Primar dashboard (approval queue with inline approve/reject, financial overview, staff metrics) (DASH-09, DASH-10) [Wave 2, depends on 05-01]
 
 ### Phase 6: Citizen Features
 **Goal**: Citizens have a complete document library, receive PDF receipts for payments, and see their primarie on an interactive map
@@ -128,7 +128,7 @@ Plans:
 - [x] 06-01-PLAN.md -- Documents page + dashboard widget: Server Actions for document fetching, populate /documente with categories, wire RecentDocumentsWidget (DOC-01, DOC-02, DOC-03, DOC-04) [Wave 1]
 - [x] 06-02-PLAN.md -- PDF receipts + payment architecture: jsPDF receipt generator with Romanian fonts, QR code, Supabase Storage, chitanta endpoint, pending payment count, test mode banner (PAY-01, PAY-02, PAY-03, PAY-04) [Wave 1]
 - [x] 06-03-PLAN.md -- Interactive map + Romanian labels: Leaflet zoom/flyTo/popup upgrade, PrimarieInfoCard, audit all status displays for Romanian labels (MAP-01, MAP-02, MAP-03) [Wave 1]
-- [ ] 06-04-PLAN.md -- GAP CLOSURE -- Landing page interactive map, wire TestModeBanner to payment pages, fix documents totalCount (DOC-04, PAY-04, MAP-01, MAP-02) [Wave 2, depends on 06-01, 06-02, 06-03]
+- [x] 06-04-PLAN.md -- GAP CLOSURE -- Landing page interactive map, wire TestModeBanner to payment pages, fix documents totalCount (DOC-04, PAY-04, MAP-01, MAP-02) [Wave 2, depends on 06-01, 06-02, 06-03]
 
 ### Phase 7: Cross-Primarie Notifications
 **Goal**: Users registered at multiple primarii see aggregated notifications and can switch primarie context seamlessly from any notification
@@ -170,8 +170,8 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 1. Security Foundation | 3/3 | Complete | 2026-03-02 |
 | 2. Infrastructure & Stabilization | 8/8 | Complete | 2026-03-02 |
 | 3. Registration & Approval | 3/3 | Complete | 2026-03-03 |
-| 4. Cereri Processing | 2/3 | In progress | - |
-| 5. Staff Dashboards | 0/3 | Not started | - |
+| 4. Cereri Processing | 3/3 | Complete | 2026-03-03 |
+| 5. Staff Dashboards | 3/3 | Complete | 2026-03-03 |
 | 6. Citizen Features | 4/4 | Complete   | 2026-03-04 |
 | 7. Cross-Primarie Notifications | 0/1 | Not started | - |
 | 8. Compliance & Testing | 0/2 | Not started | - |
