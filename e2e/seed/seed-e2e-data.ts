@@ -15,7 +15,7 @@ import * as path from "path";
 // Load env vars -- needed when running standalone
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
-import { TEST_USERS, PENDING_USER, TEST_CONFIG } from "./test-users";
+import { TEST_USERS, PENDING_USER, TEST_CONFIG, type TestUser } from "./test-users";
 
 // Cerere statuses matching CerereStatus enum
 const CERERE_STATUSES = [
@@ -174,8 +174,8 @@ export async function seedE2EData(): Promise<SeedResult> {
   for (const [role, userId] of Object.entries(userIds)) {
     if (role === "pending") continue; // Handle separately below
 
-    const userDef = TEST_USERS[role];
-    if (!userDef) continue;
+    const userDef: TestUser | undefined = TEST_USERS[role];
+    if (userDef === undefined) continue;
     const { error: upErr } = await supabase.from("user_primarii").upsert(
       {
         user_id: userId,
@@ -183,7 +183,7 @@ export async function seedE2EData(): Promise<SeedResult> {
         rol: userDef.role,
         status: "approved",
         permissions: {},
-        departament: userDef.departament || null,
+        departament: userDef.departament ?? null,
       },
       { onConflict: "user_id,primarie_id" }
     );
@@ -264,7 +264,7 @@ export async function seedE2EData(): Promise<SeedResult> {
   // ── Step 5: Seed 8 cereri (one per status) ─────────────────────────
   console.log("[seed] Seeding cereri in all 8 statuses...");
 
-  const cetateanId = userIds.cetatean;
+  const cetateanId = userIds.cetatean!;
   const cerereIds: Record<string, string> = {};
 
   for (const [i, status] of CERERE_STATUSES.entries()) {
