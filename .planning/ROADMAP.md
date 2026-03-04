@@ -209,7 +209,12 @@ Plans:
   4. Staff-side cereri processing E2E tests cover functionar status transitions and admin approval
   5. Role-based dashboard E2E tests run with authenticated test users
   6. Admin export E2E tests run with real data
-**Plans**: TBD (use `/gsd:plan-phase 11`)
+**Plans**: 3 plans (1 in Wave 1, 2 parallel in Wave 2)
+
+Plans:
+- [ ] 11-01-PLAN.md -- Seed data infrastructure: test user constants, idempotent seed script, centralized auth helper, global-setup wiring (TEST-04, TEST-05, TEST-06, TEST-07) [Wave 1]
+- [ ] 11-02-PLAN.md -- Fix data-dependent test.skip: cereri-submission, cereri-flow, payment-flow, admin-workflow specs (TEST-04, TEST-05, TEST-07) [Wave 2, depends on 11-01]
+- [ ] 11-03-PLAN.md -- Fix UI-outdated test.skip: rewrite role-based-dashboard spec, fix admin-export conditional skips (TEST-06, TEST-07) [Wave 2, depends on 11-01]
 
 ## Progress
 
@@ -229,8 +234,8 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 8. Compliance & Testing | 5/5 | Complete   | 2026-03-04 |
 | 9. Audit Gap Closure | 0/1 | Not Started |  |
 | 10. Payment & GDPR Critical Fixes | 1/1 | Complete    | 2026-03-04 |
-| 11. E2E Seed Data & Full Coverage | 0/0 | Not Started |  |
+| 11. E2E Seed Data & Full Coverage | 0/3 | Not Started |  |
 
 ---
 *Roadmap created: 2026-03-02*
-*Last updated: 2026-03-04*
+*Last updated: 2026-03-05*
