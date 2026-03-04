@@ -10,6 +10,8 @@ import {
   FileText,
 } from "lucide-react";
 import type { ActiveRequestProgressCardProps } from "@/types/dashboard";
+import { getCerereStatusLabel, getCerereStatusColor } from "@/lib/validations/cereri";
+import type { CerereStatusType } from "@/lib/validations/cereri";
 
 /**
  * Active Request Progress Card - Individual Cerere Display
@@ -163,73 +165,35 @@ export function ActiveRequestProgressCard({
 
 /**
  * Get status configuration (colors, icons, labels)
+ * Uses shared getCerereStatusLabel/getCerereStatusColor for consistent Romanian labels.
+ * Custom progressColor and icons are status-specific for the progress card.
  */
 function getStatusConfig(status: string) {
-  const configs: Record<
-    string,
-    {
-      label: string;
-      badgeClass: string;
-      progressColor: string;
-      icon: React.ReactNode;
-    }
-  > = {
-    draft: {
-      label: "Ciornă",
-      badgeClass: "bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400",
-      progressColor: "bg-gray-500",
-      icon: <FileText className="h-3 w-3" />,
-    },
-    depusa: {
-      label: "Depusă",
-      badgeClass: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
-      progressColor: "bg-blue-500",
-      icon: <Clock className="h-3 w-3" />,
-    },
-    in_verificare: {
-      label: "În Verificare",
-      badgeClass: "bg-yellow-500/10 text-yellow-600 dark:bg-yellow-500/20 dark:text-yellow-400",
-      progressColor: "bg-yellow-500",
-      icon: <Clock className="h-3 w-3" />,
-    },
-    in_asteptare: {
-      label: "În Așteptare",
-      badgeClass: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400",
-      progressColor: "bg-orange-500",
-      icon: <Clock className="h-3 w-3" />,
-    },
-    in_aprobare: {
-      label: "În Aprobare",
-      badgeClass: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400",
-      progressColor: "bg-purple-500",
-      icon: <Clock className="h-3 w-3" />,
-    },
-    aprobat: {
-      label: "Aprobată",
-      badgeClass: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
-      progressColor: "bg-green-500",
-      icon: <CheckCircle className="h-3 w-3" />,
-    },
-    respins: {
-      label: "Respinsă",
-      badgeClass: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
-      progressColor: "bg-red-500",
-      icon: <AlertTriangle className="h-3 w-3" />,
-    },
-    anulat: {
-      label: "Anulată",
-      badgeClass: "bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400",
-      progressColor: "bg-gray-500",
-      icon: <AlertTriangle className="h-3 w-3" />,
-    },
+  // Use shared label and badge color from centralized helpers
+  const label = getCerereStatusLabel(status as CerereStatusType);
+  const badgeClass = getCerereStatusColor(status as CerereStatusType);
+
+  // Progress bar colors and icons per status
+  const progressConfigs: Record<string, { progressColor: string; icon: React.ReactNode }> = {
+    depusa: { progressColor: "bg-blue-500", icon: <Clock className="h-3 w-3" /> },
+    in_verificare: { progressColor: "bg-yellow-500", icon: <Clock className="h-3 w-3" /> },
+    info_suplimentare: { progressColor: "bg-orange-500", icon: <Clock className="h-3 w-3" /> },
+    in_procesare: { progressColor: "bg-purple-500", icon: <Clock className="h-3 w-3" /> },
+    in_aprobare: { progressColor: "bg-purple-500", icon: <Clock className="h-3 w-3" /> },
+    aprobata: { progressColor: "bg-green-500", icon: <CheckCircle className="h-3 w-3" /> },
+    respinsa: { progressColor: "bg-red-500", icon: <AlertTriangle className="h-3 w-3" /> },
+    anulata: { progressColor: "bg-gray-500", icon: <AlertTriangle className="h-3 w-3" /> },
+    finalizata: { progressColor: "bg-emerald-500", icon: <CheckCircle className="h-3 w-3" /> },
   };
 
-  return (
-    configs[status] || {
-      label: status,
-      badgeClass: "bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400",
-      progressColor: "bg-gray-500",
-      icon: <FileText className="h-3 w-3" />,
-    }
-  );
+  const progressConfig = progressConfigs[status] || {
+    progressColor: "bg-gray-500",
+    icon: <FileText className="h-3 w-3" />,
+  };
+
+  return {
+    label,
+    badgeClass,
+    ...progressConfig,
+  };
 }

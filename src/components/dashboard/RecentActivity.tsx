@@ -7,6 +7,8 @@ import { format } from "date-fns";
 import { ro } from "date-fns/locale";
 import type { Cerere, Plata } from "@/types/api";
 import { Badge } from "@/components/ui/badge";
+import { getCerereStatusLabel, getCerereStatusColor } from "@/lib/validations/cereri";
+import type { CerereStatusType } from "@/lib/validations/cereri";
 
 interface RecentActivityProps {
   cereri: Cerere[];
@@ -42,23 +44,8 @@ function CerereItem({
   judet: string;
   localitate: string;
 }) {
-  const statusColors: Record<string, string> = {
-    draft: "bg-gray-100 text-gray-800",
-    in_procesare: "bg-blue-100 text-blue-800",
-    in_asteptare: "bg-yellow-100 text-yellow-800",
-    aprobat: "bg-green-100 text-green-800",
-    respins: "bg-red-100 text-red-800",
-    anulat: "bg-gray-100 text-gray-800",
-  };
-
-  const statusLabels: Record<string, string> = {
-    draft: "Ciornă",
-    in_procesare: "În procesare",
-    in_asteptare: "În așteptare",
-    aprobat: "Aprobat",
-    respins: "Respins",
-    anulat: "Anulat",
-  };
+  const statusColorClass = getCerereStatusColor(cerere.status as CerereStatusType);
+  const statusLabel = getCerereStatusLabel(cerere.status as CerereStatusType);
 
   return (
     <Link
@@ -77,8 +64,8 @@ function CerereItem({
           {format(new Date(cerere.created_at), "d MMM yyyy", { locale: ro })}
         </p>
       </div>
-      <Badge variant="outline" className={statusColors[cerere.status]}>
-        {statusLabels[cerere.status]}
+      <Badge variant="outline" className={statusColorClass}>
+        {statusLabel}
       </Badge>
       <ChevronRight className="text-muted-foreground group-hover:text-foreground h-4 w-4 flex-shrink-0 transition-colors" />
     </Link>

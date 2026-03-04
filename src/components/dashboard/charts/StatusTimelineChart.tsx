@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Clock, TrendingUp, AlertCircle } from "lucide-react";
 import type { StatusTimelineChartProps } from "@/types/dashboard";
+import { getCerereStatusLabel, getCerereStatusColor } from "@/lib/validations/cereri";
+import type { CerereStatusType } from "@/lib/validations/cereri";
 
 /**
  * Status Timeline Chart - Horizontal Progress View
@@ -108,38 +110,17 @@ export function StatusTimelineChart({
 }
 
 /**
- * Status badge with Romanian labels
+ * Status badge using shared getCerereStatusLabel for consistent Romanian labels
  */
 function StatusBadge({ status }: { status: string }) {
-  const config = {
-    depusa: {
-      label: "Depusă",
-      color: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
-    },
-    in_verificare: {
-      label: "În Verificare",
-      color: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
-    },
-    in_asteptare: {
-      label: "În Așteptare",
-      color: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400",
-    },
-    in_aprobare: {
-      label: "În Aprobare",
-      color: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400",
-    },
-  };
-
-  const statusConfig = config[status as keyof typeof config] || {
-    label: status,
-    color: "bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400",
-  };
+  const label = getCerereStatusLabel(status as CerereStatusType);
+  const colorClass = getCerereStatusColor(status as CerereStatusType);
 
   return (
     <span
-      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${statusConfig.color}`}
+      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${colorClass}`}
     >
-      {statusConfig.label}
+      {label}
     </span>
   );
 }
