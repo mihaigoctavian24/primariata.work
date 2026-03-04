@@ -160,6 +160,26 @@ export function CetățeanDashboard({ judet, localitate }: CetățeanDashboardPr
     staleTime: 24 * 60 * 60 * 1000, // 24 hours -- coordinates rarely change
   });
 
+  // Fetch primarie info for the map popup
+  const primarieQuery = useQuery({
+    queryKey: ["primarie", "info", localitate],
+    queryFn: async () => {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from("primarii")
+        .select("nume_oficial, adresa, telefon, email, program_lucru")
+        .eq("slug", localitate)
+        .single();
+
+      if (error) {
+        logger.error("Error fetching primarie info:", error);
+        return null;
+      }
+      return data;
+    },
+    staleTime: 24 * 60 * 60 * 1000, // 24 hours -- primarie info rarely changes
+  });
+
   const mapCoordinates = useMemo(
     () => parseCoordonate(localitateQuery.data?.coordonate),
     [localitateQuery.data?.coordonate]
@@ -223,6 +243,17 @@ export function CetățeanDashboard({ judet, localitate }: CetățeanDashboardPr
                 lat={mapCoordinates.lat}
                 lng={mapCoordinates.lng}
                 locationName={localitateNume}
+                primarieInfo={
+                  primarieQuery.data
+                    ? {
+                        name: primarieQuery.data.nume_oficial,
+                        address: primarieQuery.data.adresa ?? undefined,
+                        phone: primarieQuery.data.telefon ?? undefined,
+                        email: primarieQuery.data.email ?? undefined,
+                        workingHours: primarieQuery.data.program_lucru ?? undefined,
+                      }
+                    : undefined
+                }
               />
             ) : localitateQuery.isLoading ? (
               <div className="flex h-full items-center justify-center">
