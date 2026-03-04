@@ -28,6 +28,8 @@ interface Document {
 interface RecentDocumentsWidgetProps {
   documents: Document[];
   maxDisplay?: number;
+  totalCount?: number;
+  viewAllHref?: string;
   onDocumentClick?: (documentId: string) => void;
   onPreview?: (document: Document) => void;
   onDownload?: (document: Document) => void;
@@ -54,12 +56,15 @@ interface RecentDocumentsWidgetProps {
 export function RecentDocumentsWidget({
   documents,
   maxDisplay = 6,
+  totalCount,
+  viewAllHref,
   onDocumentClick,
   onPreview,
   onDownload,
   isLoading = false,
 }: RecentDocumentsWidgetProps) {
   const displayedDocuments = documents.slice(0, maxDisplay);
+  const displayTotal = totalCount ?? documents.length;
 
   const handlePreview = (doc: Document) => {
     if (onPreview) {
@@ -92,15 +97,24 @@ export function RecentDocumentsWidget({
         <div className="flex items-center gap-2">
           <Paperclip className="text-primary h-5 w-5" />
           <h3 className="text-foreground font-semibold">Documente Recente</h3>
+          {displayTotal > 0 && (
+            <span className="bg-primary/10 text-primary rounded-full px-2 py-0.5 text-xs font-medium">
+              {displayTotal}
+            </span>
+          )}
         </div>
-        {documents.length > maxDisplay && (
+        {displayTotal > maxDisplay && viewAllHref ? (
+          <a href={viewAllHref} className="text-primary text-sm hover:underline">
+            Vezi toate
+          </a>
+        ) : displayTotal > maxDisplay ? (
           <button
             className="text-primary text-sm hover:underline"
             onClick={() => documents[0] && handleDocumentClick(documents[0])}
           >
-            Vezi toate ({documents.length})
+            Vezi toate
           </button>
-        )}
+        ) : null}
       </div>
 
       {/* Loading State */}

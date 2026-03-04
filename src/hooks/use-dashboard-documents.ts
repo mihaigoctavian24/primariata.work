@@ -1,8 +1,9 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { fetchUserDocuments } from "@/actions/documents";
 
-// Types for documents
+// Types for documents - matches RecentDocumentsWidget interface
 export interface Document {
   id: string;
   nume: string;
@@ -15,9 +16,9 @@ export interface Document {
   metadata?: Record<string, unknown>;
 }
 
-interface ApiResponse<T> {
+interface DocumentsResponse {
   success: boolean;
-  data: T;
+  data: Document[];
   error?: { message: string };
 }
 
@@ -30,41 +31,49 @@ interface UseDocumentsOptions {
 }
 
 /**
- * Hook for fetching recent documents
- *
- * @param options - Filter options for documents query
- * @returns Query result with documents array
+ * Hook for fetching recent documents via Server Action.
+ * Maps the CategorizedDocuments response to the flat Document[]
+ * format expected by RecentDocumentsWidget.
  */
 export function useDashboardDocuments(options: UseDocumentsOptions = {}) {
-  const { days = 7, cerereId, type, status, limit = 10 } = options;
+  const { limit = 10 } = options;
 
-  // Build query params
-  const params = new URLSearchParams();
-  params.append("days", days.toString());
-  if (cerereId) params.append("cerere_id", cerereId);
-  if (type) params.append("type", type);
-  if (status) params.append("status", status);
-  params.append("limit", limit.toString());
-
-  return useQuery<ApiResponse<Document[]>>({
+  return useQuery<DocumentsResponse>({
     queryKey: ["dashboard", "documents", options],
     queryFn: async () => {
-      const response = await fetch(`/api/dashboard/documents?${params.toString()}`, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-      });
+      const result = await fetchUserDocuments();
 
-      if (!response.ok) {
-        const errorData = await response
-          .json()
-          .catch(() => ({ error: { message: "Unknown error" } }));
-        throw new Error(errorData.error?.message || "Failed to fetch documents");
+      if (!result.success) {
+        return {
+          success: false,
+          data: [],
+          error: { message: result.error },
+        };
       }
 
-      return response.json();
+      // Flatten all categories into a single list, sorted by date
+      const allDocs = [...result.data.incarcate, ...result.data.chitante, ...result.data.confirmari]
+        .sort((a, b) => {
+          const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+          const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+          return dateB - dateA;
+        })
+        .slice(0, limit);
+
+      // Map to the Document interface expected by the widget
+      const documents: Document[] = allDocs.map((d) => ({
+        id: d.id,
+        nume: d.nume_fisier,
+        tip_document: d.tip_document,
+        file_path: d.storage_path,
+        file_size: d.marime_bytes,
+        uploaded_at: d.created_at ?? "",
+        cerere_id: d.cerere_id ?? undefined,
+      }));
+
+      return { success: true, data: documents };
     },
-    staleTime: 2 * 60 * 1000, // 2 minutes
+    staleTime: 2 * 60 * 1000,
     refetchOnWindowFocus: true,
   });
 }
