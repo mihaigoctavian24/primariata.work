@@ -175,6 +175,7 @@ export async function seedE2EData(): Promise<SeedResult> {
     if (role === "pending") continue; // Handle separately below
 
     const userDef = TEST_USERS[role];
+    if (!userDef) continue;
     const { error: upErr } = await supabase.from("user_primarii").upsert(
       {
         user_id: userId,
@@ -266,8 +267,7 @@ export async function seedE2EData(): Promise<SeedResult> {
   const cetateanId = userIds.cetatean;
   const cerereIds: Record<string, string> = {};
 
-  for (let i = 0; i < CERERE_STATUSES.length; i++) {
-    const status = CERERE_STATUSES[i];
+  for (const [i, status] of CERERE_STATUSES.entries()) {
     const numarInregistrare = `E2E-2026-${String(i + 1).padStart(3, "0")}`;
 
     // Check if cerere already exists by numar_inregistrare
