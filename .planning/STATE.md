@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: completed
-stopped_at: Completed 06-01-PLAN.md (Documents page)
-last_updated: "2026-03-04T12:08:03.514Z"
-last_activity: 2026-03-04 -- Completed 06-03-PLAN.md (Map interactivity + status label audit)
+status: in_progress
+stopped_at: Completed 06-04-PLAN.md (Map interactivity and gap closure)
+last_updated: "2026-03-04T13:07:32Z"
+last_activity: 2026-03-04 -- Completed 06-04-PLAN.md (Map interactivity and gap closure)
 progress:
   total_phases: 8
   completed_phases: 6
-  total_plans: 23
-  completed_plans: 23
-  percent: 75
+  total_plans: 24
+  completed_plans: 24
+  percent: 78
 ---
 
 # Project State
@@ -26,18 +26,18 @@ See: .planning/PROJECT.md (updated 2026-03-02)
 ## Current Position
 
 Phase: 6 of 8 (Citizen Features) -- IN PROGRESS
-Plan: 3 of N in current phase
-Status: Map interactivity and status label audit complete. MapWidget has zoom controls, flyTo, PrimarieInfoCard popup. All status labels use centralized Romanian labels.
-Last activity: 2026-03-04 -- Completed 06-03-PLAN.md (Map interactivity + status label audit)
+Plan: 4 of N in current phase
+Status: Gap closure complete. Landing page has interactive Leaflet map, payment pages show TestModeBanner, documents widget uses real totalCount.
+Last activity: 2026-03-04 -- Completed 06-04-PLAN.md (Map interactivity and gap closure)
 
-Progress: [##################] ~75% (Phase 6)
+Progress: [####################] ~78% (Phase 6)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 22
-- Average duration: 5.0 min
-- Total execution time: 1.81 hours
+- Total plans completed: 24
+- Average duration: 4.8 min
+- Total execution time: 1.86 hours
 
 **By Phase:**
 
@@ -54,6 +54,7 @@ Progress: [##################] ~75% (Phase 6)
 - Trend: accelerating; dashboard plans completing in 2 min
 
 *Updated after each plan completion*
+| Phase 06 P04 | 3min | 2 tasks | 6 files |
 | Phase 06 P03 | 6min | 2 tasks | 6 files |
 | Phase 06 P02 | 5min | 2 tasks | 10 files |
 | Phase 05 P03 | 2min | 2 tasks | 4 files |
@@ -143,6 +144,9 @@ Recent decisions affecting current work:
 - [06-03]: FlyToHandler uses popupopen event for flyTo animation trigger rather than custom click handler
 - [06-03]: PrimarieInfoCard uses plain Tailwind (no shadcn) for Leaflet popup compatibility
 - [06-03]: ActiveRequestProgressCard fixed wrong enum keys (aprobat->aprobata, respins->respinsa, anulat->anulata)
+- [06-04]: LandingMapSection uses polling (2s) + storage event listener for location reactivity without prop drilling
+- [06-04]: Map section placed between Hero and Transition Zone as separate scroll snap point
+- [06-04]: useDashboardDocuments exposes totalCount from Server Action; CetateeanDashboard consumes it
 
 ### Pending Todos
 
@@ -156,6 +160,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-04T12:06:20Z
-Stopped at: Completed 06-03-PLAN.md (Map interactivity + status label audit)
-Resume file: .planning/phases/06-citizen-features/06-03-SUMMARY.md
+Last session: 2026-03-04T13:07:32Z
+Stopped at: Completed 06-04-PLAN.md (Map interactivity and gap closure)
+Resume file: .planning/phases/06-citizen-features/06-04-SUMMARY.md
