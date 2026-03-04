@@ -3,7 +3,8 @@
 import { formatDistanceToNow } from "date-fns";
 import { ro } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
-import { X, Check } from "lucide-react";
+import { X, Check, MapPin } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { NOTIFICATION_CONFIGS } from "@/types/notifications";
 import type { Notification } from "@/types/notifications";
 
@@ -11,6 +12,8 @@ interface NotificationDropdownItemProps {
   notification: Notification;
   onDismiss: (id: string) => void;
   onMarkRead: (id: string) => void;
+  currentPrimarieId?: string;
+  primarieName?: string;
 }
 
 /**
@@ -28,6 +31,8 @@ export function NotificationDropdownItem({
   notification,
   onDismiss,
   onMarkRead,
+  currentPrimarieId,
+  primarieName,
 }: NotificationDropdownItemProps) {
   const config = NOTIFICATION_CONFIGS[notification.type];
   const IconComponent = config.icon;
@@ -71,6 +76,14 @@ export function NotificationDropdownItem({
         <p className="text-muted-foreground line-clamp-2 text-sm" title={notification.message}>
           {notification.message}
         </p>
+
+        {/* Cross-primarie badge */}
+        {currentPrimarieId && primarieName && notification.primarie_id !== currentPrimarieId && (
+          <Badge variant="outline" className="bg-muted/50 gap-1 text-xs">
+            <MapPin className="h-3 w-3" />
+            {primarieName}
+          </Badge>
+        )}
 
         {/* Timestamp */}
         <p className="text-muted-foreground text-xs">

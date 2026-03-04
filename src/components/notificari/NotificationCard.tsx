@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { X, Check, ExternalLink } from "lucide-react";
+import { X, Check, ExternalLink, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Notification, NotificationPriority } from "@/types/notifications";
 import { NOTIFICATION_CONFIGS } from "@/types/notifications";
@@ -19,6 +19,8 @@ interface NotificationCardProps {
   onMarkRead?: (id: string) => void;
   onMarkUnread?: (id: string) => void;
   onActionClick?: (url: string) => void;
+  currentPrimarieId?: string;
+  primarieName?: string;
 }
 
 /**
@@ -60,6 +62,8 @@ export function NotificationCard({
   onMarkRead,
   onMarkUnread,
   onActionClick,
+  currentPrimarieId,
+  primarieName,
 }: NotificationCardProps) {
   const config = NOTIFICATION_CONFIGS[notification.type];
   const Icon = config.icon;
@@ -240,9 +244,21 @@ export function NotificationCard({
                 </div>
 
                 {/* Priority Badge */}
-                <Badge variant="outline" className={priorityBadge.className}>
-                  {priorityBadge.label}
-                </Badge>
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <Badge variant="outline" className={priorityBadge.className}>
+                    {priorityBadge.label}
+                  </Badge>
+
+                  {/* Cross-primarie badge */}
+                  {currentPrimarieId &&
+                    primarieName &&
+                    notification.primarie_id !== currentPrimarieId && (
+                      <Badge variant="outline" className="bg-muted/50 gap-1 text-xs">
+                        <MapPin className="h-3 w-3" />
+                        {primarieName}
+                      </Badge>
+                    )}
+                </div>
               </div>
 
               {/* Dismiss Button (X icon) */}
