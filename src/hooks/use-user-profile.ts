@@ -34,11 +34,13 @@ interface UseUserProfileResult {
  */
 export function useUserProfile(): UseUserProfileResult {
   const [userId, setUserId] = useState<string | undefined>(undefined);
+  const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
     const supabase = createClient();
     supabase.auth.getUser().then(({ data: { user } }) => {
       setUserId(user?.id ?? undefined);
+      setAuthChecked(true);
     });
   }, []);
 
@@ -73,8 +75,8 @@ export function useUserProfile(): UseUserProfileResult {
 
   return {
     profile: data?.data || null,
-    isLoading,
-    isError,
+    isLoading: !authChecked || isLoading,
+    isError: authChecked && !!userId ? isError : false,
     error: error as Error | null,
     refetch,
   };

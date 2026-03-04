@@ -80,8 +80,12 @@ export function LandingMapSection(): React.JSX.Element {
           .single(),
         supabase
           .from("primarii")
-          .select("nume_oficial, adresa, telefon, email, program_lucru")
-          .eq("slug", location.localitateSlug)
+          .select(
+            "nume_oficial, adresa, telefon, email, program_lucru, localitati!inner(slug, judete!inner(slug))"
+          )
+          .eq("localitati.slug", location.localitateSlug)
+          .eq("localitati.judete.slug", location.judetSlug)
+          .eq("activa", true)
           .single(),
       ]);
 

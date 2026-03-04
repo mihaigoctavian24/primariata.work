@@ -7,7 +7,7 @@ export interface DashboardStats {
   cereri: {
     total: number;
     in_progres: number; // draft + in_procesare + in_asteptare
-    finalizate: number; // aprobat + respins + anulat
+    finalizate: number; // aprobata + respinsa + anulata + finalizata
   };
   plati: {
     total: number;
@@ -107,7 +107,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       cereriData?.filter((c) => ["draft", "in_procesare", "in_asteptare"].includes(c.status))
         .length || 0;
     const finalizate =
-      cereriData?.filter((c) => ["aprobat", "respins", "anulat"].includes(c.status)).length || 0;
+      cereriData?.filter((c) =>
+        ["aprobata", "respinsa", "anulata", "finalizata"].includes(c.status)
+      ).length || 0;
 
     // Fetch payments statistics
     // Same approach: RLS + explicit primarie_id filter
