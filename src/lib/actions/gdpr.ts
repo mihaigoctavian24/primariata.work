@@ -116,13 +116,12 @@ export async function requestAccountDeletion(
     const serviceClient = createServiceRoleClient();
 
     // Update profile: mark deletion requested
-    // deletion_requested_at and status columns added for GDPR -- not yet in generated types
     const { error: updateError } = await serviceClient
       .from("utilizatori")
       .update({
         deletion_requested_at: new Date().toISOString(),
         status: "pending_deletion",
-      } as Record<string, unknown>)
+      })
       .eq("id", user.id);
 
     if (updateError) {
@@ -170,13 +169,12 @@ export async function cancelAccountDeletion(): Promise<SuccessResult | ErrorResu
     const serviceClient = createServiceRoleClient();
 
     // Clear deletion request
-    // deletion_requested_at and status columns added for GDPR -- not yet in generated types
     const { error: updateError } = await serviceClient
       .from("utilizatori")
       .update({
         deletion_requested_at: null,
         status: "active",
-      } as Record<string, unknown>)
+      })
       .eq("id", user.id);
 
     if (updateError) {

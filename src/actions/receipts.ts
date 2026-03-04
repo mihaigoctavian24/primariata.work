@@ -1,8 +1,10 @@
 "use server";
 
+import { SupabaseClient } from "@supabase/supabase-js";
 import { createClient, createServiceRoleClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/logger";
 import { generateReceiptPdf } from "@/lib/pdf/receipt-generator";
+import { Database } from "@/types/database.types";
 
 interface ReceiptResult {
   success: boolean;
@@ -10,29 +12,27 @@ interface ReceiptResult {
   error?: string;
 }
 
+export interface GenerateReceiptCoreParams {
+  plataId: string;
+  supabaseClient: SupabaseClient<Database>;
+  serviceClient: SupabaseClient<Database>;
+  actorUserId?: string;
+}
+
 /**
- * Generate a PDF receipt for a completed payment, upload to Supabase Storage,
- * and insert records in chitante + documente tables.
+ * Core receipt generation logic shared between Server Action and webhook contexts.
  *
- * If a chitanta already exists for this plata, returns the existing one.
- *
- * @param plataId - The payment ID to generate receipt for
+ * @param params - Supabase clients and payment ID
  * @returns Result with chitanta ID or error
  */
-export async function generateAndStoreReceipt(plataId: string): Promise<ReceiptResult> {
+export async function generateReceiptCore(
+  params: GenerateReceiptCoreParams
+): Promise<ReceiptResult> {
+  const { plataId, supabaseClient, serviceClient, actorUserId } = params;
+
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return { success: false, error: "Autentificare necesara" };
-    }
-
-    // Check if chitanta already exists for this plata
-    const { data: existingChitanta } = await supabase
+    // Check if chitanta already exists for this plata (idempotency)
+    const { data: existingChitanta } = await serviceClient
       .from("chitante")
       .select("id")
       .eq("plata_id", plataId)
@@ -43,7 +43,7 @@ export async function generateAndStoreReceipt(plataId: string): Promise<ReceiptR
     }
 
     // Fetch plata with joined cerere, primarie, and user data
-    const { data: plata, error: plataError } = await supabase
+    const { data: plata, error: plataError } = await supabaseClient
       .from("plati")
       .select(
         `id, suma, metoda_plata, cerere_id, utilizator_id, primarie_id,
@@ -62,7 +62,7 @@ export async function generateAndStoreReceipt(plataId: string): Promise<ReceiptR
     }
 
     // Fetch primarie details
-    const { data: primarie, error: primarieError } = await supabase
+    const { data: primarie, error: primarieError } = await supabaseClient
       .from("primarii")
       .select("id, nume_oficial, adresa, email, telefon, config")
       .eq("id", plata.primarie_id)
@@ -79,7 +79,6 @@ export async function generateAndStoreReceipt(plataId: string): Promise<ReceiptR
     const cui = config?.cui ?? "N/A";
 
     // Generate sequential receipt number: CHT-{YYYY}-{sequential}
-    const serviceClient = createServiceRoleClient();
     const year = new Date().getFullYear();
     const { count: existingCount } = await serviceClient
       .from("chitante")
@@ -165,7 +164,7 @@ export async function generateAndStoreReceipt(plataId: string): Promise<ReceiptR
         storage_path: storagePath,
         marime_bytes: pdfBytes.byteLength,
         este_generat: true,
-        incarcat_de_id: user.id,
+        incarcat_de_id: actorUserId ?? plata.utilizator_id,
       });
 
       if (docError) {
@@ -176,6 +175,43 @@ export async function generateAndStoreReceipt(plataId: string): Promise<ReceiptR
 
     logger.info(`Receipt generated: ${numarChitanta} for plata ${plataId}`);
     return { success: true, chitantaId: chitanta.id };
+  } catch (error) {
+    logger.error("Unexpected error in generateReceiptCore:", error);
+    return { success: false, error: "A aparut o eroare neasteptata" };
+  }
+}
+
+/**
+ * Generate a PDF receipt for a completed payment, upload to Supabase Storage,
+ * and insert records in chitante + documente tables.
+ *
+ * If a chitanta already exists for this plata, returns the existing one.
+ *
+ * Server Action wrapper -- authenticates the user and delegates to generateReceiptCore.
+ *
+ * @param plataId - The payment ID to generate receipt for
+ * @returns Result with chitanta ID or error
+ */
+export async function generateAndStoreReceipt(plataId: string): Promise<ReceiptResult> {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return { success: false, error: "Autentificare necesara" };
+    }
+
+    const serviceClient = createServiceRoleClient();
+
+    return generateReceiptCore({
+      plataId,
+      supabaseClient: supabase,
+      serviceClient,
+      actorUserId: user.id,
+    });
   } catch (error) {
     logger.error("Unexpected error in generateAndStoreReceipt:", error);
     return { success: false, error: "A aparut o eroare neasteptata" };

@@ -1,10 +1,12 @@
 import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import { webhookPlataUpdateSchema, PlataStatus } from "@/lib/validations/plati";
 import { getGhiseulClient } from "@/lib/payments/ghiseul-client";
 import type { ApiErrorResponse } from "@/types/api";
 import { ZodError } from "zod";
+import { generateReceiptCore } from "@/actions/receipts";
+import { Database } from "@/types/database.types";
 
 /**
  * POST /api/webhooks/ghiseul
@@ -176,19 +178,27 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json(errorResponse, { status: 500 });
     }
 
-    // If payment successful, generate chitanta and update cerere
+    // If payment successful, generate real PDF receipt and update cerere
     if (validatedData.status === PlataStatus.SUCCESS) {
-      // Create chitanta record with placeholder PDF URL
-      const placeholderPdfUrl = `chitante/placeholder-${plata.id}.pdf`;
-
-      const { error: chitantaError } = await supabase.from("chitante").insert({
-        plata_id: plata.id,
-        pdf_url: placeholderPdfUrl,
-      });
-
-      if (chitantaError) {
-        logger.error("Error creating chitanta", chitantaError);
-        // Don't fail the webhook - chitanta can be regenerated later
+      // Generate real PDF receipt (non-blocking -- failure doesn't fail webhook)
+      try {
+        // Type the webhook's untyped client for the core function
+        const typedSupabase = supabase as unknown as SupabaseClient<Database>;
+        const receiptResult = await generateReceiptCore({
+          plataId: plata.id,
+          supabaseClient: typedSupabase,
+          serviceClient: typedSupabase, // Same service role client
+          actorUserId: plata.utilizator_id,
+        });
+        if (!receiptResult.success) {
+          logger.error("Webhook receipt generation failed", {
+            plataId: plata.id,
+            error: receiptResult.error,
+          });
+        }
+      } catch (error) {
+        logger.error("Webhook receipt generation threw", { plataId: plata.id, error });
+        // Don't fail webhook -- receipt can be regenerated on-demand
       }
 
       // Update cerere to mark payment as completed
@@ -202,7 +212,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
       if (cerereUpdateError) {
         logger.error("Error updating cerere payment status", cerereUpdateError);
-        // Don't fail the webhook - cerere status can be fixed manually
       }
     }
 
