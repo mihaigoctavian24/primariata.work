@@ -74,8 +74,8 @@ Requirements for production-ready release. Each maps to roadmap phases.
 
 ### Payments & Receipts
 
-- [ ] **PAY-01**: PDF receipt (chitanta) generated on successful payment with Romanian diacritics
-- [ ] **PAY-02**: Receipts stored in Supabase Storage with signed download URLs
+- [x] **PAY-01**: PDF receipt (chitanta) generated on successful payment with Romanian diacritics
+- [x] **PAY-02**: Receipts stored in Supabase Storage with signed download URLs
 - [x] **PAY-03**: Pending payment count in dashboard shows real count (currently hardcoded 0)
 - [x] **PAY-04**: Payment gateway architecture ready for real Ghiseul.ro swap (feature flag controls mock vs production)
 
@@ -97,8 +97,8 @@ Requirements for production-ready release. Each maps to roadmap phases.
 
 - [x] **GDPR-01**: Privacy policy page accessible from footer and registration flow
 - [x] **GDPR-02**: Cookie consent banner shown on first visit with accept/reject options
-- [ ] **GDPR-03**: User can request data export (DSAR) from settings page
-- [ ] **GDPR-04**: User can request account deletion from settings page
+- [x] **GDPR-03**: User can request data export (DSAR) from settings page
+- [x] **GDPR-04**: User can request account deletion from settings page
 
 ### Testing
 
@@ -201,8 +201,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DOC-02 | Phase 6: Citizen Features | Complete |
 | DOC-03 | Phase 6: Citizen Features | Complete |
 | DOC-04 | Phase 6: Citizen Features | Complete |
-| PAY-01 | Phase 6: Citizen Features / Phase 10: Payment & GDPR Critical Fixes | Pending |
-| PAY-02 | Phase 6: Citizen Features / Phase 10: Payment & GDPR Critical Fixes | Pending |
+| PAY-01 | Phase 6: Citizen Features / Phase 10: Payment & GDPR Critical Fixes | Complete |
+| PAY-02 | Phase 6: Citizen Features / Phase 10: Payment & GDPR Critical Fixes | Complete |
 | PAY-03 | Phase 6: Citizen Features | Complete |
 | PAY-04 | Phase 6: Citizen Features | Complete |
 | MAP-01 | Phase 6: Citizen Features | Complete |
@@ -213,8 +213,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | NOT-05 | Phase 7: Cross-Primarie Notifications | Complete |
 | GDPR-01 | Phase 8: Compliance & Testing | Complete |
 | GDPR-02 | Phase 8: Compliance & Testing | Complete |
-| GDPR-03 | Phase 8: Compliance & Testing / Phase 10: Payment & GDPR Critical Fixes | Pending |
-| GDPR-04 | Phase 8: Compliance & Testing / Phase 10: Payment & GDPR Critical Fixes | Pending |
+| GDPR-03 | Phase 8: Compliance & Testing / Phase 10: Payment & GDPR Critical Fixes | Complete |
+| GDPR-04 | Phase 8: Compliance & Testing / Phase 10: Payment & GDPR Critical Fixes | Complete |
 | TEST-01 | Phase 8: Compliance & Testing | Complete |
 | TEST-02 | Phase 8: Compliance & Testing | Complete |
 | TEST-03 | Phase 8: Compliance & Testing | Complete |
