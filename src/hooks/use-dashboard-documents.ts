@@ -19,6 +19,7 @@ export interface Document {
 interface DocumentsResponse {
   success: boolean;
   data: Document[];
+  totalCount: number;
   error?: { message: string };
 }
 
@@ -47,6 +48,7 @@ export function useDashboardDocuments(options: UseDocumentsOptions = {}) {
         return {
           success: false,
           data: [],
+          totalCount: 0,
           error: { message: result.error },
         };
       }
@@ -71,7 +73,7 @@ export function useDashboardDocuments(options: UseDocumentsOptions = {}) {
         cerere_id: d.cerere_id ?? undefined,
       }));
 
-      return { success: true, data: documents };
+      return { success: true, data: documents, totalCount: result.data.totalCount };
     },
     staleTime: 2 * 60 * 1000,
     refetchOnWindowFocus: true,

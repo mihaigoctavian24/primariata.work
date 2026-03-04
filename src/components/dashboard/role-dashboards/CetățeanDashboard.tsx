@@ -178,6 +178,7 @@ export function CetățeanDashboard({ judet, localitate }: CetățeanDashboardPr
   // Extract data from queries for easier access
   const nextSteps = nextStepsQuery.data?.data || [];
   const documents = documentsQuery.data?.data || [];
+  const documentsTotalCount = documentsQuery.data?.totalCount ?? documents.length;
   const cereriTimeline = cereriTimelineQuery.data?.data || [];
   const serviceBreakdown = serviceBreakdownQuery.data?.data || { breakdown: [], total: 0 };
   const platiMonthly = platiMonthlyQuery.data?.data || {
@@ -380,7 +381,7 @@ export function CetățeanDashboard({ judet, localitate }: CetățeanDashboardPr
                 <RecentDocumentsWidget
                   documents={documents}
                   maxDisplay={3}
-                  totalCount={documents.length}
+                  totalCount={documentsTotalCount}
                   viewAllHref={`/app/${judet}/${localitate}/documente`}
                   onDocumentClick={() => router.push(`/app/${judet}/${localitate}/documente`)}
                   onPreview={handleDocumentPreview}
