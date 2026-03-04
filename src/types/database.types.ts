@@ -227,28 +227,40 @@ export type Database = {
       };
       chitante: {
         Row: {
+          cerere_id: string | null;
           created_at: string;
           data_emitere: string;
           id: string;
           numar_chitanta: string;
           pdf_url: string;
           plata_id: string;
+          primarie_id: string | null;
+          suma: number | null;
+          utilizator_id: string | null;
         };
         Insert: {
+          cerere_id?: string | null;
           created_at?: string;
           data_emitere?: string;
           id?: string;
           numar_chitanta: string;
           pdf_url: string;
           plata_id: string;
+          primarie_id?: string | null;
+          suma?: number | null;
+          utilizator_id?: string | null;
         };
         Update: {
+          cerere_id?: string | null;
           created_at?: string;
           data_emitere?: string;
           id?: string;
           numar_chitanta?: string;
           pdf_url?: string;
           plata_id?: string;
+          primarie_id?: string | null;
+          suma?: number | null;
+          utilizator_id?: string | null;
         };
         Relationships: [
           {
@@ -256,6 +268,27 @@ export type Database = {
             columns: ["plata_id"];
             isOneToOne: true;
             referencedRelation: "plati";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "chitante_primarie_id_fkey";
+            columns: ["primarie_id"];
+            isOneToOne: false;
+            referencedRelation: "primarii";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "chitante_utilizator_id_fkey";
+            columns: ["utilizator_id"];
+            isOneToOne: false;
+            referencedRelation: "utilizatori";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "chitante_cerere_id_fkey";
+            columns: ["cerere_id"];
+            isOneToOne: false;
+            referencedRelation: "cereri";
             referencedColumns: ["id"];
           },
         ];
@@ -1410,6 +1443,7 @@ export type Database = {
           cnp: string | null;
           created_at: string | null;
           deleted_at: string | null;
+          deletion_requested_at: string | null;
           departament: string | null;
           email: string;
           email_verificat: boolean | null;
@@ -1425,6 +1459,7 @@ export type Database = {
           primarie_id: string | null;
           rol: string;
           sms_notifications_enabled: boolean | null;
+          status: string | null;
           telefon: string | null;
           telefon_verificat: boolean | null;
           timezone: string | null;
@@ -1437,6 +1472,7 @@ export type Database = {
           cnp?: string | null;
           created_at?: string | null;
           deleted_at?: string | null;
+          deletion_requested_at?: string | null;
           departament?: string | null;
           email: string;
           email_verificat?: boolean | null;
@@ -1452,6 +1488,7 @@ export type Database = {
           primarie_id?: string | null;
           rol: string;
           sms_notifications_enabled?: boolean | null;
+          status?: string | null;
           telefon?: string | null;
           telefon_verificat?: boolean | null;
           timezone?: string | null;
@@ -1464,6 +1501,7 @@ export type Database = {
           cnp?: string | null;
           created_at?: string | null;
           deleted_at?: string | null;
+          deletion_requested_at?: string | null;
           departament?: string | null;
           email?: string;
           email_verificat?: boolean | null;
@@ -1479,6 +1517,7 @@ export type Database = {
           primarie_id?: string | null;
           rol?: string;
           sms_notifications_enabled?: boolean | null;
+          status?: string | null;
           telefon?: string | null;
           telefon_verificat?: boolean | null;
           timezone?: string | null;
