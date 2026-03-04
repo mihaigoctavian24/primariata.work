@@ -95,8 +95,8 @@ test.describe("Admin Dashboard - Export Functionality", () => {
       // Verify Excel file extension
       expect(download.suggestedFilename()).toMatch(/\.(xlsx|xls)$/i);
     } else {
-      // Excel export not implemented, skip test
-      test.skip();
+      // Excel export not implemented yet
+      test.fixme();
     }
   });
 
@@ -124,8 +124,8 @@ test.describe("Admin Dashboard - Export Functionality", () => {
       // Verify PDF file extension
       expect(download.suggestedFilename()).toMatch(/\.(pdf)$/i);
     } else {
-      // PDF export not implemented, skip test
-      test.skip();
+      // PDF export not implemented yet
+      test.fixme();
     }
   });
 
@@ -199,8 +199,8 @@ test.describe("Admin Dashboard - Export Functionality", () => {
         expect(download.suggestedFilename()).toMatch(/\.(csv|xlsx|pdf)$/i);
       }
     } else {
-      // Column selection not available, skip
-      test.skip();
+      // Column selection not implemented yet
+      test.fixme();
     }
   });
 
