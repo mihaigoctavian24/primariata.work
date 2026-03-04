@@ -138,10 +138,11 @@ Plans:
   1. Notification list aggregates notifications from all primarii where the user is registered
   2. Clicking a notification from a different primarie shows a confirmation popup before switching context
   3. After confirming context switch, user is redirected to the source module/page referenced by the notification
-**Plans**: TBD
+**Plans**: 2 plans (1 in Wave 1, 1 sequential in Wave 2)
 
 Plans:
-- [ ] 07-01: TBD
+- [ ] 07-01-PLAN.md -- Foundation hooks + components: useUserPrimarii, usePrimarieSwitch, ContextSwitchDialog, primarie badges on NotificationCard and NotificationDropdownItem (NOT-03, NOT-04, NOT-05) [Wave 1]
+- [ ] 07-02-PLAN.md -- Wire into NotificationDropdown header and /notificari page: cross-primarie click handling, primarie filter dropdown, context switch integration (NOT-03, NOT-04, NOT-05) [Wave 2, depends on 07-01]
 
 ### Phase 8: Compliance & Testing
 **Goal**: Platform meets GDPR requirements for handling citizen data and has verified test coverage for critical security and user flows
@@ -173,7 +174,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 4. Cereri Processing | 3/3 | Complete | 2026-03-03 |
 | 5. Staff Dashboards | 3/3 | Complete | 2026-03-03 |
 | 6. Citizen Features | 4/4 | Complete   | 2026-03-04 |
-| 7. Cross-Primarie Notifications | 0/1 | Not started | - |
+| 7. Cross-Primarie Notifications | 0/2 | Not started | - |
 | 8. Compliance & Testing | 0/2 | Not started | - |
 
 ---
