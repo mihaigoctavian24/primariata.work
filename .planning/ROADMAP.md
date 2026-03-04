@@ -21,6 +21,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 7: Cross-Primarie Notifications** - Notification aggregation across primarii, context switch UX (completed 2026-03-04)
 - [ ] **Phase 8: Compliance & Testing** - GDPR compliance, pgTAP RLS tests, E2E test coverage
 - [ ] **Phase 9: Audit Gap Closure** - Fix audit-identified bugs: dead nav links, stats enum, map 404, profile race condition, tracking updates
+- [ ] **Phase 10: Payment & GDPR Critical Fixes** - Wire webhook receipt pipeline, add GDPR deletion columns migration
+- [ ] **Phase 11: E2E Seed Data & Full Coverage** - Generate seed data, remove all test.skip, staff-side E2E coverage
 
 ## Phase Details
 
@@ -180,11 +182,37 @@ Plans:
 Plans:
 - [ ] 09-01-PLAN.md -- Fix stats enum values, landing map query pattern, profile race condition; verify AdminDashboard nav and REQUIREMENTS.md tracking (REG-04, REG-05, DASH-07) [Wave 1]
 
+### Phase 10: Payment & GDPR Critical Fixes
+**Goal**: Close the 2 critical audit gaps -- auto-generate receipts on payment success and fix GDPR account deletion by adding missing DB columns
+**Depends on**: Phase 6, Phase 8
+**Requirements**: PAY-01, PAY-02, GDPR-03, GDPR-04
+**Gap Closure:** Closes critical gaps from v1.0-MILESTONE-AUDIT.md
+**Success Criteria** (what must be TRUE):
+  1. Payment webhook success handler calls `generateAndStoreReceipt(plataId)` and stores real PDF URL (not placeholder)
+  2. `utilizatori` table has `deletion_requested_at` and `status` columns via migration
+  3. GDPR data export and account deletion Server Actions execute without PostgreSQL errors
+  4. "Payment Success Auto-Receipt" and "GDPR Account Deletion" E2E flows pass
+**Plans**: TBD (use `/gsd:plan-phase 10`)
+
+### Phase 11: E2E Seed Data & Full Coverage
+**Goal**: All E2E tests run with real seed data -- zero test.skip calls, full staff-side coverage
+**Depends on**: Phase 10
+**Requirements**: TEST-04, TEST-05, TEST-06, TEST-07
+**Gap Closure:** Closes tech debt from v1.0-MILESTONE-AUDIT.md
+**Success Criteria** (what must be TRUE):
+  1. E2E seed data script populates test DB with users (cetatean, functionar, admin, primar), cereri, plati, documente, notificari
+  2. Zero `test.skip` calls remain across all E2E spec files
+  3. Payment flow E2E tests exercise checkout → webhook → receipt download
+  4. Staff-side cereri processing E2E tests cover functionar status transitions and admin approval
+  5. Role-based dashboard E2E tests run with authenticated test users
+  6. Admin export E2E tests run with real data
+**Plans**: TBD (use `/gsd:plan-phase 11`)
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9
-(Phases 3 and 4 can partially overlap since they share only Phase 1 as dependency. Phase 6 can begin once Phase 2 and Phase 4 are complete.)
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10 -> 11
+(Phases 3 and 4 can partially overlap since they share only Phase 1 as dependency. Phase 6 can begin once Phase 2 and Phase 4 are complete. Phase 10 closes critical audit gaps. Phase 11 eliminates all test.skip with seed data.)
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -197,6 +225,8 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9
 | 7. Cross-Primarie Notifications | 2/2 | Complete   | 2026-03-04 |
 | 8. Compliance & Testing | 5/5 | Complete   | 2026-03-04 |
 | 9. Audit Gap Closure | 0/1 | Not Started |  |
+| 10. Payment & GDPR Critical Fixes | 0/0 | Not Started |  |
+| 11. E2E Seed Data & Full Coverage | 0/0 | Not Started |  |
 
 ---
 *Roadmap created: 2026-03-02*
