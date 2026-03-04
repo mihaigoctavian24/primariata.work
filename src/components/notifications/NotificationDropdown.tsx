@@ -278,7 +278,7 @@ export function NotificationDropdown({ judet, localitate }: NotificationDropdown
           <Button variant="ghost" size="sm" onClick={handleViewAll} className="group text-sm">
             Vezi toate notificarile
             <span className="ml-1 inline-block transition-transform duration-200 group-hover:translate-x-1">
-              {"\u2192"}
+              →
             </span>
           </Button>
         </div>
