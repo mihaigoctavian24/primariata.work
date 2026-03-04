@@ -1,8 +1,10 @@
 "use server";
 
 import { createClient, createServiceRoleClient } from "@/lib/supabase/server";
+import { headers } from "next/headers";
 import { logger } from "@/lib/logger";
 import type { CerereStatusType } from "@/lib/validations/cereri";
+import type { Cerere } from "@/types/api";
 
 // ============================================================================
 // Types
@@ -501,13 +503,104 @@ export async function updatePrimarieSettings(
 }
 
 // ============================================================================
-// Function 5: getPrimarieSettings
+// Function 5: getCereriList (Server Action replacement for /api/cereri)
+// ============================================================================
+
+/**
+ * Fetch paginated cereri list as a Server Action.
+ * Replaces client-side useCereriList hook for dashboard contexts where
+ * /api/cereri doesn't receive x-primarie-id (middleware only resolves it
+ * for /app/[judet]/[localitate]/* routes, not /api/* routes).
+ */
+export async function getCereriList(params: {
+  page?: number;
+  limit?: number;
+  status?: string;
+  sort?: string;
+  order?: "asc" | "desc";
+}): Promise<{
+  success: boolean;
+  data?: {
+    items: Cerere[];
+    pagination: { page: number; limit: number; total: number; total_pages: number };
+  };
+  error?: string;
+}> {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return { success: false, error: "Autentificare necesara" };
+    }
+
+    const page = params.page ?? 1;
+    const limit = params.limit ?? 20;
+    const sort = params.sort ?? "created_at";
+    const order = params.order ?? "desc";
+    const offset = (page - 1) * limit;
+
+    let query = supabase
+      .from("cereri")
+      .select(
+        `id, primarie_id, tip_cerere_id, solicitant_id, preluat_de_id,
+         numar_inregistrare, date_formular, observatii_solicitant, status,
+         raspuns, motiv_respingere, necesita_plata, valoare_plata,
+         plata_efectuata, plata_efectuata_la, data_termen, data_finalizare,
+         created_at, updated_at,
+         tip_cerere:tipuri_cereri(id, cod, nume, descriere, termen_legal_zile, necesita_taxa, valoare_taxa, departament_responsabil)`,
+        { count: "exact" }
+      )
+      .is("deleted_at", null)
+      .not("status", "in", "(draft,anulata)");
+
+    if (params.status) {
+      query = query.eq("status", params.status);
+    }
+
+    query = query.order(sort, { ascending: order === "asc" });
+    query = query.range(offset, offset + limit - 1);
+
+    const { data: cereri, error, count } = await query;
+
+    if (error) {
+      logger.error("Database error in getCereriList:", error);
+      return { success: false, error: "Eroare la incarcarea cererilor" };
+    }
+
+    const total = count || 0;
+
+    return {
+      success: true,
+      data: {
+        items: (cereri || []) as Cerere[],
+        pagination: {
+          page,
+          limit,
+          total,
+          total_pages: Math.ceil(total / limit),
+        },
+      },
+    };
+  } catch (error) {
+    logger.error("Unexpected error in getCereriList:", error);
+    return { success: false, error: "A aparut o eroare neasteptata" };
+  }
+}
+
+// ============================================================================
+// Function 6: getPrimarieSettings
 // ============================================================================
 
 /**
  * Fetch primarie settings for admin settings form pre-fill.
  * Returns primarie info and notification config with defaults.
- * Uses RLS-filtered query via x-primarie-id from middleware.
+ * Reads x-primarie-id from middleware header and filters explicitly
+ * (primarii_public_select RLS returns all active primarii, so .single() needs
+ * an explicit ID filter to avoid PGRST116).
  */
 export async function getPrimarieSettings(): Promise<{
   success: boolean;
@@ -536,10 +629,20 @@ export async function getPrimarieSettings(): Promise<{
       return { success: false, error: "Autentificare necesara" };
     }
 
-    // RLS + x-primarie-id filters to current primarie
+    // Read primarie ID from middleware header (set for /app/[judet]/[localitate]/* routes)
+    const headersList = await headers();
+    const primarieId = headersList.get("x-primarie-id");
+
+    if (!primarieId) {
+      return { success: false, error: "Primaria nu a fost identificata" };
+    }
+
+    // Explicit ID filter required: primarii_public_select RLS returns all active
+    // primarii, so without .eq("id") the .single() fails with PGRST116
     const { data: primarie, error } = await supabase
       .from("primarii")
       .select("id, email, telefon, adresa, program_lucru, nume_oficial, config")
+      .eq("id", primarieId)
       .single();
 
     if (error) {

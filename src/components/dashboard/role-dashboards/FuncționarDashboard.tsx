@@ -4,8 +4,7 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
-import { getFunctionarStats } from "@/actions/dashboard-stats";
-import { useCereriList } from "@/hooks/use-cereri-list";
+import { getFunctionarStats, getCereriList } from "@/actions/dashboard-stats";
 import { CereriTable } from "@/components/cereri/CereriTable";
 import { calculateSla } from "@/lib/cereri/sla";
 import type { SlaStatus } from "@/lib/cereri/sla";
@@ -41,8 +40,20 @@ export function FuncționarDashboard({ judet, localitate, profile }: Funcționar
     refetchOnWindowFocus: true,
   });
 
-  // Fetch cereri list (all non-draft cereri -- API already excludes drafts)
-  const { cereri, pagination, isLoading: cereriLoading } = useCereriList({ page, limit: 20 });
+  // Fetch cereri list via Server Action (not /api/cereri which lacks x-primarie-id)
+  const { data: cereriData, isLoading: cereriLoading } = useQuery({
+    queryKey: ["functionar-cereri", page],
+    queryFn: async () => {
+      const result = await getCereriList({ page, limit: 20 });
+      if (!result.success) throw new Error(result.error);
+      return result.data!;
+    },
+    staleTime: 30 * 1000,
+    refetchOnWindowFocus: true,
+  });
+
+  const cereri = cereriData?.items ?? [];
+  const pagination = cereriData?.pagination ?? null;
 
   // Sort cereri by SLA urgency (red first, then yellow, green, paused, none)
   const slaOrder: Record<SlaStatus, number> = { red: 0, yellow: 1, green: 2, paused: 3, none: 4 };
@@ -158,7 +169,7 @@ export function FuncționarDashboard({ judet, localitate, profile }: Funcționar
               isLoading={cereriLoading}
             />
 
-            {pagination && pagination.total_pages > 1 && (
+            {pagination !== null && pagination.total_pages > 1 && (
               <div className="mt-4 flex items-center justify-between border-t pt-4">
                 <p className="text-muted-foreground text-sm">
                   Pagina {pagination.page} din {pagination.total_pages} ({pagination.total} cereri)
