@@ -2,13 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: unknown
-last_updated: "2026-03-03T22:26:32.653Z"
+status: completed
+stopped_at: Completed 06-01-PLAN.md (Documents page)
+last_updated: "2026-03-04T12:08:03.514Z"
+last_activity: 2026-03-04 -- Completed 06-03-PLAN.md (Map interactivity + status label audit)
 progress:
-  total_phases: 5
-  completed_phases: 5
-  total_plans: 20
-  completed_plans: 20
+  total_phases: 8
+  completed_phases: 6
+  total_plans: 23
+  completed_plans: 23
+  percent: 75
 ---
 
 # Project State
@@ -18,23 +21,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-02)
 
 **Core value:** Citizens can submit cereri and complete plati digitally for any primarie where they're registered, with complete data isolation between primarii and proper role-based access for all user types.
-**Current focus:** Phase 5 complete. All three staff dashboard plans done (05-01 infra, 05-02 functionar/admin, 05-03 primar). Ready for Phase 6.
+**Current focus:** Phase 5 fully verified (10/10 UAT). DB fix: utilizatori_rol_check now includes 'primar'. Ready for Phase 6 (Citizen Features).
 
 ## Current Position
 
-Phase: 5 of 8 (Staff Dashboards) -- COMPLETE
-Plan: 3 of 3 in current phase (all complete)
-Status: All staff dashboards complete: primar has approval queue with approve/reject, financial overview, staff metrics. Functionar and admin dashboards done in 05-02.
-Last activity: 2026-03-04 -- Completed 05-03-PLAN.md (Primar dashboard)
+Phase: 6 of 8 (Citizen Features) -- IN PROGRESS
+Plan: 3 of N in current phase
+Status: Map interactivity and status label audit complete. MapWidget has zoom controls, flyTo, PrimarieInfoCard popup. All status labels use centralized Romanian labels.
+Last activity: 2026-03-04 -- Completed 06-03-PLAN.md (Map interactivity + status label audit)
 
-Progress: [################] 100% (Phase 5)
+Progress: [##################] ~75% (Phase 6)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 20
+- Total plans completed: 22
 - Average duration: 5.0 min
-- Total execution time: 1.63 hours
+- Total execution time: 1.81 hours
 
 **By Phase:**
 
@@ -51,8 +54,11 @@ Progress: [################] 100% (Phase 5)
 - Trend: accelerating; dashboard plans completing in 2 min
 
 *Updated after each plan completion*
+| Phase 06 P03 | 6min | 2 tasks | 6 files |
+| Phase 06 P02 | 5min | 2 tasks | 10 files |
 | Phase 05 P03 | 2min | 2 tasks | 4 files |
 | Phase 05 P02 | 6 | 2 tasks | 7 files |
+| Phase 06 P01 | 7min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -128,6 +134,15 @@ Recent decisions affecting current work:
 - [Phase 05]: Reject dialog built inline in ApprovalQueue rather than reusing StatusTransitionDialog -- simpler UX for single-action rejection
 - [Phase 05]: CereriTable reused with no-op handlers in FuncționarDashboard (row click navigates to detail)
 - [Phase 05]: System Health replaced with CereriStatusOverview (real data vs fake indicators)
+- [06-02]: Roboto fonts embedded as base64 TTF (~150KB each) for Romanian diacritics in jsPDF receipts
+- [06-02]: On-demand receipt generation in chitanta download endpoint as fallback when chitanta missing
+- [06-02]: NEXT_PUBLIC_GHISEUL_MODE separate from GHISEUL_MODE for client-side TestModeBanner
+- [06-02]: Receipt number format CHT-{YYYY}-{00001} with sequential counter per primarie
+- [Phase 06]: tipuri_cereri grouped by departament_responsabil with cod prefix fallback for categorization
+- [Phase 06]: DocumentQuickPreview modal replaced with window.open to signed URL for simpler preview
+- [06-03]: FlyToHandler uses popupopen event for flyTo animation trigger rather than custom click handler
+- [06-03]: PrimarieInfoCard uses plain Tailwind (no shadcn) for Leaflet popup compatibility
+- [06-03]: ActiveRequestProgressCard fixed wrong enum keys (aprobat->aprobata, respins->respinsa, anulat->anulata)
 
 ### Pending Todos
 
@@ -141,6 +156,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-04
-Stopped at: Completed 05-03-PLAN.md (Phase 5 complete)
-Resume file: .planning/phases/05-staff-dashboards/05-03-SUMMARY.md
+Last session: 2026-03-04T12:06:20Z
+Stopped at: Completed 06-03-PLAN.md (Map interactivity + status label audit)
+Resume file: .planning/phases/06-citizen-features/06-03-SUMMARY.md

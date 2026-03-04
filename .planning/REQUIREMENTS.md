@@ -67,17 +67,17 @@ Requirements for production-ready release. Each maps to roadmap phases.
 
 ### Documents
 
-- [ ] **DOC-01**: /documente page lists all documents attached to user's cereri (uploaded files, generated PDFs, receipts)
-- [ ] **DOC-02**: /documente page includes public forms library with downloadable templates
-- [ ] **DOC-03**: User can preview and download documents from the documents page
-- [ ] **DOC-04**: Dashboard "Documente Recente" widget shows actual recent documents instead of empty state
+- [x] **DOC-01**: /documente page lists all documents attached to user's cereri (uploaded files, generated PDFs, receipts)
+- [x] **DOC-02**: /documente page includes public forms library with downloadable templates
+- [x] **DOC-03**: User can preview and download documents from the documents page
+- [x] **DOC-04**: Dashboard "Documente Recente" widget shows actual recent documents instead of empty state
 
 ### Payments & Receipts
 
-- [ ] **PAY-01**: PDF receipt (chitanta) generated on successful payment with Romanian diacritics
-- [ ] **PAY-02**: Receipts stored in Supabase Storage with signed download URLs
-- [ ] **PAY-03**: Pending payment count in dashboard shows real count (currently hardcoded 0)
-- [ ] **PAY-04**: Payment gateway architecture ready for real Ghiseul.ro swap (feature flag controls mock vs production)
+- [x] **PAY-01**: PDF receipt (chitanta) generated on successful payment with Romanian diacritics
+- [x] **PAY-02**: Receipts stored in Supabase Storage with signed download URLs
+- [x] **PAY-03**: Pending payment count in dashboard shows real count (currently hardcoded 0)
+- [x] **PAY-04**: Payment gateway architecture ready for real Ghiseul.ro swap (feature flag controls mock vs production)
 
 ### Notifications
 
@@ -89,9 +89,9 @@ Requirements for production-ready release. Each maps to roadmap phases.
 
 ### Map & UX
 
-- [ ] **MAP-01**: Dynamic interactive map (Mapbox GL) replaces Spline 3D, centered on selected localitate
-- [ ] **MAP-02**: Map shows primarie location pin with correct coordinates for all localitati
-- [ ] **MAP-03**: Status enum values display in Romanian (e.g., "In Verificare" instead of "in_verificare")
+- [x] **MAP-01**: Dynamic interactive map (Mapbox GL) replaces Spline 3D, centered on selected localitate
+- [x] **MAP-02**: Map shows primarie location pin with correct coordinates for all localitati
+- [x] **MAP-03**: Status enum values display in Romanian (e.g., "In Verificare" instead of "in_verificare")
 
 ### Compliance
 
@@ -197,17 +197,17 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DASH-10 | Phase 5: Staff Dashboards | Complete |
 | NOT-01 | Phase 5: Staff Dashboards | Complete |
 | NOT-02 | Phase 5: Staff Dashboards | Complete |
-| DOC-01 | Phase 6: Citizen Features | Pending |
-| DOC-02 | Phase 6: Citizen Features | Pending |
-| DOC-03 | Phase 6: Citizen Features | Pending |
-| DOC-04 | Phase 6: Citizen Features | Pending |
-| PAY-01 | Phase 6: Citizen Features | Pending |
-| PAY-02 | Phase 6: Citizen Features | Pending |
-| PAY-03 | Phase 6: Citizen Features | Pending |
-| PAY-04 | Phase 6: Citizen Features | Pending |
-| MAP-01 | Phase 6: Citizen Features | Pending |
-| MAP-02 | Phase 6: Citizen Features | Pending |
-| MAP-03 | Phase 6: Citizen Features | Pending |
+| DOC-01 | Phase 6: Citizen Features | Complete |
+| DOC-02 | Phase 6: Citizen Features | Complete |
+| DOC-03 | Phase 6: Citizen Features | Complete |
+| DOC-04 | Phase 6: Citizen Features | Complete |
+| PAY-01 | Phase 6: Citizen Features | Complete |
+| PAY-02 | Phase 6: Citizen Features | Complete |
+| PAY-03 | Phase 6: Citizen Features | Complete |
+| PAY-04 | Phase 6: Citizen Features | Complete |
+| MAP-01 | Phase 6: Citizen Features | Complete |
+| MAP-02 | Phase 6: Citizen Features | Complete |
+| MAP-03 | Phase 6: Citizen Features | Complete |
 | NOT-03 | Phase 7: Cross-Primarie Notifications | Pending |
 | NOT-04 | Phase 7: Cross-Primarie Notifications | Pending |
 | NOT-05 | Phase 7: Cross-Primarie Notifications | Pending |

@@ -17,7 +17,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 3: Registration & Approval** - Multi-primarie registration flow with admin approval workflow
 - [ ] **Phase 4: Cereri Processing** - Status workflow engine, audit trail, document validation, SLA tracking
 - [ ] **Phase 5: Staff Dashboards** - Functionar, Admin, and Primar dashboards with staff notifications
-- [ ] **Phase 6: Citizen Features** - Documents page, PDF receipts, dynamic map, payment architecture
+- [x] **Phase 6: Citizen Features** - Documents page, PDF receipts, dynamic map, payment architecture (completed 2026-03-04)
 - [ ] **Phase 7: Cross-Primarie Notifications** - Notification aggregation across primarii, context switch UX
 - [ ] **Phase 8: Compliance & Testing** - GDPR compliance, pgTAP RLS tests, E2E test coverage
 
@@ -122,12 +122,12 @@ Plans:
   3. Successful payment generates a PDF receipt with correct Romanian diacritics, stored in Supabase Storage with download link
   4. Dashboard shows real pending payment count; payment architecture uses feature flag to toggle mock vs production gateway
   5. Landing page shows a dynamic interactive map centered on the selected localitate with correct primarie location pin
-**Plans**: TBD
+**Plans**: 3 plans (3 parallel in Wave 1)
 
 Plans:
-- [ ] 06-01: TBD
-- [ ] 06-02: TBD
-- [ ] 06-03: TBD
+- [ ] 06-01-PLAN.md -- Documents page + dashboard widget: Server Actions for document fetching, populate /documente with categories, wire RecentDocumentsWidget (DOC-01, DOC-02, DOC-03, DOC-04) [Wave 1]
+- [ ] 06-02-PLAN.md -- PDF receipts + payment architecture: jsPDF receipt generator with Romanian fonts, QR code, Supabase Storage, chitanta endpoint, pending payment count, test mode banner (PAY-01, PAY-02, PAY-03, PAY-04) [Wave 1]
+- [ ] 06-03-PLAN.md -- Interactive map + Romanian labels: Leaflet zoom/flyTo/popup upgrade, PrimarieInfoCard, audit all status displays for Romanian labels (MAP-01, MAP-02, MAP-03) [Wave 1]
 
 ### Phase 7: Cross-Primarie Notifications
 **Goal**: Users registered at multiple primarii see aggregated notifications and can switch primarie context seamlessly from any notification
@@ -171,10 +171,10 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 3. Registration & Approval | 3/3 | Complete | 2026-03-03 |
 | 4. Cereri Processing | 2/3 | In progress | - |
 | 5. Staff Dashboards | 0/3 | Not started | - |
-| 6. Citizen Features | 0/3 | Not started | - |
+| 6. Citizen Features | 3/3 | Complete   | 2026-03-04 |
 | 7. Cross-Primarie Notifications | 0/1 | Not started | - |
 | 8. Compliance & Testing | 0/2 | Not started | - |
 
 ---
 *Roadmap created: 2026-03-02*
-*Last updated: 2026-03-03*
+*Last updated: 2026-03-04*
