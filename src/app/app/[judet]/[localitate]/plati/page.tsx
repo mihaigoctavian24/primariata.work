@@ -10,6 +10,7 @@ import { PlatiTable, PlatiTableSkeleton } from "@/components/plati/PlatiTable";
 import { PlatiCard, PlatiCardSkeleton } from "@/components/plati/PlatiCard";
 import { PlatiFilters } from "@/components/plati/PlatiFilters";
 import { usePlatiList } from "@/hooks/use-plati-list";
+import { TestModeBanner } from "@/components/plati/TestModeBanner";
 import type { PlataStatusType } from "@/lib/validations/plati";
 import { toast } from "sonner";
 
@@ -156,6 +157,9 @@ export default function PlatiPage() {
               </motion.button>
             </div>
           </div>
+
+          {/* Test Mode Banner */}
+          <TestModeBanner />
 
           {/* Filters and View Toggle */}
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">

@@ -18,6 +18,7 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
+import { TestModeBanner } from "@/components/plati/TestModeBanner";
 
 /**
  * Mock Checkout Page
@@ -140,6 +141,9 @@ export default function CheckoutPage({
 
   return (
     <div className="container mx-auto max-w-2xl space-y-6 py-8">
+      {/* Test Mode Banner */}
+      <TestModeBanner />
+
       {/* Header */}
       <div className="text-center">
         <h1 className="text-3xl font-bold tracking-tight">Plată Securizată</h1>
