@@ -16,6 +16,7 @@ import {
 } from "@/hooks/use-dashboard-charts";
 import { useNextSteps } from "@/hooks/use-dashboard-recommendations";
 import { useDashboardDocuments } from "@/hooks/use-dashboard-documents";
+import { getDocumentSignedUrl } from "@/actions/documents";
 import { StatisticsCards } from "@/components/dashboard/StatisticsCards";
 import { QuickActions } from "@/components/dashboard/QuickActions";
 
@@ -41,15 +42,6 @@ import {
 import { HelpCenterWidget } from "@/components/dashboard/HelpCenterWidget";
 import { CitizenBadgeWidget } from "@/components/dashboard/CitizenBadgeWidget";
 import { DashboardCalendar } from "@/components/dashboard/DashboardCalendar";
-
-// Dynamic import for DocumentQuickPreview to avoid SSR issues with react-pdf
-const DocumentQuickPreview = dynamic(
-  () =>
-    import("@/components/dashboard/DocumentQuickPreview").then((mod) => ({
-      default: mod.DocumentQuickPreview,
-    })),
-  { ssr: false }
-);
 
 // Dynamic import for MapWidget -- Leaflet requires window (no SSR)
 const MapWidget = dynamic(
@@ -134,11 +126,8 @@ export function CetățeanDashboard({ judet, localitate }: CetățeanDashboardPr
   // Phase 2: Fetch smart features data
   const nextStepsQuery = useNextSteps();
 
-  // Phase 3: Fetch documents
-  const documentsQuery = useDashboardDocuments({ days: 7, limit: 6 });
-
-  // Document preview state
-  const [previewDocument, setPreviewDocument] = useState<Document | null>(null);
+  // Phase 3: Fetch documents (show 3 on dashboard)
+  const documentsQuery = useDashboardDocuments({ limit: 3 });
 
   // Fetch localitate coordinates for static map
   const localitateQuery = useQuery({
@@ -211,15 +200,29 @@ export function CetățeanDashboard({ judet, localitate }: CetățeanDashboardPr
     router.push(result.url);
   };
 
-  const handleDocumentPreview = (document: Document) => {
-    setPreviewDocument(document);
+  const handleDocumentPreview = async (doc: Document) => {
+    const result = await getDocumentSignedUrl(doc.id);
+    if (result.success) {
+      window.open(result.url, "_blank");
+    } else {
+      logger.error("Failed to get signed URL for preview:", {
+        docId: doc.id,
+      });
+    }
   };
 
-  const handleDocumentDownload = (document: Document) => {
-    const link = window.document.createElement("a");
-    link.href = document.file_path;
-    link.download = document.nume;
-    link.click();
+  const handleDocumentDownload = async (doc: Document) => {
+    const result = await getDocumentSignedUrl(doc.id);
+    if (result.success) {
+      const link = window.document.createElement("a");
+      link.href = result.url;
+      link.download = doc.nume;
+      link.click();
+    } else {
+      logger.error("Failed to get signed URL for download:", {
+        docId: doc.id,
+      });
+    }
   };
 
   return (
@@ -376,10 +379,10 @@ export function CetățeanDashboard({ judet, localitate }: CetățeanDashboardPr
               ) : (
                 <RecentDocumentsWidget
                   documents={documents}
-                  maxDisplay={6}
-                  onDocumentClick={(docId) => {
-                    logger.debug("View document:", docId);
-                  }}
+                  maxDisplay={3}
+                  totalCount={documents.length}
+                  viewAllHref={`/app/${judet}/${localitate}/documente`}
+                  onDocumentClick={() => router.push(`/app/${judet}/${localitate}/documente`)}
                   onPreview={handleDocumentPreview}
                   onDownload={handleDocumentDownload}
                   isLoading={documentsLoading}
@@ -476,7 +479,7 @@ export function CetățeanDashboard({ judet, localitate }: CetățeanDashboardPr
           {/* Phase 5: Help Center Widget */}
           <HelpCenterWidget
             activeCereriCount={stats?.cereri.in_progres || 0}
-            pendingPlatiCount={0} // TODO: Add pending plati count when available
+            pendingPlatiCount={stats?.plati.pending ?? 0}
             isNewUser={stats?.cereri.total === 0}
             maxFAQs={5}
           />
@@ -507,17 +510,6 @@ export function CetățeanDashboard({ judet, localitate }: CetățeanDashboardPr
           />
         </div>
       </div>
-
-      {/* Phase 3: Document Quick Preview Modal */}
-      {previewDocument && (
-        <DocumentQuickPreview
-          documentUrl={previewDocument.file_path}
-          documentName={previewDocument.nume}
-          isOpen={!!previewDocument}
-          onClose={() => setPreviewDocument(null)}
-          onDownload={() => handleDocumentDownload(previewDocument)}
-        />
-      )}
     </>
   );
 }

@@ -1,16 +1,22 @@
 import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { generateAndStoreReceipt } from "@/actions/receipts";
 import type { ApiErrorResponse } from "@/types/api";
 
 /**
  * GET /api/plati/[id]/chitanta
- * Download chitanță PDF for a successful payment
+ * Download chitanta PDF for a successful payment.
+ *
+ * If no chitanta exists yet, triggers on-demand generation.
  *
  * Returns:
  * - PDF file with proper headers (Content-Type: application/pdf)
  */
-export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+): Promise<NextResponse> {
   try {
     const supabase = await createClient();
     const { id } = await params;
@@ -26,7 +32,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         success: false,
         error: {
           code: "UNAUTHORIZED",
-          message: "Autentificare necesară",
+          message: "Autentificare necesara",
         },
         meta: { timestamp: new Date().toISOString() },
       };
@@ -45,7 +51,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         success: false,
         error: {
           code: "PAYMENT_NOT_FOUND",
-          message: "Plata nu a fost găsită sau nu aveți acces la ea",
+          message: "Plata nu a fost gasita sau nu aveti acces la ea",
         },
         meta: { timestamp: new Date().toISOString() },
       };
@@ -58,7 +64,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         success: false,
         error: {
           code: "PAYMENT_NOT_COMPLETED",
-          message: "Chitanța este disponibilă doar pentru plățile finalizate",
+          message: "Chitanta este disponibila doar pentru platile finalizate",
         },
         meta: { timestamp: new Date().toISOString() },
       };
@@ -66,67 +72,83 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     // Fetch chitanta
-    const { data: chitanta, error: chitantaError } = await supabase
+    let { data: chitanta } = await supabase
       .from("chitante")
       .select("id, numar_chitanta, pdf_url")
       .eq("plata_id", id)
-      .single();
+      .maybeSingle();
 
-    if (chitantaError || !chitanta) {
+    // If no chitanta exists, trigger on-demand generation
+    if (!chitanta) {
+      const result = await generateAndStoreReceipt(id);
+      if (!result.success) {
+        const errorResponse: ApiErrorResponse = {
+          success: false,
+          error: {
+            code: "RECEIPT_GENERATION_FAILED",
+            message: "Nu s-a putut genera chitanta",
+            details: { error: result.error },
+          },
+          meta: { timestamp: new Date().toISOString() },
+        };
+        return NextResponse.json(errorResponse, { status: 500 });
+      }
+
+      // Re-fetch the newly created chitanta
+      const { data: newChitanta } = await supabase
+        .from("chitante")
+        .select("id, numar_chitanta, pdf_url")
+        .eq("plata_id", id)
+        .single();
+
+      chitanta = newChitanta;
+    }
+
+    if (!chitanta?.pdf_url) {
       const errorResponse: ApiErrorResponse = {
         success: false,
         error: {
           code: "RECEIPT_NOT_FOUND",
-          message: "Chitanța nu a fost găsită. Contactați suportul.",
+          message: "Chitanta nu a fost gasita. Contactati suportul.",
         },
         meta: { timestamp: new Date().toISOString() },
       };
       return NextResponse.json(errorResponse, { status: 404 });
     }
 
-    // TODO Phase 3: Download PDF from Supabase Storage
-    // For now, return placeholder response
-    const errorResponse: ApiErrorResponse = {
-      success: false,
-      error: {
-        code: "NOT_IMPLEMENTED",
-        message: "Descărcarea chitanței nu este încă implementată. Reveniți în Faza 3.",
-        details: {
-          chitanta_id: chitanta.id,
-          numar_chitanta: chitanta.numar_chitanta,
-          pdf_url: chitanta.pdf_url,
-        },
-      },
-      meta: { timestamp: new Date().toISOString() },
-    };
-
-    return NextResponse.json(errorResponse, { status: 501 });
-
-    /* TODO Phase 3: Implement actual PDF download
+    // Download PDF from Supabase Storage
     const { data: pdfBlob, error: downloadError } = await supabase.storage
-      .from('chitante')
+      .from("chitante")
       .download(chitanta.pdf_url);
 
     if (downloadError || !pdfBlob) {
-      // Error response...
+      logger.error("Failed to download receipt PDF:", downloadError);
+      const errorResponse: ApiErrorResponse = {
+        success: false,
+        error: {
+          code: "DOWNLOAD_FAILED",
+          message: "Eroare la descarcarea chitantei",
+        },
+        meta: { timestamp: new Date().toISOString() },
+      };
+      return NextResponse.json(errorResponse, { status: 500 });
     }
 
     return new NextResponse(pdfBlob, {
       status: 200,
       headers: {
-        'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename="chitanta-${chitanta.numar_chitanta}.pdf"`,
-        'Cache-Control': 'private, max-age=3600', // Cache for 1 hour
+        "Content-Type": "application/pdf",
+        "Content-Disposition": `attachment; filename="chitanta-${chitanta.numar_chitanta}.pdf"`,
+        "Cache-Control": "private, max-age=3600",
       },
     });
-    */
   } catch (error) {
     logger.error("Unexpected error in GET /api/plati/[id]/chitanta:", error);
     const errorResponse: ApiErrorResponse = {
       success: false,
       error: {
         code: "INTERNAL_ERROR",
-        message: "Eroare internă de server",
+        message: "Eroare interna de server",
       },
       meta: { timestamp: new Date().toISOString() },
     };

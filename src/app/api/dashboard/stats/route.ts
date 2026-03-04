@@ -12,6 +12,7 @@ export interface DashboardStats {
   plati: {
     total: number;
     total_suma: number; // sum of all successful payments
+    pending: number; // cereri with necesita_plata=true and unpaid
   };
 }
 
@@ -124,6 +125,15 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       platiData?.filter((p) => p.status === "success").reduce((sum, p) => sum + (p.suma || 0), 0) ||
       0;
 
+    // Count pending payments: cereri with necesita_plata=true and not yet paid
+    const { count: pendingPlatiCount } = await supabase
+      .from("cereri")
+      .select("id", { count: "exact", head: true })
+      .eq("primarie_id", primarie.id)
+      .eq("necesita_plata", true)
+      .or("plata_efectuata.is.null,plata_efectuata.eq.false")
+      .not("status", "in", "(anulata,respinsa)");
+
     const stats: DashboardStats = {
       cereri: {
         total: total_cereri,
@@ -133,6 +143,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       plati: {
         total: total_plati,
         total_suma,
+        pending: pendingPlatiCount ?? 0,
       },
     };
 
