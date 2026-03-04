@@ -21,7 +21,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-02)
 
 **Core value:** Citizens can submit cereri and complete plati digitally for any primarie where they're registered, with complete data isolation between primarii and proper role-based access for all user types.
-**Current focus:** Phase 11 (E2E Seed & Coverage) -- Plan 03 COMPLETE.
+**Current focus:** Phase 11 (E2E Seed & Coverage) -- Plans 01, 02, 03 COMPLETE.
 
 ## Current Position
 
@@ -70,6 +70,7 @@ Progress: [██████████] 97% (35/36 plans)
 | Phase 11 P01 | 5min | 2 tasks | 4 files |
 | Phase 10 P01 | 4min | 2 tasks | 5 files |
 | Phase 11 P03 | 2min | 2 tasks | 2 files |
+| Phase 11 P02 | 3min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -175,6 +176,9 @@ Recent decisions affecting current work:
 - [Phase 11]: Plata status uses 'pending' and 'success' matching PlataStatus enum from validations/plati.ts
 - [Phase 11]: Centralized authenticateAs(page, role) replaces per-spec duplicate auth functions
 - [Phase 11]: Edge-case dashboard tests (loading/error/deactivated/unknown) converted to test.fixme -- cannot simulate with real Supabase auth
+- [Phase 11]: Draft cancel test uses test.fixme -- drafts are transient wizard state, not seedable data
+- [Phase 11]: Admin approval queue uses test.fixme for UI structure uncertainty, not data availability
+- [Phase 11]: All hardcoded sectorul-1 URLs replaced with TEST_CONFIG.localitate (sector-1-b) across all specs
 
 ### Pending Todos
 
