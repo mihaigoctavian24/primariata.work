@@ -20,10 +20,23 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
   ArrowLeft,
   User,
   Bell,
   Shield,
+  ShieldCheck,
   Palette,
   Sliders,
   Save,
@@ -31,10 +44,15 @@ import {
   Loader2,
   Eye,
   EyeOff,
+  Download,
+  Trash2,
+  AlertTriangle,
+  Info,
 } from "lucide-react";
 import { clearLocation } from "@/lib/location-storage";
 import { createClient } from "@/lib/supabase/client";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { exportUserData, requestAccountDeletion, cancelAccountDeletion } from "@/lib/actions/gdpr";
 
 interface SettingsPageProps {
   params: Promise<{
@@ -85,6 +103,14 @@ export default function SettingsPage({ params }: SettingsPageProps) {
   const [fontSize, setFontSize] = useState<"small" | "medium" | "large">("medium");
   const [reducedMotion, setReducedMotion] = useState(false);
 
+  // Privacy / GDPR State
+  const [isExporting, setIsExporting] = useState(false);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+  const [isCancellingDeletion, setIsCancellingDeletion] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
+  const [deletionRequestedAt, setDeletionRequestedAt] = useState<string | null>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+
   // Load user profile from Supabase
   useEffect(() => {
     const loadUserProfile = async () => {
@@ -102,6 +128,21 @@ export default function SettingsPage({ params }: SettingsPageProps) {
           setEmail(user.email || "");
           setFullName(user.user_metadata?.full_name || "");
           setPhone(user.user_metadata?.phone || "");
+
+          // Check if account deletion was requested
+          const { data: profile } = await supabase
+            .from("utilizatori")
+            .select("*")
+            .eq("id", user.id)
+            .single();
+
+          if (profile) {
+            // deletion_requested_at not in generated types yet
+            const profileAny = profile as Record<string, unknown>;
+            if (profileAny.deletion_requested_at) {
+              setDeletionRequestedAt(profileAny.deletion_requested_at as string);
+            }
+          }
         }
       } catch (error) {
         logger.error("Error loading profile:", error);
@@ -306,6 +347,80 @@ export default function SettingsPage({ params }: SettingsPageProps) {
     }
   };
 
+  const handleExportData = async (): Promise<void> => {
+    setIsExporting(true);
+    try {
+      const result = await exportUserData();
+      if (!result.success) {
+        toast.error(result.error);
+        return;
+      }
+
+      // Trigger browser download
+      const blob = new Blob([result.data], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = result.filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      toast.success("Datele tale au fost descarcate cu succes");
+    } catch (error) {
+      logger.error("Error exporting data:", error);
+      toast.error("Nu s-au putut exporta datele");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleRequestDeletion = async (): Promise<void> => {
+    if (!deletePassword) {
+      toast.error("Te rugam sa introduci parola pentru confirmare");
+      return;
+    }
+
+    setIsDeletingAccount(true);
+    try {
+      const result = await requestAccountDeletion(deletePassword);
+      if (!result.success) {
+        toast.error(result.error);
+        return;
+      }
+
+      toast.success("Cererea de stergere a fost inregistrata");
+      setShowDeleteDialog(false);
+      setDeletePassword("");
+      router.push("/");
+    } catch (error) {
+      logger.error("Error requesting deletion:", error);
+      toast.error("Nu s-a putut procesa cererea de stergere");
+    } finally {
+      setIsDeletingAccount(false);
+    }
+  };
+
+  const handleCancelDeletion = async (): Promise<void> => {
+    setIsCancellingDeletion(true);
+    try {
+      const result = await cancelAccountDeletion();
+      if (!result.success) {
+        toast.error(result.error);
+        return;
+      }
+
+      setDeletionRequestedAt(null);
+      toast.success("Cererea de stergere a fost anulata");
+    } catch (error) {
+      logger.error("Error cancelling deletion:", error);
+      toast.error("Nu s-a putut anula cererea de stergere");
+    } finally {
+      setIsCancellingDeletion(false);
+    }
+  };
+
   return (
     <>
       {/* Page Header - Fixed */}
@@ -358,7 +473,7 @@ export default function SettingsPage({ params }: SettingsPageProps) {
       <div className="flex-1 overflow-y-auto">
         <div className="container mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="mx-auto grid w-full max-w-2xl grid-cols-4 lg:grid-cols-5">
+            <TabsList className="mx-auto grid w-full max-w-2xl grid-cols-4 lg:grid-cols-6">
               <TabsTrigger
                 value="dashboard"
                 className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
@@ -393,6 +508,13 @@ export default function SettingsPage({ params }: SettingsPageProps) {
               >
                 <Palette className="mr-2 h-4 w-4" />
                 Aspect
+              </TabsTrigger>
+              <TabsTrigger
+                value="privacy"
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground hidden lg:flex"
+              >
+                <ShieldCheck className="mr-2 h-4 w-4" />
+                Confidentialitate
               </TabsTrigger>
             </TabsList>
 
@@ -804,6 +926,150 @@ export default function SettingsPage({ params }: SettingsPageProps) {
                       Salvează preferințe
                     </Button>
                   </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Privacy / Confidentialitate Tab */}
+            <TabsContent value="privacy" className="space-y-4">
+              {/* Card 1: Export Date Personale */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Export Date Personale</CardTitle>
+                  <CardDescription>
+                    Descarca toate datele tale personale intr-un fisier JSON (profil, cereri, plati,
+                    documente, notificari)
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground mb-4 text-sm">
+                    Conform GDPR, ai dreptul sa primesti o copie a tuturor datelor tale personale
+                    stocate in sistem.
+                  </p>
+                  <Button onClick={handleExportData} disabled={isExporting}>
+                    {isExporting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Se exporta...
+                      </>
+                    ) : (
+                      <>
+                        <Download className="mr-2 h-4 w-4" />
+                        Descarca Datele Mele
+                      </>
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Card 2: Stergere Cont */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Stergere Cont</CardTitle>
+                  <CardDescription>
+                    Solicita stergerea contului tau. Contul va fi dezactivat imediat si datele
+                    personale vor fi anonimizate dupa 30 de zile.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {deletionRequestedAt ? (
+                    <>
+                      <Alert>
+                        <Info className="h-4 w-4" />
+                        <AlertDescription>
+                          Ai solicitat stergerea contului pe{" "}
+                          {new Date(deletionRequestedAt).toLocaleDateString("ro-RO")}. Contul va fi
+                          sters definitiv pe{" "}
+                          {new Date(
+                            new Date(deletionRequestedAt).getTime() + 30 * 24 * 60 * 60 * 1000
+                          ).toLocaleDateString("ro-RO")}
+                          .
+                        </AlertDescription>
+                      </Alert>
+                      <Button
+                        variant="outline"
+                        onClick={handleCancelDeletion}
+                        disabled={isCancellingDeletion}
+                      >
+                        {isCancellingDeletion ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Se anuleaza...
+                          </>
+                        ) : (
+                          "Anuleaza Stergerea"
+                        )}
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <div className="bg-destructive/10 text-destructive flex items-start gap-2 rounded-md p-3 text-sm">
+                        <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                        <span>
+                          Aceasta actiune este ireversibila dupa perioada de gratie de 30 de zile.
+                        </span>
+                      </div>
+
+                      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="destructive">
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Solicita Stergerea Contului
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>
+                              Esti sigur ca vrei sa stergi contul?
+                            </AlertDialogTitle>
+                            <AlertDialogDescription asChild>
+                              <div className="space-y-3">
+                                <p>Daca continui:</p>
+                                <ul className="list-inside list-disc space-y-1 text-sm">
+                                  <li>Contul va fi dezactivat imediat</li>
+                                  <li>Datele personale vor fi anonimizate dupa 30 de zile</li>
+                                  <li>
+                                    Cererile si platile vor fi pastrate pentru obligatii legale
+                                  </li>
+                                </ul>
+                                <div className="space-y-2 pt-2">
+                                  <Label htmlFor="delete-password">
+                                    Confirma cu parola contului:
+                                  </Label>
+                                  <Input
+                                    id="delete-password"
+                                    type="password"
+                                    placeholder="Introdu parola"
+                                    value={deletePassword}
+                                    onChange={(e) => setDeletePassword(e.target.value)}
+                                  />
+                                </div>
+                              </div>
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel onClick={() => setDeletePassword("")}>
+                              Anuleaza
+                            </AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={handleRequestDeletion}
+                              disabled={isDeletingAccount || !deletePassword}
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            >
+                              {isDeletingAccount ? (
+                                <>
+                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                  Se proceseaza...
+                                </>
+                              ) : (
+                                "Sterge Contul"
+                              )}
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>
