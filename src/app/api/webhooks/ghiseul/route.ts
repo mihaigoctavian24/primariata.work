@@ -1,12 +1,13 @@
 import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from "next/server";
-import { createClient, SupabaseClient } from "@supabase/supabase-js";
+import { createClient } from "@supabase/supabase-js";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { webhookPlataUpdateSchema, PlataStatus } from "@/lib/validations/plati";
 import { getGhiseulClient } from "@/lib/payments/ghiseul-client";
 import type { ApiErrorResponse } from "@/types/api";
 import { ZodError } from "zod";
 import { generateReceiptCore } from "@/actions/receipts";
-import { Database } from "@/types/database.types";
+import type { Database } from "@/types/database.types";
 
 /**
  * POST /api/webhooks/ghiseul
