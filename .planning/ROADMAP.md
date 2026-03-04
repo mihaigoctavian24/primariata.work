@@ -18,7 +18,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 4: Cereri Processing** - Status workflow engine, audit trail, document validation, SLA tracking (completed 2026-03-03)
 - [x] **Phase 5: Staff Dashboards** - Functionar, Admin, and Primar dashboards with staff notifications (completed 2026-03-03)
 - [x] **Phase 6: Citizen Features** - Documents page, PDF receipts, dynamic map, payment architecture (completed 2026-03-04)
-- [ ] **Phase 7: Cross-Primarie Notifications** - Notification aggregation across primarii, context switch UX
+- [x] **Phase 7: Cross-Primarie Notifications** - Notification aggregation across primarii, context switch UX (completed 2026-03-04)
 - [ ] **Phase 8: Compliance & Testing** - GDPR compliance, pgTAP RLS tests, E2E test coverage
 
 ## Phase Details
@@ -174,7 +174,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 4. Cereri Processing | 3/3 | Complete | 2026-03-03 |
 | 5. Staff Dashboards | 3/3 | Complete | 2026-03-03 |
 | 6. Citizen Features | 4/4 | Complete   | 2026-03-04 |
-| 7. Cross-Primarie Notifications | 1/2 | In Progress|  |
+| 7. Cross-Primarie Notifications | 2/2 | Complete   | 2026-03-04 |
 | 8. Compliance & Testing | 0/2 | Not started | - |
 
 ---
