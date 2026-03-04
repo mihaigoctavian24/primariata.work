@@ -1,4 +1,5 @@
-import { test, expect, Page } from "@playwright/test";
+import { test, expect } from "@playwright/test";
+import { authenticateAs, TEST_CONFIG } from "./helpers/auth";
 
 /**
  * Admin Workflow E2E Tests
@@ -16,56 +17,12 @@ import { test, expect, Page } from "@playwright/test";
  */
 
 // =============================================================================
-// TEST CONFIGURATION
-// =============================================================================
-
-const TEST_CONFIG = {
-  baseURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
-  judet: "bucuresti",
-  localitate: "sectorul-1",
-};
-
-// Admin credentials from environment
-const ADMIN_USER = {
-  email: process.env.E2E_ADMIN_EMAIL || "admin@primariata.work",
-  password: process.env.E2E_ADMIN_PASSWORD || "AdminPassword123!",
-};
-
-// =============================================================================
-// ADMIN AUTHENTICATION HELPER
-// =============================================================================
-
-async function authenticateAdmin(page: Page): Promise<void> {
-  await page.goto(`${TEST_CONFIG.baseURL}/login`);
-
-  await page.getByLabel(/email/i).fill(ADMIN_USER.email);
-  await page.getByLabel(/parol/i).fill(ADMIN_USER.password);
-  await page.getByRole("button", { name: /autentific|login|conectare/i }).click();
-
-  await page.waitForURL(/\/(location|app|admin)/, { timeout: 15000 });
-
-  // If redirected to location selection, select test location
-  if (page.url().includes("/location")) {
-    await page.getByRole("button", { name: new RegExp(TEST_CONFIG.judet, "i") }).click();
-    await page.getByRole("button", { name: new RegExp(TEST_CONFIG.localitate, "i") }).click();
-    const confirmBtn = page.getByRole("button", { name: /confirm/i });
-    if (await confirmBtn.isVisible()) {
-      await confirmBtn.click();
-    }
-  }
-
-  // Wait for authenticated state (admin or app dashboard)
-  await page.waitForURL(/\/(admin|app)/, { timeout: 15000 });
-  await page.waitForLoadState("networkidle");
-}
-
-// =============================================================================
 // TEST SUITE: ADMIN WORKFLOW
 // =============================================================================
 
 test.describe("Admin Workflow E2E @smoke", () => {
   test.beforeEach(async ({ page }) => {
-    await authenticateAdmin(page);
+    await authenticateAs(page, "admin");
   });
 
   // ---------------------------------------------------------------------------
@@ -74,9 +31,7 @@ test.describe("Admin Workflow E2E @smoke", () => {
 
   test("admin dashboard renders with overview widgets", async ({ page }) => {
     // Navigate to admin dashboard
-    await page.goto(
-      `${TEST_CONFIG.baseURL}/app/${TEST_CONFIG.judet}/${TEST_CONFIG.localitate}/admin`
-    );
+    await page.goto(`/app/${TEST_CONFIG.judet}/${TEST_CONFIG.localitate}/admin`);
     await page.waitForLoadState("networkidle");
 
     // If redirected to /admin (standalone admin), handle that too
@@ -107,9 +62,7 @@ test.describe("Admin Workflow E2E @smoke", () => {
 
   test("approve pending registration from admin queue", async ({ page }) => {
     // Navigate to admin area -- try common admin routes
-    await page.goto(
-      `${TEST_CONFIG.baseURL}/app/${TEST_CONFIG.judet}/${TEST_CONFIG.localitate}/admin`
-    );
+    await page.goto(`/app/${TEST_CONFIG.judet}/${TEST_CONFIG.localitate}/admin`);
     await page.waitForLoadState("networkidle");
 
     // Look for registration approval queue/widget
@@ -125,11 +78,12 @@ test.describe("Admin Workflow E2E @smoke", () => {
     const hasApprovalHeading = await approvalHeading.isVisible();
     const hasPendingBadge = await pendingBadge.first().isVisible();
 
+    // Seed data creates a pending user_primarii entry, so approval queue should be visible.
+    // If the approval section is not rendered, the admin dashboard UI structure may differ.
     if (!hasApprovalSection && !hasApprovalHeading && !hasPendingBadge) {
-      // Approval queue may be empty or on a different page -- verify at least the admin area loads
-      test.skip(
+      test.fixme(
         true,
-        "No approval queue visible on admin dashboard. May need specific admin navigation."
+        "Approval queue widget not visible on admin dashboard -- UI structure may differ from expected."
       );
       return;
     }
@@ -166,16 +120,12 @@ test.describe("Admin Workflow E2E @smoke", () => {
 
   test("process cerere as admin - view and update status", async ({ page }) => {
     // Navigate to admin cereri list
-    await page.goto(
-      `${TEST_CONFIG.baseURL}/app/${TEST_CONFIG.judet}/${TEST_CONFIG.localitate}/cereri`
-    );
+    await page.goto(`/app/${TEST_CONFIG.judet}/${TEST_CONFIG.localitate}/cereri`);
     await page.waitForLoadState("networkidle");
 
     // Alternative: try admin-specific cereri route
     if (!(await page.getByRole("heading", { name: /cereri/i }).isVisible())) {
-      await page.goto(
-        `${TEST_CONFIG.baseURL}/app/${TEST_CONFIG.judet}/${TEST_CONFIG.localitate}/admin/cereri`
-      );
+      await page.goto(`/app/${TEST_CONFIG.judet}/${TEST_CONFIG.localitate}/admin/cereri`);
       await page.waitForLoadState("networkidle");
     }
 
@@ -184,10 +134,8 @@ test.describe("Admin Workflow E2E @smoke", () => {
       .locator('tr:has-text("depus"), tr:has-text("verificare"), tbody tr')
       .first();
 
-    if (!(await cerereRow.isVisible())) {
-      test.skip(true, "No cereri available for admin processing.");
-      return;
-    }
+    // Seed data guarantees cereri exist for admin processing
+    await expect(cerereRow).toBeVisible({ timeout: 10000 });
 
     // Click to open cerere detail
     const cerereLink = cerereRow.locator("a").first();

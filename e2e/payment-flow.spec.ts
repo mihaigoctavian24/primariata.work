@@ -1,4 +1,5 @@
-import { test, expect, Page } from "@playwright/test";
+import { test, expect } from "@playwright/test";
+import { authenticateAs, TEST_CONFIG } from "./helpers/auth";
 
 /**
  * Payment Flow E2E Tests
@@ -16,55 +17,12 @@ import { test, expect, Page } from "@playwright/test";
  */
 
 // =============================================================================
-// TEST CONFIGURATION
-// =============================================================================
-
-const TEST_CONFIG = {
-  baseURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
-  judet: "bucuresti",
-  localitate: "sectorul-1",
-};
-
-const TEST_USER = {
-  email: process.env.E2E_TEST_USER_EMAIL || "test.cereri@primariata.work",
-  password: process.env.E2E_TEST_USER_PASSWORD || "TestPassword123!",
-};
-
-// =============================================================================
-// AUTHENTICATION HELPER
-// =============================================================================
-
-async function authenticateUser(page: Page): Promise<void> {
-  await page.goto(`${TEST_CONFIG.baseURL}/login`);
-
-  await page.getByLabel(/email/i).fill(TEST_USER.email);
-  await page.getByLabel(/parol/i).fill(TEST_USER.password);
-  await page.getByRole("button", { name: /autentific|login|conectare/i }).click();
-
-  await page.waitForURL(/\/(location|app)/, { timeout: 15000 });
-
-  if (page.url().includes("/location")) {
-    await page.getByRole("button", { name: new RegExp(TEST_CONFIG.judet, "i") }).click();
-    await page.getByRole("button", { name: new RegExp(TEST_CONFIG.localitate, "i") }).click();
-    const confirmBtn = page.getByRole("button", { name: /confirm/i });
-    if (await confirmBtn.isVisible()) {
-      await confirmBtn.click();
-    }
-  }
-
-  await page.waitForURL(`**/app/${TEST_CONFIG.judet}/${TEST_CONFIG.localitate}**`, {
-    timeout: 15000,
-  });
-  await page.waitForLoadState("networkidle");
-}
-
-// =============================================================================
 // TEST SUITE: PAYMENT FLOW
 // =============================================================================
 
 test.describe("Payment Flow E2E @smoke", () => {
   test.beforeEach(async ({ page }) => {
-    await authenticateUser(page);
+    await authenticateAs(page, "cetatean");
   });
 
   // ---------------------------------------------------------------------------
@@ -73,9 +31,7 @@ test.describe("Payment Flow E2E @smoke", () => {
 
   test("view payments page and list pending payments", async ({ page }) => {
     // Navigate to plati (payments) page
-    await page.goto(
-      `${TEST_CONFIG.baseURL}/app/${TEST_CONFIG.judet}/${TEST_CONFIG.localitate}/plati`
-    );
+    await page.goto(`/app/${TEST_CONFIG.judet}/${TEST_CONFIG.localitate}/plati`);
     await page.waitForLoadState("networkidle");
 
     // Verify payments page loads
@@ -103,9 +59,7 @@ test.describe("Payment Flow E2E @smoke", () => {
     test.setTimeout(60000);
 
     // Navigate to plati page
-    await page.goto(
-      `${TEST_CONFIG.baseURL}/app/${TEST_CONFIG.judet}/${TEST_CONFIG.localitate}/plati`
-    );
+    await page.goto(`/app/${TEST_CONFIG.judet}/${TEST_CONFIG.localitate}/plati`);
     await page.waitForLoadState("networkidle");
 
     // Find a pending payment
@@ -113,11 +67,8 @@ test.describe("Payment Flow E2E @smoke", () => {
       'tr:has-text("pending"), tr:has-text("în așteptare"), tr:has-text("neachitat"), [data-status="pending"]'
     );
 
-    if (!(await pendingPayment.first().isVisible())) {
-      // No pending payments available -- skip gracefully
-      test.skip(true, "No pending payments in seed data. Requires seeded test payments.");
-      return;
-    }
+    // Seed data guarantees a pending payment exists
+    await expect(pendingPayment.first()).toBeVisible({ timeout: 10000 });
 
     // Click pay button on the pending payment
     const payButton = pendingPayment
@@ -151,9 +102,7 @@ test.describe("Payment Flow E2E @smoke", () => {
 
   test("verify receipt is available for completed payment", async ({ page }) => {
     // Navigate to plati page
-    await page.goto(
-      `${TEST_CONFIG.baseURL}/app/${TEST_CONFIG.judet}/${TEST_CONFIG.localitate}/plati`
-    );
+    await page.goto(`/app/${TEST_CONFIG.judet}/${TEST_CONFIG.localitate}/plati`);
     await page.waitForLoadState("networkidle");
 
     // Find a completed payment
@@ -161,10 +110,8 @@ test.describe("Payment Flow E2E @smoke", () => {
       'tr:has-text("finalizat"), tr:has-text("achitat"), tr:has-text("procesată"), [data-status="completed"]'
     );
 
-    if (!(await completedPayment.first().isVisible())) {
-      test.skip(true, "No completed payments available for receipt verification.");
-      return;
-    }
+    // Seed data guarantees a completed payment exists
+    await expect(completedPayment.first()).toBeVisible({ timeout: 10000 });
 
     // Click to view detail or find download button
     await completedPayment.first().click();
