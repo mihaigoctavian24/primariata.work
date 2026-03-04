@@ -26,6 +26,10 @@ interface NotificationsHeaderNewProps {
   onStatusChange: (status: "all" | "unread" | "read" | "dismissed") => void;
   onResetFilters: () => void;
   isLoading?: boolean;
+  // Cross-primarie filter
+  selectedPrimarie?: string;
+  onPrimarieChange?: (primarieId: string | undefined) => void;
+  userPrimarii?: Array<{ primarieId: string; numeOficial: string }>;
 }
 
 export function NotificationsHeaderNew({
@@ -41,9 +45,16 @@ export function NotificationsHeaderNew({
   onStatusChange,
   onResetFilters,
   isLoading = false,
+  selectedPrimarie,
+  onPrimarieChange,
+  userPrimarii,
 }: NotificationsHeaderNewProps) {
   const hasActiveFilters =
-    selectedTypes.length > 0 || selectedPriority || selectedStatus !== "all" || searchInput;
+    selectedTypes.length > 0 ||
+    selectedPriority ||
+    selectedStatus !== "all" ||
+    searchInput ||
+    selectedPrimarie;
 
   return (
     <div className="via-background/50 to-background bg-gradient-to-b from-transparent px-4 py-6 sm:px-6 lg:px-8">
@@ -51,7 +62,7 @@ export function NotificationsHeaderNew({
         {/* Title, Badge, and Actions */}
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-bold">Notificări</h1>
+            <h1 className="text-3xl font-bold">Notificari</h1>
             {unreadCount > 0 && (
               <Badge variant="default" className="h-6 px-2 text-xs">
                 {unreadCount} necitite
@@ -67,8 +78,8 @@ export function NotificationsHeaderNew({
             className="gap-2"
           >
             <CheckCheck className="h-4 w-4" />
-            <span className="hidden sm:inline">Marchează toate ca citite</span>
-            <span className="sm:hidden">Marchează toate</span>
+            <span className="hidden sm:inline">Marcheaza toate ca citite</span>
+            <span className="sm:hidden">Marcheaza toate</span>
           </Button>
         </div>
 
@@ -81,7 +92,7 @@ export function NotificationsHeaderNew({
               type="text"
               value={searchInput}
               onChange={(e) => onSearchChange(e.target.value)}
-              placeholder="Caută notificări..."
+              placeholder="Cauta notificari..."
               className="border-border bg-background text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary h-11 w-full rounded-lg border pr-10 pl-10 text-sm focus:ring-1 focus:outline-none"
             />
             {isLoading && (
@@ -102,7 +113,7 @@ export function NotificationsHeaderNew({
             <SelectContent>
               <SelectItem value="all">Toate tipurile</SelectItem>
               <SelectItem value="cerere_status">Cerere Status</SelectItem>
-              <SelectItem value="plata_status">Plată Status</SelectItem>
+              <SelectItem value="plata_status">Plata Status</SelectItem>
               <SelectItem value="document_ready">Document Ready</SelectItem>
               <SelectItem value="mesaj_primit">Mesaj Primit</SelectItem>
             </SelectContent>
@@ -119,11 +130,11 @@ export function NotificationsHeaderNew({
               <SelectValue placeholder="Prioritate" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Toate prioritățile</SelectItem>
+              <SelectItem value="all">Toate prioritatile</SelectItem>
               <SelectItem value="urgent">Urgent</SelectItem>
-              <SelectItem value="high">Înaltă</SelectItem>
+              <SelectItem value="high">Inalta</SelectItem>
               <SelectItem value="medium">Medie</SelectItem>
-              <SelectItem value="low">Scăzută</SelectItem>
+              <SelectItem value="low">Scazuta</SelectItem>
             </SelectContent>
           </Select>
 
@@ -142,11 +153,31 @@ export function NotificationsHeaderNew({
             </SelectContent>
           </Select>
 
+          {/* Primarie Filter - only show when user has 2+ primarii */}
+          {userPrimarii && userPrimarii.length > 1 && onPrimarieChange && (
+            <Select
+              value={selectedPrimarie || "all"}
+              onValueChange={(value) => onPrimarieChange(value === "all" ? undefined : value)}
+            >
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="Primarie" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Toate primariile</SelectItem>
+                {userPrimarii.map((p) => (
+                  <SelectItem key={p.primarieId} value={p.primarieId}>
+                    {p.numeOficial}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+
           {/* Reset Filters */}
           {hasActiveFilters && (
             <Button variant="ghost" size="sm" onClick={onResetFilters} className="gap-2">
               <X className="h-4 w-4" />
-              Resetează
+              Reseteaza
             </Button>
           )}
         </div>

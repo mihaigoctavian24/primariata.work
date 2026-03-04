@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, useParams } from "next/navigation";
 import { AnimatePresence } from "framer-motion";
 import { Bell, BellOff, Archive } from "lucide-react";
 import { NotificationsHeaderNew } from "./components/NotificationsHeaderNew";
@@ -15,21 +15,26 @@ import { useNotificationsList } from "@/hooks/use-notifications-list";
 import { useNotificationsActions } from "@/hooks/use-notifications-actions";
 import { useNotificationsRealtime } from "@/hooks/use-notifications-realtime";
 import { useDebounce } from "@/hooks/use-debounce";
+import { useUserPrimarii, getPrimarieInfo } from "@/hooks/use-user-primarii";
+import { parseActionUrl } from "@/hooks/use-primarie-switch";
+import { ContextSwitchDialog } from "@/components/notifications/ContextSwitchDialog";
 import type { NotificationType, NotificationPriority } from "@/types/notifications";
 import type { NotificationTypeEnum } from "@/lib/validations/notifications";
+import type { UserPrimarieInfo } from "@/hooks/use-user-primarii";
 
 /**
  * Notifications List Page
  * Displays all user notifications with advanced filtering, tabs, and real-time updates
  *
  * Features:
- * - Tabs: Toate / Urgente / Arhivă
- * - Advanced Filters: Type, Priority, Status, Search
+ * - Tabs: Toate / Urgente / Arhiva
+ * - Advanced Filters: Type, Priority, Status, Search, Primarie
  * - Debounced search (300ms)
  * - URL state persistence for shareable links
  * - Pagination (10 items per page)
  * - Real-time updates via Supabase Realtime
  * - Actions: Dismiss, Mark as read/unread, Mark all as read
+ * - Cross-primarie: badges, primarie filter, ContextSwitchDialog
  * - Empty states for different tabs
  * - Loading states with skeletons
  */
@@ -60,6 +65,26 @@ export default function NotificariPage(): React.JSX.Element {
 function NotificariContent(): React.JSX.Element {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const params = useParams();
+
+  // Extract current judet/localitate from URL params
+  const judet = params.judet as string;
+  const localitate = params.localitate as string;
+
+  // Cross-primarie hooks
+  const { primarii } = useUserPrimarii();
+  const currentPrimarie = primarii.find(
+    (p) => p.judetSlug === judet && p.localitateSlug === localitate
+  );
+  const currentPrimarieId = currentPrimarie?.primarieId;
+  const currentPrimarieName = currentPrimarie?.numeOficial;
+
+  // Context switch dialog state
+  const [contextSwitchTarget, setContextSwitchTarget] = useState<{
+    targetPrimarie: UserPrimarieInfo;
+    actionUrl: string;
+    destinationLabel: string;
+  } | null>(null);
 
   // Initialize state from URL
   const [activeTab, setActiveTab] = useState<"toate" | "urgente" | "arhiva">(
@@ -75,23 +100,26 @@ function NotificariContent(): React.JSX.Element {
   const [searchInput, setSearchInput] = useState<string>(searchParams.get("search") || "");
   const [page, setPage] = useState(parseInt(searchParams.get("page") || "1", 10));
 
+  // Primarie filter state (client-side only, defaults to all)
+  const [selectedPrimarie, setSelectedPrimarie] = useState<string | undefined>(undefined);
+
   // Debounce search input (300ms)
   const debouncedSearch = useDebounce(searchInput, 300);
 
   // Update URL when filters change
   useEffect(() => {
-    const params = new URLSearchParams();
+    const urlParams = new URLSearchParams();
 
-    if (activeTab !== "toate") params.set("tab", activeTab);
+    if (activeTab !== "toate") urlParams.set("tab", activeTab);
     if (selectedTypes.length > 0) {
-      selectedTypes.forEach((type) => params.append("type", type));
+      selectedTypes.forEach((type) => urlParams.append("type", type));
     }
-    if (selectedPriority) params.set("priority", selectedPriority);
-    if (selectedStatus !== "all") params.set("status", selectedStatus);
-    if (debouncedSearch) params.set("search", debouncedSearch);
-    if (page !== 1) params.set("page", page.toString());
+    if (selectedPriority) urlParams.set("priority", selectedPriority);
+    if (selectedStatus !== "all") urlParams.set("status", selectedStatus);
+    if (debouncedSearch) urlParams.set("search", debouncedSearch);
+    if (page !== 1) urlParams.set("page", page.toString());
 
-    const paramsString = params.toString();
+    const paramsString = urlParams.toString();
     const newUrl = `${window.location.pathname}${paramsString ? `?${paramsString}` : ""}`;
     router.replace(newUrl, { scroll: false });
   }, [activeTab, selectedTypes, selectedPriority, selectedStatus, debouncedSearch, page, router]);
@@ -99,7 +127,14 @@ function NotificariContent(): React.JSX.Element {
   // Reset to page 1 when filters change
   useEffect(() => {
     setPage(1);
-  }, [activeTab, selectedTypes, selectedPriority, selectedStatus, debouncedSearch]);
+  }, [
+    activeTab,
+    selectedTypes,
+    selectedPriority,
+    selectedStatus,
+    debouncedSearch,
+    selectedPrimarie,
+  ]);
 
   // Fetch notifications using custom hook
   const { notifications, pagination, unreadCount, isLoading, isError, error } =
@@ -115,6 +150,11 @@ function NotificariContent(): React.JSX.Element {
       order: "desc",
     });
 
+  // Apply client-side primarie filter
+  const filteredNotifications = selectedPrimarie
+    ? notifications.filter((n) => n.primarie_id === selectedPrimarie)
+    : notifications;
+
   // Enable real-time updates
   useNotificationsRealtime();
 
@@ -122,7 +162,7 @@ function NotificariContent(): React.JSX.Element {
   const { markAsRead, markAsUnread, dismiss, markAllAsRead } = useNotificationsActions();
 
   // Tab change handler
-  const handleTabChange = (tab: "toate" | "urgente" | "arhiva") => {
+  const handleTabChange = (tab: "toate" | "urgente" | "arhiva"): void => {
     setActiveTab(tab);
     // Auto-adjust status filter based on tab
     if (tab === "arhiva") {
@@ -133,29 +173,55 @@ function NotificariContent(): React.JSX.Element {
   };
 
   // Filter handlers
-  const handleResetFilters = () => {
+  const handleResetFilters = (): void => {
     setSelectedTypes([]);
     setSelectedPriority(undefined);
     setSelectedStatus("all");
     setSearchInput("");
+    setSelectedPrimarie(undefined);
     setPage(1);
   };
 
   // Action handlers
-  const handleDismiss = async (id: string) => {
+  const handleDismiss = async (id: string): Promise<void> => {
     dismiss.mutate({ notificationId: id });
   };
 
-  const handleMarkRead = async (id: string) => {
+  const handleMarkRead = async (id: string): Promise<void> => {
     markAsRead.mutate({ notificationId: id });
   };
 
-  const handleMarkUnread = async (id: string) => {
+  const handleMarkUnread = async (id: string): Promise<void> => {
     markAsUnread.mutate({ notificationId: id });
   };
 
-  const handleMarkAllAsRead = async () => {
+  const handleMarkAllAsRead = async (): Promise<void> => {
     markAllAsRead.mutate({});
+  };
+
+  /**
+   * Handle notification action click for cross-primarie context switching.
+   * Same-primarie: navigate directly via router.push.
+   * Different primarie: open ContextSwitchDialog for confirmation.
+   */
+  const handleActionClick = (
+    actionUrl: string,
+    notification: { primarie_id: string; title: string }
+  ): void => {
+    const targetPrimarie = getPrimarieInfo(primarii, notification.primarie_id);
+
+    if (!targetPrimarie || targetPrimarie.primarieId === currentPrimarieId) {
+      // Same primarie or unknown -- navigate directly
+      const relativePath = parseActionUrl(actionUrl);
+      router.push(`/app/${judet}/${localitate}${relativePath}`);
+    } else {
+      // Different primarie -- show confirmation dialog
+      setContextSwitchTarget({
+        targetPrimarie,
+        actionUrl,
+        destinationLabel: notification.title,
+      });
+    }
   };
 
   // Tab counts removed - misleading when calculated from filtered data
@@ -166,12 +232,12 @@ function NotificariContent(): React.JSX.Element {
   };
 
   // Empty state messages
-  const getEmptyStateMessage = () => {
+  const getEmptyStateMessage = (): { icon: typeof Bell; title: string; description: string } => {
     if (debouncedSearch) {
       return {
         icon: Bell,
-        title: "Nu s-au găsit notificări",
-        description: "Încercați să modificați filtrele sau să căutați altceva",
+        title: "Nu s-au gasit notificari",
+        description: "Incercati sa modificati filtrele sau sa cautati altceva",
       };
     }
 
@@ -179,20 +245,20 @@ function NotificariContent(): React.JSX.Element {
       case "urgente":
         return {
           icon: BellOff,
-          title: "Nu aveți notificări urgente",
-          description: "Notificările urgente vor apărea aici când apar evenimente importante",
+          title: "Nu aveti notificari urgente",
+          description: "Notificarile urgente vor aparea aici cand apar evenimente importante",
         };
       case "arhiva":
         return {
           icon: Archive,
-          title: "Nu aveți notificări arhivate",
-          description: "Notificările arhivate vor apărea aici",
+          title: "Nu aveti notificari arhivate",
+          description: "Notificarile arhivate vor aparea aici",
         };
       default:
         return {
           icon: Bell,
-          title: "Nu aveți notificări",
-          description: "Notificările vor apărea aici când apar evenimente noi",
+          title: "Nu aveti notificari",
+          description: "Notificarile vor aparea aici cand apar evenimente noi",
         };
     }
   };
@@ -211,9 +277,9 @@ function NotificariContent(): React.JSX.Element {
                 <BellOff className="text-destructive size-8" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold">Eroare la încărcarea notificărilor</h3>
+                <h3 className="text-lg font-semibold">Eroare la incarcarea notificarilor</h3>
                 <p className="text-muted-foreground mt-1 text-sm">
-                  {error?.message || "A apărut o eroare la încărcarea notificărilor"}
+                  {error?.message || "A aparut o eroare la incarcarea notificarilor"}
                 </p>
               </div>
             </div>
@@ -239,6 +305,12 @@ function NotificariContent(): React.JSX.Element {
         onStatusChange={setSelectedStatus}
         onResetFilters={handleResetFilters}
         isLoading={isLoading}
+        selectedPrimarie={selectedPrimarie}
+        onPrimarieChange={setSelectedPrimarie}
+        userPrimarii={primarii.map((p) => ({
+          primarieId: p.primarieId,
+          numeOficial: p.numeOficial,
+        }))}
       />
 
       {/* Scrollable Content Area */}
@@ -265,22 +337,33 @@ function NotificariContent(): React.JSX.Element {
             )}
 
             {/* Notifications List with Animation */}
-            {!isLoading && notifications.length > 0 && (
+            {!isLoading && filteredNotifications.length > 0 && (
               <AnimatePresence key="notifications-list" mode="popLayout">
-                {notifications.map((notification) => (
-                  <NotificationCard
-                    key={notification.id}
-                    notification={notification}
-                    onDismiss={handleDismiss}
-                    onMarkRead={handleMarkRead}
-                    onMarkUnread={handleMarkUnread}
-                  />
-                ))}
+                {filteredNotifications.map((notification) => {
+                  const notifPrimarie = getPrimarieInfo(primarii, notification.primarie_id);
+                  return (
+                    <NotificationCard
+                      key={notification.id}
+                      notification={notification}
+                      onDismiss={handleDismiss}
+                      onMarkRead={handleMarkRead}
+                      onMarkUnread={handleMarkUnread}
+                      onActionClick={(url) =>
+                        handleActionClick(url, {
+                          primarie_id: notification.primarie_id,
+                          title: notification.title,
+                        })
+                      }
+                      currentPrimarieId={currentPrimarieId}
+                      primarieName={notifPrimarie?.numeOficial}
+                    />
+                  );
+                })}
               </AnimatePresence>
             )}
 
             {/* Empty State */}
-            {!isLoading && notifications.length === 0 && (
+            {!isLoading && filteredNotifications.length === 0 && (
               <div className="border-border/40 bg-muted/30 rounded-lg border p-12 text-center">
                 <div className="mx-auto max-w-md space-y-4">
                   <div className="bg-primary/10 mx-auto flex size-16 items-center justify-center rounded-full">
@@ -290,12 +373,12 @@ function NotificariContent(): React.JSX.Element {
                     <h3 className="text-lg font-semibold">{emptyState.title}</h3>
                     <p className="text-muted-foreground mt-1 text-sm">{emptyState.description}</p>
                   </div>
-                  {debouncedSearch && (
+                  {(debouncedSearch || selectedPrimarie) && (
                     <button
                       onClick={handleResetFilters}
                       className="text-primary text-sm hover:underline"
                     >
-                      Resetează filtre
+                      Reseteaza filtre
                     </button>
                   )}
                 </div>
@@ -303,7 +386,7 @@ function NotificariContent(): React.JSX.Element {
             )}
 
             {/* Pagination */}
-            {!isLoading && notifications.length > 0 && (
+            {!isLoading && filteredNotifications.length > 0 && (
               <NotificationsPagination
                 pagination={{
                   page: page,
@@ -317,6 +400,18 @@ function NotificariContent(): React.JSX.Element {
           </div>
         </div>
       </div>
+
+      {/* Context Switch Dialog */}
+      {contextSwitchTarget && (
+        <ContextSwitchDialog
+          open={!!contextSwitchTarget}
+          onOpenChange={(open) => !open && setContextSwitchTarget(null)}
+          currentPrimarie={currentPrimarieName || ""}
+          targetPrimarie={contextSwitchTarget.targetPrimarie}
+          destinationLabel={contextSwitchTarget.destinationLabel}
+          actionUrl={contextSwitchTarget.actionUrl}
+        />
+      )}
     </div>
   );
 }
