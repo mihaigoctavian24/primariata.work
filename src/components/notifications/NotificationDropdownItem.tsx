@@ -37,9 +37,6 @@ export function NotificationDropdownItem({
   const config = NOTIFICATION_CONFIGS[notification.type];
   const IconComponent = config.icon;
   const isUnread = !notification.read_at;
-  // Check urgency for future styling
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const _isUrgent = notification.priority === "urgent" || notification.priority === "high";
 
   return (
     <div

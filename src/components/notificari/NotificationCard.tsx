@@ -104,7 +104,7 @@ export function NotificationCard({
   /**
    * Handle swipe gesture end
    */
-  const handleDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+  const handleDragEnd = (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     const offset = info.offset.x;
 
     // Swipe LEFT (dismiss)
