@@ -1,4 +1,5 @@
-import { test, expect, Page } from "@playwright/test";
+import { test, expect } from "@playwright/test";
+import { authenticateAs, TEST_CONFIG } from "./helpers/auth";
 
 /**
  * Cereri Submission E2E Tests
@@ -11,51 +12,6 @@ import { test, expect, Page } from "@playwright/test";
  */
 
 // =============================================================================
-// TEST CONFIGURATION
-// =============================================================================
-
-const TEST_CONFIG = {
-  baseURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
-  judet: "bucuresti",
-  localitate: "sectorul-1",
-};
-
-const TEST_USER = {
-  email: process.env.E2E_TEST_USER_EMAIL || "test.cereri@primariata.work",
-  password: process.env.E2E_TEST_USER_PASSWORD || "TestPassword123!",
-};
-
-// =============================================================================
-// AUTHENTICATION HELPER
-// =============================================================================
-
-async function authenticateUser(page: Page): Promise<void> {
-  await page.goto(`${TEST_CONFIG.baseURL}/login`);
-
-  await page.getByLabel(/email/i).fill(TEST_USER.email);
-  await page.getByLabel(/parol/i).fill(TEST_USER.password);
-  await page.getByRole("button", { name: /autentific|login|conectare/i }).click();
-
-  // Wait for redirect to location selection or dashboard
-  await page.waitForURL(/\/(location|app)/, { timeout: 15000 });
-
-  // If on location page, select test location
-  if (page.url().includes("/location")) {
-    await page.getByRole("button", { name: new RegExp(TEST_CONFIG.judet, "i") }).click();
-    await page.getByRole("button", { name: new RegExp(TEST_CONFIG.localitate, "i") }).click();
-    const confirmBtn = page.getByRole("button", { name: /confirm/i });
-    if (await confirmBtn.isVisible()) {
-      await confirmBtn.click();
-    }
-  }
-
-  await page.waitForURL(`**/app/${TEST_CONFIG.judet}/${TEST_CONFIG.localitate}**`, {
-    timeout: 15000,
-  });
-  await page.waitForLoadState("networkidle");
-}
-
-// =============================================================================
 // TEST SUITE: CERERI SUBMISSION
 // =============================================================================
 
@@ -63,7 +19,7 @@ test.describe("Cereri Submission E2E @smoke", () => {
   test.describe.configure({ mode: "serial" });
 
   test.beforeEach(async ({ page }) => {
-    await authenticateUser(page);
+    await authenticateAs(page, "cetatean");
   });
 
   // ---------------------------------------------------------------------------
@@ -74,15 +30,13 @@ test.describe("Cereri Submission E2E @smoke", () => {
     test.setTimeout(60000);
 
     // Navigate to cereri wizard
-    const wizardUrl = `${TEST_CONFIG.baseURL}/app/${TEST_CONFIG.judet}/${TEST_CONFIG.localitate}/cereri/wizard`;
+    const wizardUrl = `/app/${TEST_CONFIG.judet}/${TEST_CONFIG.localitate}/cereri/wizard`;
     await page.goto(wizardUrl);
     await page.waitForLoadState("networkidle");
 
     // If wizard didn't load directly, try navigating from cereri list
     if (!page.url().includes("wizard")) {
-      await page.goto(
-        `${TEST_CONFIG.baseURL}/app/${TEST_CONFIG.judet}/${TEST_CONFIG.localitate}/cereri`
-      );
+      await page.goto(`/app/${TEST_CONFIG.judet}/${TEST_CONFIG.localitate}/cereri`);
       await page.waitForLoadState("networkidle");
 
       // Click "Cerere Noua" button
@@ -165,9 +119,7 @@ test.describe("Cereri Submission E2E @smoke", () => {
     }
 
     // Verify cerere appears in list
-    await page.goto(
-      `${TEST_CONFIG.baseURL}/app/${TEST_CONFIG.judet}/${TEST_CONFIG.localitate}/cereri`
-    );
+    await page.goto(`/app/${TEST_CONFIG.judet}/${TEST_CONFIG.localitate}/cereri`);
     await page.waitForLoadState("networkidle");
 
     // List should have at least one cerere
@@ -181,18 +133,12 @@ test.describe("Cereri Submission E2E @smoke", () => {
 
   test("view cerere detail and track status", async ({ page }) => {
     // Navigate to cereri list
-    await page.goto(
-      `${TEST_CONFIG.baseURL}/app/${TEST_CONFIG.judet}/${TEST_CONFIG.localitate}/cereri`
-    );
+    await page.goto(`/app/${TEST_CONFIG.judet}/${TEST_CONFIG.localitate}/cereri`);
     await page.waitForLoadState("networkidle");
 
-    // Find and click on an existing cerere
+    // Find and click on an existing cerere (seed data guarantees cereri exist)
     const cerereRow = page.locator('[data-testid="cerere-row"], tr[data-testid], tbody tr').first();
-
-    if (!(await cerereRow.isVisible())) {
-      test.skip(true, "No cereri available in list for detail view test");
-      return;
-    }
+    await expect(cerereRow).toBeVisible({ timeout: 10000 });
 
     // Click to open detail (link or row click)
     const cerereLink = cerereRow.locator("a").first();

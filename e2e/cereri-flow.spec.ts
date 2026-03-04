@@ -1,4 +1,5 @@
-import { test, expect, Page } from "@playwright/test";
+import { test, expect } from "@playwright/test";
+import { authenticateAs, TEST_CONFIG } from "./helpers/auth";
 
 /**
  * Cereri Flow E2E Tests
@@ -11,57 +12,6 @@ import { test, expect, Page } from "@playwright/test";
  */
 
 // =============================================================================
-// TEST CONFIGURATION
-// =============================================================================
-
-const TEST_CONFIG = {
-  baseURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
-  judet: "bucuresti",
-  localitate: "sectorul-1",
-  timeout: 30000,
-};
-
-// Test user credentials (created during setup)
-const TEST_USER = {
-  email: "test.cereri@primariata.work",
-  password: "TestPassword123!",
-  fullName: "Ion Popescu Test",
-};
-
-// =============================================================================
-// AUTHENTICATION HELPER
-// =============================================================================
-
-/**
- * Authenticate user and navigate to app dashboard
- */
-async function authenticateUser(page: Page) {
-  // Navigate to login page
-  await page.goto(`${TEST_CONFIG.baseURL}/login`);
-
-  // Fill login form
-  await page.getByLabel("Email").fill(TEST_USER.email);
-  await page.getByLabel("Parola").fill(TEST_USER.password);
-
-  // Submit login
-  await page.getByRole("button", { name: /autentific/i }).click();
-
-  // Wait for redirect to location selection or dashboard
-  await page.waitForURL(/\/(location|app)/);
-
-  // If on location page, select test location
-  if (page.url().includes("/location")) {
-    await page.getByRole("button", { name: TEST_CONFIG.judet }).click();
-    await page.getByRole("button", { name: TEST_CONFIG.localitate }).click();
-    await page.getByRole("button", { name: /confirm/i }).click();
-  }
-
-  // Wait for dashboard to load
-  await page.waitForURL(`**/app/${TEST_CONFIG.judet}/${TEST_CONFIG.localitate}**`);
-  await page.waitForLoadState("networkidle");
-}
-
-// =============================================================================
 // TEST SUITE: CERERI FLOW
 // =============================================================================
 
@@ -72,12 +22,10 @@ test.describe("Cereri Flow E2E", () => {
 
   test.beforeEach(async ({ page }) => {
     // Authenticate before each test
-    await authenticateUser(page);
+    await authenticateAs(page, "cetatean");
 
     // Navigate to cereri section
-    await page.goto(
-      `${TEST_CONFIG.baseURL}/app/${TEST_CONFIG.judet}/${TEST_CONFIG.localitate}/cereri`
-    );
+    await page.goto(`/app/${TEST_CONFIG.judet}/${TEST_CONFIG.localitate}/cereri`);
     await page.waitForLoadState("networkidle");
   });
 
@@ -233,40 +181,13 @@ test.describe("Cereri Flow E2E", () => {
   // ---------------------------------------------------------------------------
 
   test("should cancel draft cerere successfully", async ({ page }) => {
-    // Navigate to a draft cerere (or create one first)
-    // For this test, assume we have a draft cerere available
-
-    // Find draft cerere
-    const draftCerere = page
-      .locator('[data-testid="cerere-row"]:has-text("Draft"), tr:has-text("Ciornă")')
-      .first();
-
-    if ((await draftCerere.count()) === 0) {
-      // Skip test if no draft cereri available
-      test.skip();
-      return;
-    }
-
-    // Click to view details
-    await draftCerere.locator("a, button").first().click();
-    await page.waitForURL(/cereri\/[a-f0-9-]+/);
-
-    // Click cancel button
-    const cancelButton = page.getByRole("button", { name: /anuleaz/i });
-    await expect(cancelButton).toBeVisible();
-    await cancelButton.click();
-
-    // Confirm cancellation in dialog
-    const confirmButton = page.getByRole("button", { name: /confirm|da/i });
-    if ((await confirmButton.count()) > 0) {
-      await confirmButton.click();
-    }
-
-    // Verify success message
-    await expect(page.getByText(/anulat|succes/i)).toBeVisible({ timeout: 10000 });
-
-    // Verify status changed to "Anulată"
-    await expect(page.getByText(/anulat/i)).toBeVisible();
+    // Seed data creates cereri with status "depusa", not "draft" (ciorna).
+    // Draft cereri are only created mid-wizard and not persisted as drafts.
+    // This test needs a true draft/ciorna cerere which the seed does not provide.
+    test.fixme(
+      true,
+      "Seed data has no draft/ciorna cereri -- drafts are transient wizard state, not seeded."
+    );
   });
 
   // ---------------------------------------------------------------------------
@@ -410,10 +331,8 @@ test.describe("Cereri Flow E2E", () => {
 
 test.describe("Cereri Flow - Error Handling", () => {
   test.beforeEach(async ({ page }) => {
-    await authenticateUser(page);
-    await page.goto(
-      `${TEST_CONFIG.baseURL}/app/${TEST_CONFIG.judet}/${TEST_CONFIG.localitate}/cereri`
-    );
+    await authenticateAs(page, "cetatean");
+    await page.goto(`/app/${TEST_CONFIG.judet}/${TEST_CONFIG.localitate}/cereri`);
   });
 
   test("should show validation errors for invalid form submission", async ({ page }) => {
@@ -445,10 +364,8 @@ test.describe("Cereri Flow - Error Handling", () => {
 
 test.describe("Cereri Flow - Accessibility", () => {
   test.beforeEach(async ({ page }) => {
-    await authenticateUser(page);
-    await page.goto(
-      `${TEST_CONFIG.baseURL}/app/${TEST_CONFIG.judet}/${TEST_CONFIG.localitate}/cereri`
-    );
+    await authenticateAs(page, "cetatean");
+    await page.goto(`/app/${TEST_CONFIG.judet}/${TEST_CONFIG.localitate}/cereri`);
   });
 
   test("should be keyboard navigable", async ({ page }) => {
