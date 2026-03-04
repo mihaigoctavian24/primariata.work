@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: completed
-stopped_at: Completed 07-02-PLAN.md
-last_updated: "2026-03-04T14:49:22.257Z"
+status: in_progress
+stopped_at: Completed 08-04-PLAN.md
+last_updated: "2026-03-04T16:16:56.156Z"
 last_activity: 2026-03-04 -- Completed 07-02-PLAN.md (Cross-primarie notification UI wiring)
 progress:
   total_phases: 8
   completed_phases: 7
-  total_plans: 26
-  completed_plans: 26
-  percent: 100
+  total_plans: 31
+  completed_plans: 27
+  percent: 87
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-02)
 
 **Core value:** Citizens can submit cereri and complete plati digitally for any primarie where they're registered, with complete data isolation between primarii and proper role-based access for all user types.
-**Current focus:** Phase 7 (Cross-Primarie Notifications) complete. All plans executed.
+**Current focus:** Phase 8 (Compliance & Testing) in progress. pgTAP RLS isolation tests complete.
 
 ## Current Position
 
-Phase: 7 of 8 (Cross-Primarie Notifications) -- COMPLETE
-Plan: 2 of 2 in current phase (DONE)
-Status: Phase 7 complete. All cross-primarie notification UX wired.
-Last activity: 2026-03-04 -- Completed 07-02-PLAN.md (Cross-primarie notification UI wiring)
+Phase: 8 of 8 (Compliance & Testing) -- IN PROGRESS
+Plan: 4 of 5 in current phase (08-04 complete)
+Status: pgTAP RLS isolation tests written. 14 tests covering 5 critical tables.
+Last activity: 2026-03-04 -- Completed 08-04-PLAN.md (pgTAP RLS isolation tests)
 
-Progress: [██████████] 100% (26/26 plans)
+Progress: [█████████░] 87% (27/31 plans)
 
 ## Performance Metrics
 
@@ -62,6 +62,7 @@ Progress: [██████████] 100% (26/26 plans)
 | Phase 06 P01 | 7min | 2 tasks | 5 files |
 | Phase 07 P01 | 3min | 2 tasks | 5 files |
 | Phase 07 P02 | 4min | 2 tasks | 3 files |
+| Phase 08 P04 | 2min | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -152,6 +153,7 @@ Recent decisions affecting current work:
 - [Phase 07]: useUserPrimarii queries user_primarii with inner join for flat result; usePrimarieSwitch uses window.location.href for full cache reset
 - [07-02]: Primarie filter is client-side only -- API already returns all primarii via RLS on auth.uid()
 - [07-02]: ContextSwitchDialog rendered outside Popover/Sheet to avoid portal stacking z-index issues
+- [Phase 08]: pgTAP _test_set_context helper wraps set_config + set_request_context for per-test context simulation
 
 ### Pending Todos
 
@@ -165,6 +167,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-04T14:42:59Z
-Stopped at: Completed 07-02-PLAN.md
+Last session: 2026-03-04T16:16:56.152Z
+Stopped at: Completed 08-04-PLAN.md
 Resume file: None

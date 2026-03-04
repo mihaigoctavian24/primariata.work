@@ -95,8 +95,8 @@ Requirements for production-ready release. Each maps to roadmap phases.
 
 ### Compliance
 
-- [ ] **GDPR-01**: Privacy policy page accessible from footer and registration flow
-- [ ] **GDPR-02**: Cookie consent banner shown on first visit with accept/reject options
+- [x] **GDPR-01**: Privacy policy page accessible from footer and registration flow
+- [x] **GDPR-02**: Cookie consent banner shown on first visit with accept/reject options
 - [ ] **GDPR-03**: User can request data export (DSAR) from settings page
 - [ ] **GDPR-04**: User can request account deletion from settings page
 
@@ -211,8 +211,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | NOT-03 | Phase 7: Cross-Primarie Notifications | Complete |
 | NOT-04 | Phase 7: Cross-Primarie Notifications | Complete |
 | NOT-05 | Phase 7: Cross-Primarie Notifications | Complete |
-| GDPR-01 | Phase 8: Compliance & Testing | Pending |
-| GDPR-02 | Phase 8: Compliance & Testing | Pending |
+| GDPR-01 | Phase 8: Compliance & Testing | Complete |
+| GDPR-02 | Phase 8: Compliance & Testing | Complete |
 | GDPR-03 | Phase 8: Compliance & Testing | Pending |
 | GDPR-04 | Phase 8: Compliance & Testing | Pending |
 | TEST-01 | Phase 8: Compliance & Testing | Pending |

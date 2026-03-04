@@ -154,11 +154,14 @@ Plans:
   3. User can request data export and account deletion from the settings page
   4. pgTAP tests verify that RLS prevents cross-primarie data access (user A cannot see user B's data)
   5. E2E tests cover cerere submission flow, payment flow, auth flow, and admin workflows end-to-end
-**Plans**: TBD
+**Plans**: 5 plans (3 parallel in Wave 1, 2 parallel in Wave 2)
 
 Plans:
-- [ ] 08-01: TBD
-- [ ] 08-02: TBD
+- [ ] 08-01-PLAN.md -- Cookie consent banner, footer privacy links, /termeni page, registration privacy checkbox (GDPR-01, GDPR-02) [Wave 1]
+- [ ] 08-02-PLAN.md -- Data export + account deletion: GDPR Server Actions, settings Confidentialitate tab (GDPR-03, GDPR-04) [Wave 2, depends on 08-01]
+- [ ] 08-03-PLAN.md -- Unit tests: auth functions (requireAuth, requireRole, requireOwnership) + validation schemas (TEST-01, TEST-02) [Wave 1]
+- [ ] 08-04-PLAN.md -- pgTAP RLS isolation tests: cross-primarie data isolation for cereri, plati, documente, notificari, user_primarii (TEST-03) [Wave 1]
+- [ ] 08-05-PLAN.md -- E2E Playwright tests: auth flow, cereri submission, payment flow, admin workflows (TEST-04, TEST-05, TEST-06, TEST-07) [Wave 2, depends on 08-01]
 
 ## Progress
 
@@ -175,7 +178,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 5. Staff Dashboards | 3/3 | Complete | 2026-03-03 |
 | 6. Citizen Features | 4/4 | Complete   | 2026-03-04 |
 | 7. Cross-Primarie Notifications | 2/2 | Complete   | 2026-03-04 |
-| 8. Compliance & Testing | 0/2 | Not started | - |
+| 8. Compliance & Testing | 2/5 | In Progress|  |
 
 ---
 *Roadmap created: 2026-03-02*
