@@ -6,6 +6,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { BetterStackWebVitals } from "@logtail/next/webVitals";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
+import { CookieConsentBanner } from "@/components/cookie-consent/CookieConsentBanner";
 import "./globals.css";
 
 // Montreal - Primary font (local)
@@ -130,6 +131,7 @@ export default function RootLayout({
           {children}
           <Toaster />
         </ThemeProvider>
+        <CookieConsentBanner />
         <Analytics />
         <SpeedInsights />
       </body>

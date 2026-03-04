@@ -4,6 +4,7 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { FaFacebook, FaInstagram, FaLinkedin, FaTwitter } from "react-icons/fa";
+import { reopenCookieConsent } from "@/components/cookie-consent/CookieConsentBanner";
 
 interface FooterProps {
   logo?: {
@@ -67,9 +68,8 @@ const defaultSocialLinks = [
 ];
 
 const defaultLegalLinks = [
-  { name: "Termeni și condiții", href: "#terms" },
-  { name: "Politica de confidențialitate", href: "#privacy" },
-  { name: "Cookies", href: "#cookies" },
+  { name: "Termeni si Conditii", href: "/termeni" },
+  { name: "Confidentialitate", href: "/confidentialitate" },
 ];
 
 export const Footer = ({
@@ -159,6 +159,15 @@ export const Footer = ({
                 <Link href={link.href}>{link.name}</Link>
               </li>
             ))}
+            <li className="hover:text-primary transition-colors">
+              <button
+                type="button"
+                onClick={reopenCookieConsent}
+                className="cursor-pointer hover:underline"
+              >
+                Preferinte Cookie
+              </button>
+            </li>
           </ul>
         </div>
       </div>

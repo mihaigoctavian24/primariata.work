@@ -24,11 +24,11 @@ export default function TermeniPage() {
       <div className="bg-background/95 supports-[backdrop-filter]:bg-background/60 border-b backdrop-blur">
         <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8">
           <Link
-            href="/auth/register"
+            href="/"
             className="text-muted-foreground hover:text-foreground inline-flex items-center gap-2 text-sm transition-colors"
           >
             <ArrowLeft className="size-4" />
-            Înapoi la înregistrare
+            Inapoi
           </Link>
         </div>
       </div>
@@ -365,10 +365,10 @@ export default function TermeniPage() {
             <ArrowLeft className="size-4 rotate-180" />
           </Link>
           <Link
-            href="/auth/register"
+            href="/"
             className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center justify-center rounded-md px-6 py-2.5 text-sm font-medium transition-colors"
           >
-            Înapoi la înregistrare
+            Pagina principala
           </Link>
         </div>
       </div>
