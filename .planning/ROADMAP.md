@@ -173,13 +173,17 @@ Plans:
   1. AdminDashboard "Invita Staff" and "Invitatii Pending" buttons navigate to working routes (not 404)
   2. Dashboard stats finalizate count reflects actual completed cereri (correct enum values)
   3. Landing page map section loads without 404 errors when a location is selected
-  4. Dashboard does not flash "Eroare la încărcarea profilului" on initial load after auth redirect
+  4. Dashboard does not flash "Eroare la incarcarea profilului" on initial load after auth redirect
   5. REQUIREMENTS.md marks REG-04 and REG-05 as Complete (matching verified code)
+**Plans**: 1 plan (1 in Wave 1)
+
+Plans:
+- [ ] 09-01-PLAN.md -- Fix stats enum values, landing map query pattern, profile race condition; verify AdminDashboard nav and REQUIREMENTS.md tracking (REG-04, REG-05, DASH-07) [Wave 1]
 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9
 (Phases 3 and 4 can partially overlap since they share only Phase 1 as dependency. Phase 6 can begin once Phase 2 and Phase 4 are complete.)
 
 | Phase | Plans Complete | Status | Completed |
@@ -191,8 +195,8 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 5. Staff Dashboards | 3/3 | Complete | 2026-03-03 |
 | 6. Citizen Features | 4/4 | Complete   | 2026-03-04 |
 | 7. Cross-Primarie Notifications | 2/2 | Complete   | 2026-03-04 |
-| 8. Compliance & Testing | 4/5 | In Progress|  |
-| 9. Audit Gap Closure | 0/0 | Not Started |  |
+| 8. Compliance & Testing | 5/5 | Complete   | 2026-03-04 |
+| 9. Audit Gap Closure | 0/1 | Not Started |  |
 
 ---
 *Roadmap created: 2026-03-02*

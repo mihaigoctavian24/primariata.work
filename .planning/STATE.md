@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed 08-02-PLAN.md
-last_updated: "2026-03-04T16:26:00.412Z"
+stopped_at: Completed 09-01-PLAN.md
+last_updated: "2026-03-04T20:18:20.931Z"
 last_activity: 2026-03-04 -- Completed 08-05-PLAN.md (E2E critical user flows)
 progress:
-  total_phases: 8
-  completed_phases: 8
-  total_plans: 31
-  completed_plans: 31
+  total_phases: 9
+  completed_phases: 9
+  total_plans: 32
+  completed_plans: 32
   percent: 100
 ---
 
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-02)
 
 **Core value:** Citizens can submit cereri and complete plati digitally for any primarie where they're registered, with complete data isolation between primarii and proper role-based access for all user types.
-**Current focus:** Phase 8 (Compliance & Testing) COMPLETE. All 5 plans executed.
+**Current focus:** Phase 9 (Audit Gap Closure) COMPLETE. All 1 plan executed.
 
 ## Current Position
 
-Phase: 8 of 8 (Compliance & Testing) -- COMPLETE
-Plan: 5 of 5 in current phase (08-05 complete)
-Status: Phase 8 complete. All 5 compliance & testing plans executed.
-Last activity: 2026-03-04 -- Completed 08-05-PLAN.md (E2E critical user flows)
+Phase: 9 of 9 (Audit Gap Closure) -- COMPLETE
+Plan: 1 of 1 in current phase (09-01 complete)
+Status: Phase 9 complete. All v1.0 milestone audit gaps closed.
+Last activity: 2026-03-04 -- Completed 09-01-PLAN.md (Audit gap closure)
 
-Progress: [██████████] 100% (31/31 plans)
+Progress: [██████████] 100% (32/32 plans)
 
 ## Performance Metrics
 
@@ -66,6 +66,7 @@ Progress: [██████████] 100% (31/31 plans)
 | Phase 08 P03 | 4min | 2 tasks | 5 files |
 | Phase 08 P05 | 3min | 2 tasks | 4 files |
 | Phase 08 P02 | 5min | 2 tasks | 2 files |
+| Phase 09 P01 | 1min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -161,6 +162,9 @@ Recent decisions affecting current work:
 - [Phase 08]: Env-based test credentials with fallbacks for E2E specs; test.skip for seed-data-dependent tests
 - [Phase 08]: Used Record<string, unknown> type assertions for deletion_requested_at/status columns not yet in generated DB types
 - [Phase 08]: Documente GDPR export includes metadata only (id, name, type, date) -- not file blobs per RESEARCH guidance
+- [Phase 09]: Added finalizata to terminal statuses in dashboard stats filter
+- [Phase 09]: Landing map uses localitati!inner join pattern matching codebase standard
+- [Phase 09]: authChecked pattern gates isLoading/isError behind auth resolution
 
 ### Pending Todos
 
@@ -174,6 +178,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-04T16:26:00.410Z
-Stopped at: Completed 08-02-PLAN.md
+Last session: 2026-03-04T20:18:20.927Z
+Stopped at: Completed 09-01-PLAN.md
 Resume file: None
