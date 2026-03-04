@@ -39,8 +39,8 @@ Requirements for production-ready release. Each maps to roadmap phases.
 - [x] **REG-01**: User can register freely on any active primarie
 - [x] **REG-02**: Registration goes to pending state requiring primarie admin approval
 - [x] **REG-03**: User sees status screen while awaiting approval (pending / approved / rejected with reason)
-- [ ] **REG-04**: Primarie admin can approve or reject registrations with optional reason from admin dashboard
-- [ ] **REG-05**: User receives email notification on approval/rejection
+- [x] **REG-04**: Primarie admin can approve or reject registrations with optional reason from admin dashboard
+- [x] **REG-05**: User receives email notification on approval/rejection
 - [x] **REG-06**: Approved user gets full access to primarie modules; rejected user sees rejection reason
 
 ### Staff Dashboards
@@ -97,8 +97,8 @@ Requirements for production-ready release. Each maps to roadmap phases.
 
 - [x] **GDPR-01**: Privacy policy page accessible from footer and registration flow
 - [x] **GDPR-02**: Cookie consent banner shown on first visit with accept/reject options
-- [ ] **GDPR-03**: User can request data export (DSAR) from settings page
-- [ ] **GDPR-04**: User can request account deletion from settings page
+- [x] **GDPR-03**: User can request data export (DSAR) from settings page
+- [x] **GDPR-04**: User can request account deletion from settings page
 
 ### Testing
 
@@ -176,8 +176,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | REG-01 | Phase 3: Registration & Approval | Complete |
 | REG-02 | Phase 3: Registration & Approval | Complete |
 | REG-03 | Phase 3: Registration & Approval | Complete |
-| REG-04 | Phase 3: Registration & Approval | Pending |
-| REG-05 | Phase 3: Registration & Approval | Pending |
+| REG-04 | Phase 3: Registration & Approval / Phase 9: Audit Gap Closure | Complete |
+| REG-05 | Phase 3: Registration & Approval / Phase 9: Audit Gap Closure | Complete |
 | REG-06 | Phase 3: Registration & Approval | Complete |
 | CER-01 | Phase 4: Cereri Processing | Complete |
 | CER-02 | Phase 4: Cereri Processing | Complete |
@@ -191,7 +191,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DASH-04 | Phase 5: Staff Dashboards | Complete |
 | DASH-05 | Phase 5: Staff Dashboards | Complete |
 | DASH-06 | Phase 5: Staff Dashboards | Complete |
-| DASH-07 | Phase 5: Staff Dashboards | Complete |
+| DASH-07 | Phase 5: Staff Dashboards / Phase 9: Audit Gap Closure | Complete |
 | DASH-08 | Phase 5: Staff Dashboards | Complete |
 | DASH-09 | Phase 5: Staff Dashboards | Complete |
 | DASH-10 | Phase 5: Staff Dashboards | Complete |
@@ -213,8 +213,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | NOT-05 | Phase 7: Cross-Primarie Notifications | Complete |
 | GDPR-01 | Phase 8: Compliance & Testing | Complete |
 | GDPR-02 | Phase 8: Compliance & Testing | Complete |
-| GDPR-03 | Phase 8: Compliance & Testing | Pending |
-| GDPR-04 | Phase 8: Compliance & Testing | Pending |
+| GDPR-03 | Phase 8: Compliance & Testing | Complete |
+| GDPR-04 | Phase 8: Compliance & Testing | Complete |
 | TEST-01 | Phase 8: Compliance & Testing | Complete |
 | TEST-02 | Phase 8: Compliance & Testing | Complete |
 | TEST-03 | Phase 8: Compliance & Testing | Complete |

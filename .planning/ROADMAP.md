@@ -20,6 +20,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 6: Citizen Features** - Documents page, PDF receipts, dynamic map, payment architecture (completed 2026-03-04)
 - [x] **Phase 7: Cross-Primarie Notifications** - Notification aggregation across primarii, context switch UX (completed 2026-03-04)
 - [ ] **Phase 8: Compliance & Testing** - GDPR compliance, pgTAP RLS tests, E2E test coverage
+- [ ] **Phase 9: Audit Gap Closure** - Fix audit-identified bugs: dead nav links, stats enum, map 404, profile race condition, tracking updates
 
 ## Phase Details
 
@@ -163,6 +164,18 @@ Plans:
 - [ ] 08-04-PLAN.md -- pgTAP RLS isolation tests: cross-primarie data isolation for cereri, plati, documente, notificari, user_primarii (TEST-03) [Wave 1]
 - [ ] 08-05-PLAN.md -- E2E Playwright tests: auth flow, cereri submission, payment flow, admin workflows (TEST-04, TEST-05, TEST-06, TEST-07) [Wave 2, depends on 08-01]
 
+### Phase 9: Audit Gap Closure
+**Goal**: Close all gaps identified by the v1.0 milestone audit -- fix integration bugs, broken flows, and sync requirement tracking with code reality
+**Depends on**: Phase 8
+**Requirements**: REG-04, REG-05, DASH-07
+**Gap Closure:** Closes gaps from v1.0-MILESTONE-AUDIT.md
+**Success Criteria** (what must be TRUE):
+  1. AdminDashboard "Invita Staff" and "Invitatii Pending" buttons navigate to working routes (not 404)
+  2. Dashboard stats finalizate count reflects actual completed cereri (correct enum values)
+  3. Landing page map section loads without 404 errors when a location is selected
+  4. Dashboard does not flash "Eroare la încărcarea profilului" on initial load after auth redirect
+  5. REQUIREMENTS.md marks REG-04 and REG-05 as Complete (matching verified code)
+
 ## Progress
 
 **Execution Order:**
@@ -179,6 +192,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 6. Citizen Features | 4/4 | Complete   | 2026-03-04 |
 | 7. Cross-Primarie Notifications | 2/2 | Complete   | 2026-03-04 |
 | 8. Compliance & Testing | 4/5 | In Progress|  |
+| 9. Audit Gap Closure | 0/0 | Not Started |  |
 
 ---
 *Roadmap created: 2026-03-02*
