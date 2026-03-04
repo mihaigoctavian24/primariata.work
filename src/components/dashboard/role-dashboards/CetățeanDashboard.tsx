@@ -149,15 +149,15 @@ export function CetățeanDashboard({ judet, localitate }: CetățeanDashboardPr
     staleTime: 24 * 60 * 60 * 1000, // 24 hours -- coordinates rarely change
   });
 
-  // Fetch primarie info for the map popup
+  // Fetch primarie info for the map popup (join via localitati slug)
   const primarieQuery = useQuery({
     queryKey: ["primarie", "info", localitate],
     queryFn: async () => {
       const supabase = createClient();
       const { data, error } = await supabase
         .from("primarii")
-        .select("nume_oficial, adresa, telefon, email, program_lucru")
-        .eq("slug", localitate)
+        .select("nume_oficial, adresa, telefon, email, program_lucru, localitati!inner(slug)")
+        .eq("localitati.slug", localitate)
         .single();
 
       if (error) {
