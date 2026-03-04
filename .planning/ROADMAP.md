@@ -178,7 +178,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 5. Staff Dashboards | 3/3 | Complete | 2026-03-03 |
 | 6. Citizen Features | 4/4 | Complete   | 2026-03-04 |
 | 7. Cross-Primarie Notifications | 2/2 | Complete   | 2026-03-04 |
-| 8. Compliance & Testing | 2/5 | In Progress|  |
+| 8. Compliance & Testing | 4/5 | In Progress|  |
 
 ---
 *Roadmap created: 2026-03-02*

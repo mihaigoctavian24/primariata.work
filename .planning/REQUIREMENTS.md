@@ -102,13 +102,13 @@ Requirements for production-ready release. Each maps to roadmap phases.
 
 ### Testing
 
-- [ ] **TEST-01**: Unit tests for authorization functions (requireAuth, requireRole, requireOwnership)
-- [ ] **TEST-02**: Unit tests for validation schemas (cereri, profile, payments, common)
+- [x] **TEST-01**: Unit tests for authorization functions (requireAuth, requireRole, requireOwnership)
+- [x] **TEST-02**: Unit tests for validation schemas (cereri, profile, payments, common)
 - [x] **TEST-03**: pgTAP tests verify RLS data isolation across primarii (user A cannot see user B's data in different primarie)
-- [ ] **TEST-04**: E2E tests cover complete cerere submission flow (create -> submit -> status tracking)
-- [ ] **TEST-05**: E2E tests cover payment flow (initiate -> checkout -> webhook -> receipt)
-- [ ] **TEST-06**: E2E tests cover auth flow (register -> login -> dashboard -> logout)
-- [ ] **TEST-07**: E2E tests cover admin workflows (approve registration, process cerere, manage staff)
+- [x] **TEST-04**: E2E tests cover complete cerere submission flow (create -> submit -> status tracking)
+- [x] **TEST-05**: E2E tests cover payment flow (initiate -> checkout -> webhook -> receipt)
+- [x] **TEST-06**: E2E tests cover auth flow (register -> login -> dashboard -> logout)
+- [x] **TEST-07**: E2E tests cover admin workflows (approve registration, process cerere, manage staff)
 
 ## v2 Requirements
 
@@ -215,13 +215,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 | GDPR-02 | Phase 8: Compliance & Testing | Complete |
 | GDPR-03 | Phase 8: Compliance & Testing | Pending |
 | GDPR-04 | Phase 8: Compliance & Testing | Pending |
-| TEST-01 | Phase 8: Compliance & Testing | Pending |
-| TEST-02 | Phase 8: Compliance & Testing | Pending |
+| TEST-01 | Phase 8: Compliance & Testing | Complete |
+| TEST-02 | Phase 8: Compliance & Testing | Complete |
 | TEST-03 | Phase 8: Compliance & Testing | Complete |
-| TEST-04 | Phase 8: Compliance & Testing | Pending |
-| TEST-05 | Phase 8: Compliance & Testing | Pending |
-| TEST-06 | Phase 8: Compliance & Testing | Pending |
-| TEST-07 | Phase 8: Compliance & Testing | Pending |
+| TEST-04 | Phase 8: Compliance & Testing | Complete |
+| TEST-05 | Phase 8: Compliance & Testing | Complete |
+| TEST-06 | Phase 8: Compliance & Testing | Complete |
+| TEST-07 | Phase 8: Compliance & Testing | Complete |
 
 **Coverage:**
 - v1 requirements: 67 total

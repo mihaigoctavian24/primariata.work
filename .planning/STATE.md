@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: in_progress
-stopped_at: Completed 08-04-PLAN.md
-last_updated: "2026-03-04T16:16:56.156Z"
-last_activity: 2026-03-04 -- Completed 07-02-PLAN.md (Cross-primarie notification UI wiring)
+status: Phase 8 complete. All 5 compliance & testing plans executed.
+stopped_at: Completed 08-05-PLAN.md
+last_updated: "2026-03-04T16:24:20.778Z"
+last_activity: 2026-03-04 -- Completed 08-05-PLAN.md (E2E critical user flows)
 progress:
   total_phases: 8
   completed_phases: 7
   total_plans: 31
-  completed_plans: 27
+  completed_plans: 30
   percent: 87
 ---
 
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-02)
 
 **Core value:** Citizens can submit cereri and complete plati digitally for any primarie where they're registered, with complete data isolation between primarii and proper role-based access for all user types.
-**Current focus:** Phase 8 (Compliance & Testing) in progress. pgTAP RLS isolation tests complete.
+**Current focus:** Phase 8 (Compliance & Testing) COMPLETE. All 5 plans executed.
 
 ## Current Position
 
-Phase: 8 of 8 (Compliance & Testing) -- IN PROGRESS
-Plan: 4 of 5 in current phase (08-04 complete)
-Status: pgTAP RLS isolation tests written. 14 tests covering 5 critical tables.
-Last activity: 2026-03-04 -- Completed 08-04-PLAN.md (pgTAP RLS isolation tests)
+Phase: 8 of 8 (Compliance & Testing) -- COMPLETE
+Plan: 5 of 5 in current phase (08-05 complete)
+Status: Phase 8 complete. All 5 compliance & testing plans executed.
+Last activity: 2026-03-04 -- Completed 08-05-PLAN.md (E2E critical user flows)
 
-Progress: [█████████░] 87% (27/31 plans)
+Progress: [██████████] 97% (30/31 plans)
 
 ## Performance Metrics
 
@@ -63,6 +63,8 @@ Progress: [█████████░] 87% (27/31 plans)
 | Phase 07 P01 | 3min | 2 tasks | 5 files |
 | Phase 07 P02 | 4min | 2 tasks | 3 files |
 | Phase 08 P04 | 2min | 1 tasks | 1 files |
+| Phase 08 P03 | 4min | 2 tasks | 5 files |
+| Phase 08 P05 | 3min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -154,6 +156,8 @@ Recent decisions affecting current work:
 - [07-02]: Primarie filter is client-side only -- API already returns all primarii via RLS on auth.uid()
 - [07-02]: ContextSwitchDialog rendered outside Popover/Sheet to avoid portal stacking z-index issues
 - [Phase 08]: pgTAP _test_set_context helper wraps set_config + set_request_context for per-test context simulation
+- [Phase 08]: Supabase mock uses module-scoped object with delegating functions to avoid jest.mock hoisting issues
+- [Phase 08]: Env-based test credentials with fallbacks for E2E specs; test.skip for seed-data-dependent tests
 
 ### Pending Todos
 
@@ -167,6 +171,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-04T16:16:56.152Z
-Stopped at: Completed 08-04-PLAN.md
+Last session: 2026-03-04T16:24:20.775Z
+Stopped at: Completed 08-05-PLAN.md
 Resume file: None
