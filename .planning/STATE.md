@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed 10-01-PLAN.md
-last_updated: "2026-03-04T22:19:39.539Z"
+stopped_at: Phase 11 context gathered
+last_updated: "2026-03-04T22:32:18.640Z"
 last_activity: 2026-03-05 -- Completed 10-01-PLAN.md (Payment receipt & GDPR fixes)
 progress:
   total_phases: 11
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-02)
 
 **Core value:** Citizens can submit cereri and complete plati digitally for any primarie where they're registered, with complete data isolation between primarii and proper role-based access for all user types.
-**Current focus:** Phase 10 (Payment & GDPR Fixes) -- Plan 01 COMPLETE.
+**Current focus:** Phase 11 (E2E Seed & Coverage) -- Plan 01 COMPLETE.
 
 ## Current Position
 
-Phase: 10 of 11 (Payment & GDPR Fixes)
-Plan: 1 of 1 in current phase (10-01 complete)
-Status: Phase 10 complete. Payment webhook wired with real receipt generation, GDPR columns added.
-Last activity: 2026-03-05 -- Completed 10-01-PLAN.md (Payment receipt & GDPR fixes)
+Phase: 11 of 11 (E2E Seed & Coverage)
+Plan: 1 of 3 in current phase (11-01 complete)
+Status: E2E seed infrastructure built. Idempotent seed script, auth helper, and global-setup wiring complete.
+Last activity: 2026-03-05 -- Completed 11-01-PLAN.md (E2E seed data infrastructure)
 
-Progress: [██████████] 100% (33/33 plans)
+Progress: [██████████] 100% (34/36 plans)
 
 ## Performance Metrics
 
@@ -67,6 +67,7 @@ Progress: [██████████] 100% (33/33 plans)
 | Phase 08 P05 | 3min | 2 tasks | 4 files |
 | Phase 08 P02 | 5min | 2 tasks | 2 files |
 | Phase 09 P01 | 1min | 2 tasks | 3 files |
+| Phase 11 P01 | 5min | 2 tasks | 4 files |
 | Phase 10 P01 | 4min | 2 tasks | 5 files |
 
 ## Accumulated Context
@@ -168,6 +169,10 @@ Recent decisions affecting current work:
 - [Phase 09]: authChecked pattern gates isLoading/isError behind auth resolution
 - [Phase 10]: generateReceiptCore accepts SupabaseClient params to work in both user-auth and service-role contexts
 - [Phase 10]: Webhook receipt failure is non-blocking (logged but does not fail webhook response)
+- [Phase 11]: TEST_CONFIG uses actual DB slugs (judet: bucuresti, localitate: sector-1-b) not old spec values (sectorul-1)
+- [Phase 11]: Seed resolves existing Sector 1 primarie (localitate_id=13852) rather than creating a new test primarie
+- [Phase 11]: Plata status uses 'pending' and 'success' matching PlataStatus enum from validations/plati.ts
+- [Phase 11]: Centralized authenticateAs(page, role) replaces per-spec duplicate auth functions
 
 ### Pending Todos
 
@@ -181,6 +186,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-05T00:01:00Z
-Stopped at: Completed 10-01-PLAN.md
-Resume file: .planning/phases/10-payment-gdpr-fixes/10-01-SUMMARY.md
+Last session: 2026-03-04T22:57:28Z
+Stopped at: Completed 11-01-PLAN.md (E2E seed data infrastructure)
+Resume file: .planning/phases/11-e2e-seed-coverage/11-02-PLAN.md
