@@ -43,13 +43,13 @@ Requirements for the Design Revamp milestone. Starting with admin primarie modul
 
 ### Admin Dashboard
 
-- [ ] **DASH-01**: Welcome banner with admin name, primarie info, ProgressRings (uptime, cereri resolution, SLA)
-- [ ] **DASH-02**: User stats by role (cetateni, functionari, primar, admini, pending) with real DB counts
-- [ ] **DASH-03**: System health widget (sessions, storage, response time)
-- [ ] **DASH-04**: Cereri overview with DonutChart breakdown by status
-- [ ] **DASH-05**: Functionari performance table with resolution rate and online status
-- [ ] **DASH-06**: Admin alerts panel with actionable items
-- [ ] **DASH-07**: Live activity feed with real Supabase events
+- [x] **DASH-01**: Welcome banner with admin name, primarie info, ProgressRings (uptime, cereri resolution, SLA)
+- [x] **DASH-02**: User stats by role (cetateni, functionari, primar, admini, pending) with real DB counts
+- [x] **DASH-03**: System health widget (sessions, storage, response time)
+- [x] **DASH-04**: Cereri overview with DonutChart breakdown by status
+- [x] **DASH-05**: Functionari performance table with resolution rate and online status
+- [x] **DASH-06**: Admin alerts panel with actionable items
+- [x] **DASH-07**: Live activity feed with real Supabase events
 
 ### Admin Monitorizare
 
@@ -165,13 +165,13 @@ Deferred to future milestones.
 | SHELL-08 | Phase 13 | Complete (13-01) |
 | SEC-01 | Phase 13 | Complete (13-01) |
 | SEC-02 | Phase 13 | Complete (13-01) |
-| DASH-01 | Phase 14 | Pending |
-| DASH-02 | Phase 14 | Pending |
-| DASH-03 | Phase 14 | Pending |
-| DASH-04 | Phase 14 | Pending |
-| DASH-05 | Phase 14 | Pending |
-| DASH-06 | Phase 14 | Pending |
-| DASH-07 | Phase 14 | Pending |
+| DASH-01 | Phase 14 | Complete |
+| DASH-02 | Phase 14 | Complete |
+| DASH-03 | Phase 14 | Complete |
+| DASH-04 | Phase 14 | Complete |
+| DASH-05 | Phase 14 | Complete |
+| DASH-06 | Phase 14 | Complete |
+| DASH-07 | Phase 14 | Complete |
 | SET-01 | Phase 15 | Pending |
 | SET-02 | Phase 15 | Pending |
 | SET-03 | Phase 15 | Pending |

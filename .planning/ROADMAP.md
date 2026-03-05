@@ -30,7 +30,7 @@
 
 - [x] **Phase 12: Design System Foundation** - CSS tokens, shared components, motion system, accent color engine (completed 2026-03-05)
 - [x] **Phase 13: Layout Shell** - Collapsible sidebar, top bar, command palette, notification drawer, admin role enforcement (gap closure in progress) (completed 2026-03-05)
-- [ ] **Phase 14: Admin Dashboard** - Welcome banner, user stats, system health, cereri overview, performance table, activity feed
+- [x] **Phase 14: Admin Dashboard** - Welcome banner, user stats, system health, cereri overview, performance table, activity feed (completed 2026-03-05)
 - [ ] **Phase 15: Admin Settings** - 5-tab settings with accent color picker wired end-to-end
 - [ ] **Phase 16: Enhanced Existing Pages** - Utilizatori management revamp + Cereri supervizare with kanban/SLA/priority
 - [ ] **Phase 17: New Data Pages** - Monitorizare, Documente, Financiar, Calendar
@@ -84,8 +84,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 14-01: TBD
-- [ ] 14-02: TBD
+- [ ] 14-01-PLAN.md — Data layer: TypeScript types, server-side query functions, API route for polling, health_checks infrastructure (migration + Edge Function)
+- [ ] 14-02-PLAN.md — Dashboard UI: 8 Client Component sections (welcome banner, user stats, system health, cereri overview, activity chart, performance table, alerts, live feed) + admin page rewrite
 
 ### Phase 15: Admin Settings
 **Goal**: Admin can configure their profile, primarie settings, notification preferences, security options, and visual appearance including accent color
@@ -155,12 +155,12 @@ Note: Phases 16 and 17 both depend on Phase 13 (not on each other) and could run
 | 10. Payment & GDPR Fixes | v1.0 | 1/1 | Complete | 2026-03-04 |
 | 11. E2E Seed & Coverage | v1.0 | 3/3 | Complete | 2026-03-04 |
 | 12. Design System Foundation | 2/2 | Complete    | 2026-03-05 | - |
-| 13. Layout Shell | 4/4 | Complete   | 2026-03-05 | - |
-| 14. Admin Dashboard | v2.0 | 0/2 | Not started | - |
+| 13. Layout Shell | 4/4 | Complete    | 2026-03-05 | - |
+| 14. Admin Dashboard | 2/2 | Complete   | 2026-03-05 | - |
 | 15. Admin Settings | v2.0 | 0/1 | Not started | - |
 | 16. Enhanced Existing Pages | v2.0 | 0/2 | Not started | - |
 | 17. New Data Pages | v2.0 | 0/4 | Not started | - |
 
 ---
 *Roadmap created: 2026-03-02*
-*Last updated: 2026-03-05 after gap closure planning*
+*Last updated: 2026-03-05 after phase 14 planning*

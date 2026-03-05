@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Design Revamp
-status: completed
-stopped_at: Completed 13-03-PLAN.md
-last_updated: "2026-03-05T11:39:18.571Z"
-last_activity: 2026-03-05 -- Completed 13-04 (notification drawer redesign + a11y fixes)
+status: in-progress
+stopped_at: Completed 14-02-PLAN.md
+last_updated: "2026-03-05T16:56:30.931Z"
+last_activity: 2026-03-05 -- Completed Phase 14 (admin dashboard UI)
 progress:
   total_phases: 6
-  completed_phases: 2
-  total_plans: 6
-  completed_plans: 6
-  percent: 46
+  completed_phases: 3
+  total_plans: 8
+  completed_plans: 8
+  percent: 100
 ---
 
 # Project State
@@ -21,30 +21,32 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-05)
 
 **Core value:** Citizens can submit cereri and complete plati digitally for any primarie where they're registered, with complete data isolation between primarii and proper role-based access for all user types.
-**Current focus:** v2.0 Design Revamp -- Phase 13: Layout Shell
+**Current focus:** v2.0 Design Revamp -- Phase 14 complete, ready for Phase 15
 
 ## Current Position
 
-Phase: 13 of 17 (Layout Shell) -- second of 6 v2.0 phases
-Plan: 4 of 4 in current phase
-Status: 13-04 complete, phase 13 finished
-Last activity: 2026-03-05 -- Completed 13-04 (notification drawer redesign + a11y fixes)
+Phase: 14 of 17 (Admin Dashboard) -- third of 6 v2.0 phases (COMPLETE)
+Plan: 2 of 2 in current phase (all complete)
+Status: Phase 14 complete
+Last activity: 2026-03-05 -- Completed Phase 14 (admin dashboard UI)
 
-Progress: [████░░░░░░] 46%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
 - Total plans completed: 36 (v1.0)
-- v2.0 plans completed: 5
+- v2.0 plans completed: 8
 - Total execution time: carried from v1.0
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 12-17 | 5/13 | 21min | 4.2min |
+| 12-17 | 8/13 | 28min | 3.5min |
 | Phase 13 P03 | 5min | 2 tasks | 6 files |
+| Phase 14 P01 | 5min | 2 tasks | 29 files |
+| Phase 14 P02 | 2min | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -75,6 +77,10 @@ Recent decisions affecting current work:
 - [13-04]: sr-only DialogTitle in CommandDialog instead of @radix-ui/react-visually-hidden package
 - [Phase 13]: usePathname() in CitizenProviders to detect admin sub-path and switch sidebar config dynamically
 - [Phase 13]: Admin role enforcement uses existing association.rol (no extra DB query for /app/*/admin/*)
+- [14-01]: user_primarii table for role counts (not utilizatori.primarie_id) -- many-to-many with status tracking
+- [14-01]: health_checks queried as 'never' type cast until DB types regenerated
+- [14-01]: pg_cron setup as commented SQL instructions (Vault secrets are env-specific)
+- [Phase 14]: All dashboard sections share same React Query queryKey with select() extractors
 
 ### Pending Todos
 
@@ -88,6 +94,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-05T11:39:18.568Z
-Stopped at: Completed 13-03-PLAN.md
+Last session: 2026-03-05T16:56:30.928Z
+Stopped at: Completed 14-02-PLAN.md
 Resume file: None
