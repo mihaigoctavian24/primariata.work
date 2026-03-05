@@ -2,10 +2,37 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import {
+  LayoutDashboard,
+  Activity,
+  Users,
+  FileText,
+  FolderOpen,
+  CreditCard,
+  CalendarDays,
+  Settings,
+  Bell,
+  User,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import type { NavItem } from "./sidebar-config";
+import type { NavItem, IconName } from "./sidebar-config";
+
+/** Maps string icon names from sidebar config to actual Lucide components. */
+const ICON_MAP: Record<IconName, LucideIcon> = {
+  LayoutDashboard,
+  Activity,
+  Users,
+  FileText,
+  FolderOpen,
+  CreditCard,
+  CalendarDays,
+  Settings,
+  Bell,
+  User,
+};
 
 interface SidebarNavItemProps {
   item: NavItem;
@@ -16,7 +43,7 @@ export function SidebarNavItem({ item, collapsed }: SidebarNavItemProps) {
   const pathname = usePathname();
   const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
 
-  const Icon = item.icon;
+  const Icon = ICON_MAP[item.icon];
 
   const content = (
     <Link

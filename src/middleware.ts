@@ -139,11 +139,11 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
     if (!adminAssociation) {
       // Non-admin user: redirect to citizen dashboard
       const savedLocation = request.cookies.get("selected_location")?.value;
-      let redirectPath = "/app/bucuresti/sector-1-b/dashboard";
+      let redirectPath = "/app/bucuresti/sector-1-b";
       if (savedLocation) {
         try {
           const { judetSlug, localitateSlug } = JSON.parse(savedLocation);
-          redirectPath = `/app/${judetSlug}/${localitateSlug}/dashboard`;
+          redirectPath = `/app/${judetSlug}/${localitateSlug}`;
         } catch {
           /* fallback to default */
         }
