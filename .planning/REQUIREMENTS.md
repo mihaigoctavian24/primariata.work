@@ -28,13 +28,13 @@ Requirements for the Design Revamp milestone. Starting with admin primarie modul
 
 ### Shared Components
 
-- [ ] **SC-01**: AnimatedCounter with requestAnimationFrame easeOutExpo
-- [ ] **SC-02**: StatsCard with icon, value, label, trend indicator, color variants
-- [ ] **SC-03**: DonutChart (Recharts PieChart wrapper) with center label and legend
-- [ ] **SC-04**: ProgressRing (SVG strokeDashoffset) with value, label, color
-- [ ] **SC-05**: LiveActivityFeed with real-time event stream and auto-scroll
-- [ ] **SC-06**: CereriCard with value, label, color-coded status
-- [ ] **SC-07**: ActivityChart (Recharts AreaChart) for time-series data
+- [x] **SC-01**: AnimatedCounter with requestAnimationFrame easeOutExpo
+- [x] **SC-02**: StatsCard with icon, value, label, trend indicator, color variants
+- [x] **SC-03**: DonutChart (Recharts PieChart wrapper) with center label and legend
+- [x] **SC-04**: ProgressRing (SVG strokeDashoffset) with value, label, color
+- [x] **SC-05**: LiveActivityFeed with real-time event stream and auto-scroll
+- [x] **SC-06**: CereriCard with value, label, color-coded status
+- [x] **SC-07**: ActivityChart (Recharts AreaChart) for time-series data
 
 ### Security
 
@@ -148,13 +148,13 @@ Deferred to future milestones.
 | DSF-03 | Phase 12 | Complete |
 | DSF-04 | Phase 12 | Complete |
 | DSF-05 | Phase 12 | Complete |
-| SC-01 | Phase 12 | Pending |
-| SC-02 | Phase 12 | Pending |
-| SC-03 | Phase 12 | Pending |
-| SC-04 | Phase 12 | Pending |
-| SC-05 | Phase 12 | Pending |
-| SC-06 | Phase 12 | Pending |
-| SC-07 | Phase 12 | Pending |
+| SC-01 | Phase 12 | Complete |
+| SC-02 | Phase 12 | Complete |
+| SC-03 | Phase 12 | Complete |
+| SC-04 | Phase 12 | Complete |
+| SC-05 | Phase 12 | Complete |
+| SC-06 | Phase 12 | Complete |
+| SC-07 | Phase 12 | Complete |
 | SHELL-01 | Phase 13 | Pending |
 | SHELL-02 | Phase 13 | Pending |
 | SHELL-03 | Phase 13 | Pending |
