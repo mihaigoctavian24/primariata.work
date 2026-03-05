@@ -1,14 +1,7 @@
 "use client";
 
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
+import { useState, useMemo } from "react";
+import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 
 interface ActivityChartDataItem {
@@ -30,54 +23,89 @@ function ActivityChart({
   data,
   dataKey = "value",
   xAxisKey = "date",
-  color = "var(--accent-500)",
-  height = 200,
+  color: _color,
+  height: _height,
   className,
 }: ActivityChartProps) {
-  const gradientId = `activity-gradient-${dataKey}`;
+  const [hovered, setHovered] = useState<number | null>(null);
+
+  const maxValue = useMemo(() => {
+    const vals = data.map((d) => Number(d[dataKey]) || 0);
+    return Math.max(...vals, 1);
+  }, [data, dataKey]);
+
+  const highestIndex = useMemo(() => {
+    let idx = 0;
+    let max = -Infinity;
+    for (let i = 0; i < data.length; i++) {
+      const v = Number(data[i]?.[dataKey]) || 0;
+      if (v > max) {
+        max = v;
+        idx = i;
+      }
+    }
+    return idx;
+  }, [data, dataKey]);
 
   return (
-    <div className={cn("w-full", className)} style={{ height }}>
-      <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={data} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
-          <defs>
-            <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={color} stopOpacity={0.3} />
-              <stop offset="100%" stopColor={color} stopOpacity={0} />
-            </linearGradient>
-          </defs>
-          <CartesianGrid
-            strokeDasharray="3 3"
-            stroke="var(--border-subtle, hsl(var(--border)))"
-            vertical={false}
-          />
-          <XAxis
-            dataKey={xAxisKey}
-            tick={{ fontSize: 11, fill: "var(--muted-foreground, hsl(var(--muted-foreground)))" }}
-            axisLine={false}
-            tickLine={false}
-          />
-          <YAxis hide />
-          <Tooltip
-            contentStyle={{
-              background: "var(--surface-overlay, hsl(var(--popover)))",
-              border: "1px solid var(--border-subtle, hsl(var(--border)))",
-              color: "var(--foreground, hsl(var(--foreground)))",
-              borderRadius: "0.5rem",
-              fontSize: "0.75rem",
-              padding: "0.5rem 0.75rem",
-            }}
-            itemStyle={{ color: "var(--foreground, hsl(var(--foreground)))" }}
-          />
-          <Area
-            type="monotone"
-            dataKey={dataKey}
-            stroke={color}
-            strokeWidth={2}
-            fill={`url(#${gradientId})`}
-          />
-        </AreaChart>
-      </ResponsiveContainer>
+    <div className={cn("w-full", className)}>
+      <div className="flex h-36 items-end gap-3">
+        {data.map((item, i) => {
+          const value = Number(item[dataKey]) || 0;
+          const pct = (value / maxValue) * 100;
+          const isHighest = value === Number(data[highestIndex]?.[dataKey]);
+          const isHovered = hovered === i;
+          const isHighlighted = isHighest || isHovered;
+
+          return (
+            <div
+              key={`${i}-${String(item[xAxisKey])}`}
+              className="flex flex-1 flex-col items-center gap-2"
+              onMouseEnter={() => setHovered(i)}
+              onMouseLeave={() => setHovered(null)}
+            >
+              {/* Animated tooltip */}
+              {isHovered && (
+                <motion.div
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="rounded-md px-2 py-1 whitespace-nowrap text-white"
+                  style={{
+                    fontSize: "0.7rem",
+                    background: "rgba(0,0,0,0.8)",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                  }}
+                >
+                  {value} cereri
+                </motion.div>
+              )}
+
+              {/* Bar */}
+              <motion.div
+                initial={{ height: 0 }}
+                animate={{ height: `${pct}%` }}
+                transition={{ duration: 0.6, delay: i * 0.06, ease: "easeOut" }}
+                className="relative w-full cursor-pointer overflow-hidden rounded-lg"
+                style={{
+                  minHeight: 4,
+                  background: isHighlighted
+                    ? "linear-gradient(180deg, #ec4899, #f43f5e)"
+                    : "linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.04))",
+                  boxShadow: isHighlighted ? "0 0 20px rgba(236,72,153,0.3)" : "none",
+                }}
+              />
+
+              {/* Label */}
+              <span
+                className={isHighlighted ? "text-pink-400" : "text-gray-600"}
+                style={{ fontSize: "0.7rem" }}
+              >
+                {String(item[xAxisKey])}
+              </span>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

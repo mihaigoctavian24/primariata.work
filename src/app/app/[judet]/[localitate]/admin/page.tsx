@@ -103,9 +103,9 @@ export default async function AdminDashboardPage({
     <div className="space-y-5">
       <WelcomeBanner {...dashboardData.welcome} />
 
-      <div className="grid grid-cols-12 gap-5">
+      <div className="grid gap-5" style={{ gridTemplateColumns: "repeat(12, 1fr)" }}>
         {/* Left column: 8 cols on xl, full width on mobile */}
-        <div className="col-span-12 flex flex-col gap-5 xl:col-span-8">
+        <div className="flex flex-col gap-5" style={{ gridColumn: "span 8 / span 8" }}>
           <UserStatsSection initialData={dashboardData.userStats} primarieId={primarieId} />
           <SystemHealthSection initialData={dashboardData.healthMetrics} primarieId={primarieId} />
           <CereriOverviewSection
@@ -116,7 +116,7 @@ export default async function AdminDashboardPage({
         </div>
 
         {/* Right column: 4 cols on xl, full width on mobile */}
-        <div className="col-span-12 flex flex-col gap-5 xl:col-span-4">
+        <div className="flex flex-col gap-5" style={{ gridColumn: "span 4 / span 4" }}>
           <FunctionariPerformance
             initialData={dashboardData.performance}
             primarieId={primarieId}

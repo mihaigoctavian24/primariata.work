@@ -6,6 +6,7 @@ interface AnimatedCounterProps {
   target: number;
   duration?: number;
   className?: string;
+  style?: React.CSSProperties;
   formatFn?: (n: number) => string;
 }
 
@@ -13,6 +14,7 @@ function AnimatedCounter({
   target,
   duration = 1200,
   className,
+  style,
   formatFn = (n: number) => n.toLocaleString("ro-RO"),
 }: AnimatedCounterProps) {
   const [value, setValue] = useState(0);
@@ -62,7 +64,7 @@ function AnimatedCounter({
   }, [animate]);
 
   return (
-    <span ref={elementRef} className={className}>
+    <span ref={elementRef} className={className} style={style}>
       {formatFn(value)}
     </span>
   );

@@ -72,7 +72,7 @@ function SystemHealthSection({ initialData, primarieId }: SystemHealthSectionPro
       whileInView="visible"
       viewport={{ once: true }}
       transition={defaultTransition}
-      className="border-border bg-card rounded-2xl border p-5"
+      className="rounded-2xl border border-white/[0.05] bg-white/[0.024] p-5"
     >
       <div className="mb-4 flex items-center gap-2">
         <Server className="h-5 w-5 text-sky-400" />
@@ -84,7 +84,7 @@ function SystemHealthSection({ initialData, primarieId }: SystemHealthSectionPro
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}
-        className="grid grid-cols-2 gap-3 md:grid-cols-4"
+        className="grid grid-cols-4 gap-3"
       >
         {healthMetricCards.map((card) => {
           const Icon = card.icon;

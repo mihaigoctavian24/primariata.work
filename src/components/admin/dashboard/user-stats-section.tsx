@@ -37,7 +37,7 @@ function UserStatsSection({ initialData, primarieId }: UserStatsSectionProps) {
       whileInView="visible"
       viewport={{ once: true }}
       transition={defaultTransition}
-      className="border-border bg-card rounded-2xl border p-5"
+      className="rounded-2xl border border-white/[0.05] bg-white/[0.024] p-5"
     >
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">

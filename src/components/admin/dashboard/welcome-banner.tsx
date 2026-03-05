@@ -22,9 +22,8 @@ function WelcomeBanner({
       animate={{ opacity: 1, y: 0 }}
       className="relative overflow-hidden rounded-2xl p-5"
       style={{
-        background:
-          "linear-gradient(135deg, oklch(var(--accent-500)), oklch(var(--accent-400)), oklch(var(--accent-600)))",
-        boxShadow: "0 8px 32px oklch(var(--accent-500) / 0.2)",
+        background: "linear-gradient(135deg, #ec4899, #a855f7, #6366f1)",
+        boxShadow: "0 8px 32px rgba(236,72,153,0.2)",
       }}
     >
       {/* Floating orbs */}

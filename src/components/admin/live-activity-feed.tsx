@@ -4,7 +4,6 @@ import { useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import type { LucideIcon } from "lucide-react";
 import { Clock } from "lucide-react";
-import { Card } from "@/components/ui/card";
 import { slideIn, springTransition } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
@@ -55,7 +54,7 @@ function LiveActivityFeed({ items, maxVisible = 5, className }: LiveActivityFeed
   const itemHeight = 56; // approximate height per item in px
 
   return (
-    <Card className={cn("overflow-hidden p-4", className)}>
+    <div className={cn("overflow-hidden", className)}>
       <div
         ref={containerRef}
         className="flex flex-col gap-1 overflow-y-auto"
@@ -75,19 +74,21 @@ function LiveActivityFeed({ items, maxVisible = 5, className }: LiveActivityFeed
                 animate="visible"
                 exit={{ opacity: 0, height: 0 }}
                 transition={springTransition}
-                className="hover:bg-muted/50 flex items-start gap-2.5 rounded-lg px-2 py-2 transition-colors"
+                className="flex items-start gap-2.5 rounded-[10px] px-2.5 py-2 transition-colors hover:bg-white/[0.03]"
               >
                 <div
                   className={cn(
-                    "mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md",
+                    "mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-lg",
                     colors.iconBg
                   )}
                 >
                   <Icon className={cn("h-3 w-3", colors.iconColor)} />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-foreground truncate text-sm">{item.title}</p>
-                  <p className="text-muted-foreground truncate text-xs">{item.description}</p>
+                  <p className="text-foreground truncate text-[0.78rem]">{item.title}</p>
+                  <p className="text-muted-foreground truncate text-[0.68rem]">
+                    {item.description}
+                  </p>
                   <div className="text-muted-foreground mt-0.5 flex items-center gap-1">
                     <Clock className="h-2.5 w-2.5" />
                     <span className="text-[0.65rem]">{item.timestamp}</span>
@@ -98,7 +99,7 @@ function LiveActivityFeed({ items, maxVisible = 5, className }: LiveActivityFeed
           })}
         </AnimatePresence>
       </div>
-    </Card>
+    </div>
   );
 }
 

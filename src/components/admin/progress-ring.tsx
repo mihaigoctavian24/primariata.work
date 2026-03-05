@@ -14,8 +14,8 @@ interface ProgressRingProps {
 
 function ProgressRing({
   value,
-  size = 120,
-  strokeWidth = 8,
+  size = 56,
+  strokeWidth = 4,
   color = "var(--accent-500)",
   label,
   className,
@@ -50,15 +50,15 @@ function ProgressRing({
             initial={{ strokeDashoffset: circumference }}
             whileInView={{ strokeDashoffset: offset }}
             viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 1.2, ease: "easeOut", delay: 0.2 }}
+            transition={{ duration: 1.2, ease: "easeOut", delay: 0.3 }}
             transform={`rotate(-90 ${size / 2} ${size / 2})`}
           />
         </svg>
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-foreground text-sm font-bold">{value}%</span>
+          <span className="text-foreground text-[0.7rem] font-bold">{value}%</span>
         </div>
       </div>
-      {label && <span className="text-muted-foreground text-xs">{label}</span>}
+      {label && <span className="text-muted-foreground text-[0.6rem]">{label}</span>}
     </div>
   );
 }

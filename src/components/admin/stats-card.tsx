@@ -74,8 +74,22 @@ function StatsCard({
       whileInView="visible"
       viewport={{ once: true }}
       transition={defaultTransition}
+      whileHover={{ y: -2, transition: { duration: 0.2 } }}
+      className="group"
     >
-      <Card className={cn("relative overflow-hidden p-4", colors.card, className)}>
+      <Card
+        className={cn(
+          "relative rounded-2xl border border-white/[0.05] bg-white/[0.024] p-4 shadow-none",
+          className
+        )}
+      >
+        <div
+          className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+          style={{
+            background:
+              "radial-gradient(circle at 50% 100%, rgba(236,72,153,0.07), transparent 70%)",
+          }}
+        />
         <div className="mb-3 flex items-center justify-between">
           <div className={cn("flex h-9 w-9 items-center justify-center rounded-xl", colors.iconBg)}>
             <Icon className={cn("h-4 w-4", colors.iconColor)} />
@@ -83,7 +97,7 @@ function StatsCard({
           {trend && (
             <div
               className={cn(
-                "flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium",
+                "flex items-center gap-1 rounded-md px-2 py-0.5 text-[0.7rem] font-medium",
                 trend.isPositive ? colors.trendPositive : colors.trendNegative
               )}
             >
@@ -95,9 +109,9 @@ function StatsCard({
         <AnimatedCounter
           target={value}
           duration={1500}
-          className="text-foreground block text-3xl leading-tight font-bold"
+          className="text-foreground block text-[1.8rem] leading-none font-bold"
         />
-        <span className="text-muted-foreground mt-1 block text-xs">{label}</span>
+        <span className="text-muted-foreground mt-1 block text-[0.78rem]">{label}</span>
       </Card>
     </motion.div>
   );

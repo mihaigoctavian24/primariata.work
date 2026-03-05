@@ -45,11 +45,11 @@ function AdminAlertsPanel({ initialData, primarieId }: AdminAlertsPanelProps) {
       whileInView="visible"
       viewport={{ once: true }}
       transition={defaultTransition}
-      className="border-border bg-card rounded-2xl border p-4"
+      className="rounded-2xl border border-white/[0.05] bg-white/[0.024] p-4"
     >
       <div className="mb-3 flex items-center gap-2">
         <AlertTriangle className="h-4 w-4 text-amber-400" />
-        <h3 className="text-foreground text-sm font-semibold">Atentie Admin</h3>
+        <h3 className="text-foreground text-[0.9rem] font-semibold">Atentie Admin</h3>
       </div>
 
       {alerts.length === 0 ? (
@@ -63,7 +63,7 @@ function AdminAlertsPanel({ initialData, primarieId }: AdminAlertsPanelProps) {
           return (
             <div
               key={alert.id}
-              className="border-border/30 flex items-center gap-3 border-b py-2.5 last:border-0"
+              className="flex items-center gap-3 border-b border-white/[0.03] py-2.5 last:border-0"
             >
               <div className="h-8 w-1 rounded-full" style={{ background: color }} />
               <div className="min-w-0 flex-1">

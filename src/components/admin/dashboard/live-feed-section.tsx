@@ -146,14 +146,17 @@ function LiveFeedSection({ primarieId }: LiveFeedSectionProps) {
       whileInView="visible"
       viewport={{ once: true }}
       transition={defaultTransition}
-      className="border-border bg-card rounded-2xl border p-4"
+      className="h-full rounded-2xl border border-white/[0.06] bg-white/[0.03] p-5"
     >
-      <div className="mb-3 flex items-center gap-2">
-        <Activity className="text-accent-500 h-4 w-4" />
-        <h3 className="text-foreground text-sm font-semibold">Activitate Live</h3>
+      <div className="mb-4 flex items-center gap-2">
+        <Activity className="h-4 w-4 text-emerald-400" />
+        <h3 className="text-foreground text-[0.95rem] font-semibold">Activitate Live</h3>
         <div className="ml-auto flex items-center gap-1.5">
-          <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
-          <span className="text-[0.65rem] text-emerald-400">Live</span>
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+          </span>
+          <span className="text-[0.72rem] text-emerald-400">Live</span>
         </div>
       </div>
 

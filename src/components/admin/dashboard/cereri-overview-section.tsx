@@ -6,7 +6,7 @@ import { motion } from "motion/react";
 import Link from "next/link";
 import { DonutChart, AnimatedCounter } from "@/components/admin";
 import { queryKeys } from "@/lib/react-query";
-import { slideIn, fadeIn, defaultTransition } from "@/lib/motion";
+import { slideIn, defaultTransition } from "@/lib/motion";
 import type { CereriOverviewItem, DashboardData } from "@/lib/admin-dashboard-types";
 
 interface CereriOverviewSectionProps {
@@ -43,7 +43,7 @@ function CereriOverviewSection({ initialData, primarieId }: CereriOverviewSectio
       whileInView="visible"
       viewport={{ once: true }}
       transition={defaultTransition}
-      className="border-border bg-card rounded-2xl border p-5"
+      className="rounded-2xl border border-white/[0.05] bg-white/[0.024] p-5"
     >
       <div className="mb-5 flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -64,30 +64,44 @@ function CereriOverviewSection({ initialData, primarieId }: CereriOverviewSectio
         <DonutChart data={donutData} size={170} centerValue={totalCount} centerLabel="Total" />
 
         <div className="grid w-full flex-1 grid-cols-3 gap-2">
-          {overview.map((item) => (
+          {overview.map((item, i) => (
             <motion.div
               key={item.status}
-              variants={fadeIn}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              transition={defaultTransition}
-              className="border-border/40 bg-card rounded-xl border p-3 text-center shadow-sm"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.4, delay: 0.35 + i * 0.04 }}
+              style={{
+                background: `${item.color}10`,
+                border: `1px solid ${item.color}25`,
+              }}
+              className="group relative cursor-pointer overflow-hidden rounded-xl p-4 text-center"
             >
-              <AnimatedCounter
-                target={item.count}
-                duration={1200}
-                className="text-foreground block text-2xl leading-tight font-bold"
+              {/* Hover glow */}
+              <div
+                className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                style={{
+                  background: `radial-gradient(circle at 50% 80%, ${item.color}20, transparent 70%)`,
+                }}
               />
-              <span className="text-muted-foreground mt-1 block text-xs">{item.label}</span>
-              <div className="mt-1.5 flex items-center justify-center gap-1.5">
-                <span
-                  className="inline-block h-2 w-2 rounded-full"
-                  style={{ backgroundColor: item.color }}
+              <div className="relative z-10">
+                <AnimatedCounter
+                  target={item.count}
+                  duration={1200}
+                  className="block text-[1.75rem] leading-[1.2] font-bold"
+                  style={{ color: item.color }}
                 />
-                <span className="text-muted-foreground text-[0.65rem] font-medium">
-                  {item.status}
+                <span className="text-muted-foreground mt-1 block text-[0.75rem]">
+                  {item.label}
                 </span>
+                <div className="mt-1.5 flex items-center justify-center gap-1.5">
+                  <span
+                    className="inline-block h-2 w-2 rounded-full"
+                    style={{ backgroundColor: item.color }}
+                  />
+                  <span className="text-muted-foreground text-[0.65rem] font-medium">
+                    {item.status}
+                  </span>
+                </div>
               </div>
             </motion.div>
           ))}
