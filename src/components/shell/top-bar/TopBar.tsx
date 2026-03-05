@@ -16,9 +16,16 @@ interface TopBarProps {
   onMenuClick: () => void;
   onCommandPalette: () => void;
   onNotifications: () => void;
+  unreadCount?: number;
 }
 
-export function TopBar({ config, onMenuClick, onCommandPalette, onNotifications }: TopBarProps) {
+export function TopBar({
+  config,
+  onMenuClick,
+  onCommandPalette,
+  onNotifications,
+  unreadCount,
+}: TopBarProps) {
   return (
     <header className="border-border bg-background sticky top-0 z-20 flex h-16 items-center justify-between border-b px-4">
       {/* Left side: hamburger menu (mobile only) */}
@@ -39,6 +46,7 @@ export function TopBar({ config, onMenuClick, onCommandPalette, onNotifications 
         config={config}
         onCommandPalette={onCommandPalette}
         onNotifications={onNotifications}
+        unreadCount={unreadCount}
       />
     </header>
   );

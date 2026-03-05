@@ -15,6 +15,7 @@ interface TopBarActionsProps {
   config: SidebarConfig;
   onCommandPalette: () => void;
   onNotifications: () => void;
+  unreadCount?: number;
 }
 
 interface UserInfo {
@@ -35,7 +36,12 @@ function getInitials(name: string, email: string): string {
   return email.slice(0, 2).toUpperCase();
 }
 
-export function TopBarActions({ config, onCommandPalette, onNotifications }: TopBarActionsProps) {
+export function TopBarActions({
+  config,
+  onCommandPalette,
+  onNotifications,
+  unreadCount = 0,
+}: TopBarActionsProps) {
   const [user, setUser] = useState<UserInfo | null>(null);
 
   useEffect(() => {
@@ -87,8 +93,19 @@ export function TopBarActions({ config, onCommandPalette, onNotifications }: Top
       <TooltipProvider delayDuration={300}>
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon" onClick={onNotifications} aria-label="Notificari">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onNotifications}
+              aria-label="Notificari"
+              className="relative"
+            >
               <Bell className="h-4 w-4" />
+              {unreadCount > 0 && (
+                <span className="bg-destructive text-destructive-foreground absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-medium">
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </span>
+              )}
             </Button>
           </TooltipTrigger>
           <TooltipContent>Notificari</TooltipContent>
