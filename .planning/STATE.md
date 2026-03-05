@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Design Revamp
 status: in-progress
-stopped_at: Completed 13-01-PLAN.md
+stopped_at: Completed 13-02-PLAN.md
 last_updated: "2026-03-05T09:16:00Z"
-last_activity: 2026-03-05 -- Completed 13-01 (layout shell core)
+last_activity: 2026-03-05 -- Completed 13-02 (command palette + notification drawer)
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 3
-  completed_plans: 3
-  percent: 23
+  completed_plans: 4
+  percent: 31
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-03-05)
 ## Current Position
 
 Phase: 13 of 17 (Layout Shell) -- second of 6 v2.0 phases
-Plan: 1 of 3 in current phase
-Status: 13-01 complete, ready for 13-02
-Last activity: 2026-03-05 -- Completed 13-01 (layout shell core)
+Plan: 2 of 3 in current phase
+Status: 13-02 complete, ready for 13-03
+Last activity: 2026-03-05 -- Completed 13-02 (command palette + notification drawer)
 
-Progress: [██▒░░░░░░░] 23%
+Progress: [███░░░░░░░] 31%
 
 ## Performance Metrics
 
@@ -66,6 +66,9 @@ Recent decisions affecting current work:
 - [13-01]: Cookie-based sidebar collapse persistence for server-side reading (no hydration mismatch)
 - [13-01]: Provider wrapper pattern: server layout reads cookie -> client Providers -> ShellLayout
 - [13-01]: Admin role enforcement: only approved admin role in user_primarii grants /admin/* access
+- [13-02]: Used utilizatori table (not profiles) with nume/prenume fields for admin user search
+- [13-02]: Cereri search uses numar_inregistrare + join to tipuri_cereri for type name display
+- [13-02]: Notification category mapping: cerere_*/status_updated/deadline -> cereri, payment_due -> payments
 
 ### Pending Todos
 
@@ -79,6 +82,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-05T09:16:00Z
-Stopped at: Completed 13-01-PLAN.md
-Resume file: .planning/phases/13-layout-shell/13-01-SUMMARY.md
+Last session: 2026-03-05T09:28:00Z
+Stopped at: Completed 13-02-PLAN.md
+Resume file: .planning/phases/13-layout-shell/13-02-SUMMARY.md

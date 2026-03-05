@@ -20,8 +20,8 @@ Requirements for the Design Revamp milestone. Starting with admin primarie modul
 - [x] **SHELL-01**: Collapsible sidebar component (260px to 72px) with role-adaptive navigation sections and Framer Motion spring
 - [x] **SHELL-02**: Sidebar nav config system -- each role defines its own sections/items/badges, sidebar renders generically
 - [x] **SHELL-03**: Top bar component with role badge, location selector, weather widget, theme toggle, user avatar
-- [ ] **SHELL-04**: Command palette (Cmd+K) with searchable pages, actions, navigation -- content adapts per role
-- [ ] **SHELL-05**: Notification drawer (slide-in panel) with real-time Supabase subscriptions, read/dismiss/filter
+- [x] **SHELL-04**: Command palette (Cmd+K) with searchable pages, actions, navigation -- content adapts per role
+- [x] **SHELL-05**: Notification drawer (slide-in panel) with real-time Supabase subscriptions, read/dismiss/filter
 - [x] **SHELL-06**: Sidebar collapse state persisted via cookie (server-readable, no hydration mismatch)
 - [x] **SHELL-07**: Page transition animations (AnimatePresence) on route changes within shell
 - [x] **SHELL-08**: Mobile responsive shell -- sidebar as sheet/drawer on small screens
@@ -158,8 +158,8 @@ Deferred to future milestones.
 | SHELL-01 | Phase 13 | Complete (13-01) |
 | SHELL-02 | Phase 13 | Complete (13-01) |
 | SHELL-03 | Phase 13 | Complete (13-01) |
-| SHELL-04 | Phase 13 | Pending |
-| SHELL-05 | Phase 13 | Pending |
+| SHELL-04 | Phase 13 | Complete |
+| SHELL-05 | Phase 13 | Complete |
 | SHELL-06 | Phase 13 | Complete (13-01) |
 | SHELL-07 | Phase 13 | Complete (13-01) |
 | SHELL-08 | Phase 13 | Complete (13-01) |

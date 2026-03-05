@@ -29,7 +29,7 @@
 **Milestone Goal:** Revamp the entire admin primarie experience based on Figma designs, establishing a shared design system (layout, components, animations, theming) that serves as the foundation for revamping all other roles in subsequent milestones.
 
 - [x] **Phase 12: Design System Foundation** - CSS tokens, shared components, motion system, accent color engine (completed 2026-03-05)
-- [ ] **Phase 13: Layout Shell** - Collapsible sidebar, top bar, command palette, notification drawer, admin role enforcement
+- [x] **Phase 13: Layout Shell** - Collapsible sidebar, top bar, command palette, notification drawer, admin role enforcement (completed 2026-03-05)
 - [ ] **Phase 14: Admin Dashboard** - Welcome banner, user stats, system health, cereri overview, performance table, activity feed
 - [ ] **Phase 15: Admin Settings** - 5-tab settings with accent color picker wired end-to-end
 - [ ] **Phase 16: Enhanced Existing Pages** - Utilizatori management revamp + Cereri supervizare with kanban/SLA/priority
@@ -153,7 +153,7 @@ Note: Phases 16 and 17 both depend on Phase 13 (not on each other) and could run
 | 10. Payment & GDPR Fixes | v1.0 | 1/1 | Complete | 2026-03-04 |
 | 11. E2E Seed & Coverage | v1.0 | 3/3 | Complete | 2026-03-04 |
 | 12. Design System Foundation | 2/2 | Complete    | 2026-03-05 | - |
-| 13. Layout Shell | v2.0 | 1/2 | In progress | - |
+| 13. Layout Shell | 2/2 | Complete   | 2026-03-05 | - |
 | 14. Admin Dashboard | v2.0 | 0/2 | Not started | - |
 | 15. Admin Settings | v2.0 | 0/1 | Not started | - |
 | 16. Enhanced Existing Pages | v2.0 | 0/2 | Not started | - |
