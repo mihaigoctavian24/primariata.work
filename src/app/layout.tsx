@@ -6,6 +6,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { BetterStackWebVitals } from "@logtail/next/webVitals";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
+import { AccentColorProvider } from "@/components/accent-color-provider";
 import { CookieConsentBanner } from "@/components/cookie-consent/CookieConsentBanner";
 import "./globals.css";
 
@@ -128,8 +129,10 @@ export default function RootLayout({
       >
         <BetterStackWebVitals />
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
-          {children}
-          <Toaster />
+          <AccentColorProvider>
+            {children}
+            <Toaster />
+          </AccentColorProvider>
         </ThemeProvider>
         <CookieConsentBanner />
         <Analytics />
