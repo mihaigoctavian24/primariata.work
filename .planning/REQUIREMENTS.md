@@ -17,14 +17,14 @@ Requirements for the Design Revamp milestone. Starting with admin primarie modul
 
 ### App Shell
 
-- [ ] **SHELL-01**: Collapsible sidebar component (260px to 72px) with role-adaptive navigation sections and Framer Motion spring
-- [ ] **SHELL-02**: Sidebar nav config system -- each role defines its own sections/items/badges, sidebar renders generically
-- [ ] **SHELL-03**: Top bar component with role badge, location selector, weather widget, theme toggle, user avatar
+- [x] **SHELL-01**: Collapsible sidebar component (260px to 72px) with role-adaptive navigation sections and Framer Motion spring
+- [x] **SHELL-02**: Sidebar nav config system -- each role defines its own sections/items/badges, sidebar renders generically
+- [x] **SHELL-03**: Top bar component with role badge, location selector, weather widget, theme toggle, user avatar
 - [ ] **SHELL-04**: Command palette (Cmd+K) with searchable pages, actions, navigation -- content adapts per role
 - [ ] **SHELL-05**: Notification drawer (slide-in panel) with real-time Supabase subscriptions, read/dismiss/filter
-- [ ] **SHELL-06**: Sidebar collapse state persisted via cookie (server-readable, no hydration mismatch)
-- [ ] **SHELL-07**: Page transition animations (AnimatePresence) on route changes within shell
-- [ ] **SHELL-08**: Mobile responsive shell -- sidebar as sheet/drawer on small screens
+- [x] **SHELL-06**: Sidebar collapse state persisted via cookie (server-readable, no hydration mismatch)
+- [x] **SHELL-07**: Page transition animations (AnimatePresence) on route changes within shell
+- [x] **SHELL-08**: Mobile responsive shell -- sidebar as sheet/drawer on small screens
 
 ### Shared Components
 
@@ -38,8 +38,8 @@ Requirements for the Design Revamp milestone. Starting with admin primarie modul
 
 ### Security
 
-- [ ] **SEC-01**: Role enforcement in middleware -- each protected route validates user role before rendering
-- [ ] **SEC-02**: Admin routes accessible only to admin and super_admin roles
+- [x] **SEC-01**: Role enforcement in middleware -- each protected route validates user role before rendering
+- [x] **SEC-02**: Admin routes accessible only to admin and super_admin roles
 
 ### Admin Dashboard
 
@@ -155,16 +155,16 @@ Deferred to future milestones.
 | SC-05 | Phase 12 | Complete |
 | SC-06 | Phase 12 | Complete |
 | SC-07 | Phase 12 | Complete |
-| SHELL-01 | Phase 13 | Pending |
-| SHELL-02 | Phase 13 | Pending |
-| SHELL-03 | Phase 13 | Pending |
+| SHELL-01 | Phase 13 | Complete (13-01) |
+| SHELL-02 | Phase 13 | Complete (13-01) |
+| SHELL-03 | Phase 13 | Complete (13-01) |
 | SHELL-04 | Phase 13 | Pending |
 | SHELL-05 | Phase 13 | Pending |
-| SHELL-06 | Phase 13 | Pending |
-| SHELL-07 | Phase 13 | Pending |
-| SHELL-08 | Phase 13 | Pending |
-| SEC-01 | Phase 13 | Pending |
-| SEC-02 | Phase 13 | Pending |
+| SHELL-06 | Phase 13 | Complete (13-01) |
+| SHELL-07 | Phase 13 | Complete (13-01) |
+| SHELL-08 | Phase 13 | Complete (13-01) |
+| SEC-01 | Phase 13 | Complete (13-01) |
+| SEC-02 | Phase 13 | Complete (13-01) |
 | DASH-01 | Phase 14 | Pending |
 | DASH-02 | Phase 14 | Pending |
 | DASH-03 | Phase 14 | Pending |

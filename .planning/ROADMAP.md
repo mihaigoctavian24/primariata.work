@@ -66,8 +66,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 13-01: TBD
-- [ ] 13-02: TBD
+- [x] 13-01-PLAN.md — Collapsible sidebar, top bar, nav config system, cookie persistence, page transitions, mobile responsive, middleware role enforcement
+- [ ] 13-02-PLAN.md — Command palette (Cmd+K) with live Supabase search, notification drawer with real-time updates and filtering
 
 ### Phase 14: Admin Dashboard
 **Goal**: Admin lands on a data-rich dashboard showing real platform metrics -- user counts, cereri status, staff performance, and live activity
@@ -152,8 +152,8 @@ Note: Phases 16 and 17 both depend on Phase 13 (not on each other) and could run
 | 9. Audit Gap Closure | v1.0 | 1/1 | Complete | 2026-03-04 |
 | 10. Payment & GDPR Fixes | v1.0 | 1/1 | Complete | 2026-03-04 |
 | 11. E2E Seed & Coverage | v1.0 | 3/3 | Complete | 2026-03-04 |
-| 12. Design System Foundation | 2/2 | Complete   | 2026-03-05 | - |
-| 13. Layout Shell | v2.0 | 0/2 | Not started | - |
+| 12. Design System Foundation | 2/2 | Complete    | 2026-03-05 | - |
+| 13. Layout Shell | v2.0 | 1/2 | In progress | - |
 | 14. Admin Dashboard | v2.0 | 0/2 | Not started | - |
 | 15. Admin Settings | v2.0 | 0/1 | Not started | - |
 | 16. Enhanced Existing Pages | v2.0 | 0/2 | Not started | - |
@@ -161,4 +161,4 @@ Note: Phases 16 and 17 both depend on Phase 13 (not on each other) and could run
 
 ---
 *Roadmap created: 2026-03-02*
-*Last updated: 2026-03-05 after 12-01 completion*
+*Last updated: 2026-03-05 after 13-01 execution*

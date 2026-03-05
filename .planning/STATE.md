@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Design Revamp
-status: executing
-stopped_at: Completed 12-02-PLAN.md
-last_updated: "2026-03-05T01:14:54Z"
-last_activity: 2026-03-05 -- Completed 12-02 (7 shared admin components)
+status: in-progress
+stopped_at: Completed 13-01-PLAN.md
+last_updated: "2026-03-05T09:16:00Z"
+last_activity: 2026-03-05 -- Completed 13-01 (layout shell core)
 progress:
   total_phases: 6
   completed_phases: 1
-  total_plans: 2
-  completed_plans: 2
-  percent: 8
+  total_plans: 3
+  completed_plans: 3
+  percent: 23
 ---
 
 # Project State
@@ -21,29 +21,29 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-05)
 
 **Core value:** Citizens can submit cereri and complete plati digitally for any primarie where they're registered, with complete data isolation between primarii and proper role-based access for all user types.
-**Current focus:** v2.0 Design Revamp -- Phase 12: Design System Foundation
+**Current focus:** v2.0 Design Revamp -- Phase 13: Layout Shell
 
 ## Current Position
 
-Phase: 12 of 17 (Design System Foundation) -- first of 6 v2.0 phases -- COMPLETE
-Plan: 2 of 2 in current phase (phase complete)
-Status: Phase 12 complete, ready for Phase 13
-Last activity: 2026-03-05 -- Completed 12-02 (7 shared admin components)
+Phase: 13 of 17 (Layout Shell) -- second of 6 v2.0 phases
+Plan: 1 of 3 in current phase
+Status: 13-01 complete, ready for 13-02
+Last activity: 2026-03-05 -- Completed 13-01 (layout shell core)
 
-Progress: [██░░░░░░░░] 15%
+Progress: [██▒░░░░░░░] 23%
 
 ## Performance Metrics
 
 **Velocity:**
 - Total plans completed: 36 (v1.0)
-- v2.0 plans completed: 2
+- v2.0 plans completed: 3
 - Total execution time: carried from v1.0
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 12-17 | 2/13 | 8min | 4min |
+| 12-17 | 3/13 | 13min | 4.3min |
 
 ## Accumulated Context
 
@@ -63,6 +63,9 @@ Recent decisions affecting current work:
 - [12-02]: AnimatedCounter uses pure rAF + IntersectionObserver (no motion/react dependency)
 - [12-02]: Recharts wrappers use CSS custom property references for dynamic accent coloring
 - [12-02]: Color variant pattern: colorVariantMap objects mapping to Tailwind token classes
+- [13-01]: Cookie-based sidebar collapse persistence for server-side reading (no hydration mismatch)
+- [13-01]: Provider wrapper pattern: server layout reads cookie -> client Providers -> ShellLayout
+- [13-01]: Admin role enforcement: only approved admin role in user_primarii grants /admin/* access
 
 ### Pending Todos
 
@@ -76,6 +79,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-05T01:14:54Z
-Stopped at: Completed 12-02-PLAN.md
-Resume file: .planning/phases/12-design-system-foundation/12-02-SUMMARY.md
+Last session: 2026-03-05T09:16:00Z
+Stopped at: Completed 13-01-PLAN.md
+Resume file: .planning/phases/13-layout-shell/13-01-SUMMARY.md
