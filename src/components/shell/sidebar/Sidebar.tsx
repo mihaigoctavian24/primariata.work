@@ -1,10 +1,8 @@
 "use client";
 
 import { motion } from "motion/react";
-import { Menu } from "lucide-react";
 import { springTransition } from "@/lib/motion";
 import { useMediaQuery } from "@/hooks/use-media-query";
-import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { SidebarLogo } from "./SidebarLogo";
 import { SidebarQuickSearch } from "./SidebarQuickSearch";

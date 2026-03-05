@@ -25,8 +25,8 @@ interface ShellLayoutProps {
 
 export function ShellLayout({ children, sidebarConfig, initialCollapsed }: ShellLayoutProps) {
   const [collapsed, setCollapsed] = useState(initialCollapsed);
-  const [commandOpen, setCommandOpen] = useState(false);
-  const [notifOpen, setNotifOpen] = useState(false);
+  const [, setCommandOpen] = useState(false);
+  const [, setNotifOpen] = useState(false);
   const isMobile = useMediaQuery("(max-width: 1023px)");
 
   const toggleCollapse = useCallback(() => {
