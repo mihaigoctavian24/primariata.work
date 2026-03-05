@@ -5,53 +5,76 @@
 
 @layer base {
   :root {
-    /* Color Variables - Light Mode */
-    --background: #f8f6f2;
-    --foreground: #333333;
+    /* ─── Core Semantic Tokens (oklch) ─── Light Mode ─── */
+    --background: oklch(0.975 0.005 90);
+    --foreground: oklch(0.278 0.012 260);
 
-    --card: #f5f7f6;
-    --card-foreground: #333333;
+    --card: oklch(0.968 0.004 110);
+    --card-foreground: oklch(0.278 0.012 260);
 
-    --primary: #be3144;
-    --primary-foreground: #d6d6d6;
+    /* Accent Color Engine -- single hue drives entire palette */
+    --accent-hue: 15; /* crimson default, overridden at runtime */
+    --accent-50: oklch(0.978 0.011 var(--accent-hue));
+    --accent-100: oklch(0.936 0.032 var(--accent-hue));
+    --accent-200: oklch(0.881 0.061 var(--accent-hue));
+    --accent-300: oklch(0.827 0.091 var(--accent-hue));
+    --accent-400: oklch(0.742 0.14 var(--accent-hue));
+    --accent-500: oklch(0.648 0.147 var(--accent-hue));
+    --accent-600: oklch(0.573 0.13 var(--accent-hue));
+    --accent-700: oklch(0.469 0.107 var(--accent-hue));
+    --accent-800: oklch(0.394 0.09 var(--accent-hue));
+    --accent-900: oklch(0.32 0.073 var(--accent-hue));
+    --accent-950: oklch(0.238 0.054 var(--accent-hue));
 
-    --secondary: #535858;
-    --secondary-foreground: #ffffff;
+    /* Primary maps to accent-500 for backward compatibility */
+    --primary: var(--accent-500);
+    --primary-foreground: oklch(0.95 0.005 90);
 
-    --muted: #f9fafb;
-    --muted-foreground: #535858;
+    --secondary: oklch(0.42 0.012 200);
+    --secondary-foreground: oklch(1.0 0 0);
 
-    --accent: #e0e1de;
-    --accent-foreground: #535858;
+    --muted: oklch(0.97 0.003 250);
+    --muted-foreground: oklch(0.42 0.012 200);
 
-    --destructive: #dc4444;
-    --destructive-foreground: #ffffff;
+    --accent: oklch(0.91 0.005 110);
+    --accent-foreground: oklch(0.42 0.012 200);
 
-    --border: #f8f6f2;
-    --input: #e0e1de;
-    --ring: #2c2c2c;
+    --destructive: oklch(0.577 0.184 27);
+    --destructive-foreground: oklch(1.0 0 0);
 
-    --popover: #ffffff;
-    --popover-foreground: #333333;
+    --border: oklch(0.975 0.005 90);
+    --input: oklch(0.91 0.005 110);
+    --ring: oklch(0.25 0.01 260);
 
-    --sidebar-background: #f8f6f2;
-    --sidebar-foreground: #333333;
-    --sidebar-primary: #be3144;
-    --sidebar-primary-foreground: #f8f6f2;
-    --sidebar-accent: #f8f6f2;
-    --sidebar-accent-foreground: #be3144;
-    --sidebar-border: #f8f6f2;
-    --sidebar-ring: #f8f6f2;
+    --popover: oklch(1.0 0 0);
+    --popover-foreground: oklch(0.278 0.012 260);
+
+    /* Sidebar */
+    --sidebar-background: oklch(0.975 0.005 90);
+    --sidebar-foreground: oklch(0.278 0.012 260);
+    --sidebar-primary: var(--accent-500);
+    --sidebar-primary-foreground: oklch(0.975 0.005 90);
+    --sidebar-accent: oklch(0.975 0.005 90);
+    --sidebar-accent-foreground: var(--accent-500);
+    --sidebar-border: oklch(0.975 0.005 90);
+    --sidebar-ring: oklch(0.975 0.005 90);
+
+    /* Extended Surface Tokens */
+    --surface-raised: oklch(0.99 0.003 90);
+    --surface-sunken: oklch(0.95 0.005 90);
+    --surface-overlay: oklch(1.0 0 0 / 0.8);
+    --border-subtle: oklch(0.92 0.005 90);
+    --border-strong: oklch(0.8 0.01 260);
 
     /* Border Radius */
     --radius: 0.375rem;
 
-    /* Chart Colors */
-    --chart-1: #46ecd5;
-    --chart-2: #4f39f6;
-    --chart-3: #7008e7;
-    --chart-4: #c800de;
-    --chart-5: #ff637e;
+    /* Chart Colors (oklch) */
+    --chart-1: oklch(0.82 0.14 175);
+    --chart-2: oklch(0.5 0.22 275);
+    --chart-3: oklch(0.42 0.24 295);
+    --chart-4: oklch(0.55 0.22 320);
+    --chart-5: oklch(0.7 0.17 15);
 
     /* Typography Scale */
     --font-size-xs: 0.75rem; /* 12px */
@@ -90,160 +113,257 @@
   }
 
   .dark {
-    /* Color Variables - Dark Mode */
-    --background: #000000;
-    --foreground: #f8f6f2;
+    /* ─── Core Semantic Tokens (oklch) ─── Dark Mode ─── */
+    --background: oklch(0.145 0 0);
+    --foreground: oklch(0.975 0.005 90);
 
-    --card: #111318;
-    --card-foreground: #e5e5e5;
+    --card: oklch(0.185 0.005 265);
+    --card-foreground: oklch(0.93 0.003 90);
 
-    --primary: #be3144;
-    --primary-foreground: #f8f6f2;
+    /* Primary maps to accent-500 (same engine, theme-independent hue) */
+    --primary: var(--accent-500);
+    --primary-foreground: oklch(0.975 0.005 90);
 
-    --secondary: #535858;
-    --secondary-foreground: #ffffff;
+    --secondary: oklch(0.42 0.012 200);
+    --secondary-foreground: oklch(1.0 0 0);
 
-    --muted: #1f1f1f;
-    --muted-foreground: #a3a3a3;
+    --muted: oklch(0.21 0.005 260);
+    --muted-foreground: oklch(0.67 0.01 260);
 
-    --accent: #1f1f1f;
-    --accent-foreground: #aaaaaa;
+    --accent: oklch(0.21 0.005 260);
+    --accent-foreground: oklch(0.72 0.008 260);
 
-    --destructive: #ef4444;
-    --destructive-foreground: #ffffff;
+    --destructive: oklch(0.62 0.2 27);
+    --destructive-foreground: oklch(1.0 0 0);
 
-    --border: #000000;
-    --input: #e0e1de;
-    --ring: #2c2c2c;
+    --border: oklch(0.145 0 0);
+    --input: oklch(0.91 0.005 110);
+    --ring: oklch(0.25 0.01 260);
 
-    --popover: #262626;
-    --popover-foreground: #e5e5e5;
+    --popover: oklch(0.24 0.005 260);
+    --popover-foreground: oklch(0.93 0.003 90);
 
-    --sidebar-background: #000000;
-    --sidebar-foreground: #f8f6f2;
-    --sidebar-primary: #f8f6f2;
-    --sidebar-primary-foreground: #f8f6f2;
-    --sidebar-accent: #000000;
-    --sidebar-accent-foreground: #be3144;
-    --sidebar-border: #000000;
-    --sidebar-ring: #000000;
+    /* Sidebar - Dark */
+    --sidebar-background: oklch(0.145 0 0);
+    --sidebar-foreground: oklch(0.975 0.005 90);
+    --sidebar-primary: oklch(0.975 0.005 90);
+    --sidebar-primary-foreground: oklch(0.975 0.005 90);
+    --sidebar-accent: oklch(0.145 0 0);
+    --sidebar-accent-foreground: var(--accent-500);
+    --sidebar-border: oklch(0.145 0 0);
+    --sidebar-ring: oklch(0.145 0 0);
 
-    /* Chart Colors - Dark Mode */
-    --chart-1: #46ecd5;
-    --chart-2: #4f39f6;
-    --chart-3: #7008e7;
-    --chart-4: #c800de;
-    --chart-5: #ff637e;
+    /* Extended Surface Tokens - Dark */
+    --surface-raised: oklch(0.2 0.005 260);
+    --surface-sunken: oklch(0.1 0 0);
+    --surface-overlay: oklch(0.2 0 0 / 0.9);
+    --border-subtle: oklch(0.25 0.005 260);
+    --border-strong: oklch(0.4 0.01 260);
+
+    /* Chart Colors - Dark Mode (oklch) */
+    --chart-1: oklch(0.82 0.14 175);
+    --chart-2: oklch(0.5 0.22 275);
+    --chart-3: oklch(0.42 0.24 295);
+    --chart-4: oklch(0.55 0.22 320);
+    --chart-5: oklch(0.7 0.17 15);
   }
 
-  /* Inverse Mode Overrides for Timeline Section */
+  /* ─── Typography Defaults (Figma-aligned hierarchy) ─── */
 
-  /* When Features section is in LIGHT mode (inverse of dark theme) */
+  h1 {
+    font-size: var(--font-size-2xl);
+    font-weight: 500;
+  }
+
+  h2 {
+    font-size: var(--font-size-xl);
+    font-weight: 500;
+  }
+
+  h3 {
+    font-size: var(--font-size-lg);
+    font-weight: 500;
+  }
+
+  h4 {
+    font-size: var(--font-size-base);
+    font-weight: 500;
+  }
+
+  label {
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+  }
+
+  button {
+    font-weight: 500;
+  }
+
+  input,
+  textarea,
+  select {
+    font-size: var(--font-size-sm);
+  }
+
+  /* ─── Landing Page Inverse-Mode (data-theme attribute approach) ─── */
+  /*
+   * Usage: apply data-theme="inverse-light" or data-theme="inverse-dark"
+   * on the container element instead of .light/.dark classes.
+   * The JSX components need to be updated to use these attributes.
+   * Compatibility bridge below keeps old .light/.dark selectors working
+   * until JSX is updated.
+   */
+
+  /* Inverse-light: renders "light" content within a dark-themed page */
+  [data-theme="inverse-light"] {
+    color-scheme: light;
+    --foreground: oklch(0.15 0.01 260);
+    --card: oklch(0.97 0.003 90);
+    --card-foreground: oklch(0.2 0.01 260);
+    --muted-foreground: oklch(0.4 0.012 200);
+    --border: oklch(0.9 0.005 90);
+  }
+
+  [data-theme="inverse-light"] footer {
+    background-color: oklch(0.145 0.005 265);
+    color: oklch(1.0 0 0);
+  }
+
+  [data-theme="inverse-light"] footer h2,
+  [data-theme="inverse-light"] footer .text-white {
+    color: oklch(1.0 0 0);
+  }
+
+  [data-theme="inverse-light"] .timeline-dot-outer {
+    background-color: oklch(0.25 0.005 260);
+  }
+
+  /* Inverse-dark: renders "dark" content within a light-themed page */
+  [data-theme="inverse-dark"] {
+    color-scheme: dark;
+    --foreground: oklch(1.0 0 0);
+    --card: oklch(0.2 0.005 265);
+    --card-foreground: oklch(0.93 0.003 90);
+    --muted-foreground: oklch(0.67 0.01 260);
+    --border: oklch(0.25 0.005 260);
+  }
+
+  [data-theme="inverse-dark"] footer {
+    background-color: oklch(0.97 0.003 250);
+    color: oklch(0.15 0.01 260);
+  }
+
+  [data-theme="inverse-dark"] footer h2,
+  [data-theme="inverse-dark"] footer .text-white {
+    color: oklch(0.15 0.01 260);
+  }
+
+  [data-theme="inverse-dark"] .timeline-dot-outer {
+    background-color: oklch(1.0 0 0);
+  }
+
+  /* ─── Compatibility Bridge: .light/.dark class selectors ─── */
+  /* These mirror the data-theme approach using token references.
+   * Keep until landing page JSX is updated to use data-theme attributes.
+   */
+
   .light {
     color-scheme: light;
   }
 
-  /* Timeline title in light wrapper (dark mode global) - needs black text */
+  /* Light wrapper (dark mode global) -- text overrides via tokens */
   div.snap-start.light h2.text-white,
   div.light > div h2.text-white {
-    color: rgb(0, 0, 0) !important;
+    color: oklch(0.15 0.01 260) !important;
   }
 
-  /* Feature card headers in light wrapper (dark mode global) - needs dark text */
   div.snap-start.light h4.text-white,
   div.light > div h4.text-white,
   div.light h4.text-white {
-    color: rgb(17, 24, 39) !important; /* gray-900 */
+    color: oklch(0.2 0.01 260) !important;
   }
 
   div.snap-start.light .text-gray-400,
   div.light > div .text-gray-400,
   div.light .text-gray-400 {
-    color: rgb(75, 85, 99) !important;
+    color: oklch(0.4 0.012 200) !important;
   }
 
   div.snap-start.light .text-gray-300,
   div.light > div .text-gray-300,
   div.light .text-gray-300 {
-    color: rgb(55, 65, 81) !important;
+    color: oklch(0.35 0.01 200) !important;
   }
 
   div.snap-start.light .text-neutral-500,
   div.light > div .text-neutral-500,
   div.light .text-neutral-500 {
-    color: rgb(64, 64, 64) !important;
+    color: oklch(0.38 0.01 260) !important;
   }
 
-  /* Footer in light wrapper (DARK MODE GLOBAL) - dark background, WHITE text */
   div.light > footer,
   div.light footer {
-    background-color: rgb(9, 9, 11) !important; /* zinc-950 - dark background */
+    background-color: oklch(0.145 0.005 265) !important;
   }
 
-  /* Footer logo must be WHITE on dark background (dark mode global) */
   div.snap-start.light footer h2,
   div.snap-start.light footer h2.text-white,
   div.snap-start.light footer .text-white,
   div.light > footer h2,
   div.light > footer .text-white {
-    color: rgb(255, 255, 255) !important; /* WHITE text on dark background */
+    color: oklch(1.0 0 0) !important;
   }
 
-  /* When Features section is in DARK mode (inverse of light theme) */
-  /* Timeline title in dark wrapper (light mode global) - needs white text */
+  /* Dark wrapper (light mode global) -- text overrides via tokens */
   div.snap-start.dark h2.text-white,
   div.dark > div h2.text-white {
-    color: rgb(255, 255, 255) !important;
+    color: oklch(1.0 0 0) !important;
   }
 
-  /* Feature card headers in dark wrapper (light mode global) - needs white text */
   div.snap-start.dark h4.text-white,
   div.dark > div h4.text-white,
   div.dark h4.text-white {
-    color: rgb(255, 255, 255) !important;
+    color: oklch(1.0 0 0) !important;
   }
 
   div.snap-start.dark .text-gray-400,
   div.dark > div .text-gray-400,
   div.dark .text-gray-400 {
-    color: rgb(156, 163, 175) !important;
+    color: oklch(0.7 0.01 260) !important;
   }
 
   div.snap-start.dark .text-gray-300,
   div.dark > div .text-gray-300,
   div.dark .text-gray-300 {
-    color: rgb(209, 213, 219) !important;
+    color: oklch(0.85 0.005 260) !important;
   }
 
   div.snap-start.dark .text-neutral-500,
   div.dark > div .text-neutral-500,
   div.dark .text-neutral-500 {
-    color: rgb(163, 163, 163) !important;
+    color: oklch(0.67 0.01 260) !important;
   }
 
-  /* Footer in dark wrapper (LIGHT MODE GLOBAL) - light background, BLACK text */
   div.dark > footer,
   div.dark footer {
-    background-color: rgb(249, 250, 251) !important; /* gray-50 - light background */
+    background-color: oklch(0.97 0.003 250) !important;
   }
 
-  /* Footer logo must be BLACK on light background (light mode global) */
   div.snap-start.dark footer h2,
   div.snap-start.dark footer h2.text-white,
   div.snap-start.dark footer .text-white,
   div.dark > footer h2,
   div.dark > footer .text-white {
-    color: rgb(17, 24, 39) !important; /* BLACK text on light background */
+    color: oklch(0.15 0.01 260) !important;
   }
 
-  /* Timeline dots in light wrapper (DARK MODE GLOBAL) - dark gray background */
+  /* Timeline dots via tokens */
   div.light .timeline-dot-outer {
-    background-color: rgb(39, 39, 42) !important; /* zinc-800 */
+    background-color: oklch(0.25 0.005 260) !important;
   }
 
-  /* Timeline dots in dark wrapper (LIGHT MODE GLOBAL) - white background */
   div.dark .timeline-dot-outer {
-    background-color: rgb(255, 255, 255) !important; /* white */
+    background-color: oklch(1.0 0 0) !important;
   }
 
   /* Accessibility: Reduced Motion */
@@ -270,7 +390,7 @@
 
   /* Chart cards in dark mode have pure black background */
   .dark .chart-card {
-    background-color: #000000 !important;
+    background-color: oklch(0.145 0 0) !important;
   }
 }
 
@@ -308,6 +428,26 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+
+  /* Extended Surface Tokens */
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-sunken: var(--surface-sunken);
+  --color-surface-overlay: var(--surface-overlay);
+  --color-border-subtle: var(--border-subtle);
+  --color-border-strong: var(--border-strong);
+
+  /* Accent Shade Palette */
+  --color-accent-50: var(--accent-50);
+  --color-accent-100: var(--accent-100);
+  --color-accent-200: var(--accent-200);
+  --color-accent-300: var(--accent-300);
+  --color-accent-400: var(--accent-400);
+  --color-accent-500: var(--accent-500);
+  --color-accent-600: var(--accent-600);
+  --color-accent-700: var(--accent-700);
+  --color-accent-800: var(--accent-800);
+  --color-accent-900: var(--accent-900);
+  --color-accent-950: var(--accent-950);
 
   /* Fonts */
   --font-sans: var(--font-montreal), var(--font-inter), var(--font-geist-sans);

@@ -1,284 +1,223 @@
-# Feature Research
+# Feature Landscape — Admin Primărie Design Revamp (v2.0)
 
-**Domain:** Romanian e-government / primarie digitization platform (multi-tenant SaaS)
-**Researched:** 2026-03-02
-**Confidence:** HIGH (based on competitor analysis, EU eGovernment Benchmark 2025, and Romanian market platforms)
+**Domain:** e-Government SaaS — Admin role dashboard revamp
+**Researched:** 2026-03-05
+**Source:** Figma Make export (`Revamp Primarie Admin/src/app/components/pages/`) analyzed directly
 
-## Feature Landscape
+---
 
-### Table Stakes (Users Expect These)
+## Scope Clarification
 
-Features users assume exist. Missing these = product feels incomplete or unusable.
+This research covers only **what is NEW** in the Figma design vs. what already exists. The existing v1.0 admin panel has: basic stats, activity feed, user approval flow, staff invitation, basic cereri list, basic plăți list, basic documente page, notification system, and basic settings form.
 
-#### Citizen-Facing (Cetatean)
+The v2.0 revamp adds a completely new layout shell (collapsible sidebar, new top bar) plus 8 redesigned pages and a set of shared components. The Figma export (`Revamp Primarie Admin/`) is the authoritative source of truth for all UI decisions.
 
-| Feature | Why Expected | Complexity | Notes |
-|---------|--------------|------------|-------|
-| **Document page (/documente)** | Every Romanian ePortal (Iasi, Craiova, Regista, Primaria.info.ro) has a documents section. Citizens need to see their uploaded docs, download cereri attachments, and access public forms library. Currently 404 -- the most visible broken feature. | MEDIUM | Needs: doc list from cereri, public forms library, download/preview. DB tables exist (documente_cereri). Dashboard "Documente Recente" widget already tries to render this. |
-| **Working cereri submission (/cereri/new fix)** | Core value proposition. /cereri/new returns 500 while /cereri/wizard works. Dashboard "Cerere Noua" quick action links to broken route. | LOW | Either fix the API or redirect /cereri/new to /cereri/wizard. Inconsistent entry points confuse users. |
-| **Payment receipts (chitante PDF)** | Romanian law requires payment receipts. Ghiseul.ro issues receipts for every transaction. All competitor platforms generate PDF chitante. Currently returns placeholder URL. | MEDIUM | Use pdf-lib (already in deps) to generate receipt PDFs. Store in Supabase Storage. Return signed download URLs. Triggered on payment webhook success. |
-| **Request status tracking with notifications** | Every Romanian ePortal provides real-time status updates via email/SMS. Platform already has notifications working, but staff-side notifications for new cereri are stubbed. Citizens expect email when status changes. | MEDIUM | Email notifications via SendGrid exist but aren't triggered on all status changes. SMS via Twilio has rate limiting. Wire up all cerere lifecycle events. |
-| **Admin settings page (/admin/settings)** | Admin sidebar links to it, returns 404. Basic expectation: platform configuration, notification preferences, primarie branding. | MEDIUM | Create the route. Include: primarie info editing, notification templates, staff management settings, integration configuration. |
-| **Funcionar dashboard (clerk workspace)** | Core workflow tool. Romanian platforms (Regista, CityManager, Devson) all provide clerk dashboards showing assigned cereri queue, processing tools, deadline tracking. Currently a stub with placeholder text. | HIGH | Needs: assigned cereri queue, status change actions (approve/reject/request-info), document review inline, deadline/SLA tracking, department filtering. This is the "work gets done" interface. |
-| **Admin dashboard (primarie-level)** | Primarie admins need user management, staff overview, cereri statistics, and configuration. Currently stub with hardcoded zeros. | HIGH | Needs: real user counts from DB, registration approval queue, staff invitation management (exists but not in dashboard), cereri overview by status, basic analytics. |
-| **Search across modules** | EU eGovernment Benchmark 2025: 98% of portals have search. Dashboard search currently fails (plati endpoint 404). Regista, Primaria.info.ro all have cross-module search. | MEDIUM | Fix /api/dashboard/search/plati endpoint. Add search to cereri, documente, notificari. Unified search results with type badges. |
-| **Location-scoped data isolation** | Multi-tenant core requirement. PROJECT.md flags this as critical bug. User in multiple primarii must only see data for currently selected primarie. RLS policies exist but need verification. | HIGH | Verify RLS policies filter correctly by judet_id + localitate_id. Test with multi-primarie user. Fix metadata propagation on context switch. |
-| **Mobile responsive admin views** | EU Benchmark 2025: 96.1% of eGovernment services have mobile responsive interface. Current citizen views are mobile-ready; admin dashboards need verification. | LOW | Existing responsive design patterns should apply. Test admin pages on mobile viewports. |
-| **Error handling and feedback** | Users need clear error messages in Romanian, not raw enum values ("in_verificare" instead of "In verificare"). Status badges, error alerts, form validation messages. | LOW | Localization map for all enum values. Structured error responses. Already have Zod validation; need consistent error display. |
-| **Dynamic location map** | Current Spline 3D map shows wrong location (Bucharest instead of Alba Iulia). 3D approach doesn't scale to 3,000+ localitati. Every competitor has a real map. | MEDIUM | Replace Spline with Leaflet/Mapbox. Auto-center on selected localitate coordinates. Show primarie location pin. Leaflet is free and lighter. |
+---
 
-#### Staff-Facing (Functionar + Primar)
+## Table Stakes
+
+Features users (admin role) expect. Missing = product feels incomplete or professionally inadequate.
 
 | Feature | Why Expected | Complexity | Notes |
 |---------|--------------|------------|-------|
-| **Cereri processing workflow** | Core admin function. Regista, CityManager, Devson all provide: view cerere details, change status (depusa -> in_verificare -> in_procesare -> finalizata/respinsa), add notes, request additional documents. | HIGH | Needs: status transition API with validation, internal notes/comments on cereri, document request flow (notify citizen to upload), audit trail of who changed what and when. |
-| **Staff notifications (internal)** | CONCERNS.md flags this as missing. When citizen submits cerere, assigned functionar needs notification. When primar needs to approve, notification. Currently only citizen-facing notifications exist. | MEDIUM | Extend notificari table with staff-targeted notifications. Add notification triggers on cerere submit, status change, document upload. Wire to email/in-app. |
-| **Primar approval queue** | PrimarDashboard stub shows "Cereri care Necesita Aprobare" placeholder. Certain cerere types (autorizatie de constructie) require primar signature/approval. | HIGH | Needs: approval workflow with configurable rules per cerere type, approve/reject with reason, digital signature integration (CertSign mock), delegation during absence. |
-| **Financial reporting** | PrimarDashboard stub shows "Situatie Financiara" with hardcoded values. Primari need to see payment collections by period, outstanding debts, revenue by cerere type. | MEDIUM | Query plati table with aggregations. Group by month, cerere type, status. Export to PDF/Excel (export utilities already exist in src/lib/export/). |
-| **Staff performance metrics** | PrimarDashboard stub shows placeholder. Average processing time, cereri completed per functionar, SLA compliance rate. | MEDIUM | Calculate from cereri timestamps (created_at, updated_at, status changes). Need audit_log entries for accurate tracking. Display as charts (Recharts already available). |
-| **Deadline/SLA tracking** | E2E snapshot shows cerere B-SE-2026-00001 is 1 month overdue with no alert. Romanian law mandates response deadlines (30 days for most cereri). | MEDIUM | Calculate deadline from cerere type config (already has termen_estimat). Show overdue indicators on cereri list and dashboard. Alert staff approaching deadlines. |
+| **Collapsible sidebar with sections** | Standard SaaS admin pattern; nav sections (Principal / Administrare / Gestiune / Sistem) | Low | Figma export uses 260px expanded → 72px collapsed with Framer Motion spring animation |
+| **Role badge in header** | Admin must know their scope at a glance ("Admin Primărie") | Low | Pink gradient badge in top-left of dashboard, uses ShieldCheck icon |
+| **Welcome banner with personalized greeting** | Modern admin dashboards always personalize; "Bine ai revenit, Elena!" | Low | Full-width gradient (pink → purple → indigo), floating orb animations, ProgressRings for uptime/SLA |
+| **User stats by role on dashboard** | Admin's primary job is user management; cetățeni / funcționari / primar / admini / pending counts | Low-Med | 5 StatsCard components with AnimatedCounter, trend arrows, hover glow. Depends on real DB queries |
+| **System health widget** | Any platform admin expects CPU / storage / API response / active sessions overview | Med | 4 metric tiles. CPU and sessions from Supabase; API response time from Better Stack |
+| **Cereri donut chart overview** | Visual snapshot of cereri pipeline by status | Med | Recharts PieChart with 6 segments; legend cards; navigates to Supervizare Cereri on click |
+| **Funcționari performance table** | Admin supervises staff; needs quick performance snapshot | Med | 4-item list with avatar initials, cereri resolved count, resolution rate %, online presence dot |
+| **Admin alerts panel** | Actionable items the admin must address (pending accounts, inactive staff, backups, SSL) | Med | Color-coded left border, action buttons per alert. Data must come from real heuristics |
+| **Live activity feed** | Real-time awareness of platform events | Med | Existing in v1.0 as Supabase Realtime; needs visual revamp to match new design system |
+| **Command palette (⌘K)** | Power-user navigation; expected in any modern SaaS | Med | Fuzzy search across nav items + actions + shortcuts; keyboard arrow navigation; grouped by category |
+| **Notification drawer** | User needs access to all notifications without leaving context | Med | Slide-in drawer from right; grouped by read/unread; links to relevant pages |
+| **Utilizatori — user list with role filter** | Core admin function; cetățeni / funcționari / primar / admini tabs | Med | Table with search, role pills, status badges, pagination. Role hierarchy enforced (admin ≠ super_admin) |
+| **Utilizatori — approve / suspend / invite actions** | Existing flow, but needs UI revamp to match new design | Med | Existing Server Actions; only UI layer changes |
+| **Cereri supervizare — table view** | Admin needs to see all cereri across funcționari | Med | Search, status filter, priority filter, sort by SLA remaining; pagination |
+| **Cereri — priority system (4 levels)** | SLA management requires urgenta / ridicata / medie / scazuta | Low | Color-coded: red / orange / amber / gray. Priority set by admin or auto-escalated |
+| **Cereri — SLA countdown display** | Legal compliance; admin must see which cereri are at risk | Med | Days remaining with color coding (green / yellow / red), blocked state |
+| **Financiar — transaction list with status filtering** | Admin oversees payments; must see success / pending / failed / refunded | Med | Paginated table with search, status filter, amount display in RON, gateway field |
+| **Setări — 5 tabs** | Comprehensive settings expected; profil / primărie / notificări / securitate / aspect | Med | Existing settings has only basic primărie config; add profil, notificări granularity, securitate (2FA), aspect |
+| **Setări — maintenance mode toggle** | Platform admin needs ability to take primărie offline for maintenance | Low | Boolean toggle → stored in primarii table; middleware reads it |
+| **Dark mode support** | Already shipped in v1.0; must be preserved and extended to new components | Low | Tailwind CSS 4 dark variant; accent color affects both modes |
 
-#### Platform-Level (Admin + Super Admin)
+---
 
-| Feature | Why Expected | Complexity | Notes |
-|---------|--------------|------------|-------|
-| **Primarie registration approval** | PROJECT.md specifies: free sign-up -> admin approval -> access. Prevents abuse. Currently no approval flow exists. | HIGH | Needs: registration_requests table, approval UI in admin dashboard, email notification on approve/reject, pending status screen for citizen while awaiting approval. |
-| **User management with role assignment** | Admin dashboard stub has "Gestionare Utilizatori" button linking to /admin/users. Staff invitation system exists. Need complete CRUD for users within primarie scope. | MEDIUM | Extend existing admin/users page. Show users by role, filter by status. Deactivate/reactivate users. Change roles (within allowed hierarchy). View user activity. |
-| **Audit logging** | Database has audit_log table. Critical for government accountability. Every action (cerere status change, payment, user role change) must be logged with actor, timestamp, details. | MEDIUM | Table exists. Need to consistently write to it from all mutations. Display in admin dashboard as activity feed. |
+## Differentiators
 
-### Differentiators (Competitive Advantage)
-
-Features that set primariaTa.work apart from existing Romanian e-government platforms.
+Features that set the product apart. Not expected, but valued (especially for academic context).
 
 | Feature | Value Proposition | Complexity | Notes |
 |---------|-------------------|------------|-------|
-| **White-label multi-primarie platform** | Most Romanian solutions (Regista, CityManager, Avansis) are per-primarie installations. primariaTa.work serves 3,000+ localitati from one deployment. This is the core architectural advantage. | Already built | RLS-based multi-tenancy, location-scoped routing. Needs verification and hardening but architecture exists. |
-| **Cross-primarie notifications** | PROJECT.md specifies: notifications aggregate across all user's primarii. No competitor does this. A citizen registered at multiple primarii sees all notifications in one place with context-switch popup. | HIGH | Needs: cross-primarie notification aggregation, context switch confirmation dialog, redirect to source module after switch. Notificari already work per-primarie; need to query across all user's registrations. |
-| **Real-time updates (Supabase Realtime)** | Most Romanian platforms poll or refresh. primariaTa.work has live notification updates via Supabase subscriptions. Status badge counts update instantly. | Already built | Working for notifications. Extend to cereri status changes visible in real-time on functionar dashboard. |
-| **AI-powered survey analysis** | OpenAI GPT-4o-mini integration for analyzing citizen survey responses. No Romanian municipal platform has AI analytics. Demographic analysis, cohort comparison, insight generation. | Already built | Admin survey dashboard with AI analysis is fully functional. Differentiator for primarii evaluating the platform. |
-| **Progressive citizen experience** | Gamification (levels, points), personalized dashboard, weather widget, calendar integration, help center FAQ. Goes beyond basic service delivery. | Partially built | Gamification has bugs (50pts vs 25pts inconsistency). Calendar shows no events. Help center works. Need to fix and polish. |
-| **Multi-step cereri wizard** | 4-step guided process (type -> details -> documents -> review) with draft saving. Competitor platforms have flat forms. This reduces citizen errors and abandonments. | Already built | Steps 1-2 verified working. Steps 3-4 (documents, review) need E2E verification. Draft save functionality untested. |
-| **Inline location context switching** | User can switch between primarii without re-login. Currently redirects to landing page (poor UX). If implemented as inline modal, this becomes a differentiator. | MEDIUM | Replace full-page redirect with modal picker. Preserve session. Update Zustand store + cookie. Reload data for new context. |
-| **Document reuse across cereri** | Primaria.info.ro highlights this: documents uploaded for one cerere can be reused for another. Reduces citizen effort significantly. | MEDIUM | Need document library per user. When creating new cerere, show "reuse from previous" option. Link existing documents to new cerere without re-upload. |
-| **PDF document generation** | Generate official cerere confirmation documents, not just receipts. A filled cerere as a downloadable PDF with primarie branding and reference number. | MEDIUM | Use pdf-lib. Template per cerere type. Include QR code for verification. Generate on cerere finalizare. |
+| **Monitorizare page — uptime chart** | Real-time system health visibility beyond basic stats | High | Recharts AreaChart with 24h uptime data from Better Stack API; togglable live refresh (10s interval) |
+| **Monitorizare — response time breakdown (API / DB / cache)** | Granular performance insight; separates DB from cache latency | High | LineChart with 3 series; data from Better Stack structured logs |
+| **Monitorizare — error rate chart** | Proactive alerting; admin sees spikes before users report them | High | BarChart with error categories; threshold lines |
+| **Monitorizare — security events log** | GDPR and audit compliance; tracks login failures, suspicious access | High | Table with event type, IP, user, timestamp, severity badges |
+| **Monitorizare — audit trail viewer** | Full platform action history browsable by admin | High | Paginated table with filters (actor, action type, date range); uses cerere_istoric + future audit tables |
+| **Utilizatori — user profile drawer** | Rich user profiles without leaving the list; activity stats, login count, documents uploaded | High | Slide-in panel with user's full profile, last login, department, 2FA status, notes field |
+| **Utilizatori — 2FA status column** | Security-aware admin UI; shows which staff have 2FA enabled | Med | Badge column; toggle available from profile drawer |
+| **Utilizatori — registration growth chart** | Shows platform adoption trend; valuable for reporting | High | AreaChart of new registrations over 7 months by role |
+| **Cereri — kanban view** | Visual pipeline management alternative to table | High | Drag-and-drop (or click-to-move) columns per status; card shows priority, SLA, assignee |
+| **Cereri — alerts tab** | Dedicated view for SLA breaches, escalated, blocked cereri | High | Filtered view: urgenta + overdue + escalated; sorted by severity |
+| **Cereri — admin notes** | Admin can annotate cereri with private notes | Med | Notes array per cerere; appended via Server Action; timestamped |
+| **Cereri — reassignment** | Admin can move cerere from one funcționar to another | Med | Dropdown of available funcționari; updates cerere.functionar_id; triggers notification |
+| **Cereri — bulk actions** | Efficiency for high-volume admins | High | Multi-select with checkboxes; bulk approve / reassign / export |
+| **Cereri — escalation flag** | Visual marker for cereri escalated beyond normal flow | Med | Boolean field; badge on card/row; admin sets manually or auto-set by SLA breach |
+| **Documente — folder navigation** | File manager pattern; group documents by category | High | Breadcrumb navigation; folder click drills down; back button; currently stored flat |
+| **Documente — grid / list toggle** | Power-user preference control | Low | View state persisted in Zustand; grid = card tiles, list = compact rows |
+| **Documente — drag-and-drop upload** | Modern file upload UX; expected in 2026 | Med | Drop zone detects dragover/dragleave/drop events; uploads to Supabase Storage |
+| **Documente — file preview panel** | Preview without downloading; PDF in iframe, images inline | High | Slide-in panel; Supabase Storage signed URL for preview |
+| **Documente — star / favorite** | Quick access to frequently used documents | Low | Boolean toggle per file; "starred" filter view |
+| **Documente — storage stats bar** | Shows used vs. total storage quota visually | Low | Progress bar; "24.7 / 100 GB" text; links to Supabase Storage |
+| **Financiar — monthly revenue area chart** | Trend visibility across 7 months; colectat vs. target vs. eșuat | High | Recharts AreaChart with 3 datasets; percentage vs. target label |
+| **Financiar — daily transaction volume bar chart** | Weekly pattern visibility; tranzacții count + valoare dual axes | High | BarChart; 7 days; helps identify weekday/weekend patterns |
+| **Financiar — payment method breakdown donut** | Shows channel mix (card / transfer / ghișeu.ro / numerar / POS) | Med | Recharts PieChart; percentage labels; count per method |
+| **Financiar — category breakdown progress bars** | Revenue by cerere category vs. target | Med | Linear progress bars with colectat/target values; color per category |
+| **Financiar — refund handling** | Admin initiates refunds from transaction detail | High | Refunded status; refund action button triggers mock or real Ghișeul.ro refund API |
+| **Calendar — month grid view** | Administrative scheduling beyond cereri deadlines | High | Custom calendar grid (Mon-start); today highlight; event dots per day |
+| **Calendar — event types with colors** | Ședință / Deadline / Audit / Întâlnire / Training / Vizită / Review / Evaluare | Low | Color config map; legend; event type badge in detail panel |
+| **Calendar — new event creation modal** | Admin creates events directly in platform | Med | Modal with title / date / time / type / location fields; saves to new events table or localStorage for demo |
+| **Setări — accent color picker** | Brand customization per primărie | High | Color picker with preset swatches + custom HEX input; accent color propagates to CSS custom properties; stored in primarii table |
+| **Setări — CUI field for primărie** | Romanian legal requirement; CUI is used in all official documents | Low | Text field with Romanian CUI format validation (RO + 8 digits) |
+| **AnimatedCounter component** | Numeric values count up on mount; engagement and polish | Low | requestAnimationFrame easeOutExpo; reusable; target prop |
+| **ProgressRing component** | Circular progress indicator for KPIs in welcome banner | Low | SVG-based; value + label + color + size props |
+| **DonutChart component** | Reusable across dashboard and cereri pages | Med | Recharts PieChart wrapper with inner label; data / size / color props |
+| **Framer Motion micro-animations** | Page-level staggered entrance; card hover lift; sidebar collapse spring | Low-Med | initial/animate on motion.div; whileHover on cards; layout animations for sidebar |
+| **Confetti on cerere approval** | Delightful feedback moment for positive actions | Low | canvas-confetti library already imported in CereriPage; triggers on approve |
 
-### Anti-Features (Commonly Requested, Often Problematic)
+---
 
-Features that seem good but create problems for this project.
+## Anti-Features
 
-| Feature | Why Requested | Why Problematic | Alternative |
-|---------|---------------|-----------------|-------------|
-| **Real-time chat (citizen <-> functionar)** | "Direct communication speeds resolution." | Requires always-online staff, creates liability for unrecorded conversations, high maintenance for realtime infra, legal implications for public records. PROJECT.md explicitly marks as out of scope. | Internal notes on cereri + email notifications. Structured communication through cerere status updates and document requests. Traceable, auditable, async. |
-| **Native mobile app** | "Everyone uses mobile apps." | Doubles development effort for 2-person team. Web responsive handles 96%+ of mobile use cases (EU Benchmark). App store maintenance overhead. | Mobile-responsive PWA. Already have responsive design working. Add PWA manifest for home screen install if needed. |
-| **Video document uploads** | "Some documents are easier to capture as video." | Storage costs explode. Processing/transcoding needed. Bandwidth issues in rural Romania. Most documents are paper -> scan/photo. | Image uploads with quality guidance. PDF upload for scanned documents. Camera capture on mobile for photos. |
-| **Multi-language support** | "Romania has minorities (Hungarian, German, etc.)." | Significant translation effort for entire UI. Legal requirements are Romanian-first. Adds complexity to every text element. | Romanian-only for v1. Structure code for future i18n (use constants, not inline strings). Add language support in v2 if demand proven. |
-| **Custom cereri type builder** | "Let each primarie define their own cerere types." | Schema validation becomes dynamic and untestable. Security surface area explodes with user-defined forms. Admin UX for form building is its own product. | Predefined cerere type catalog that covers 90% of use cases. Add new types via code/config, not UI builder. Each type has validated schema. |
-| **Background job queue (Bull/BullMQ)** | "Queue long-running operations." | Infrastructure complexity. Redis dependency. Monitoring overhead. Current scale (5 primarii, <100 users) doesn't justify. | Supabase Edge Functions for async operations. Webhook-based processing. React Query for deferred client operations. Revisit at 1,000+ primarii. |
-| **Redis caching layer** | "Cache database queries for speed." | Infrastructure cost and complexity. Cache invalidation bugs in multi-tenant systems are notoriously hard. Current scale doesn't need it. | React Query client-side caching (already configured). Supabase connection pooling. Next.js ISR for public pages. PostgreSQL query optimization. |
-| **Full-text search engine (Elasticsearch)** | "Better search across all modules." | Massive infrastructure. Data sync complexity. Overkill for current data volume. | PostgreSQL full-text search (already have idx_utilizatori_search). Supabase built-in text search. Add tsvector columns to cereri and documente tables. |
+Features to explicitly NOT build in this milestone.
+
+| Anti-Feature | Why Avoid | What to Do Instead |
+|--------------|-----------|-------------------|
+| **Real-time metric polling from Better Stack API** | Better Stack API has rate limits; polling every few seconds would exhaust quota | Use static snapshot data on page load; add a "Reîmprospătează" button that polls on demand |
+| **Drag-and-drop kanban reorder** | DnD libraries (dnd-kit) add significant bundle weight; complex touch handling; kanban is a bonus view | Implement kanban as visual-only with click-to-move status buttons; defer true drag-and-drop |
+| **Real Ghișeul.ro refund API integration** | No credentials available; mock architecture is in place | Use mock refund flow with toast confirmation; swap when real credentials arrive |
+| **In-platform document editing** | No document editor (Google Docs-like); would require massive third-party integration | Preview only via signed URLs; editing happens in native apps |
+| **Multi-primărie admin view** | This is the per-primărie admin role; super_admin has cross-primărie view | Keep strict RLS isolation; do not expose other primărie data |
+| **Real SSL certificate management** | Not in Supabase/Vercel scope; alert is informational only | Admin alert tile is display-only; links to Cloudflare or Vercel dashboard |
+| **Custom event persistence in Calendar** | New events table requires migration; out of scope for UI revamp milestone | Use optimistic local state (Zustand) for new events; persist in next milestone |
+| **Export CSV from all pages** | Each page having export adds Server Action overhead; defer | Add download button as UI placeholder; wire Server Action in follow-up |
+| **Full audit trail backend** | cerere_istoric covers cereri; platform-wide audit requires new audit_events table | Display existing cerere_istoric in Monitorizare audit viewer; label others as coming soon |
+| **2FA enforcement server-side** | Supabase Auth MFA requires specific configuration; out of scope | Show 2FA status as display-only; toggle is UI-only until Supabase MFA is configured |
+
+---
 
 ## Feature Dependencies
 
+Dependencies on existing v1.0 infrastructure (must not break) and inter-feature dependencies within v2.0.
+
 ```
-[Cereri Processing Workflow]
-    |-- requires --> [Functionar Dashboard]
-    |-- requires --> [Staff Notifications]
-    |-- enhances --> [Deadline/SLA Tracking]
-    |-- enhances --> [Financial Reporting]
+Layout shell (sidebar + top bar) → ALL 8 pages depend on it; build first
 
-[Primar Approval Queue]
-    |-- requires --> [Cereri Processing Workflow]
-    |-- requires --> [Primar Dashboard]
-    |-- enhances --> [Digital Signatures (CertSign)]
+Shared components → Used across pages:
+  AnimatedCounter      → StatsCard → Dashboard user stats
+  ProgressRing         → Dashboard welcome banner
+  DonutChart           → Dashboard cereri overview, Cereri overview tab
+  StatsCard            → Dashboard, Cereri overview tab
+  LiveActivityFeed     → Dashboard (revamped from v1.0 realtime)
+  CommandPalette       → TopBar → Layout shell
+  NotificationCenter   → TopBar → Layout shell (uses existing Supabase Realtime)
 
-[Document Page (/documente)]
-    |-- requires --> [Fix: working route, no 404]
-    |-- enhances --> [Document Reuse Across Cereri]
-    |-- enhances --> [Dashboard "Documente Recente" widget]
+Dashboard → depends on:
+  Utilizatori page     (navigate link from user stats section)
+  Cereri page          (navigate link from cereri overview section)
+  Real DB queries      (user counts by role, system health values, activity feed events)
 
-[Payment Receipts (PDF)]
-    |-- requires --> [PDF Generation Library (pdf-lib)]
-    |-- requires --> [Supabase Storage signed URLs]
-    |-- enhances --> [Plati list "download" action]
+Utilizatori page → depends on:
+  Existing approval Server Actions (approveUser, suspendUser, inviteStaff)
+  utilizatori table with rol, status, twoFA columns
+  user_primarii junction table for multi-primărie context
 
-[Primarie Registration Approval]
-    |-- requires --> [Admin Dashboard]
-    |-- requires --> [Registration Requests Table]
-    |-- enhances --> [User Management]
+Cereri supervizare → depends on:
+  cereri table with prioritate column (NEW — must add migration)
+  cereri table with note_admin column (NEW — must add migration or use existing notes)
+  cereri table with escaladata boolean (NEW — must add migration)
+  Existing cerere lifecycle Server Actions (unchanged)
+  Existing cerere_istoric for audit trail in detail panel
 
-[Cross-Primarie Notifications]
-    |-- requires --> [Working per-primarie notifications] (exists)
-    |-- requires --> [Context Switch Modal]
-    |-- requires --> [Multi-primarie user registration] (not yet built)
+Documente → depends on:
+  Supabase Storage bucket (already provisioned)
+  Existing document upload infrastructure
+  Folder metadata (NEW — either virtual folders by name prefix or new folders table)
 
-[Context Switch Modal]
-    |-- requires --> [Location Store (Zustand)] (exists)
-    |-- enhances --> [Cross-Primarie Notifications]
-    |-- replaces --> [Current redirect-to-landing UX]
+Financiar → depends on:
+  plati table (existing) with method, status, category columns
+  AnimatedCounter for KPI cards
+  Recharts (already used in v1.0 charts)
 
-[Search Across Modules]
-    |-- requires --> [Fix /api/dashboard/search/plati]
-    |-- enhances --> [Dashboard search box]
-    |-- enhances --> [Cereri list, Documente list]
+Calendar → depends on:
+  events table (NEW — requires migration, or use localStorage for v2.0)
 
-[Staff Notifications]
-    |-- requires --> [Notification triggers on status changes]
-    |-- enhances --> [Functionar Dashboard]
-    |-- enhances --> [Admin Dashboard]
+Setări → depends on:
+  primarii table with cui, maintenance_mode, accent_color columns (some NEW — need migration check)
+  utilizatori table with notif_email, notif_push, notif_sms preferences (NEW columns or JSON field)
+  Existing AdminSettingsForm (will be replaced by new 5-tab UI)
 
-[Audit Logging]
-    |-- requires --> [audit_log table] (exists)
-    |-- enhances --> [Admin Dashboard activity feed]
-    |-- enhances --> [Cereri Processing Workflow]
+Monitorizare → depends on:
+  Better Stack Logs API (read-only; requires BETTER_STACK_SOURCE_TOKEN env var)
+  Existing structured logger (@/lib/logger) for generating log data
+  cerere_istoric for audit trail viewer section
 
-[Data Isolation Fix]
-    |-- requires --> [RLS policy audit and fix]
-    |-- blocks --> [Multi-primarie user registration]
-    |-- blocks --> [Cross-Primarie Notifications]
+Accent color system → depends on:
+  CSS custom properties on :root (accent-color variable)
+  Tailwind CSS 4 config to read CSS var
+  primarii table accent_color column for persistence
 ```
 
-### Dependency Notes
+---
 
-- **Cereri Processing Workflow requires Functionar Dashboard:** Clerks need a workspace to process cereri. Building workflow without a dashboard to display it is useless.
-- **Primar Approval Queue requires Cereri Processing Workflow:** Approval is one step in the processing pipeline. Can't approve without the broader status transition system.
-- **Cross-Primarie Notifications requires Data Isolation Fix:** Must verify data isolation works correctly before aggregating across primarii. Wrong isolation = data leaks.
-- **Registration Approval requires Admin Dashboard:** Admins need a UI to review and approve/reject registration requests. Without the dashboard, there's nowhere to manage approvals.
-- **Document Page enhances Document Reuse:** You need a document library before you can offer document reuse in new cereri.
+## MVP Recommendation
 
-## MVP Definition
+Build in this order to maximize visual progress while managing data complexity:
 
-### Launch With (v1 - Production Ready)
+### Must Ship (Phase 1 — Layout Foundation)
+1. **New sidebar layout** — collapsible, sectioned, animated. This gates ALL other pages.
+2. **New top bar** — command palette trigger (⌘K), notification drawer, weather widget, user avatar.
+3. **Shared component library** — AnimatedCounter, StatsCard, DonutChart, ProgressRing, LiveActivityFeed. These are consumed by 6 of 8 pages.
+4. **Command palette (⌘K)** — keyboard-driven navigation; high perceived quality signal.
 
-Minimum viable for a primarie to actually use this platform.
+### Must Ship (Phase 2 — Core Pages)
+5. **Dashboard revamp** — welcome banner, user stats by role, system health, cereri overview donut, funcționari performance table, admin alerts panel. Highest visibility page.
+6. **Setări revamp** — 5 tabs; the profil + primărie tabs are straightforward; accent color picker is the key differentiator.
+7. **Utilizatori revamp** — role filter tabs, profile drawer, approve/suspend UI. Builds on existing Server Actions.
 
-- [x] Authentication (email + Google OAuth) -- existing
-- [x] Cereri submission wizard -- existing
-- [x] Cereri list with filtering -- existing
-- [x] Payment mock flow -- existing
-- [x] Notifications with realtime -- existing
-- [x] Cetafean dashboard -- existing
-- [ ] **Fix broken routes** (/documente 404, /cereri/new 500, /admin/settings 404) -- LOW effort, HIGH impact
-- [ ] **Document page** (list user's documents from cereri, download, preview) -- MEDIUM effort
-- [ ] **Payment receipts (PDF chitante)** -- MEDIUM effort
-- [ ] **Functionar dashboard** (assigned cereri queue, status change actions) -- HIGH effort
-- [ ] **Admin dashboard** (real user counts, staff management, cereri overview) -- HIGH effort
-- [ ] **Search fix** (fix plati search endpoint, unified results) -- LOW effort
-- [ ] **Data isolation verification** (RLS audit, multi-tenant correctness) -- HIGH effort, CRITICAL
-- [ ] **Dynamic map** (replace Spline with Leaflet) -- MEDIUM effort
-- [ ] **Status enum localization** (Romanian display strings) -- LOW effort
-- [ ] **Cereri processing workflow** (status transitions, notes, document requests) -- HIGH effort
+### Must Ship (Phase 3 — Operational Pages)
+8. **Cereri supervizare revamp** — overview + table tabs minimum; kanban and alerts tabs as enhancement.
+9. **Documente revamp** — grid/list toggle, folder nav, drag-drop upload, star, storage stats.
+10. **Financiar revamp** — monthly revenue chart, payment method donut, transaction list. KPI cards with AnimatedCounter.
 
-### Add After Validation (v1.x)
+### Defer to Next Milestone
+11. **Calendar** — requires new events table migration; UI is complete in Figma but data layer is absent. Deliver as UI-only with Zustand state for the academic milestone.
+12. **Monitorizare** — requires real Better Stack API integration; complex. Deliver as charts with static snapshot data; add live refresh button.
 
-Features to add once core is working and first primarii are onboarded.
+---
 
-- [ ] **Primar dashboard** (approval queue, financial overview, staff metrics) -- HIGH effort, add when primari onboard
-- [ ] **Primarie registration approval flow** -- HIGH effort, add when open registration begins
-- [ ] **Staff notifications** (internal notifications for funcffionari) -- MEDIUM effort, add when staff actively using platform
-- [ ] **Deadline/SLA tracking** (overdue indicators, approaching deadline alerts) -- MEDIUM effort, add when cereri processing is live
-- [ ] **Cross-primarie notifications** -- HIGH effort, add when users register at multiple primarii
-- [ ] **Context switch modal** (inline primarie switching) -- MEDIUM effort, add with cross-primarie notifications
-- [ ] **Document reuse across cereri** -- MEDIUM effort, add after document page is stable
-- [ ] **PDF cerere confirmation documents** -- MEDIUM effort, add after receipt generation works
-- [ ] **Financial reporting for primar** -- MEDIUM effort, add with primar dashboard
-- [ ] **Webhook signature verification (HMAC)** -- MEDIUM effort, add before real Ghiseul integration
+## Complexity Notes per Page
 
-### Future Consideration (v2+)
+| Page | UI Complexity | Data Complexity | New DB Work | Dependencies |
+|------|---------------|-----------------|-------------|--------------|
+| Dashboard | High (7 sections, animations) | Medium (4 real queries) | None | StatsCard, DonutChart, ProgressRing, ActivityFeed |
+| Monitorizare | Very High (5 chart types, filters, live) | Very High (Better Stack API) | Audit events table optional | Better Stack API token |
+| Utilizatori | High (profile drawer, growth chart, filters) | Medium (existing queries) | twoFA column check | Existing approval actions |
+| Cereri supervizare | Very High (4 tabs, kanban, SLA, bulk) | High (prioritate + escaladata) | prioritate, note_admin, escaladata columns | cereri + cerere_istoric |
+| Documente | High (folder nav, grid/list, drag-drop, preview) | Medium | folders table or naming convention | Supabase Storage |
+| Financiar | High (5 charts, transaction table) | High (plati + categories) | category column on plati | plati table + Recharts |
+| Calendar | Medium (month grid, event panel, modal) | Low (static ok for v2.0) | events table (defer) | None for static version |
+| Setări | Medium (5 tabs, toggles, color picker) | Low (simple form) | accent_color, cui, maintenance_mode, notif prefs | primarii table |
+| Sidebar + TopBar | Medium (animations, collapse, badges) | Low (nav only) | None | Framer Motion, Zustand for collapse state |
+| Command Palette | Medium (search, keyboard nav, categories) | None | None | Zustand for open state |
+| Notification Drawer | Low (existing Realtime; new visual) | None (existing) | None | Existing notification system |
+| Shared Components | Low-Med (port from Figma export) | None | None | Framer Motion, Recharts |
 
-Features to defer until product-market fit is established.
-
-- [ ] **Digital signatures (CertSign real integration)** -- wait for API credentials
-- [ ] **Real Ghiseul.ro payment integration** -- wait for API credentials
-- [ ] **Participatory budgeting module** -- common in Romanian ePortals (Iasi), but complex
-- [ ] **Appointment scheduling** (programari online) -- Regista offers this; moderate complexity
-- [ ] **Online complaint system** (sesizari online) -- separate from cereri; needs own workflow
-- [ ] **Public document publication** (monitorul oficial local) -- Regista feature; niche
-- [ ] **GIS/geoportal integration** -- Devson offers this; high complexity, low immediate value
-- [ ] **Chatbot for citizen guidance** -- Cluj-Napoca has "ANTONIA"; requires NLP/training data
-- [ ] **Infokiosk terminal mode** -- physical kiosk interface; niche, high complexity
-- [ ] **Multi-language support** -- defer to v2 if minority demand proven
-- [ ] **Self-service form builder** -- admin creates custom cerere types; product-in-a-product
-
-## Feature Prioritization Matrix
-
-| Feature | User Value | Implementation Cost | Priority |
-|---------|------------|---------------------|----------|
-| Fix broken routes (/documente, /cereri/new, /admin/settings) | HIGH | LOW | **P0** |
-| Data isolation verification (RLS audit) | HIGH | HIGH | **P0** |
-| Document page (/documente) | HIGH | MEDIUM | **P1** |
-| Functionar dashboard (cereri queue) | HIGH | HIGH | **P1** |
-| Cereri processing workflow (status transitions) | HIGH | HIGH | **P1** |
-| Payment receipts (PDF chitante) | HIGH | MEDIUM | **P1** |
-| Admin dashboard (real data, user management) | HIGH | HIGH | **P1** |
-| Search fix (plati endpoint, unified results) | MEDIUM | LOW | **P1** |
-| Dynamic map (Leaflet) | MEDIUM | MEDIUM | **P1** |
-| Status enum localization | MEDIUM | LOW | **P1** |
-| Staff notifications | HIGH | MEDIUM | **P2** |
-| Primar dashboard | HIGH | HIGH | **P2** |
-| Deadline/SLA tracking | MEDIUM | MEDIUM | **P2** |
-| Primarie registration approval | HIGH | HIGH | **P2** |
-| Context switch modal | MEDIUM | MEDIUM | **P2** |
-| Cross-primarie notifications | MEDIUM | HIGH | **P2** |
-| Document reuse across cereri | MEDIUM | MEDIUM | **P2** |
-| PDF cerere confirmations | MEDIUM | MEDIUM | **P2** |
-| Financial reporting | MEDIUM | MEDIUM | **P2** |
-| Webhook HMAC verification | HIGH | MEDIUM | **P2** |
-| Audit log display | MEDIUM | LOW | **P2** |
-| Staff performance metrics | LOW | MEDIUM | **P3** |
-| Appointment scheduling | LOW | HIGH | **P3** |
-| Participatory budgeting | LOW | HIGH | **P3** |
-| Complaint system (sesizari) | LOW | HIGH | **P3** |
-
-**Priority key:**
-- P0: Fix immediately -- blocking production readiness
-- P1: Must have for production launch
-- P2: Should have, add in v1.x iterations
-- P3: Nice to have, future consideration
-
-## Competitor Feature Analysis
-
-| Feature | Regista.ro | Primaria-Digitala (Avansis) | CityManager | Devson/Cluj | primariaTa.work |
-|---------|------------|---------------------------|-------------|-------------|-----------------|
-| Online cereri submission | Yes (forms per type) | Yes (web portal) | Yes | Yes | Yes (4-step wizard) |
-| Status tracking | Yes (registration code) | Yes (email notifications) | Yes | Yes | Yes (timeline view) |
-| Payment gateway | Yes (Ghiseul integration) | Yes (integrated) | Unknown | Unknown | Mock (Ghiseul-ready) |
-| Document management | Yes (DMS + archiving) | Yes (forms library) | Yes | Yes (full DMS) | Missing (404) |
-| Digital signatures | Yes (eSemnatura) | Unknown | Unknown | Yes | Mock (CertSign-ready) |
-| Staff workflow | Yes (registratura + routing) | Yes (automated) | Yes (petitions, contracts) | Yes (wiki + comms) | Stub (placeholder) |
-| Clerk dashboard | Yes (department view) | Yes (task management) | Yes (unified management) | Yes (statistics) | Stub (placeholder) |
-| Mobile responsive | Yes | Yes | Unknown | Yes | Yes |
-| Multi-primarie SaaS | No (per-install) | No (per-install) | No (per-install) | No (per-install) | **Yes (unique)** |
-| Real-time updates | No (refresh) | No (email) | No | No | **Yes (Supabase Realtime)** |
-| AI analytics | No | No | No | No | **Yes (GPT-4o-mini)** |
-| Cross-primarie notifications | No | No | No | No | Planned (unique) |
-| Complaint system (sesizari) | Yes | No | Yes | Yes (ANTONIA chatbot) | No (out of scope v1) |
-| Appointment scheduling | Yes | No | No | No | No (out of scope v1) |
-| Public gazette | Yes | No | No | No | No (out of scope v1) |
-| Infokiosk | No | No | No | Yes | No (out of scope) |
-| GIS/geoportal | No | No | No | Yes | No (out of scope) |
-
-### Key Competitive Insight
-
-primariaTa.work's multi-tenant SaaS architecture is genuinely unique in the Romanian market. All competitors (Regista, Avansis, CityManager, Devson) are per-primarie installations requiring separate deployment, configuration, and maintenance per municipality. The white-label approach with RLS-based tenant isolation serves 3,000+ localitati from one codebase -- a fundamentally different value proposition.
-
-The gap is in operational features: staff workflows and document management are table stakes that competitors have and primariaTa.work currently stubs. The priority is clear -- close the operational gap while preserving the architectural advantage.
+---
 
 ## Sources
 
-- [Devson Transilvania - Digitalizare Primarie 2025](https://devson.ro/digitalizare-primarie/) -- Romanian municipal digitization platform with DMS, chatbot, ERP modules
-- [Primaria.Info.Ro - Formulare online, registratura si management documente](https://primaria.info.ro/) -- Online forms, registry, document management solution
-- [Primaria Digitala (Avansis) - Solutii electronice pentru primarii](https://primaria-digitala.ro/) -- 12-module platform serving 400+ institutions
-- [Regista.ro - Registratura, management documente](https://regista.ro/) -- Registry, document management, sesizari online, e-signatures
-- [ePortal Primaria Iasi](https://eportal.primaria-iasi.ro/) -- Municipal ePortal with sesizari, participatory budgeting, DocManager integration
-- [CityManager - Software primarie, smart city](https://citymanager.online/) -- SmartCity Solutions platform
-- [Curs de Guvernare - Digitalizarea primariilor din Romania](https://cursdeguvernare.ro/digitalizarea-primariilor-din-romania-exemple-aplicatii-platforme.html) -- Overview of platforms and adoption
-- [EU eGovernment Benchmark 2025](https://digital-strategy.ec.europa.eu/en/library/digital-decade-2025-egovernment-benchmark-2025) -- EU assessment of 100 public services across 9 life events
-- [Capgemini eGovernment Benchmark 2025 Insight Report](https://www.capgemini.com/wp-content/uploads/2025/06/eGovernmentBenchmark-2025-Insight-Report.pdf) -- 96.1% mobile responsive, 98% FAQ, 60% live support
-- [Romania 2025 Digital Decade Country Report](https://digital-strategy.ec.europa.eu/en/factpages/romania-2025-digital-decade-country-report) -- Romania's digitization progress
-- [OECD Digital Government Review of Romania](https://www.oecd.org/content/dam/oecd/en/publications/reports/2023/12/digital-government-review-of-romania_4dee897c/68361e0d-en.pdf) -- Comprehensive government digitization assessment
-- [GovPilot - Municipal Clerks Software](https://www.govpilot.com/municipal-clerks-software) -- US municipal clerk workflow automation reference
-- [Ghiseul.ro - Sistemul National Electronic de Plata Online](https://www.ghiseul.ro/ghiseul/public/credentiale) -- Romanian national online payment system
-
----
-*Feature research for: Romanian e-government / primarie digitization platform*
-*Researched: 2026-03-02*
+- **Figma Make export** — `/Revamp Primarie Admin/src/app/components/pages/` — direct code analysis (HIGH confidence; this IS the design reference)
+- **Existing codebase** — `/src/app/app/[judet]/[localitate]/admin/` — establishes what already exists (HIGH confidence)
+- **PROJECT.md** — confirms v2.0 scope, constraints, tech stack (HIGH confidence)
+- Architecture inference from component imports and data shapes in Figma export (HIGH confidence for features; MEDIUM confidence for exact DB schema changes needed)

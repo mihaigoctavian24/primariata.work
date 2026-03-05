@@ -1,541 +1,640 @@
 # Stack Research
 
-**Domain:** Romanian e-government / primarie digitization SaaS platform
-**Researched:** 2026-03-02
-**Confidence:** HIGH (all recommendations verified via Context7 or official sources)
+**Domain:** Admin UI design revamp — v2.0 milestone additions only
+**Researched:** 2026-03-05
+**Confidence:** HIGH (all library compatibility verified against npm, official docs, Figma export source)
 
 ## Context
 
-This is a **subsequent milestone** stack research. The application already runs Next.js 15.5.9, React 19, TypeScript 5 strict, Supabase (Auth/DB/Storage/Realtime/Edge Functions), Tailwind CSS 4, shadcn/ui, Zustand 5, React Query 5, and 60+ other dependencies. This document covers **only the additions and changes** needed for five specific feature gaps identified in PROJECT.md.
+This is a **targeted milestone research** for the v2.0 admin design revamp. The base stack (Next.js 15.5.9, React 19, TypeScript 5 strict, Tailwind CSS 4, shadcn/ui, Supabase, Zustand 5, React Query 5, Framer Motion 12, Recharts, React Hook Form 7 + Zod 4) is validated and untouched.
+
+**Reference implementation:** `Revamp Primarie Admin/` — Figma Make export with 8 pages, Vite + React 18. All 5 questions below are answered by examining what the Figma export uses and whether those packages are already installed in the Next.js project.
+
+**Already installed in the Next.js project (do NOT re-add):**
+- `cmdk@^1.1.1` — command palette
+- `react-day-picker@^9.11.1` — calendar (newer than Figma's v8)
+- `sonner@^2.0.7` — toast notifications
+- `framer-motion@^12.23.24` + `motion@^12.23.24` — animations
+- `recharts` — charts (already used in dashboards)
 
 ---
 
-## 1. Dynamic Map Widget (Replacing Spline 3D)
+## Question 1: CSS Custom Properties for Dynamic Accent Colors
 
-### Current State
+### How the Figma Export Does It
 
-The Spline 3D iframe embed (`https://my.spline.design/...`) in `CetățeanDashboard.tsx` is a single hardcoded scene. It cannot scale to 3,000+ localitati. The `three`, `@react-three/fiber`, and `@react-three/drei` packages (installed but likely only used for this widget) are heavy dependencies (~500KB+ combined) serving one static embed.
+The Figma export (`Revamp Primarie Admin/src/styles/theme.css`) uses Tailwind CSS 4's `@theme inline` block to bridge CSS custom properties and utility classes:
 
-### Recommendation: react-map-gl + Mapbox GL JS
+```css
+@theme inline {
+  --color-accent: var(--accent);
+  --color-primary: var(--primary);
+  /* ... all tokens bridged via @theme inline */
+}
 
-| Technology | Version | Purpose | Why Recommended |
-|------------|---------|---------|-----------------|
-| react-map-gl | 8.1.0 | React wrapper for map rendering | Official vis.gl React binding; controlled + uncontrolled component modes; supports dynamic import for SSR; TypeScript-first; 214 code snippets in Context7 (HIGH confidence) |
-| mapbox-gl | 3.19.0 | WebGL map rendering engine | Vector tiles, 3D terrain, custom styles; 50K free map loads/month; rich Romanian map data via OpenStreetMap; GPU-accelerated |
-
-**Confidence: HIGH** — Verified via Context7 (`/visgl/react-map-gl`), npm, and official Mapbox docs.
-
-### Why Mapbox GL over Leaflet
-
-| Criterion | Mapbox GL JS | Leaflet |
-|-----------|-------------|---------|
-| Rendering | WebGL vector tiles | DOM-based raster tiles |
-| Visual quality | Custom styled vector maps, 3D terrain, smooth zoom | Basic raster tiles, limited styling |
-| Romanian data | Full OpenStreetMap coverage via Mapbox styles | Depends on tile provider (OpenStreetMap is good) |
-| Bundle size | ~212KB (react-map-gl) + ~800KB (mapbox-gl) | ~42KB (leaflet) + ~24KB (react-leaflet) |
-| Free tier | 50K map loads/month | Fully free (OSS) |
-| SSR compat | Dynamic import via `mapLib={import('mapbox-gl')}` | Requires `next/dynamic` with `ssr: false` |
-| This project | Replaces a 3D visualization — needs visual richness | Too basic for a "wow" landing page element |
-
-**Decision:** Use Mapbox GL JS via react-map-gl. The visual quality justifies the larger bundle. Mapbox's 50K free loads/month is more than sufficient for an academic project and early production. The `mapLib` prop enables dynamic imports, avoiding SSR issues.
-
-**Fallback if Mapbox pricing concerns arise:** MapLibre GL JS (`maplibre-gl` v5.19.0) is a free fork of Mapbox GL v1 with no token requirement. react-map-gl supports it natively via `import from 'react-map-gl/maplibre'`. Switching is a one-line import change.
-
-### Next.js Integration Pattern
-
-```tsx
-'use client';
-import Map, { Marker, Source, Layer } from 'react-map-gl/mapbox';
-import 'mapbox-gl/dist/mapbox-gl.css';
-
-// Dynamic import of mapbox-gl for SSR compatibility
-<Map
-  mapLib={import('mapbox-gl')}
-  mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
-  initialViewState={{ longitude: 25.0, latitude: 45.9, zoom: 6 }}
-  mapStyle="mapbox://styles/mapbox/streets-v9"
->
-  {localitati.map(loc => (
-    <Marker key={loc.id} longitude={loc.lng} latitude={loc.lat} />
-  ))}
-</Map>
-```
-
-### Packages to Remove After Migration
-
-- `three` (^0.180.0)
-- `@react-three/fiber` (^9.4.0)
-- `@react-three/drei` (^10.7.6)
-- `maath` (0.10.8) — math utility for Three.js
-- `postprocessing` (6.37.8) — Three.js post-processing effects
-
-This saves ~600KB+ from the bundle and removes CSP whitelist entries for `*.spline.design`.
-
----
-
-## 2. Better Stack Integration (Replacing Sentry)
-
-### Current State
-
-Sentry (`@sentry/nextjs` 10.21.0) is deeply integrated:
-- `next.config.ts` wrapped with `withSentryConfig()`
-- `sentry.server.config.ts` (server init)
-- `instrumentation-client.ts` (client init, assumed)
-- CSP headers whitelist `*.sentry.io` and `browser.sentry-cdn.com`
-- Source map uploads during build
-- Tunnel route at `/monitoring`
-- Integration monitoring in `src/lib/monitoring/integrations.ts`
-
-### Recommendation: @logtail/next
-
-| Technology | Version | Purpose | Why Recommended |
-|------------|---------|---------|-----------------|
-| @logtail/next | 0.3.1 | Better Stack logging + monitoring for Next.js | Single package for structured logging, error tracking, and Web Vitals; native Vercel integration; simpler than Sentry's multi-file setup; MIT license |
-
-**Confidence: MEDIUM** — Version verified via npm (published 7 days before research). Setup pattern verified via Better Stack docs and GitHub repo. Full App Router + Next.js 15 compatibility not explicitly documented (docs reference Next.js 14); needs validation.
-
-### Setup Pattern
-
-**1. Install:**
-```bash
-pnpm add @logtail/next
-pnpm remove @sentry/nextjs
-```
-
-**2. next.config.ts — Replace Sentry wrapper:**
-```typescript
-import { withBetterStack } from '@logtail/next';
-
-export default withBetterStack(nextConfig);
-// Replaces: export default withSentryConfig(nextConfig, { ... });
-```
-
-**3. Environment variable:**
-```
-BETTER_STACK_SOURCE_TOKEN=<token from Better Stack dashboard>
-# Remove: NEXT_PUBLIC_SENTRY_DSN, SENTRY_ORG, SENTRY_PROJECT, SENTRY_AUTH_TOKEN
-```
-
-**4. Middleware logging (middleware.ts):**
-```typescript
-import { Logger } from '@logtail/next';
-
-const logger = new Logger();
-
-export async function middleware(request: NextRequest) {
-  logger.middleware(request);
-  // ... existing middleware logic
+.dark {
+  --accent: oklch(0.269 0 0);
+  --primary: oklch(0.985 0 0);
 }
 ```
 
-**5. Web Vitals (app/layout.tsx):**
-```tsx
-import { BetterStackWebVitals } from '@logtail/next';
+### The Production Pattern for Runtime Accent Customization
 
-export default function RootLayout({ children }) {
+Tailwind CSS 4 (already in the project) makes this native — **no new packages required.**
+
+**How it works:**
+1. Define `--color-accent-*` tokens in `:root` inside `@theme inline`
+2. Override at runtime via `document.documentElement.style.setProperty()`
+3. Tailwind utility classes (`bg-accent`, `text-accent`, `border-accent`) immediately reflect the change
+
+**Implementation in a Zustand store (theme engine):**
+
+```typescript
+// src/lib/stores/themeStore.ts
+interface ThemeStore {
+  accentColor: string; // oklch value
+  setAccentColor: (oklch: string) => void;
+}
+
+const ACCENT_PRESETS = {
+  blue: 'oklch(0.6 0.2 250)',
+  rose: 'oklch(0.65 0.22 10)',
+  emerald: 'oklch(0.7 0.17 160)',
+  violet: 'oklch(0.65 0.25 280)',
+} as const;
+
+export const useThemeStore = create<ThemeStore>((set) => ({
+  accentColor: ACCENT_PRESETS.blue,
+  setAccentColor: (oklch: string) => {
+    document.documentElement.style.setProperty('--color-accent', oklch);
+    // Also update foreground if needed for contrast
+    set({ accentColor: oklch });
+    localStorage.setItem('accent-color', oklch);
+  },
+}));
+```
+
+**CSS setup (`globals.css` additions):**
+
+```css
+@theme inline {
+  /* Existing tokens ... */
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+}
+
+/* Sidebar-specific accent variables */
+:root {
+  --sidebar-active-bg: rgba(59, 130, 246, 0.15);
+  --sidebar-active-border: rgba(59, 130, 246, 0.2);
+  --sidebar-active-icon: oklch(0.6 0.2 250);
+}
+```
+
+**Confidence: HIGH** — Verified via official Tailwind CSS v4 theme docs and the `setProperty()` runtime override pattern.
+
+### What the Setări Page Needs
+
+The Aspect tab in Setări (5-tab settings page from Figma) lets users pick accent colors. This is pure CSS custom property manipulation — no library needed. Persist selection to:
+1. `localStorage` for immediate reload persistence
+2. `user_metadata` via Supabase Auth for cross-device sync
+
+---
+
+## Question 2: Command Palette (cmdk)
+
+### Status: Already Installed
+
+`cmdk@^1.1.1` is in the project's `package.json`. React 19 compatibility confirmed in v1.0.1 via PR #318 (adds React 19 as peer dep). v1.1.x adds no breaking changes.
+
+### What the Figma Export Does (Correctly)
+
+The Figma export's `CommandPalette.tsx` **does NOT use the cmdk package.** It implements a custom keyboard-navigable list using `AnimatePresence` + `motion.div` with `useRef` for focus management. This approach works fine but misses accessibility wins.
+
+**Recommendation: Use cmdk (already installed) instead of the custom implementation.** The cmdk package provides:
+- ARIA role management (`role="dialog"`, `aria-label`, `role="option"`)
+- Keyboard navigation out of the box
+- Built-in filtering via `Command.Input` value prop
+- shadcn/ui already ships a `<Command>` component wrapping cmdk
+
+### Integration Pattern
+
+```typescript
+// src/components/admin/CommandPaletteDialog.tsx
+'use client';
+import {
+  Command,
+  CommandDialog,
+  CommandInput,
+  CommandList,
+  CommandGroup,
+  CommandItem,
+  CommandSeparator,
+} from '@/components/ui/command';
+import { useRouter } from 'next/navigation';
+
+interface CommandPaletteProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export function CommandPaletteDialog({ open, onOpenChange }: CommandPaletteProps) {
+  const router = useRouter();
+
+  const handleSelect = (path: string) => {
+    onOpenChange(false);
+    router.push(path);
+  };
+
   return (
-    <html>
-      <body>
-        {children}
-        <BetterStackWebVitals />
-      </body>
-    </html>
+    <CommandDialog open={open} onOpenChange={onOpenChange}>
+      <CommandInput placeholder="Caută comenzi, pagini, acțiuni..." />
+      <CommandList>
+        <CommandGroup heading="Navigare">
+          <CommandItem onSelect={() => handleSelect('/admin')}>
+            Dashboard
+          </CommandItem>
+          <CommandItem onSelect={() => handleSelect('/admin/monitorizare')}>
+            Monitorizare Sistem
+          </CommandItem>
+          {/* ... */}
+        </CommandGroup>
+        <CommandSeparator />
+        <CommandGroup heading="Acțiuni">
+          <CommandItem onSelect={() => handleSelect('/admin/utilizatori/invite')}>
+            Invită Utilizator Nou
+          </CommandItem>
+        </CommandGroup>
+      </CommandList>
+    </CommandDialog>
   );
 }
 ```
 
-### Files to Remove After Migration
+**Global keyboard shortcut (in admin layout):**
 
-- `sentry.server.config.ts`
-- `sentry.edge.config.ts` (if exists)
-- `instrumentation-client.ts` (Sentry client init — replace with Better Stack)
-- Sentry tunnel route at `/monitoring` (remove rewrite if configured)
-- CSP entries for `*.sentry.io` and `browser.sentry-cdn.com`
+```typescript
+// src/app/admin/layout.tsx (Client Component wrapper)
+'use client';
+useEffect(() => {
+  const handler = (e: KeyboardEvent) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      setCommandOpen(prev => !prev);
+    }
+  };
+  document.addEventListener('keydown', handler);
+  return () => document.removeEventListener('keydown', handler);
+}, []);
+```
 
-### Files to Modify
-
-- `next.config.ts` — Replace `withSentryConfig` with `withBetterStack`, update CSP
-- `src/lib/monitoring/integrations.ts` — Replace Sentry.captureException with logger calls
-- `app/layout.tsx` — Add `<BetterStackWebVitals />`
-- `middleware.ts` — Add logger.middleware()
-
-### Risk: Next.js 15 Compatibility
-
-@logtail/next 0.3.1 explicitly targets Next.js 14. Next.js 15 uses the same middleware pattern, so the API should be compatible. However, this has **not been officially documented**. Test thoroughly during implementation.
+**No additional packages required.** cmdk is already installed.
 
 ---
 
-## 3. Multi-Tenant Data Isolation Verification
+## Question 3: Calendar Component
 
-### Current State
+### Status: react-day-picker@9 Already Installed
 
-RLS policies filter on `judet_id` + `localitate_id` from user metadata. PROJECT.md flags a **critical bug**: data isolation per primarie may not be enforced correctly when a user is active in multiple primarii. No automated tests exist for RLS policies.
+The project has `react-day-picker@^9.11.1`. The Figma export uses `react-day-picker@8.10.1` (older). The project's version is newer and has an updated API.
 
-### Recommendation: pgTAP + basejump test helpers
+**Important:** react-day-picker v9 has a breaking API change from v8. The shadcn/ui `Calendar` component in the project must align with the installed v9 API.
 
-| Technology | Version | Purpose | Why Recommended |
-|------------|---------|---------|-----------------|
-| pgTAP | (Supabase built-in extension) | PostgreSQL unit testing framework | First-party Supabase support; SQL-native tests; runs via `supabase test db`; tests RLS at the database level where policies actually execute |
-| basejump-supabase_test_helpers | 0.0.6 | pgTAP helper functions for Supabase auth | Provides `tests.create_supabase_user()`, `tests.authenticate_as()`, `tests.rls_enabled()`; official Supabase recommendation |
+### What the Figma Calendar Does
 
-**Confidence: HIGH** — Verified via Supabase official docs, basejump GitHub repo, and database.dev registry.
+The Figma `CalendarPage.tsx` implements a **completely custom calendar grid** — it does not use react-day-picker at all. It manually calculates `daysInMonth`, `firstDayOffset`, and renders a `grid-cols-7` layout with `motion.button` per day cell.
+
+The custom approach has advantages for this design:
+- Full control over day cell rendering (dot indicators for events, gradient highlights)
+- Framer Motion `whileHover`/`whileTap` per cell
+- `layoutId="selectedDay"` for animated selection
+
+### Recommendation: Keep the Custom Calendar Grid + react-day-picker for Date Inputs
+
+**For the Calendar page:** Build the custom grid (as in Figma export) — react-day-picker's rendered output would require heavy CSS overrides to match the dark glassmorphism aesthetic.
+
+**For date picker inputs** (wizard forms, event creation modal): Use react-day-picker v9 via shadcn's `<Calendar>` component wrapped in a `<Popover>`.
+
+**Key react-day-picker v9 differences from v8 (used in Figma):**
+
+| Feature | v8 (Figma export) | v9 (Project installed) |
+|---------|-------------------|------------------------|
+| Import | `import { DayPicker } from 'react-day-picker'` | Same |
+| CSS import | `react-day-picker/dist/style.css` | `react-day-picker/style.css` |
+| Month navigation | `fromDate`/`toDate` props | `startMonth`/`endMonth` props |
+| Selected styling | CSS `.rdp-day_selected` | CSS `[data-selected]` |
+
+**Custom calendar grid pattern (translated to Next.js):**
+
+```typescript
+// src/components/admin/calendar/CalendarGrid.tsx
+'use client';
+import { motion } from 'framer-motion';
+import { useMemo } from 'react';
+
+interface CalendarEvent {
+  id: string;
+  date: Date;
+  color: string;
+  title: string;
+}
+
+interface CalendarGridProps {
+  month: Date;
+  events: CalendarEvent[];
+  selectedDate: Date | null;
+  onSelectDate: (date: Date) => void;
+}
+
+export function CalendarGrid({ month, events, selectedDate, onSelectDate }: CalendarGridProps) {
+  const days = useMemo(() => buildCalendarDays(month), [month]);
+
+  return (
+    <div className="grid grid-cols-7 gap-1">
+      {days.map((day, i) => {
+        if (!day) return <div key={`empty-${i}`} />;
+        const dayEvents = events.filter(e => isSameDay(e.date, day));
+        const isToday = isSameDay(day, new Date());
+        const isSelected = selectedDate && isSameDay(day, selectedDate);
+
+        return (
+          <motion.button
+            key={day.toISOString()}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => onSelectDate(day)}
+            className={`relative flex flex-col items-center py-2 rounded-xl transition-all ${
+              isSelected ? 'ring-1 ring-accent/40' : ''
+            }`}
+            style={{
+              background: isToday
+                ? 'linear-gradient(135deg, rgba(var(--color-accent), 0.15), rgba(var(--color-accent), 0.08))'
+                : isSelected
+                ? 'rgba(255,255,255,0.04)'
+                : 'transparent',
+              minHeight: 60,
+            }}
+          >
+            <span className={isToday ? 'text-accent' : 'text-foreground'}>
+              {day.getDate()}
+            </span>
+            <div className="flex gap-0.5 mt-1">
+              {dayEvents.slice(0, 3).map((e) => (
+                <div key={e.id} className="w-1.5 h-1.5 rounded-full" style={{ background: e.color }} />
+              ))}
+            </div>
+          </motion.button>
+        );
+      })}
+    </div>
+  );
+}
+```
+
+**Data source for events:** Query the `cereri` table for deadlines (`data_limita`) and a new `calendar_events` table for ședințe. Use React Query with `supabase.from('calendar_events').select('*')`.
+
+**No new packages needed for the Calendar page.** date-fns (already installed as transitive dependency) for date arithmetic.
+
+---
+
+## Question 4: Better Stack API for Real Monitoring Metrics
+
+### What the Figma Monitorizare Page Uses
+
+`MonitorizarePage.tsx` in the Figma export uses entirely mock data arrays (`uptimeData`, `responseTimeData`, `errorRateData`). There is no Better Stack API call anywhere.
+
+### Better Stack API — What's Actually Available
+
+**Uptime API** (confirmed via official docs, HIGH confidence):
+- Base URL: `https://uptime.betterstack.com/api/v2/`
+- Auth: `Authorization: Bearer $TOKEN`
+
+| Endpoint | Returns |
+|----------|---------|
+| `GET /monitors` | List of all monitors with current status (`up`/`down`/`paused`) |
+| `GET /monitors/{id}/response-times` | Response time breakdown by region (DNS, connection, TLS, data transfer, total) |
+| `GET /monitors/{id}/availability` | Uptime percentage summary |
+
+**Telemetry/Logs API** (confirmed via official docs, MEDIUM confidence):
+- Base URL: `https://telemetry.betterstack.com/`
+- Auth: Bearer token (team-scoped Telemetry API token, different from Uptime token)
+- Available: Sources API, Metrics API, Query API (SQL over HTTP), Dashboards API
+
+**Limitation:** The Telemetry Query API uses SQL-over-HTTP and is better suited to ad-hoc log querying, not a real-time dashboard widget. For the Monitorizare page, the Uptime API is the right integration point.
+
+### Recommended Integration Pattern
+
+**Server Action to fetch monitor data (avoids exposing the API token client-side):**
+
+```typescript
+// src/lib/betterstack/monitors.ts
+'use server';
+
+interface MonitorStatus {
+  id: string;
+  name: string;
+  status: 'up' | 'down' | 'paused' | 'pending';
+  url: string;
+  uptimePercentage?: number;
+}
+
+export async function getMonitorStatuses(): Promise<MonitorStatus[]> {
+  const token = process.env.BETTER_STACK_UPTIME_TOKEN;
+  if (!token) return [];
+
+  const res = await fetch('https://uptime.betterstack.com/api/v2/monitors', {
+    headers: { Authorization: `Bearer ${token}` },
+    next: { revalidate: 60 }, // Cache for 60 seconds
+  });
+
+  if (!res.ok) return [];
+  const { data } = await res.json();
+  return data.map((m: unknown) => ({
+    id: m.id,
+    name: m.attributes.pronounceable_name,
+    status: m.attributes.status,
+    url: m.attributes.url,
+  }));
+}
+
+export async function getMonitorResponseTimes(monitorId: string) {
+  const token = process.env.BETTER_STACK_UPTIME_TOKEN;
+  if (!token) return null;
+
+  const res = await fetch(
+    `https://uptime.betterstack.com/api/v2/monitors/${monitorId}/response-times`,
+    {
+      headers: { Authorization: `Bearer ${token}` },
+      next: { revalidate: 300 }, // Cache for 5 minutes
+    }
+  );
+
+  if (!res.ok) return null;
+  const { data } = await res.json();
+  return data.attributes.regions;
+}
+```
+
+**React Query hook for the Monitorizare page:**
+
+```typescript
+// src/hooks/useMonitoringData.ts
+'use client';
+import { useQuery } from '@tanstack/react-query';
+import { getMonitorStatuses } from '@/lib/betterstack/monitors';
+
+export function useMonitoringData() {
+  return useQuery({
+    queryKey: ['monitoring', 'monitors'],
+    queryFn: () => getMonitorStatuses(),
+    refetchInterval: 60_000, // Poll every 60 seconds
+    staleTime: 30_000,
+  });
+}
+```
+
+**Environment variables needed:**
+
+```bash
+BETTER_STACK_UPTIME_TOKEN=<uptime-api-token>   # From Better Stack Uptime dashboard
+# BETTER_STACK_SOURCE_TOKEN already set for logging (different token)
+```
+
+**Graceful degradation:** When the API token is absent (local dev), fall through to mock data. The Monitorizare page should render mock data that matches the Figma design in development, and switch to live data in production.
+
+**No new npm packages required.** Uses native `fetch` with Next.js cache directives.
+
+---
+
+## Question 5: Framer Motion Patterns for Micro-Animations
+
+### Already Installed (no changes)
+
+Both `framer-motion@^12.23.24` and `motion@^12.23.24` are installed. The Figma export imports from `motion/react` — this is the same package (Motion's React package, exported under the `motion` npm name). In the Next.js project, import from `framer-motion` (same underlying code, just different package name resolution).
+
+**Import alias:** The Figma export uses `import { motion, AnimatePresence } from 'motion/react'`. In the Next.js project, use `import { motion, AnimatePresence } from 'framer-motion'` — they resolve to the same code.
+
+### Specific Patterns Used in the Figma Export
+
+**1. Sidebar active indicator with shared layout animation:**
+
+```typescript
+// Framer Motion layoutId — shared element transition between nav items
+{isActive && (
+  <motion.div
+    layoutId="activeNav"
+    className="absolute inset-0 rounded-xl"
+    style={{ background: 'rgba(var(--color-accent), 0.12)', border: '1px solid rgba(var(--color-accent), 0.15)' }}
+    transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+  />
+)}
+```
+
+This is the key micro-animation in the sidebar — the background pill slides between nav items. `layoutId="activeNav"` is the only change needed.
+
+**2. Page entry animations (staggered children):**
+
+```typescript
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.05 },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
+};
+
+// Usage:
+<motion.div variants={containerVariants} initial="hidden" animate="visible">
+  {statsCards.map(card => (
+    <motion.div key={card.id} variants={itemVariants}>
+      <StatsCard {...card} />
+    </motion.div>
+  ))}
+</motion.div>
+```
+
+**3. Notification drawer (slide from right):**
+
+The Figma uses spring physics — this is the exact pattern to replicate:
+
+```typescript
+<motion.div
+  initial={{ x: 400, opacity: 0 }}
+  animate={{ x: 0, opacity: 1 }}
+  exit={{ x: 400, opacity: 0 }}
+  transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+  className="fixed right-0 top-0 h-screen w-full max-w-md z-[95]"
+>
+```
+
+**4. AnimatedCounter (no Framer Motion dependency):**
+
+The Figma export's `AnimatedCounter.tsx` is a pure `requestAnimationFrame` loop — no Framer Motion. This is intentional: Framer Motion's spring isn't needed for number counting. The RAF + easeOutExpo approach is more performant and self-contained. Translate directly.
+
+**5. ProgressRing (SVG + Framer Motion strokeDashoffset):**
+
+The Figma's `ProgressRing.tsx` animates `strokeDashoffset` on an SVG `<circle>` using `motion.circle`. This is supported in Framer Motion 12. The pattern translates directly.
+
+**6. DonutChart hover state (segment expansion):**
+
+The Figma animates SVG `strokeWidth` on hover using `motion.circle` with `whileHover`. The `drop-shadow` filter is applied via inline `style`. This also translates directly.
+
+**7. Notification list items (layout animation with exit):**
+
+```typescript
+<AnimatePresence mode="popLayout">
+  {notifications.map(notif => (
+    <motion.div
+      key={notif.id}
+      layout
+      initial={{ opacity: 0, x: 40 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -40, height: 0 }}
+    >
+```
+
+`mode="popLayout"` prevents layout shift when items are removed. This is a Framer Motion 12 feature — confirmed available.
+
+**8. whileInView for dashboard entry:**
+
+```typescript
+<motion.div
+  initial={{ opacity: 0, y: 20 }}
+  whileInView={{ opacity: 1, y: 0 }}
+  viewport={{ once: true }}
+  transition={{ duration: 0.4 }}
+>
+```
+
+Use `viewport={{ once: true }}` so cards animate in once on page load, not every scroll past.
+
+---
+
+## Question 6: Drag-and-Drop for Kanban View
+
+### Status: NOT Currently Installed
+
+The Figma export uses `react-dnd@16.0.1` + `react-dnd-html5-backend@16.0.1`. These packages are in the Figma's `package.json` but **NOT in the Next.js project**.
+
+### React-dnd vs @dnd-kit/core
+
+| Criterion | react-dnd@16 | @dnd-kit/core@6.3.1 |
+|-----------|-------------|---------------------|
+| React 19 peer dep | Specifies `>=16.8.0` — technically compatible via semver but has open React 19 issues (#3655) | Specifies `>=16.8.0` — same semver range, works with React 19 in practice |
+| Maintenance | Low — last meaningful update 2023, open React 19 issue unresolved | Active — v6.3.x released 2025 |
+| SSR / Next.js | Requires `HTML5Backend` which uses browser APIs — needs `'use client'` | Designed for SSR environments, lazy initialization |
+| Bundle size | react-dnd + html5-backend ≈ 45KB | @dnd-kit/core ≈ 20KB |
+| Accessibility | Basic | Built-in keyboard navigation and screen reader support |
+| Next.js App Router | Works with `'use client'` boundary | Works with `'use client'` boundary |
+
+**Recommendation: Use @dnd-kit/core + @dnd-kit/sortable** instead of react-dnd.
+
+Rationale: react-dnd's GitHub shows an open React 19 issue with no activity. @dnd-kit is actively maintained, lighter, and has better accessibility. The kanban board is entirely client-side (cereri status columns), so the SSR benefits are secondary, but smaller bundle size matters for admin pages loaded by staff who may be on constrained networks.
 
 ### Installation
 
-```sql
--- In a Supabase migration file or SQL editor
--- 1. Enable pgTAP (already available in Supabase)
-CREATE EXTENSION IF NOT EXISTS pgtap;
-
--- 2. Install basejump test helpers via dbdev
-SELECT dbdev.install('basejump-supabase_test_helpers');
-CREATE EXTENSION IF NOT EXISTS "basejump-supabase_test_helpers" VERSION '0.0.6';
-```
-
-### Test Pattern for Multi-Tenant Isolation
-
-```sql
--- supabase/tests/database/rls_cereri_isolation.test.sql
-BEGIN;
-SELECT plan(4);
-
--- Create test users in different primarii
-SELECT tests.create_supabase_user('user_alba', 'user_alba@test.com',
-  '{"judet_id": "alba", "localitate_id": "alba-iulia"}');
-SELECT tests.create_supabase_user('user_brasov', 'user_brasov@test.com',
-  '{"judet_id": "brasov", "localitate_id": "brasov-centru"}');
-
--- Insert test data as service_role (bypasses RLS)
-SET LOCAL ROLE service_role;
-INSERT INTO cereri (id, judet_id, localitate_id, titlu, user_id)
-VALUES
-  ('cerere-1', 'alba', 'alba-iulia', 'Test Alba', tests.get_supabase_uid('user_alba')),
-  ('cerere-2', 'brasov', 'brasov-centru', 'Test Brasov', tests.get_supabase_uid('user_brasov'));
-
--- Test 1: RLS is enabled on cereri table
-SELECT tests.rls_enabled('public', 'cereri');
-
--- Test 2: User in Alba sees only Alba cereri
-SELECT tests.authenticate_as('user_alba');
-SELECT results_eq(
-  'SELECT count(*)::int FROM cereri',
-  ARRAY[1],
-  'User in Alba should see exactly 1 cerere'
-);
-
--- Test 3: User in Brasov sees only Brasov cereri
-SELECT tests.authenticate_as('user_brasov');
-SELECT results_eq(
-  'SELECT count(*)::int FROM cereri',
-  ARRAY[1],
-  'User in Brasov should see exactly 1 cerere'
-);
-
--- Test 4: Cross-tenant isolation — Alba user cannot see Brasov data
-SELECT tests.authenticate_as('user_alba');
-SELECT is_empty(
-  'SELECT * FROM cereri WHERE localitate_id = ''brasov-centru''',
-  'Alba user should NOT see Brasov cereri'
-);
-
-SELECT tests.clear_authentication();
-SELECT * FROM finish();
-ROLLBACK;
-```
-
-### Running Tests
-
 ```bash
-# Requires Supabase CLI and local dev instance
-supabase test db
+pnpm add @dnd-kit/core@^6.3.1 @dnd-kit/sortable@^8.0.0 @dnd-kit/utilities@^3.2.2
 ```
 
-### Verification Strategy
-
-Test every table that contains tenant-scoped data:
-1. `cereri` — requests
-2. `plati` — payments
-3. `notifications` — (cross-tenant exception — test differently)
-4. `documents` — user documents
-5. Any new tables added
-
-For each table, verify:
-- RLS is enabled (`tests.rls_enabled()`)
-- SELECT isolation (user A cannot see user B's data in different primarie)
-- INSERT isolation (user cannot insert data for a different primarie)
-- UPDATE isolation (user cannot modify data in a different primarie)
-- DELETE isolation (user cannot delete data from a different primarie)
-
----
-
-## 4. PDF Receipt Generation (Chitante)
-
-### Current State
-
-Both `pdf-lib` (1.17.1) and `jsPDF` (3.0.3) are already installed. `html2canvas` (1.4.1) is also available. No `@pdf-lib/fontkit` is installed, which means Romanian diacritics (ă, â, î, ș, ț) **cannot be rendered** with pdf-lib using custom fonts.
-
-### Recommendation: pdf-lib + @pdf-lib/fontkit (server-side)
-
-| Technology | Version | Purpose | Why Recommended |
-|------------|---------|---------|-----------------|
-| pdf-lib | 1.17.1 (already installed) | Programmatic PDF creation | Pure JavaScript, works in Node.js and Edge; no native dependencies; deterministic output; 905 code snippets in Context7 (HIGH confidence) |
-| @pdf-lib/fontkit | 1.1.1 | Custom font embedding for pdf-lib | Required for Romanian diacritics (ă, â, î, ș, ț); enables TrueType/OpenType font embedding; official pdf-lib companion |
-
-**Confidence: HIGH** — Verified via Context7 (`/websites/pdf-lib_js`), npm, and pdf-lib GitHub issues (#17, #211 on unicode support).
-
-### Why pdf-lib over jsPDF for Receipts
-
-| Criterion | pdf-lib | jsPDF |
-|-----------|---------|-------|
-| Romanian diacritics | Requires fontkit + embedded TTF font | Built-in addFont() method |
-| Server-side (Edge/Node) | Full support, no DOM dependency | Requires DOM for some features (html2canvas) |
-| PDF manipulation | Create + modify existing PDFs | Create only |
-| File size control | Precise — only includes what you add | Can be unpredictable with HTML conversion |
-| Template-based | Build from scratch or modify templates | Best with HTML-to-PDF workflow |
-| This project | Programmatic receipts from payment data | Better for visual documents from HTML |
-
-**Decision:** Use **pdf-lib** for receipt generation. Receipts are structured data (amounts, dates, reference numbers) — programmatic construction is cleaner than HTML-to-PDF conversion. jsPDF remains available for any future HTML-to-PDF needs (e.g., printing cerere detail views).
-
-### Romanian Diacritics Pattern
+### Kanban Integration Pattern
 
 ```typescript
-import { PDFDocument, rgb } from 'pdf-lib';
-import fontkit from '@pdf-lib/fontkit';
-import { readFile } from 'fs/promises';
+// src/components/admin/cereri/KanbanBoard.tsx
+'use client';
+import { DndContext, DragEndEvent, closestCenter } from '@dnd-kit/core';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 
-async function generateChitanta(paymentData: PaymentData): Promise<Uint8Array> {
-  const pdfDoc = await PDFDocument.create();
-  pdfDoc.registerFontkit(fontkit);
+const STATUS_COLUMNS = ['depusa', 'in_verificare', 'in_procesare', 'in_aprobare', 'finalizata'] as const;
 
-  // Embed a font that supports Romanian characters
-  // Use a font like Noto Sans, Inter, or Roboto — all support ă, â, î, ș, ț
-  const fontBytes = await readFile('./public/fonts/NotoSans-Regular.ttf');
-  const font = await pdfDoc.embedFont(fontBytes);
+export function KanbanBoard({ cereri }: { cereri: Cerere[] }) {
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    // Call Server Action to update status
+    await updateCerereStatus(active.id as string, over.id as CerereStatus);
+  };
 
-  const page = pdfDoc.addPage([595.28, 841.89]); // A4 size in points
-  const { height } = page.getSize();
-
-  // Header
-  page.drawText('CHITANȚĂ / RECEIPT', {
-    x: 50, y: height - 50,
-    size: 18, font,
-    color: rgb(0.1, 0.1, 0.5),
-  });
-
-  // Romanian diacritics render correctly with embedded font
-  page.drawText(`Primăria ${paymentData.localitate}`, {
-    x: 50, y: height - 80,
-    size: 12, font,
-  });
-
-  page.drawText(`Sumă plătită: ${paymentData.amount} RON`, {
-    x: 50, y: height - 120,
-    size: 14, font,
-  });
-
-  return pdfDoc.save();
+  return (
+    <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+      <div className="grid grid-cols-5 gap-4">
+        {STATUS_COLUMNS.map(status => {
+          const columnCereri = cereri.filter(c => c.status === status);
+          return (
+            <SortableContext
+              key={status}
+              items={columnCereri.map(c => c.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <KanbanColumn status={status} cereri={columnCereri} />
+            </SortableContext>
+          );
+        })}
+      </div>
+    </DndContext>
+  );
 }
 ```
 
-### Server Action Pattern (Next.js)
-
-```typescript
-'use server';
-
-export async function generateReceiptPDF(paymentId: string): Promise<Uint8Array> {
-  const supabase = await createClient();
-  const { data: payment } = await supabase
-    .from('plati')
-    .select('*')
-    .eq('id', paymentId)
-    .single();
-
-  if (!payment) throw new Error('Payment not found');
-
-  return generateChitanta(payment);
-}
-```
-
-### Font Selection
-
-Use **Noto Sans** (Google Fonts, OFL license) — it has full Romanian diacritic support including the comma-below variants (ș, ț) which many fonts get wrong by using cedilla variants instead.
-
-Store the font file at `public/fonts/NotoSans-Regular.ttf` (~500KB). Embed in PDF at generation time.
+**Confidence: MEDIUM** — @dnd-kit peer deps say `>=16.8.0`, React 19 works in practice (confirmed by community usage), but the official peer dep hasn't been updated to explicitly state React 19.
 
 ---
 
-## 5. Admin Approval Workflow
+## New Packages to Install
 
-### Current State
-
-PROJECT.md specifies: "Free sign-up to primarie, admin (primarie-level) approval, then access." No approval table or workflow exists yet.
-
-### Recommendation: PostgreSQL enum + trigger + RLS pattern
-
-| Technology | Version | Purpose | Why Recommended |
-|------------|---------|---------|-----------------|
-| PostgreSQL enum | (built into Supabase PostgreSQL 15) | Status state machine | Type-safe status values; enforced at database level; compatible with Supabase type generation |
-| PostgreSQL trigger | (built into Supabase PostgreSQL 15) | Automatic status transitions + notifications | Event-driven, no polling; executes in same transaction; can notify via Supabase Realtime |
-
-**Confidence: HIGH** — Standard PostgreSQL patterns; verified via Supabase official docs on enums, triggers, and user management.
-
-### Database Schema
-
-```sql
--- Migration: create_primarie_registrations
-
--- Status enum for approval workflow
-CREATE TYPE registration_status AS ENUM ('pending', 'approved', 'rejected');
-
--- Primarie registration table — tracks user-to-primarie membership
-CREATE TABLE primarie_registrations (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  judet_id TEXT NOT NULL,
-  localitate_id TEXT NOT NULL,
-  status registration_status NOT NULL DEFAULT 'pending',
-  rejection_reason TEXT,  -- Required when status = 'rejected'
-  requested_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  decided_at TIMESTAMPTZ,
-  decided_by UUID REFERENCES auth.users(id),
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-
-  -- One registration per user per primarie
-  UNIQUE(user_id, judet_id, localitate_id)
-);
-
--- RLS: Users see their own registrations; admins see all for their primarie
-ALTER TABLE primarie_registrations ENABLE ROW LEVEL SECURITY;
-
--- User can see own registrations (all primarii)
-CREATE POLICY "Users view own registrations"
-  ON primarie_registrations FOR SELECT
-  USING (auth.uid() = user_id);
-
--- User can create registration (pending)
-CREATE POLICY "Users create registration"
-  ON primarie_registrations FOR INSERT
-  WITH CHECK (
-    auth.uid() = user_id
-    AND status = 'pending'
-  );
-
--- Admin can view registrations for their primarie
-CREATE POLICY "Admins view primarie registrations"
-  ON primarie_registrations FOR SELECT
-  USING (
-    judet_id = (auth.jwt() -> 'user_metadata' ->> 'judet_id')
-    AND localitate_id = (auth.jwt() -> 'user_metadata' ->> 'localitate_id')
-    AND (auth.jwt() -> 'user_metadata' ->> 'role') IN ('admin', 'primar')
-  );
-
--- Admin can update status (approve/reject)
-CREATE POLICY "Admins decide on registrations"
-  ON primarie_registrations FOR UPDATE
-  USING (
-    judet_id = (auth.jwt() -> 'user_metadata' ->> 'judet_id')
-    AND localitate_id = (auth.jwt() -> 'user_metadata' ->> 'localitate_id')
-    AND (auth.jwt() -> 'user_metadata' ->> 'role') IN ('admin', 'primar')
-  )
-  WITH CHECK (status IN ('approved', 'rejected'));
+```bash
+# Drag-and-drop (kanban view in Cereri Supervizare)
+pnpm add @dnd-kit/core@^6.3.1 @dnd-kit/sortable@^8.0.0 @dnd-kit/utilities@^3.2.2
 ```
 
-### Trigger for Notifications
-
-```sql
--- Trigger: Notify user when registration is approved/rejected
-CREATE OR REPLACE FUNCTION notify_registration_decision()
-RETURNS TRIGGER AS $$
-BEGIN
-  IF NEW.status IN ('approved', 'rejected') AND OLD.status = 'pending' THEN
-    NEW.decided_at = now();
-    NEW.decided_by = auth.uid();
-
-    -- Insert notification for the user
-    INSERT INTO notifications (user_id, type, title, body, metadata)
-    VALUES (
-      NEW.user_id,
-      CASE WHEN NEW.status = 'approved' THEN 'registration_approved'
-           ELSE 'registration_rejected' END,
-      CASE WHEN NEW.status = 'approved'
-           THEN 'Cererea de inregistrare a fost aprobata'
-           ELSE 'Cererea de inregistrare a fost respinsa' END,
-      CASE WHEN NEW.status = 'approved'
-           THEN 'Acum aveti acces la serviciile primariei.'
-           ELSE format('Motiv: %s', COALESCE(NEW.rejection_reason, 'Nespecificat')) END,
-      jsonb_build_object(
-        'judet_id', NEW.judet_id,
-        'localitate_id', NEW.localitate_id,
-        'registration_id', NEW.id
-      )
-    );
-  END IF;
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
-CREATE TRIGGER on_registration_decision
-  BEFORE UPDATE ON primarie_registrations
-  FOR EACH ROW
-  WHEN (OLD.status = 'pending' AND NEW.status IS DISTINCT FROM OLD.status)
-  EXECUTE FUNCTION notify_registration_decision();
-```
-
-### Data Access Pattern
-
-All existing RLS policies that filter on `judet_id + localitate_id` from user metadata should additionally check that the user has an **approved** registration for that primarie:
-
-```sql
--- Example: Modify cereri SELECT policy to check registration
-CREATE POLICY "Users view own primarie cereri"
-  ON cereri FOR SELECT
-  USING (
-    EXISTS (
-      SELECT 1 FROM primarie_registrations
-      WHERE user_id = auth.uid()
-        AND judet_id = cereri.judet_id
-        AND localitate_id = cereri.localitate_id
-        AND status = 'approved'
-    )
-  );
-```
-
-This ensures that even if user metadata contains a `judet_id`/`localitate_id`, they cannot access data until approved.
+**Everything else in the v2.0 revamp is already installed.**
 
 ---
 
-## Installation Summary
+## Already Installed — No Changes Needed
 
-```bash
-# New packages to ADD
-pnpm add react-map-gl@8.1.0 mapbox-gl@3.19.0
-pnpm add @logtail/next@0.3.1
-pnpm add @pdf-lib/fontkit@1.1.1
+| Feature | Library | Installed Version | Notes |
+|---------|---------|-------------------|-------|
+| Command palette | `cmdk` | `^1.1.1` | React 19 compatible |
+| Calendar date picker | `react-day-picker` | `^9.11.1` | v9 API differs from v8 used in Figma — check shadcn Calendar component |
+| Notification toasts | `sonner` | `^2.0.7` | Use for action confirmations |
+| Micro-animations | `framer-motion` | `^12.23.24` | All patterns from Figma export work |
+| Charts | `recharts` | Already in project | DonutChart, AreaChart, LineChart, BarChart all available |
+| Dynamic theming | Tailwind CSS 4 | Already in project | CSS custom property override via `setProperty()` — no library needed |
+| Better Stack logging | `@logtail/next` | Already in project | Uptime API uses native `fetch`, no new SDK needed |
+| Notification drawer | `framer-motion` | Already in project | Spring slide animation pattern documented above |
+| Sidebar collapsible | `framer-motion` | Already in project | `animate={{ width: collapsed ? 72 : 260 }}` pattern |
 
-# Packages to REMOVE after migration
-pnpm remove @sentry/nextjs
-pnpm remove three @react-three/fiber @react-three/drei maath postprocessing
+---
 
-# Database extensions (run in Supabase SQL editor)
-# CREATE EXTENSION IF NOT EXISTS pgtap;
-# SELECT dbdev.install('basejump-supabase_test_helpers');
-# CREATE EXTENSION IF NOT EXISTS "basejump-supabase_test_helpers" VERSION '0.0.6';
-```
+## What NOT to Add
 
-### Environment Variables
+| Avoid | Why | Use Instead |
+|-------|-----|-------------|
+| `react-dnd` + `react-dnd-html5-backend` | Low maintenance, open React 19 compatibility issues, heavier | `@dnd-kit/core` + `@dnd-kit/sortable` |
+| `full-calendar` or `react-big-calendar` | Heavy (FullCalendar is 500KB+), requires extensive CSS overrides to match dark theme | Custom calendar grid (as in Figma) + react-day-picker for inputs |
+| `@mui/material` + `@emotion/react` | The Figma export includes MUI as a Figma Make artifact — it's not used in any component and conflicts with Tailwind CSS philosophy; MUI v7 + Emotion ≈ 200KB+ | shadcn/ui + Tailwind CSS (already in project) |
+| `canvas-confetti` | Figma export includes it as a decoration artifact — no functional use in a government admin panel | Do not add |
+| `react-slick` | Deprecated in practice, requires jQuery-style class manipulation | `embla-carousel-react` if carousels needed (already in Figma export's deps, not needed for revamp) |
+| Separate color library for OKLCH | Not needed — Tailwind CSS 4 natively outputs OKLCH | CSS custom properties + `setProperty()` |
 
-```bash
-# ADD
-NEXT_PUBLIC_MAPBOX_TOKEN=<mapbox-access-token>
-BETTER_STACK_SOURCE_TOKEN=<better-stack-source-token>
+---
 
-# REMOVE (after migration)
-NEXT_PUBLIC_SENTRY_DSN=
-SENTRY_ORG=
-SENTRY_PROJECT=
-SENTRY_AUTH_TOKEN=
-```
+## Version Compatibility
+
+| Package | Compatible With | Notes |
+|---------|-----------------|-------|
+| `cmdk@1.1.1` | React 19, Next.js 15 | Explicitly added React 19 peer dep in v1.0.1 |
+| `react-day-picker@9.11.1` | React 19 | v9 supports React 18/19; shadcn Calendar component must use v9 API |
+| `@dnd-kit/core@6.3.1` | React 19 (semver: `>=16.8.0`) | Works in practice; community-confirmed React 19 usage |
+| `framer-motion@12.23.24` | React 19, Next.js 15 App Router | Both `framer-motion` and `motion` packages are the same release |
+| `sonner@2.0.7` | React 19 | Toaster component works as Server Component wrapper |
+| Tailwind CSS 4 `@theme inline` | CSS custom property runtime override | `setProperty()` works immediately, no rebuild needed |
 
 ---
 
@@ -543,63 +642,33 @@ SENTRY_AUTH_TOKEN=
 
 | Recommended | Alternative | When to Use Alternative |
 |-------------|-------------|-------------------------|
-| react-map-gl + Mapbox GL | react-leaflet + Leaflet | If zero API cost is required and visual richness is not a priority. Leaflet is ~10x smaller but raster-only. |
-| react-map-gl + Mapbox GL | react-map-gl + MapLibre GL | If Mapbox token acquisition is blocked or pricing becomes a concern. MapLibre is a free Mapbox GL fork. One-line import swap: `react-map-gl/maplibre`. |
-| @logtail/next | @sentry/nextjs (keep) | If Better Stack proves incompatible with Next.js 15. Sentry is battle-tested but heavier. |
-| @logtail/next | pino + pino-pretty | If you need pure local logging without a hosted service. Not a monitoring replacement. |
-| pdf-lib (server) | jsPDF + html2canvas | If receipts need to match a complex HTML template visually. Use for "print this page" features, not programmatic receipts. |
-| pdf-lib (server) | @react-pdf/renderer | If you want React component-based PDF generation. Heavier dependency, but great DX for complex layouts. Not needed for simple receipts. |
-| pgTAP + basejump helpers | Playwright E2E tests | For end-to-end user flow testing (already in stack). Does not replace database-level RLS verification. Use both. |
+| Custom calendar grid + react-day-picker for inputs | react-big-calendar | If you need week/agenda views built-in. For this project, the Figma only shows a month grid — custom is simpler. |
+| @dnd-kit/core | react-dnd | Only if an existing component library forces react-dnd dependency. For new code, always prefer @dnd-kit. |
+| CSS `setProperty()` for accent colors | CSS-in-JS (Emotion, styled-components) | Only if you need dynamic CSS generation at runtime. Pure CSS custom props are faster and Tailwind-native. |
+| Native `fetch` for Better Stack API | `@betterstack/node-logtail` SDK | The SDK is for log shipping, not for querying the API. Native fetch with Next.js `next: { revalidate }` is the correct approach for Server Actions. |
+| cmdk via shadcn `<Command>` | Custom keyboard-navigable list (as in Figma) | Only if you need highly custom rendering that cmdk's slot pattern can't support. For this project, cmdk + shadcn Command has all needed flexibility. |
 
-## What NOT to Use
-
-| Avoid | Why | Use Instead |
-|-------|-----|-------------|
-| google-maps-react / @react-google-maps/api | Google Maps requires billing account, no free tier for map embeds, restrictive ToS | react-map-gl + Mapbox GL JS |
-| @splinetool/react-spline | Cannot scale to 3,000+ localitati — each scene is manually designed; iframe performance issues; proprietary | react-map-gl with GeoJSON data |
-| puppeteer / playwright for PDF | Requires a browser runtime on the server; massive dependency; cold start issues on Vercel Edge/Serverless | pdf-lib (pure JS, no browser needed) |
-| wkhtmltopdf | Native binary, cannot run on Vercel/Edge; deprecated | pdf-lib |
-| Custom RLS test framework | Reinventing well-solved tooling; fragile | pgTAP + basejump test helpers |
-| NextAuth.js | Already using Supabase Auth; adding NextAuth creates auth confusion and session conflicts | Supabase Auth (already integrated) |
-
-## Version Compatibility
-
-| Package A | Compatible With | Notes |
-|-----------|-----------------|-------|
-| react-map-gl@8.1.0 | mapbox-gl@>=3.5.0 | v8 requires mapbox-gl v3+ (uses Proxy internally) |
-| react-map-gl@8.1.0 | maplibre-gl@>=4.0.0 | Via `react-map-gl/maplibre` import |
-| react-map-gl@8.1.0 | React 18/19 | Tested with React 18; React 19 expected compatible (no breaking hook changes) |
-| @logtail/next@0.3.1 | Next.js 14.x (official) | Next.js 15.x expected compatible but not officially documented. Test during implementation. |
-| @pdf-lib/fontkit@1.1.1 | pdf-lib@1.17.1 | Official companion. Last published 5 years ago but stable and actively used. |
-| pgTAP | Supabase PostgreSQL 15 | Built-in extension, first-party support |
-| basejump-supabase_test_helpers@0.0.6 | Supabase CLI 1.x+ | Installed via dbdev package manager |
+---
 
 ## Sources
 
-- Context7 `/visgl/react-map-gl` (benchmark 82.8, HIGH reputation) — react-map-gl docs, SSR patterns, GeoJSON examples
-- Context7 `/websites/pdf-lib_js` (benchmark 76.2, HIGH reputation) — pdf-lib font embedding, PDF creation patterns
-- [react-map-gl npm](https://www.npmjs.com/package/react-map-gl) — Version 8.1.0 confirmed
-- [mapbox-gl npm](https://www.npmjs.com/package/mapbox-gl) — Version 3.19.0 confirmed
-- [Mapbox Pricing](https://www.mapbox.com/pricing) — 50K free map loads/month confirmed
-- [react-map-gl what's new](https://visgl.github.io/react-map-gl/docs/whats-new) — v8 Proxy rewrite (Oct 2025)
-- [@logtail/next npm](https://www.npmjs.com/package/@logtail/next) — Version 0.3.1 confirmed
-- [Better Stack Next.js docs](https://betterstack.com/docs/logs/javascript/nextjs/) — Setup guide
-- [logtail-nextjs GitHub](https://github.com/logtail/logtail-nextjs) — Source, examples
-- [@pdf-lib/fontkit npm](https://www.npmjs.com/package/@pdf-lib/fontkit) — Version 1.1.1 confirmed
-- [pdf-lib GitHub issue #17](https://github.com/Hopding/pdf-lib/issues/17) — Unicode/charset support
-- [pdf-lib GitHub issue #211](https://github.com/Hopding/pdf-lib/issues/211) — Non-English alphabet support
-- [Supabase RLS docs](https://supabase.com/docs/guides/database/postgres/row-level-security) — Official patterns
-- [Supabase testing overview](https://supabase.com/docs/guides/local-development/testing/overview) — pgTAP setup
-- [Supabase advanced pgTAP testing](https://supabase.com/docs/guides/local-development/testing/pgtap-extended) — RLS testing patterns
-- [basejump test helpers](https://github.com/usebasejump/supabase-test-helpers) — Version 0.0.6, auth helpers
-- [database.dev basejump/supabase_test_helpers](https://database.dev/basejump/supabase_test_helpers) — Installation via dbdev
-- [Supabase enums docs](https://supabase.com/docs/guides/database/postgres/enums) — Enum patterns
-- [Supabase triggers docs](https://supabase.com/docs/guides/database/postgres/triggers) — Trigger patterns
-- [Supabase user management](https://supabase.com/docs/guides/auth/managing-user-data) — Auth trigger patterns
-- [MakerKit Supabase RLS best practices](https://makerkit.dev/blog/tutorials/supabase-rls-best-practices) — Production patterns
-- [MapLibre vs Leaflet comparison](https://blog.jawg.io/maplibre-gl-vs-leaflet-choosing-the-right-tool-for-your-interactive-map/) — Feature comparison
-- [Map libraries popularity](https://www.geoapify.com/map-libraries-comparison-leaflet-vs-maplibre-gl-vs-openlayers-trends-and-statistics/) — Download trends
+- Figma Make export `Revamp Primarie Admin/package.json` — confirmed library versions used in design reference
+- Figma Make export `Revamp Primarie Admin/src/styles/theme.css` — CSS custom properties pattern
+- Figma Make export `Revamp Primarie Admin/src/app/components/CommandPalette.tsx` — custom command palette implementation reviewed
+- Figma Make export `Revamp Primarie Admin/src/app/components/AnimatedCounter.tsx` — RAF counter implementation
+- Figma Make export `Revamp Primarie Admin/src/app/components/ProgressRing.tsx` — SVG + Framer Motion pattern
+- Figma Make export `Revamp Primarie Admin/src/app/components/NotificationCenter.tsx` — spring slide drawer pattern
+- [Better Stack Uptime API Docs](https://betterstack.com/docs/uptime/api/monitors/) — Monitor list endpoint confirmed (HIGH)
+- [Better Stack Monitor Response Times](https://betterstack.com/docs/uptime/api/get-monitors-response-times/) — Response time endpoint URL and structure confirmed (HIGH)
+- [Better Stack Telemetry API](https://betterstack.com/docs/logs/api/getting-started/) — Bearer auth confirmed, SQL-over-HTTP available (MEDIUM)
+- [Tailwind CSS v4 Theme Docs](https://tailwindcss.com/docs/theme) — `setProperty()` runtime override pattern confirmed (HIGH)
+- [cmdk GitHub Releases](https://github.com/pacocoursey/cmdk/releases) — v1.1.1 latest, React 19 support confirmed in v1.0.1 (HIGH)
+- [react-dnd React 19 issue #3655](https://github.com/react-dnd/react-dnd/issues/3655) — Open, unresolved (HIGH confidence this is a risk)
+- `npm show @dnd-kit/core peerDependencies` — `>=16.8.0`, React 19 semver-compatible (MEDIUM)
+- `npm show @dnd-kit/sortable peerDependencies` — depends on `@dnd-kit/core ^6.3.0` (HIGH)
+- `/Users/thor/Documents/GitHub/primariata.work/package.json` — confirmed what is already installed (HIGH)
 
 ---
-*Stack research for: Romanian e-government / primarie digitization SaaS platform*
-*Researched: 2026-03-02*
+
+*Stack research for: v2.0 admin design revamp — primariaTa.work*
+*Researched: 2026-03-05*

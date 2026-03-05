@@ -1,241 +1,164 @@
 # Roadmap: primariaTa.work
 
-## Overview
+## Milestones
 
-Transform the existing ~70% functional platform into a production-ready multi-tenant e-government SaaS. The critical path starts with fixing the data isolation architecture (junction table + per-request context), stabilizing broken routes and monitoring, then building the staff-facing workflows that turn citizen submissions into processed outcomes. Citizen-facing features, cross-primarie UX, GDPR compliance, and test coverage complete the release.
+- [x] **v1.0 MVP** - Phases 1-11 (shipped 2026-03-05)
+- [ ] **v2.0 Design Revamp** - Phases 12-17 (in progress)
 
 ## Phases
 
-**Phase Numbering:**
-- Integer phases (1, 2, 3): Planned milestone work
-- Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
+<details>
+<summary>v1.0 MVP (Phases 1-11) - SHIPPED 2026-03-05</summary>
 
-Decimal phases appear between their surrounding integers in numeric order.
+- [x] Phase 1: Security Foundation (3/3 plans) - completed 2026-03-02
+- [x] Phase 2: Infrastructure & Stabilization (8/8 plans) - completed 2026-03-02
+- [x] Phase 3: Registration & Approval (3/3 plans) - completed 2026-03-03
+- [x] Phase 4: Cereri Processing (3/3 plans) - completed 2026-03-03
+- [x] Phase 5: Staff Dashboards (3/3 plans) - completed 2026-03-03
+- [x] Phase 6: Citizen Features (4/4 plans) - completed 2026-03-04
+- [x] Phase 7: Cross-Primarie Notifications (2/2 plans) - completed 2026-03-04
+- [x] Phase 8: Compliance & Testing (5/5 plans) - completed 2026-03-04
+- [x] Phase 9: Audit Gap Closure (1/1 plan) - completed 2026-03-04
+- [x] Phase 10: Payment & GDPR Fixes (1/1 plan) - completed 2026-03-04
+- [x] Phase 11: E2E Seed & Coverage (3/3 plans) - completed 2026-03-04
 
-- [ ] **Phase 1: Security Foundation** - Multi-tenant data isolation architecture, RLS migration, security hardening
-- [ ] **Phase 2: Infrastructure & Stabilization** - Monitoring replacement, broken route fixes, search fix, consistency fixes
-- [ ] **Phase 3: Registration & Approval** - Multi-primarie registration flow with admin approval workflow
-- [x] **Phase 4: Cereri Processing** - Status workflow engine, audit trail, document validation, SLA tracking (completed 2026-03-03)
-- [x] **Phase 5: Staff Dashboards** - Functionar, Admin, and Primar dashboards with staff notifications (completed 2026-03-03)
-- [x] **Phase 6: Citizen Features** - Documents page, PDF receipts, dynamic map, payment architecture (completed 2026-03-04)
-- [x] **Phase 7: Cross-Primarie Notifications** - Notification aggregation across primarii, context switch UX (completed 2026-03-04)
-- [ ] **Phase 8: Compliance & Testing** - GDPR compliance, pgTAP RLS tests, E2E test coverage
-- [ ] **Phase 9: Audit Gap Closure** - Fix audit-identified bugs: dead nav links, stats enum, map 404, profile race condition, tracking updates
-- [x] **Phase 10: Payment & GDPR Critical Fixes** - Wire webhook receipt pipeline, add GDPR deletion columns migration (completed 2026-03-04)
-- [x] **Phase 11: E2E Seed Data & Full Coverage** - Generate seed data, remove all test.skip, staff-side E2E coverage (completed 2026-03-04)
+</details>
+
+### v2.0 Design Revamp
+
+**Milestone Goal:** Revamp the entire admin primarie experience based on Figma designs, establishing a shared design system (layout, components, animations, theming) that serves as the foundation for revamping all other roles in subsequent milestones.
+
+- [ ] **Phase 12: Design System Foundation** - CSS tokens, shared components, motion system, accent color engine
+- [ ] **Phase 13: Layout Shell** - Collapsible sidebar, top bar, command palette, notification drawer, admin role enforcement
+- [ ] **Phase 14: Admin Dashboard** - Welcome banner, user stats, system health, cereri overview, performance table, activity feed
+- [ ] **Phase 15: Admin Settings** - 5-tab settings with accent color picker wired end-to-end
+- [ ] **Phase 16: Enhanced Existing Pages** - Utilizatori management revamp + Cereri supervizare with kanban/SLA/priority
+- [ ] **Phase 17: New Data Pages** - Monitorizare, Documente, Financiar, Calendar
 
 ## Phase Details
 
-### Phase 1: Security Foundation
-**Goal**: Data isolation between primarii is architecturally correct and verified -- no user can see another primarie's data regardless of how they navigate
-**Depends on**: Nothing (first phase)
-**Requirements**: SEC-01, SEC-02, SEC-03, SEC-04, SEC-05, SEC-06, SEC-07
+### Phase 12: Design System Foundation
+**Goal**: Every admin component can reference a consistent token system for colors, spacing, typography, and motion -- with runtime accent color customization
+**Depends on**: Nothing (first phase of v2.0)
+**Requirements**: DSF-01, DSF-02, DSF-03, DSF-04, DSF-05, SC-01, SC-02, SC-03, SC-04, SC-05, SC-06, SC-07
 **Success Criteria** (what must be TRUE):
-  1. User active in multiple primarii sees only the currently selected primarie's data in cereri, plati, and dashboard
-  2. Switching primarie in the URL changes all data context without requiring re-login
-  3. Payment webhook endpoint rejects requests with invalid or missing HMAC signatures
-  4. Production build has zero console.log statements; all logging goes through structured logging
-  5. Database functions execute with explicit search_path, preventing injection via schema manipulation
-**Plans**: 3 plans (2 parallel in Wave 1, 1 sequential in Wave 2)
+  1. Dark and light themes render all admin surfaces, borders, and text using CSS custom properties (no hardcoded hex colors)
+  2. Changing the accent color at runtime visually updates every accent-colored element across the app without page reload
+  3. Framer Motion animation variants (fadeIn, slideIn, stagger, spring) can be imported and applied to any component with a single prop
+  4. All 7 shared components (AnimatedCounter, StatsCard, DonutChart, ProgressRing, LiveActivityFeed, CereriCard, ActivityChart) render correctly in both themes with sample data
+  5. Typography and spacing follow a consistent scale matching the Figma design language
+**Plans**: 2 plans
 
 Plans:
-- [ ] 01-01: Database foundation -- junction table, db_pre_request, RLS rewrite, search_path fixes (SEC-01, SEC-02, SEC-03, SEC-04) [Wave 1]
-- [ ] 01-02: Logging + Sentry removal -- logger utility, console.log sweep, Sentry removal (SEC-06) [Wave 1]
-- [ ] 01-03: Application layer -- middleware primarie resolution, CSRF, webhook HMAC, Supabase client headers (SEC-01, SEC-05, SEC-07) [Wave 2, depends on 01-01 + 01-02]
+- [ ] 12-01-PLAN.md — oklch token system, accent color engine, typography scale, motion variants
+- [ ] 12-02-PLAN.md — 7 shared admin components (AnimatedCounter, StatsCard, DonutChart, ProgressRing, LiveActivityFeed, CereriCard, ActivityChart)
 
-### Phase 2: Infrastructure & Stabilization
-**Goal**: All existing routes work correctly and the platform has production-grade monitoring -- no 404s, no 500s on shipped features
-**Depends on**: Phase 1
-**Requirements**: MON-01, MON-02, MON-03, MON-04, FIX-01, FIX-02, FIX-03, FIX-04, FIX-05, FIX-06, FIX-07
+### Phase 13: Layout Shell
+**Goal**: Admin users see a new sidebar + top bar shell with navigation, command palette, and notification drawer -- enforced to admin role only
+**Depends on**: Phase 12
+**Requirements**: SHELL-01, SHELL-02, SHELL-03, SHELL-04, SHELL-05, SHELL-06, SHELL-07, SHELL-08, SEC-01, SEC-02
 **Success Criteria** (what must be TRUE):
-  1. /cereri/new route loads the cereri wizard without errors
-  2. /documente route renders a document page (content populated in Phase 6)
-  3. /admin and /admin/settings routes load for super_admin users
-  4. Dashboard search returns results across cereri and plati without 404
-  5. Better Stack receives error reports, structured logs, and Web Vitals; Sentry packages are fully removed
-**Plans**: 8 plans (2 parallel in Wave 1, 1 in Wave 2, 2 parallel gap closure in Wave 3, 2 gap closure in Wave 4, 1 gap closure in Wave 5)
+  1. Admin sees a collapsible sidebar (260px to 72px) with smooth spring animation, and collapse state persists across page reloads without layout shift
+  2. Admin can open command palette with Cmd+K, search pages and actions, and navigate -- palette does not trigger inside form inputs
+  3. Admin can open notification drawer showing real-time notifications from Supabase with read/dismiss/filter functionality
+  4. Non-admin users navigating to /admin routes are redirected by middleware before any UI renders
+  5. On mobile screens, sidebar renders as a slide-out drawer/sheet instead of a fixed panel
+**Plans**: 2 plans
 
 Plans:
-- [x] 02-01: Monitoring migration -- BetterStackWebVitals, React Query/ErrorBoundary cleanup, Sentry removal (MON-01, MON-02, MON-03, MON-04) [Wave 1]
-- [x] 02-02: Route fixes -- /cereri/new redirect, /admin redirect, /admin/settings redirect, /documente skeleton (FIX-01, FIX-02, FIX-03, FIX-04) [Wave 1]
-- [x] 02-03: Data display fixes -- dashboard search plati, gamification points, map widget coordinates (FIX-05, FIX-06, FIX-07) [Wave 2, depends on 02-01]
-- [x] 02-04: GAP CLOSURE -- Middleware routing fixes: slug fallback, cookie preservation, /admin protection, /profil access, CSP OpenStreetMap (GAPs 1,3,5,6,10,11) [Wave 3]
-- [x] 02-05: GAP CLOSURE -- Admin session fixes: remove signOut calls, create /auth/logout, fix profile cache key, admin layout guard (GAPs 2,3,7,10) [Wave 3]
-- [x] 02-06: GAP CLOSURE -- Dashboard stats API fix, notificari hydration mismatch (GAPs 4,8,9) [Wave 4, depends on 02-04]
-- [x] 02-07: GAP CLOSURE -- Remaining bugs + Map widget theme-aware upgrade: Leaflet map, duplicate heading, loading flash, cross-primarie guard, redirectTo sanitization, sidebar prefetch (FIX-05, FIX-06, FIX-07) [Wave 4, depends on 02-04, 02-05]
-- [ ] 02-08: GAP CLOSURE -- Remove signOut() from per-primarie admin access-control guards (FIX-03) [Wave 5, depends on 02-05]
+- [ ] 13-01: TBD
+- [ ] 13-02: TBD
 
-### Phase 3: Registration & Approval
-**Goal**: Users can register on any active primarie and receive approval from that primarie's admin before accessing modules
-**Depends on**: Phase 1
-**Requirements**: REG-01, REG-02, REG-03, REG-04, REG-05, REG-06
+### Phase 14: Admin Dashboard
+**Goal**: Admin lands on a data-rich dashboard showing real platform metrics -- user counts, cereri status, staff performance, and live activity
+**Depends on**: Phase 13
+**Requirements**: DASH-01, DASH-02, DASH-03, DASH-04, DASH-05, DASH-06, DASH-07
 **Success Criteria** (what must be TRUE):
-  1. User can register on a new primarie from the location selection flow
-  2. Newly registered user sees a pending status screen and cannot access primarie modules until approved
-  3. Primarie admin sees pending registrations in their dashboard and can approve or reject with a reason
-  4. Approved user receives email notification and gains full access; rejected user sees the rejection reason
-**Plans**: 3 plans (1 in Wave 1, 2 parallel in Wave 2)
+  1. Dashboard displays real user counts by role (cetateni, functionari, primar, admini, pending) with animated counters sourced from the database
+  2. Cereri status distribution renders as an interactive donut chart with accurate counts per status
+  3. Functionari performance table shows resolution rates and online status for each staff member
+  4. Live activity feed updates in real-time as events occur in the primarie (new cereri, status changes, user registrations)
+  5. Welcome banner shows admin name, primarie info, and ProgressRings for uptime, cereri resolution rate, and SLA compliance
+**Plans**: 2 plans
 
 Plans:
-- [ ] 03-01-PLAN.md -- Database + registration flow: trigger extension, Realtime, RegisterForm metadata, auth callback, Server Actions (REG-01, REG-02) [Wave 1]
-- [ ] 03-02-PLAN.md -- Pending/rejected status UI: Realtime hook, status page, dashboard integration, register button (REG-03, REG-06) [Wave 2, depends on 03-01]
-- [ ] 03-03-PLAN.md -- Admin approval + notifications: Server Actions, email templates, admin dashboard widget, registration queue (REG-04, REG-05) [Wave 2, depends on 03-01]
+- [ ] 14-01: TBD
+- [ ] 14-02: TBD
 
-### Phase 4: Cereri Processing
-**Goal**: Cereri flow through a complete lifecycle with enforced rules -- from citizen submission through staff processing to resolution, with full audit trail
-**Depends on**: Phase 1, Phase 2
-**Requirements**: CER-01, CER-02, CER-03, CER-04, CER-05, CER-06
+### Phase 15: Admin Settings
+**Goal**: Admin can configure their profile, primarie settings, notification preferences, security options, and visual appearance including accent color
+**Depends on**: Phase 14
+**Requirements**: SET-01, SET-02, SET-03, SET-04, SET-05
 **Success Criteria** (what must be TRUE):
-  1. Status transitions are enforced (invalid transitions rejected) and every change is recorded with actor, timestamp, and reason
-  2. Cerere submission validates that all required documents for the cerere type are attached
-  3. Overdue cereri display visual indicators based on SLA deadlines on both list and dashboard views
-  4. Citizens and staff receive notifications when a cerere status changes
-  5. Search across cereri works with filters for status, type, date range, and reference number
-**Plans**: 3 plans (1 in Wave 1, 1 in Wave 2, 1 gap closure in Wave 3)
+  1. Admin can update profile information (name, email, phone) and changes persist to database
+  2. Admin can configure primarie settings (CUI, maintenance mode toggle) and changes take effect immediately
+  3. Admin can select an accent color from presets or enter a custom hex, and the color applies across every themed element in the app instantly and persists across sessions
+  4. Notification preferences (channel + category) save to user metadata and affect notification delivery
+**Plans**: 2 plans
 
 Plans:
-- [x] 04-01-PLAN.md -- Database migration + TypeScript workflow engine: cerere_istoric table, role-based status transition triggers, SLA columns, documente_necesare JSONB, Server Actions, transition matrix, SLA utility (CER-01, CER-02, CER-03, CER-04, CER-05) [Wave 1]
-- [x] 04-02-PLAN.md -- UI components + wiring: SlaIndicator, CerereTimeline, StatusTransitionDialog, InternalNoteForm, extend CereriTable/CereriFilters, update cerere detail page (CER-01, CER-02, CER-04, CER-05, CER-06) [Wave 2, depends on 04-01]
-- [x] 04-03-PLAN.md -- GAP CLOSURE -- Fix cerere detail page: replace API route fetches with Server Actions for x-primarie-id header inheritance (CER-01, CER-02, CER-04, CER-05, CER-06) [Wave 3, depends on 04-02]
+- [ ] 15-01: TBD
 
-### Phase 5: Staff Dashboards
-**Goal**: Staff can process cereri, manage registrations, and oversee primarie operations from role-appropriate dashboards
-**Depends on**: Phase 3, Phase 4
-**Requirements**: DASH-01, DASH-02, DASH-03, DASH-04, DASH-05, DASH-06, DASH-07, DASH-08, DASH-09, DASH-10, NOT-01, NOT-02
+### Phase 16: Enhanced Existing Pages
+**Goal**: Admin has comprehensive user management with role filtering and staff invitation, plus cereri supervision with table/kanban views, SLA tracking, priority system, and escalation
+**Depends on**: Phase 13
+**Requirements**: UTL-01, UTL-02, UTL-03, UTL-04, UTL-05, CER-01, CER-02, CER-03, CER-04, CER-05, CER-06, CER-07
 **Success Criteria** (what must be TRUE):
-  1. Functionar sees an assigned cereri queue, can filter by status/type/deadline, change cerere status, add internal notes, and request additional documents from citizens
-  2. Admin dashboard shows real user counts, cereri overview by status, registration approval queue, and staff invitation management
-  3. Admin can edit primarie info and notification preferences from admin settings
-  4. Primar dashboard shows cereri requiring primar-level approval, financial overview by period/type, and staff metrics
-  5. Staff receive in-app notifications when citizens submit new cereri or when cereri require their action
-**Plans**: 3 plans (1 in Wave 1, 2 parallel in Wave 2)
+  1. Admin can filter users by role tabs (cetateni/functionari/primar/admini), view user profile details in a drawer, and approve/suspend/reactivate accounts with confirmation
+  2. Admin can invite new staff members with role selection and the invitation flow completes end-to-end
+  3. Admin can view cereri in both table and kanban (click-to-move) layouts with status/priority filters and SLA countdown indicators
+  4. Admin can set cereri priority (urgenta/ridicata/medie/scazuta), add admin notes, and reassign cereri to different functionari
+  5. Alerts tab surfaces SLA breaches, blocked cereri, and escalation flags requiring admin attention
+**Plans**: 2 plans
 
 Plans:
-- [x] 05-01-PLAN.md -- DB migration (notification triggers, Realtime fix, primarii UPDATE RLS) + Server Actions for all dashboard data (NOT-01, NOT-02, DASH-05, DASH-09) [Wave 1]
-- [x] 05-02-PLAN.md -- Functionar dashboard (real stats + cereri queue) + Admin dashboard (user counts, cereri overview, activity feed) + admin settings page (DASH-01, DASH-02, DASH-03, DASH-04, DASH-05, DASH-06, DASH-07, DASH-08) [Wave 2, depends on 05-01]
-- [x] 05-03-PLAN.md -- Primar dashboard (approval queue with inline approve/reject, financial overview, staff metrics) (DASH-09, DASH-10) [Wave 2, depends on 05-01]
+- [ ] 16-01: TBD
+- [ ] 16-02: TBD
 
-### Phase 6: Citizen Features
-**Goal**: Citizens have a complete document library, receive PDF receipts for payments, and see their primarie on an interactive map
-**Depends on**: Phase 2, Phase 4
-**Requirements**: DOC-01, DOC-02, DOC-03, DOC-04, PAY-01, PAY-02, PAY-03, PAY-04, MAP-01, MAP-02, MAP-03
+### Phase 17: New Data Pages
+**Goal**: Admin has access to system monitoring, document management, financial analytics, and a calendar -- completing the full admin experience
+**Depends on**: Phase 13
+**Requirements**: MON-01, MON-02, MON-03, MON-04, MON-05, DOC-01, DOC-02, DOC-03, DOC-04, DOC-05, DOC-06, FIN-01, FIN-02, FIN-03, FIN-04, FIN-05, CAL-01, CAL-02, CAL-03, CAL-04
 **Success Criteria** (what must be TRUE):
-  1. /documente page lists documents attached to user's cereri and includes a public forms library with downloadable templates
-  2. User can preview and download documents; dashboard "Documente Recente" widget shows actual recent documents
-  3. Successful payment generates a PDF receipt with correct Romanian diacritics, stored in Supabase Storage with download link
-  4. Dashboard shows real pending payment count; payment architecture uses feature flag to toggle mock vs production gateway
-  5. Landing page shows a dynamic interactive map centered on the selected localitate with correct primarie location pin
-**Plans**: 4 plans (3 parallel in Wave 1, 1 gap closure in Wave 2)
+  1. Monitorizare page displays uptime, response time, and error rate charts plus a filterable security events log and audit trail viewer
+  2. Documente page supports folder navigation with breadcrumbs, grid/list view toggle, drag-and-drop file upload, file preview via signed URLs, and storage usage stats
+  3. Financiar page shows monthly revenue chart with target comparison, daily transaction volume, payment method breakdown, category progress bars, and a filterable transaction list
+  4. Calendar displays a full month grid (Monday-start) with color-coded event type indicators, event creation modal, and day detail panel
+  5. All monitoring metrics route through a server-side handler (no API keys exposed to the client)
+**Plans**: 2 plans
 
 Plans:
-- [x] 06-01-PLAN.md -- Documents page + dashboard widget: Server Actions for document fetching, populate /documente with categories, wire RecentDocumentsWidget (DOC-01, DOC-02, DOC-03, DOC-04) [Wave 1]
-- [x] 06-02-PLAN.md -- PDF receipts + payment architecture: jsPDF receipt generator with Romanian fonts, QR code, Supabase Storage, chitanta endpoint, pending payment count, test mode banner (PAY-01, PAY-02, PAY-03, PAY-04) [Wave 1]
-- [x] 06-03-PLAN.md -- Interactive map + Romanian labels: Leaflet zoom/flyTo/popup upgrade, PrimarieInfoCard, audit all status displays for Romanian labels (MAP-01, MAP-02, MAP-03) [Wave 1]
-- [x] 06-04-PLAN.md -- GAP CLOSURE -- Landing page interactive map, wire TestModeBanner to payment pages, fix documents totalCount (DOC-04, PAY-04, MAP-01, MAP-02) [Wave 2, depends on 06-01, 06-02, 06-03]
-
-### Phase 7: Cross-Primarie Notifications
-**Goal**: Users registered at multiple primarii see aggregated notifications and can switch primarie context seamlessly from any notification
-**Depends on**: Phase 1, Phase 5
-**Requirements**: NOT-03, NOT-04, NOT-05
-**Success Criteria** (what must be TRUE):
-  1. Notification list aggregates notifications from all primarii where the user is registered
-  2. Clicking a notification from a different primarie shows a confirmation popup before switching context
-  3. After confirming context switch, user is redirected to the source module/page referenced by the notification
-**Plans**: 2 plans (1 in Wave 1, 1 sequential in Wave 2)
-
-Plans:
-- [ ] 07-01-PLAN.md -- Foundation hooks + components: useUserPrimarii, usePrimarieSwitch, ContextSwitchDialog, primarie badges on NotificationCard and NotificationDropdownItem (NOT-03, NOT-04, NOT-05) [Wave 1]
-- [ ] 07-02-PLAN.md -- Wire into NotificationDropdown header and /notificari page: cross-primarie click handling, primarie filter dropdown, context switch integration (NOT-03, NOT-04, NOT-05) [Wave 2, depends on 07-01]
-
-### Phase 8: Compliance & Testing
-**Goal**: Platform meets GDPR requirements for handling citizen data and has verified test coverage for critical security and user flows
-**Depends on**: Phase 1 (for RLS tests), Phase 5 (for E2E admin tests), Phase 6 (for E2E payment tests)
-**Requirements**: GDPR-01, GDPR-02, GDPR-03, GDPR-04, TEST-01, TEST-02, TEST-03, TEST-04, TEST-05, TEST-06, TEST-07
-**Success Criteria** (what must be TRUE):
-  1. Privacy policy page is accessible from footer and registration flow
-  2. Cookie consent banner appears on first visit with accept/reject options that persist across sessions
-  3. User can request data export and account deletion from the settings page
-  4. pgTAP tests verify that RLS prevents cross-primarie data access (user A cannot see user B's data)
-  5. E2E tests cover cerere submission flow, payment flow, auth flow, and admin workflows end-to-end
-**Plans**: 5 plans (3 parallel in Wave 1, 2 parallel in Wave 2)
-
-Plans:
-- [ ] 08-01-PLAN.md -- Cookie consent banner, footer privacy links, /termeni page, registration privacy checkbox (GDPR-01, GDPR-02) [Wave 1]
-- [ ] 08-02-PLAN.md -- Data export + account deletion: GDPR Server Actions, settings Confidentialitate tab (GDPR-03, GDPR-04) [Wave 2, depends on 08-01]
-- [ ] 08-03-PLAN.md -- Unit tests: auth functions (requireAuth, requireRole, requireOwnership) + validation schemas (TEST-01, TEST-02) [Wave 1]
-- [ ] 08-04-PLAN.md -- pgTAP RLS isolation tests: cross-primarie data isolation for cereri, plati, documente, notificari, user_primarii (TEST-03) [Wave 1]
-- [ ] 08-05-PLAN.md -- E2E Playwright tests: auth flow, cereri submission, payment flow, admin workflows (TEST-04, TEST-05, TEST-06, TEST-07) [Wave 2, depends on 08-01]
-
-### Phase 9: Audit Gap Closure
-**Goal**: Close all gaps identified by the v1.0 milestone audit -- fix integration bugs, broken flows, and sync requirement tracking with code reality
-**Depends on**: Phase 8
-**Requirements**: REG-04, REG-05, DASH-07
-**Gap Closure:** Closes gaps from v1.0-MILESTONE-AUDIT.md
-**Success Criteria** (what must be TRUE):
-  1. AdminDashboard "Invita Staff" and "Invitatii Pending" buttons navigate to working routes (not 404)
-  2. Dashboard stats finalizate count reflects actual completed cereri (correct enum values)
-  3. Landing page map section loads without 404 errors when a location is selected
-  4. Dashboard does not flash "Eroare la incarcarea profilului" on initial load after auth redirect
-  5. REQUIREMENTS.md marks REG-04 and REG-05 as Complete (matching verified code)
-**Plans**: 1 plan (1 in Wave 1)
-
-Plans:
-- [ ] 09-01-PLAN.md -- Fix stats enum values, landing map query pattern, profile race condition; verify AdminDashboard nav and REQUIREMENTS.md tracking (REG-04, REG-05, DASH-07) [Wave 1]
-
-### Phase 10: Payment & GDPR Critical Fixes
-**Goal**: Close the 2 critical audit gaps -- auto-generate receipts on payment success and fix GDPR account deletion by adding missing DB columns
-**Depends on**: Phase 6, Phase 8
-**Requirements**: PAY-01, PAY-02, GDPR-03, GDPR-04
-**Gap Closure:** Closes critical gaps from v1.0-MILESTONE-AUDIT.md
-**Success Criteria** (what must be TRUE):
-  1. Payment webhook success handler calls `generateAndStoreReceipt(plataId)` and stores real PDF URL (not placeholder)
-  2. `utilizatori` table has `deletion_requested_at` and `status` columns via migration
-  3. GDPR data export and account deletion Server Actions execute without PostgreSQL errors
-  4. "Payment Success Auto-Receipt" and "GDPR Account Deletion" E2E flows pass
-**Plans**: 1 plan (1 in Wave 1)
-
-Plans:
-- [ ] 10-01-PLAN.md -- DB migration (chitante extra columns + GDPR utilizatori columns), refactor receipt generator with core function, wire webhook, fix GDPR type assertions (PAY-01, PAY-02, GDPR-03, GDPR-04) [Wave 1]
-
-### Phase 11: E2E Seed Data & Full Coverage
-**Goal**: All E2E tests run with real seed data -- zero test.skip calls, full staff-side coverage
-**Depends on**: Phase 10
-**Requirements**: TEST-04, TEST-05, TEST-06, TEST-07
-**Gap Closure:** Closes tech debt from v1.0-MILESTONE-AUDIT.md
-**Success Criteria** (what must be TRUE):
-  1. E2E seed data script populates test DB with users (cetatean, functionar, admin, primar), cereri, plati, documente, notificari
-  2. Zero `test.skip` calls remain across all E2E spec files
-  3. Payment flow E2E tests exercise checkout → webhook → receipt download
-  4. Staff-side cereri processing E2E tests cover functionar status transitions and admin approval
-  5. Role-based dashboard E2E tests run with authenticated test users
-  6. Admin export E2E tests run with real data
-**Plans**: 3 plans (1 in Wave 1, 2 parallel in Wave 2)
-
-Plans:
-- [ ] 11-01-PLAN.md -- Seed data infrastructure: test user constants, idempotent seed script, centralized auth helper, global-setup wiring (TEST-04, TEST-05, TEST-06, TEST-07) [Wave 1]
-- [ ] 11-02-PLAN.md -- Fix data-dependent test.skip: cereri-submission, cereri-flow, payment-flow, admin-workflow specs (TEST-04, TEST-05, TEST-07) [Wave 2, depends on 11-01]
-- [ ] 11-03-PLAN.md -- Fix UI-outdated test.skip: rewrite role-based-dashboard spec, fix admin-export conditional skips (TEST-06, TEST-07) [Wave 2, depends on 11-01]
+- [ ] 17-01: TBD
+- [ ] 17-02: TBD
+- [ ] 17-03: TBD
+- [ ] 17-04: TBD
 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10 -> 11
-(Phases 3 and 4 can partially overlap since they share only Phase 1 as dependency. Phase 6 can begin once Phase 2 and Phase 4 are complete. Phase 10 closes critical audit gaps. Phase 11 eliminates all test.skip with seed data.)
+Phases execute in numeric order: 12 > 13 > 14 > 15 > 16 > 17
+Note: Phases 16 and 17 both depend on Phase 13 (not on each other) and could run in parallel.
 
-| Phase | Plans Complete | Status | Completed |
-|-------|----------------|--------|-----------|
-| 1. Security Foundation | 3/3 | Complete | 2026-03-02 |
-| 2. Infrastructure & Stabilization | 8/8 | Complete | 2026-03-02 |
-| 3. Registration & Approval | 3/3 | Complete | 2026-03-03 |
-| 4. Cereri Processing | 3/3 | Complete | 2026-03-03 |
-| 5. Staff Dashboards | 3/3 | Complete | 2026-03-03 |
-| 6. Citizen Features | 4/4 | Complete   | 2026-03-04 |
-| 7. Cross-Primarie Notifications | 2/2 | Complete   | 2026-03-04 |
-| 8. Compliance & Testing | 5/5 | Complete   | 2026-03-04 |
-| 9. Audit Gap Closure | 0/1 | Not Started |  |
-| 10. Payment & GDPR Critical Fixes | 1/1 | Complete    | 2026-03-04 |
-| 11. E2E Seed Data & Full Coverage | 3/3 | Complete   | 2026-03-04 |
+| Phase | Milestone | Plans Complete | Status | Completed |
+|-------|-----------|----------------|--------|-----------|
+| 1. Security Foundation | v1.0 | 3/3 | Complete | 2026-03-02 |
+| 2. Infrastructure & Stabilization | v1.0 | 8/8 | Complete | 2026-03-02 |
+| 3. Registration & Approval | v1.0 | 3/3 | Complete | 2026-03-03 |
+| 4. Cereri Processing | v1.0 | 3/3 | Complete | 2026-03-03 |
+| 5. Staff Dashboards | v1.0 | 3/3 | Complete | 2026-03-03 |
+| 6. Citizen Features | v1.0 | 4/4 | Complete | 2026-03-04 |
+| 7. Cross-Primarie Notifications | v1.0 | 2/2 | Complete | 2026-03-04 |
+| 8. Compliance & Testing | v1.0 | 5/5 | Complete | 2026-03-04 |
+| 9. Audit Gap Closure | v1.0 | 1/1 | Complete | 2026-03-04 |
+| 10. Payment & GDPR Fixes | v1.0 | 1/1 | Complete | 2026-03-04 |
+| 11. E2E Seed & Coverage | v1.0 | 3/3 | Complete | 2026-03-04 |
+| 12. Design System Foundation | v2.0 | 0/2 | Not started | - |
+| 13. Layout Shell | v2.0 | 0/2 | Not started | - |
+| 14. Admin Dashboard | v2.0 | 0/2 | Not started | - |
+| 15. Admin Settings | v2.0 | 0/1 | Not started | - |
+| 16. Enhanced Existing Pages | v2.0 | 0/2 | Not started | - |
+| 17. New Data Pages | v2.0 | 0/4 | Not started | - |
 
 ---
 *Roadmap created: 2026-03-02*
-*Last updated: 2026-03-05*
+*Last updated: 2026-03-05 after v2.0 roadmap creation*

@@ -1,8 +1,10 @@
 # Architecture Research
 
-**Domain:** Multi-tenant Romanian e-government SaaS (primariata.work)
-**Researched:** 2026-03-02
-**Confidence:** HIGH (existing codebase analyzed + Supabase official docs verified)
+**Domain:** Admin UI Revamp — Next.js 15 App Router + Figma-driven design system
+**Researched:** 2026-03-05
+**Confidence:** HIGH (based on direct codebase inspection + Figma export reference)
+
+---
 
 ## Standard Architecture
 
@@ -10,640 +12,687 @@
 
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
-│                        Client Layer                                  │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────────┐   │
-│  │  Landing +   │  │ Dashboard    │  │ Admin Panels             │   │
-│  │  Location    │  │ (role-based) │  │ (primarie/super)         │   │
-│  │  Selection   │  │              │  │                          │   │
-│  └──────┬───────┘  └──────┬───────┘  └──────────┬───────────────┘   │
-│         │                 │                      │                   │
-├─────────┴─────────────────┴──────────────────────┴───────────────────┤
-│                        Context Layer (NEW)                           │
-│  ┌──────────────────────────────────────────────────────────────┐    │
-│  │  Primarie Context Provider (Zustand)                         │    │
-│  │  - active_primarie_id from URL [judet]/[localitate]          │    │
-│  │  - approved primarii list from user_primarii                 │    │
-│  │  - context switch without re-login                           │    │
-│  └──────────────────────────────────────────────────────────────┘    │
+│                        Root Layout (Server)                           │
+│  ThemeProvider + BetterStack + Toaster + CookieConsentBanner          │
 ├──────────────────────────────────────────────────────────────────────┤
-│                        Middleware Layer                               │
-│  ┌──────────────────────────────────────────────────────────────┐    │
-│  │  Next.js Middleware (session + primarie context)              │    │
-│  │  - Refresh JWT session                                       │    │
-│  │  - Inject x-primarie-id header from URL params               │    │
-│  │  - Validate user has approved registration for primarie      │    │
-│  └──────────────────────────────────────────────────────────────┘    │
-├──────────────────────────────────────────────────────────────────────┤
-│                        Server Layer                                  │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────────┐   │
-│  │ Server       │  │ Server       │  │ API Routes               │   │
-│  │ Components   │  │ Actions      │  │ (webhooks, etc.)         │   │
-│  └──────┬───────┘  └──────┬───────┘  └──────────┬───────────────┘   │
-│         │                 │                      │                   │
-├─────────┴─────────────────┴──────────────────────┴───────────────────┤
-│                        Data Access Layer                             │
-│  ┌──────────────────────────────────────────────────────────────┐    │
-│  │  Supabase Client Factory (server/client/middleware)           │    │
-│  │  Server client: injects x-primarie-id as global header       │    │
-│  │  Client: passes primarie context from Zustand                │    │
-│  └──────────────────────────────────────────────────────────────┘    │
-├──────────────────────────────────────────────────────────────────────┤
-│                        Database Layer (Supabase PostgreSQL)          │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────────┐   │
-│  │ user_primarii│  │ RLS Policies │  │ db_pre_request           │   │
-│  │ (junction)   │  │ (primarie    │  │ (set app.current_        │   │
-│  │              │  │  context)    │  │  primarie_id)            │   │
-│  └──────────────┘  └──────────────┘  └──────────────────────────┘   │
+│                                                                        │
+│  ┌─────────────────────────────────────────────────────────────────┐  │
+│  │   /app/[judet]/[localitate]/   (Client Layout — parent shell)   │  │
+│  │   [For non-admin routes: DashboardSidebar + DashboardHeader]    │  │
+│  │                                                                  │  │
+│  │  ┌──────────────────────────────────────────────────────────┐  │  │
+│  │  │  /admin/*   (Nested Client Layout — admin v2 shell)      │  │  │
+│  │  │                                                           │  │  │
+│  │  │  ┌──────────────┐   ┌──────────────────────────────┐    │  │  │
+│  │  │  │  AdminSidebar│   │     Main Content Area          │    │  │  │
+│  │  │  │  (grouped    │   │                                │    │  │  │
+│  │  │  │   sections)  │   │  ┌──────────────────────────┐ │    │  │  │
+│  │  │  │              │   │  │       AdminTopBar          │ │    │  │  │
+│  │  │  │  [Principal] │   │  │  location + weather +     │ │    │  │  │
+│  │  │  │  Dashboard   │   │  │  cmd palette + notif +    │ │    │  │  │
+│  │  │  │  Monitorizare│   │  │  theme toggle + user menu │ │    │  │  │
+│  │  │  │              │   │  └──────────────────────────┘ │    │  │  │
+│  │  │  │  [Administr.]│   │                                │    │  │  │
+│  │  │  │  Utilizatori │   │  ┌──────────────────────────┐ │    │  │  │
+│  │  │  │  Cereri      │   │  │       Page Content        │ │    │  │  │
+│  │  │  │              │   │  │  (Server or Client        │ │    │  │  │
+│  │  │  │  [Gestiune]  │   │  │   Component)              │ │    │  │  │
+│  │  │  │  Documente   │   │  └──────────────────────────┘ │    │  │  │
+│  │  │  │  Financiar   │   └──────────────────────────────────┘   │  │  │
+│  │  │  │  Calendar    │                                            │  │  │
+│  │  │  │              │  ┌──────────────────────────────────────┐ │  │  │
+│  │  │  │  [Sistem]    │  │  CommandPalette (Portal/Dialog)      │ │  │  │
+│  │  │  │  Setari      │  │  NotificationDrawer (Sheet, right)   │ │  │  │
+│  │  │  └──────────────┘  └──────────────────────────────────────┘ │  │  │
+│  │  └──────────────────────────────────────────────────────────────┘  │  │
+│  └─────────────────────────────────────────────────────────────────┘  │
+│                                                                        │
+│  ┌─────────────────────────┐  ┌─────────────────────────────────────┐ │
+│  │  Zustand: admin-ui.ts   │  │  React Query Cache                  │ │
+│  │  - sidebarCollapsed     │  │  - admin dashboard stats            │ │
+│  │  - cmdOpen              │  │  - monitoring metrics (poll 30s)    │ │
+│  │  - notifOpen            │  │  - calendar events                  │ │
+│  └─────────────────────────┘  └─────────────────────────────────────┘ │
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
 ### Component Responsibilities
 
-| Component | Responsibility | Typical Implementation |
-|-----------|----------------|------------------------|
-| Primarie Context Provider | Track active primarie, user's approved primarii list, context switching | Zustand store + React Context, synced with URL params |
-| user_primarii table | Junction table linking users to primarii with approval status | PostgreSQL table with RLS, status enum (pending/approved/rejected) |
-| db_pre_request function | Extract primarie context from request headers before RLS evaluation | PostgreSQL function called by PostgREST before each query |
-| Middleware | Inject primarie context header, validate registration approval | Next.js middleware extracting primarie from URL route params |
-| Server Supabase Client | Pass x-primarie-id header on every database request | Modified createClient() in src/lib/supabase/server.ts |
-| Notifications Service | Cross-primarie notification aggregation | Only module that queries across primarii boundaries |
+| Component | Responsibility | Implementation |
+|-----------|---------------|----------------|
+| `AdminSidebar` | Role-adaptive nav with grouped sections, collapsible, cmd palette trigger | Client Component — replaces DashboardSidebar for admin role |
+| `AdminTopBar` | Location badge, weather, cmd palette button, notification bell, theme toggle, user avatar | Client Component — replaces DashboardHeader for admin role |
+| `CommandPalette` | Full-text search + navigation + quick actions, keyboard-driven (⌘K) | Client Component using shadcn `Command` + backdrop overlay |
+| `NotificationDrawer` | Slide-in Sheet from right, filter all/unread, mark-read, dismiss | Client Component using shadcn `Sheet` |
+| `StatsCard` | Animated metric card with trend indicator (up/down/flat) | Client Component (requires AnimatedCounter) |
+| `DonutChart` | SVG donut chart with animated segments + hover interaction | Client Component (pure SVG + Framer Motion, no recharts) |
+| `ProgressRing` | Small SVG ring showing percentage with animated stroke draw | Client Component |
+| `AnimatedCounter` | requestAnimationFrame count-up with easeOutExpo curve | Client Component (pure, no deps beyond React) |
+| `LiveActivityFeed` | Supabase Realtime subscription → animated list with AnimatePresence | Client Component (wires to existing hooks) |
+| `AccentColorEngine` | CSS custom property `--accent-admin` persisted to localStorage + user metadata | Utility function in `lib/accent-color.ts` (no UI) |
+
+---
 
 ## Recommended Project Structure
+
+The revamp does NOT restructure the existing app. It adds a new nested layout and new component subtrees that slot into the existing routing path.
 
 ```
 src/
 ├── app/
-│   ├── app/[judet]/[localitate]/          # Primarie-scoped routes
-│   │   ├── page.tsx                        # Dashboard (role-based)
-│   │   ├── cereri/                         # Requests module
-│   │   ├── plati/                          # Payments module
-│   │   ├── documente/                      # Documents module
-│   │   └── notificari/                     # Notifications (cross-primarie)
-│   ├── auth/                               # Authentication routes
-│   ├── api/
-│   │   ├── user/
-│   │   │   ├── profile/route.ts            # User profile
-│   │   │   └── primarii/route.ts           # User's primarii registrations (NEW)
-│   │   └── primarii/
-│   │       └── [id]/
-│   │           └── registrations/route.ts  # Admin approval endpoints (NEW)
-│   └── admin/                              # Super admin panel
+│   └── app/[judet]/[localitate]/
+│       ├── layout.tsx                    # MODIFIED: suppress sidebar/header when path is /admin/*
+│       └── admin/
+│           ├── layout.tsx                # NEW: admin v2 shell (AdminSidebar + AdminTopBar + portals)
+│           ├── page.tsx                  # MODIFIED: renders AdminDashboardContent
+│           ├── monitorizare/             # NEW route
+│           │   └── page.tsx
+│           ├── utilizatori/              # EXISTING route — enhanced
+│           │   └── page.tsx
+│           ├── cereri/                   # EXISTING route — enhanced (4 tabs)
+│           │   └── page.tsx
+│           ├── documente/                # NEW route
+│           │   └── page.tsx
+│           ├── financiar/                # NEW route
+│           │   └── page.tsx
+│           ├── calendar/                 # NEW route
+│           │   └── page.tsx
+│           ├── setari/                   # NEW route (5-tab settings with accent color)
+│           │   └── page.tsx
+│           ├── registrations/            # EXISTING route (unchanged)
+│           └── settings/                 # EXISTING route (keep, eventually redirect to setari/)
+│
 ├── components/
-│   ├── providers/
-│   │   └── primarie-context-provider.tsx   # Primarie context (NEW)
-│   ├── primarie/
-│   │   ├── PrimarieSwitcher.tsx            # Context switch UI (NEW)
-│   │   └── RegistrationStatus.tsx          # Approval status screen (NEW)
-│   └── dashboard/
-│       └── role-dashboards/                # Existing role dashboards
+│   ├── ui/                               # UNCHANGED (shadcn primitives already present)
+│   │   ├── command.tsx                   # Reused by CommandPalette
+│   │   └── sheet.tsx                     # Reused by NotificationDrawer
+│   │
+│   ├── admin-v2/                         # NEW: all v2 admin components
+│   │   ├── layout/
+│   │   │   ├── AdminSidebar.tsx          # Sectioned nav, collapsible, ⌘K button
+│   │   │   └── AdminTopBar.tsx           # Location, weather, cmd, notif, theme, user
+│   │   ├── shell/
+│   │   │   ├── CommandPalette.tsx        # ⌘K overlay
+│   │   │   └── NotificationDrawer.tsx    # Slide-in notification panel
+│   │   ├── shared/                       # Reusable across all future role revamps
+│   │   │   ├── StatsCard.tsx
+│   │   │   ├── DonutChart.tsx
+│   │   │   ├── ProgressRing.tsx
+│   │   │   ├── AnimatedCounter.tsx
+│   │   │   └── LiveActivityFeed.tsx
+│   │   └── pages/                        # Page-specific composite components
+│   │       ├── AdminDashboardContent.tsx
+│   │       ├── MonitorizareContent.tsx
+│   │       ├── UtilizatoriContent.tsx
+│   │       ├── CereriSupervizareContent.tsx
+│   │       ├── DocumenteContent.tsx
+│   │       ├── FinanciarContent.tsx
+│   │       ├── CalendarContent.tsx
+│   │       └── SetariContent.tsx
+│   │
+│   └── dashboard/                        # EXISTING — unchanged (other roles still use these)
+│       ├── DashboardSidebar.tsx
+│       └── DashboardHeader.tsx
+│
 ├── hooks/
-│   ├── use-user-profile.ts                 # Existing
-│   ├── use-primarie-context.ts             # Active primarie context (NEW)
-│   └── use-user-primarii.ts                # User's primarii list (NEW)
+│   ├── use-admin-stats.ts                # NEW: React Query wrapping admin Server Actions
+│   ├── use-monitoring-metrics.ts         # NEW: polling hook (refetchInterval: 30s)
+│   └── use-admin-calendar.ts             # NEW: cereri SLA deadlines + admin_events
+│
+├── stores/
+│   └── admin-ui.ts                       # NEW: Zustand store (sidebar, cmd, notif state)
+│
 ├── lib/
-│   ├── supabase/
-│   │   ├── server.ts                       # Modified: inject primarie header
-│   │   ├── client.ts                       # Modified: inject primarie header
-│   │   └── middleware.ts                   # Existing
-│   └── location-storage.ts                # Existing, extended for primarie context
-└── store/
-    └── primarie-store.ts                   # Zustand store for primarie context (NEW)
+│   └── accent-color.ts                   # NEW: CSS var set/get + localStorage + metadata persist
+│
+└── app/
+    └── api/
+        └── admin/
+            └── monitoring/
+                └── metrics/
+                    └── route.ts          # NEW: Route Handler calling Better Stack API
 ```
 
-### Structure Rationale
+**Structure rationale:**
+- `components/admin-v2/` is isolated so existing `components/dashboard/` and `components/admin/` continue working for other roles during this milestone — zero risk of breaking cetățean, funcționar, or primar views.
+- `components/admin-v2/shared/` is explicitly named "shared" because StatsCard, DonutChart, etc. will be promoted to `components/shared/` when future role revamps begin. At that point it is a rename + re-export only — no logic changes.
+- Pages stay thin: `page.tsx` imports and renders the matching `*Content.tsx` component. This enables Suspense streaming and keeps page files under 30 lines.
+- Zustand store in `stores/admin-ui.ts` (not inside component files) so the cmd palette open state is accessible from both the sidebar button, the topbar button, and the keyboard shortcut listener in the layout — without prop drilling.
 
-- **store/:** Zustand store holds the active primarie context client-side, synced with URL params. This replaces the current localStorage-only approach with a reactive state management layer.
-- **components/primarie/:** Dedicated components for the multi-primarie UX (switcher, registration status). Keeps primarie-switching concerns separate from dashboard logic.
-- **hooks/use-primarie-context.ts:** Encapsulates the active primarie resolution logic (URL params -> primarie_id lookup -> validation against user_primarii).
+---
 
 ## Architectural Patterns
 
-### Pattern 1: Junction Table + Application-Level Context (CRITICAL)
+### Pattern 1: Nested Layout for Shell Override
 
-**What:** Replace the current single-primarie-per-user model (`utilizatori.primarie_id`) with a junction table (`user_primarii`) that allows many-to-many relationships between users and primarii. The active primarie is determined per-request from URL params, not from user metadata.
+**What:** App Router supports nested layouts. A new `admin/layout.tsx` nested inside `[localitate]/layout.tsx` renders the admin v2 shell. The parent layout must not render its own sidebar/header when inside admin routes, or two sidebars appear simultaneously.
 
-**When to use:** Always. This is the foundational change that enables multi-primarie support.
+**When to use:** Whenever a route group needs a completely different UI shell from its parent. This is the correct App Router pattern.
 
-**Trade-offs:**
-- Pro: Clean data model, supports approval workflow, no JWT manipulation needed
-- Pro: Context switch is just a URL change -- no re-authentication
-- Con: Requires migration of existing `utilizatori.primarie_id` data
-- Con: Every RLS policy must be updated to use new context resolution
+**Trade-offs:** The parent layout `[localitate]/layout.tsx` is already a Client Component that reads user role. Adding a `usePathname()` check is minimal. Alternatively, refactor the parent to a Server Component — but that is a larger change with regression risk. The `usePathname()` check is pragmatic and safe.
 
-**Migration SQL:**
-
-```sql
--- New junction table
-CREATE TABLE user_primarii (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid NOT NULL REFERENCES utilizatori(id) ON DELETE CASCADE,
-  primarie_id uuid NOT NULL REFERENCES primarii(id) ON DELETE CASCADE,
-  rol varchar(50) NOT NULL DEFAULT 'cetatean',
-  status varchar(20) NOT NULL DEFAULT 'pending',  -- pending, approved, rejected
-  motiv_respingere text,                           -- rejection reason
-  aprobat_de uuid REFERENCES utilizatori(id),      -- who approved
-  data_aprobare timestamptz,
-  permisiuni jsonb DEFAULT '{}',
-  departament varchar(200),
-  created_at timestamptz NOT NULL DEFAULT now(),
-  updated_at timestamptz NOT NULL DEFAULT now(),
-
-  UNIQUE(user_id, primarie_id)  -- one registration per primarie per user
-);
-
--- Indexes
-CREATE INDEX idx_user_primarii_user ON user_primarii(user_id) WHERE status = 'approved';
-CREATE INDEX idx_user_primarii_primarie ON user_primarii(primarie_id, status);
-CREATE INDEX idx_user_primarii_pending ON user_primarii(primarie_id) WHERE status = 'pending';
-
--- Enable RLS
-ALTER TABLE user_primarii ENABLE ROW LEVEL SECURITY;
-
--- Users can see their own registrations
-CREATE POLICY user_primarii_own ON user_primarii
-  FOR SELECT USING (user_id = auth.uid());
-
--- Users can create new registrations (sign up for primarii)
-CREATE POLICY user_primarii_register ON user_primarii
-  FOR INSERT WITH CHECK (user_id = auth.uid() AND status = 'pending');
-
--- Admins of a primarie can manage registrations for that primarie
-CREATE POLICY user_primarii_admin ON user_primarii
-  FOR ALL USING (
-    EXISTS (
-      SELECT 1 FROM user_primarii up
-      WHERE up.user_id = auth.uid()
-        AND up.primarie_id = user_primarii.primarie_id
-        AND up.rol IN ('admin', 'super_admin')
-        AND up.status = 'approved'
-    )
-  );
-```
-
-### Pattern 2: db_pre_request + Custom Header for Primarie Context
-
-**What:** Use Supabase's `db_pre_request` hook to extract a custom `x-primarie-id` header from each request and store it as a PostgreSQL session variable (`app.current_primarie_id`). RLS policies then read this session variable instead of querying `utilizatori.primarie_id`.
-
-**When to use:** For all primarie-scoped data access (cereri, plati, documente, etc.). NOT for notifications (cross-primarie) or user profile (global).
-
-**Trade-offs:**
-- Pro: Per-request context, no JWT manipulation, works with connection pooling (Supabase handles reset)
-- Pro: No race condition across devices/sessions (each request carries its own context)
-- Pro: PostgREST/Supabase automatically handles the `request.headers` GUC
-- Con: Custom headers must be passed consistently from all client entry points
-- Con: Does not work with Supabase Realtime (WebSocket cannot set custom headers)
-
-**Implementation:**
-
-```sql
--- db_pre_request function: runs before every PostgREST query
-CREATE OR REPLACE FUNCTION public.set_primarie_context()
-RETURNS void AS $$
-DECLARE
-  req_primarie_id text;
-  user_id uuid;
-BEGIN
-  -- Extract x-primarie-id from request headers
-  req_primarie_id := current_setting('request.headers', true)::json->>'x-primarie-id';
-  user_id := auth.uid();
-
-  IF req_primarie_id IS NOT NULL AND user_id IS NOT NULL THEN
-    -- Validate user has approved access to this primarie
-    IF EXISTS (
-      SELECT 1 FROM public.user_primarii
-      WHERE user_primarii.user_id = set_primarie_context.user_id
-        AND user_primarii.primarie_id = req_primarie_id::uuid
-        AND user_primarii.status = 'approved'
-    ) THEN
-      PERFORM set_config('app.current_primarie_id', req_primarie_id, true);
-      -- Also set the user's role for this specific primarie
-      PERFORM set_config('app.current_primarie_role', (
-        SELECT rol FROM public.user_primarii
-        WHERE user_primarii.user_id = set_primarie_context.user_id
-          AND user_primarii.primarie_id = req_primarie_id::uuid
-          AND user_primarii.status = 'approved'
-      ), true);
-    ELSE
-      -- User not approved for this primarie; set to NULL
-      PERFORM set_config('app.current_primarie_id', '', true);
-      PERFORM set_config('app.current_primarie_role', '', true);
-    END IF;
-  ELSE
-    PERFORM set_config('app.current_primarie_id', '', true);
-    PERFORM set_config('app.current_primarie_role', '', true);
-  END IF;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
-
--- Register as db_pre_request
-ALTER ROLE authenticator SET pgrst.db_pre_request TO 'set_primarie_context';
-NOTIFY pgrst, 'reload config';
-```
-
-**Updated RLS helper functions:**
-
-```sql
--- Replace current_user_primarie() to use session context
-CREATE OR REPLACE FUNCTION public.current_user_primarie()
-RETURNS UUID AS $$
-  SELECT NULLIF(current_setting('app.current_primarie_id', true), '')::uuid;
-$$ LANGUAGE SQL STABLE SECURITY DEFINER;
-
--- Replace current_user_role() to use per-primarie role
-CREATE OR REPLACE FUNCTION public.current_user_role()
-RETURNS TEXT AS $$
-DECLARE
-  primarie_role text;
-  global_role text;
-BEGIN
-  primarie_role := NULLIF(current_setting('app.current_primarie_role', true), '');
-  IF primarie_role IS NOT NULL THEN
-    RETURN primarie_role;
-  END IF;
-  -- Fallback: check if super_admin (global role, not per-primarie)
-  SELECT rol INTO global_role FROM public.utilizatori WHERE id = auth.uid();
-  RETURN COALESCE(global_role, 'cetatean');
-END;
-$$ LANGUAGE plpgsql STABLE SECURITY DEFINER;
-```
-
-**Modified server client (src/lib/supabase/server.ts):**
+**Recommended implementation:**
 
 ```typescript
-import { createServerClient } from "@supabase/ssr";
-import { cookies, headers } from "next/headers";
-import type { Database } from "@/types/database.types";
+// src/app/app/[judet]/[localitate]/layout.tsx — MODIFIED
+// Add these lines to suppress the old shell for admin routes:
 
-export async function createClient() {
-  const cookieStore = await cookies();
-  const headerStore = await headers();
+const pathname = usePathname();
+const isAdminV2Route = pathname.includes('/admin');
 
-  // Extract primarie context from request headers (set by middleware)
-  const primarieId = headerStore.get("x-primarie-id") || "";
+// In JSX: conditionally skip DashboardSidebar + DashboardHeader
+if (isAdminV2Route) {
+  return <QueryProvider>{children}</QueryProvider>;
+}
+// Otherwise: existing DashboardSidebar + DashboardHeader layout
 
-  return createServerClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-        setAll(cookiesToSet) {
-          try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            );
-          } catch {
-            // Server Component - ignored if middleware refreshes sessions
-          }
-        },
-      },
-      global: {
-        headers: {
-          "x-primarie-id": primarieId,
-        },
-      },
-    }
+// src/app/app/[judet]/[localitate]/admin/layout.tsx — NEW
+'use client';
+export default function AdminV2Layout({ children, params }) {
+  const { judet, localitate } = use(params);
+  const { sidebarCollapsed, cmdOpen, notifOpen } = useAdminUiStore();
+
+  // Register ⌘K keyboard shortcut
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        useAdminUiStore.getState().openCmd();
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, []);
+
+  // Apply accent color on mount
+  useEffect(() => {
+    applyAccentColor(loadAccentColor());
+  }, []);
+
+  return (
+    <div className="flex h-screen overflow-hidden">
+      <AdminSidebar collapsed={sidebarCollapsed} judet={judet} localitate={localitate} />
+      <div className="flex flex-1 flex-col overflow-hidden">
+        <AdminTopBar judet={judet} localitate={localitate} />
+        <main className="flex-1 overflow-y-auto">{children}</main>
+      </div>
+      {cmdOpen && <CommandPalette />}
+      <NotificationDrawer open={notifOpen} />
+    </div>
   );
 }
 ```
 
-### Pattern 3: URL-Driven Primarie Context
+### Pattern 2: Grouped Nav Sections in AdminSidebar
 
-**What:** The active primarie is always determined from the URL route params (`/app/[judet]/[localitate]/...`). Middleware resolves `[judet]/[localitate]` slugs to a `primarie_id` and injects it as a request header. No state stored in JWT or user metadata for active primarie.
+**What:** The Figma reference groups nav items into labelled sections (Principal / Administrare / Gestiune / Sistem). Each section has a title shown when expanded. Items carry optional badge counts.
 
-**When to use:** All navigation within the app. Context switching = navigating to a different URL.
+**When to use:** Always for admin role. Section structure is static (defined in the component). Badges are data-driven from React Query.
 
-**Trade-offs:**
-- Pro: Stateless -- no session corruption, works perfectly with SSR/RSC
-- Pro: Deep-linkable -- sharing a URL always points to the right primarie
-- Pro: Browser back/forward works naturally with primarie context
-- Con: Requires slug-to-primarie_id lookup on every request (cacheable)
-- Con: URL must always contain location context for protected routes
-
-**Middleware implementation:**
+**Trade-offs:** Static section array avoids a DB round-trip for navigation config. Badges are the only dynamic part. Badge counts come from the same React Query cache used by dashboard stats — no extra fetch.
 
 ```typescript
-// In middleware.ts - add primarie resolution
-export async function middleware(request: NextRequest) {
-  // ... existing auth logic ...
+// Navigation sections — defined in AdminSidebar.tsx
 
-  // Extract primarie context from URL
-  const pathname = request.nextUrl.pathname;
-  const appRouteMatch = pathname.match(/^\/app\/([^/]+)\/([^/]+)/);
+const navSections = [
+  {
+    title: 'Principal',
+    items: [
+      { icon: LayoutDashboard, label: 'Dashboard', segment: 'admin' },
+      { icon: Activity, label: 'Monitorizare', segment: 'admin/monitorizare' },
+    ],
+  },
+  {
+    title: 'Administrare',
+    items: [
+      { icon: Users, label: 'Utilizatori', segment: 'admin/utilizatori', badgeKey: 'pendingRegistrations' },
+      { icon: FileText, label: 'Supervizare Cereri', segment: 'admin/cereri', badgeKey: 'pendingCereri' },
+    ],
+  },
+  {
+    title: 'Gestiune',
+    items: [
+      { icon: FolderOpen, label: 'Documente', segment: 'admin/documente' },
+      { icon: CreditCard, label: 'Financiar', segment: 'admin/financiar' },
+      { icon: CalendarDays, label: 'Calendar', segment: 'admin/calendar' },
+    ],
+  },
+  {
+    title: 'Sistem',
+    items: [{ icon: Settings, label: 'Setari', segment: 'admin/setari' }],
+  },
+];
+// Full href = `/app/${judet}/${localitate}/${segment}`
+```
 
-  if (appRouteMatch) {
-    const [, judetSlug, localitateSlug] = appRouteMatch;
+### Pattern 3: Accent Color via CSS Custom Property
 
-    // Resolve slugs to primarie_id (cached lookup)
-    const primarieId = await resolvePrimarieId(judetSlug, localitateSlug, supabase);
+**What:** Admin selects an accent color in Setari → Aspect tab. Color immediately applies across the admin shell by setting `--accent-admin` on `document.documentElement`. All components reference `var(--accent-admin)` instead of hardcoded hex values.
 
-    if (primarieId) {
-      // Inject as request header for downstream Supabase client
-      const requestHeaders = new Headers(request.headers);
-      requestHeaders.set("x-primarie-id", primarieId);
+**When to use:** This is the only theming mechanism needed. Tailwind 4 supports arbitrary CSS variables natively without config changes.
 
-      supabaseResponse = NextResponse.next({
-        request: { headers: requestHeaders },
-      });
-    }
-  }
+**Trade-offs:** CSS custom property changes are synchronous and zero-cost (no re-render). Persistence to Supabase user metadata is a fire-and-forget Server Action (cross-device sync). localStorage provides instant restore on refresh.
 
-  return supabaseResponse;
+```typescript
+// src/lib/accent-color.ts
+const DEFAULT_ACCENT = '#ec4899';
+
+export function applyAccentColor(hex: string): void {
+  document.documentElement.style.setProperty('--accent-admin', hex);
+  localStorage.setItem('accent-admin', hex);
+}
+
+export function loadAccentColor(): string {
+  return localStorage.getItem('accent-admin') ?? DEFAULT_ACCENT;
+}
+
+// Async: persist to Supabase (import server action, call after localStorage)
+export async function persistAccentColor(hex: string): Promise<void> {
+  const { updateAdminAccentColor } = await import('@/actions/admin-settings');
+  await updateAdminAccentColor(hex);
 }
 ```
 
-### Pattern 4: Realtime Workaround for Cross-Primarie Notifications
+Usage in components:
+```typescript
+// Tailwind arbitrary value:
+<div className="bg-[var(--accent-admin)]" />
 
-**What:** Since Supabase Realtime (WebSocket) cannot pass custom headers, notifications use user-scoped RLS (not primarie-scoped). The `notifications` table has `utilizator_id` as the primary filter, with `primarie_id` as metadata for display grouping only.
+// Inline style (when conditional opacity needed):
+<div style={{ color: 'var(--accent-admin)', opacity: 0.8 }} />
+```
 
-**When to use:** Only for notifications. All other modules use primarie-scoped RLS.
+In `globals.css`, define the default so server-rendered HTML does not flash:
+```css
+:root {
+  --accent-admin: #ec4899;
+}
+```
 
-**Trade-offs:**
-- Pro: Realtime subscriptions work without custom headers
-- Pro: Cross-primarie notification aggregation is natural
-- Con: Notifications table has different RLS pattern than other tables
+### Pattern 4: Data Fetching for Monitoring and Calendar Pages
 
-**Current state:** The existing `notifications` table already uses `utilizator_id`-scoped RLS (not primarie-scoped), which is correct for this pattern. No changes needed to notification RLS.
+**What:** Monitoring and Calendar require different data freshness strategies. Neither fits the Server Component pattern cleanly because both need periodic updates or user interactions.
+
+**Monitoring** — polls Better Stack API every 30 seconds. Better Stack credentials are server-side only, so data must route through a Next.js Route Handler. The page uses static mock data first; the Route Handler is the swap point.
+
+**Calendar** — data is a union of cereri SLA deadlines (from `cereri` table) and manual admin events (new `admin_events` table or user metadata JSON). Loaded once on mount, no polling.
+
+**When to use:** Always prefer React Query for client-side data that needs caching, deduplication, or polling. Prefer Server Actions for one-time fetches that can be server-rendered.
+
+```typescript
+// src/hooks/use-monitoring-metrics.ts
+export function useMonitoringMetrics() {
+  return useQuery({
+    queryKey: ['admin', 'monitoring', 'metrics'],
+    queryFn: async () => {
+      const res = await fetch('/api/admin/monitoring/metrics');
+      if (!res.ok) throw new Error('Monitoring fetch failed');
+      return res.json() as Promise<MonitoringMetrics>;
+    },
+    refetchInterval: 30_000,   // 30s live polling
+    staleTime: 15_000,
+    retry: 2,
+  });
+}
+
+// src/app/api/admin/monitoring/metrics/route.ts
+export async function GET() {
+  // Phase 1: return mock data matching MonitoringMetrics shape
+  // Phase 2: call Better Stack Telemetry API with server-side credentials
+  return Response.json(getMockMetrics());
+}
+
+// src/hooks/use-admin-calendar.ts
+export function useAdminCalendar(judet: string, localitate: string) {
+  return useQuery({
+    queryKey: ['admin', 'calendar', judet, localitate],
+    queryFn: () => getAdminCalendarEvents(), // Server Action
+    staleTime: 60_000,
+  });
+}
+```
+
+### Pattern 5: CommandPalette with Zustand + Global Keyboard Shortcut
+
+**What:** ⌘K shortcut is registered once in the admin layout. Both AdminSidebar (has a ⌘K button when expanded) and AdminTopBar (has a ⌘K button) trigger the same Zustand action. The CommandPalette component reads `cmdOpen` from the store.
+
+**When to use:** Any globally-triggered overlay. This pattern avoids duplicated event listener registrations.
+
+**Trade-offs:** Zustand `getState()` (not hook) is used inside the event listener to avoid stale closure — this is the correct Zustand pattern for non-React contexts.
+
+```typescript
+// Registration in admin/layout.tsx
+useEffect(() => {
+  const handler = (e: KeyboardEvent) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      useAdminUiStore.getState().openCmd(); // getState() avoids stale closure
+    }
+  };
+  window.addEventListener('keydown', handler);
+  return () => window.removeEventListener('keydown', handler);
+}, []);
+
+// CommandPalette.tsx reads from store:
+export function CommandPalette() {
+  const { cmdOpen, closeCmd } = useAdminUiStore();
+  if (!cmdOpen) return null;
+  return (
+    <div className="fixed inset-0 z-[--z-modal] flex items-start justify-center pt-[20vh]">
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={closeCmd} />
+      <Command className="relative z-10 w-[600px] ...">
+        {/* shadcn Command component */}
+      </Command>
+    </div>
+  );
+}
+```
+
+---
 
 ## Data Flow
 
-### Request Flow (Primarie-Scoped)
+### Admin Dashboard Request Flow
 
 ```
-[User navigates to /app/alba/alba-iulia/cereri]
-    |
-    v
-[Next.js Middleware]
-    |-- Extract judet=alba, localitate=alba-iulia from URL
-    |-- Resolve to primarie_id via cached lookup
-    |-- Inject x-primarie-id header
-    |-- Verify user session (JWT refresh)
-    v
-[Server Component / Server Action]
-    |-- createClient() reads x-primarie-id from headers
-    |-- Passes as global header to Supabase
-    v
-[Supabase PostgREST]
-    |-- db_pre_request: set_primarie_context() runs
-    |-- Extracts x-primarie-id from request.headers
-    |-- Validates user has approved registration in user_primarii
-    |-- SET app.current_primarie_id = <primarie_id>
-    |-- SET app.current_primarie_role = <user's role for this primarie>
-    v
-[RLS Policy Evaluation]
-    |-- current_user_primarie() returns app.current_primarie_id
-    |-- current_user_role() returns app.current_primarie_role
-    |-- Rows filtered to current primarie only
-    v
-[Query Result] --> [Server Component renders] --> [Client]
+[Navigate to /app/cluj/cluj-napoca/admin]
+    ↓
+AdminV2Layout (Client) — loads accent color, registers ⌘K handler
+    ↓
+admin/page.tsx (Server Component) — triggers data prefetch
+    ↓
+AdminDashboardContent (Client Component, receives initial props)
+    ↓  parallel via React Query
+  ├── use-admin-stats: getAdminDashboardStats() → Supabase (cereri counts, user counts, revenue)
+  ├── getPendingRegistrations() → Supabase user_primarii WHERE status='pending'
+  └── LiveActivityFeed: useNotificationsRealtime() → Supabase Realtime channel
+    ↓
+StatsCard x4 — Framer Motion enter animation (stagger delay)
+DonutChart — cereri status breakdown, animated segments
+LiveActivityFeed — new events appear with AnimatePresence (slide in from left)
+FuncționariTable — cereri resolved counts per funcționar
+ProgressRing x3 — SLA compliance, approval rate, satisfaction
 ```
 
-### Context Switch Flow
+### Accent Color Flow
 
 ```
-[User receives notification from Primarie B while viewing Primarie A]
-    |
-    v
-[Notification shows: "Cererea #123 de la Primaria Brașov a fost aprobată"]
-    |-- Action button: "Vezi cererea"
-    v
-[Confirm Dialog: "Veți fi redirecționat la Primăria Brașov. Continuați?"]
-    |-- User confirms
-    v
-[Router.push("/app/brasov/brasov/cereri/123")]
-    |-- URL changes -> middleware picks up new primarie context
-    |-- No re-authentication needed (same JWT session)
-    |-- Zustand store updates active primarie
-    |-- All subsequent queries scoped to new primarie
-    v
-[Dashboard re-renders with Primarie B context]
+[User opens Setari → Aspect tab]
+    ↓
+AccentColorPicker (color swatches + custom hex input)
+    ↓ onChange
+applyAccentColor(hex) → document.documentElement CSS var (synchronous, instant)
+                      → localStorage.setItem (synchronous)
+    ↓ async, fire-and-forget
+persistAccentColor(hex) → Server Action → supabase.auth.updateUser({ data: { accent_color: hex } })
 ```
 
-### Registration + Approval Flow
+### Notification Drawer Flow (replaces existing dropdown)
 
 ```
-[Citizen visits primariata.work]
-    |-- Selects județ + localitate (e.g., Alba / Alba Iulia)
-    v
-[Registration Page]
-    |-- Creates auth.users record
-    |-- handle_new_user() trigger creates utilizatori record
-    |-- Creates user_primarii record with status='pending'
-    v
-[Pending Approval Screen]
-    |-- User sees: "Înregistrarea ta la Primăria Alba Iulia este în așteptare"
-    |-- Shows status: pending / approved / rejected with reason
-    v
-[Admin of Primarie receives notification]
-    |-- Reviews registration in admin dashboard
-    |-- Approves or rejects (with reason)
-    v
-[On Approval]
-    |-- user_primarii.status = 'approved'
-    |-- Notification sent to user
-    |-- User can now access dashboard for this primarie
+[Bell icon click in AdminTopBar]
+    ↓
+useAdminUiStore().openNotif()
+    ↓
+NotificationDrawer (Sheet) slides in from right with Framer Motion
+    ↓ existing hooks — no changes needed
+useNotificationsList() → Supabase query (cross-primarie notifications)
+useNotificationsRealtime() → Supabase Realtime subscription (already live)
+    ↓
+Renders NotificationCard items inside Sheet > ScrollArea
+Mark-read and dismiss call existing Server Actions
 ```
 
-### State Management
+### Monitoring Page Flow
 
 ```
-[Zustand Primarie Store]
-    |
-    |-- activePrimarieId: string (from URL)
-    |-- activePrimarieSlug: {judet, localitate}
-    |-- userPrimarii: UserPrimarie[] (from React Query)
-    |-- switchPrimarie(judetSlug, localitateSlug): void
-    |
-    v
-[URL State] <--> [Zustand Store] <--> [React Query Cache]
-    |                                       |
-    |-- Source of truth                     |-- user_primarii query
-    |-- /app/[judet]/[localitate]           |-- staleTime: 5 min
+[Navigate to /admin/monitorizare]
+    ↓
+MonitorizarePage (Server Component) — minimal, just renders MonitorizareContent
+    ↓
+MonitorizareContent (Client Component)
+    ↓
+useMonitoringMetrics() → GET /api/admin/monitoring/metrics (every 30s)
+    ↓ Phase 1: mock data | Phase 2: Better Stack Telemetry API
+recharts AreaChart, LineChart, BarChart render metrics
+ServiceStatusGrid shows per-service health (Supabase, Vercel, Cloudflare, SendGrid)
+EventLog shows last 50 log entries (mock initially)
 ```
 
-### Key Data Flows
+---
 
-1. **Primarie Resolution:** URL slug -> middleware -> Supabase lookup (cached) -> primarie_id header
-2. **RLS Context:** x-primarie-id header -> db_pre_request -> session variable -> RLS policy evaluation
-3. **Registration:** User signup -> utilizatori record + user_primarii(pending) -> admin approval -> user_primarii(approved)
-4. **Context Switch:** Notification click -> confirm dialog -> URL navigation -> middleware re-resolves -> new primarie context
+## New vs Modified — Explicit Breakdown
+
+### New Files (create from scratch)
+
+| File | Purpose |
+|------|---------|
+| `src/app/app/[judet]/[localitate]/admin/layout.tsx` | Admin v2 shell (sidebar + topbar + portals) |
+| `src/app/app/[judet]/[localitate]/admin/monitorizare/page.tsx` | System monitoring route |
+| `src/app/app/[judet]/[localitate]/admin/documente/page.tsx` | Document management route |
+| `src/app/app/[judet]/[localitate]/admin/financiar/page.tsx` | Financial analytics route |
+| `src/app/app/[judet]/[localitate]/admin/calendar/page.tsx` | Calendar route |
+| `src/app/app/[judet]/[localitate]/admin/setari/page.tsx` | 5-tab settings route (with accent color) |
+| `src/app/api/admin/monitoring/metrics/route.ts` | Route Handler for monitoring data |
+| `src/components/admin-v2/layout/AdminSidebar.tsx` | New sidebar (grouped sections, ⌘K button) |
+| `src/components/admin-v2/layout/AdminTopBar.tsx` | New header (location, weather, cmd, notif) |
+| `src/components/admin-v2/shell/CommandPalette.tsx` | ⌘K palette using shadcn Command |
+| `src/components/admin-v2/shell/NotificationDrawer.tsx` | Slide-in notif panel using shadcn Sheet |
+| `src/components/admin-v2/shared/StatsCard.tsx` | Ported from Figma reference |
+| `src/components/admin-v2/shared/DonutChart.tsx` | Ported from Figma reference |
+| `src/components/admin-v2/shared/ProgressRing.tsx` | Ported from Figma reference |
+| `src/components/admin-v2/shared/AnimatedCounter.tsx` | Ported from Figma reference |
+| `src/components/admin-v2/shared/LiveActivityFeed.tsx` | Ported + wired to Supabase Realtime |
+| `src/components/admin-v2/pages/AdminDashboardContent.tsx` | Dashboard composite component |
+| `src/components/admin-v2/pages/MonitorizareContent.tsx` | Monitoring composite component |
+| `src/components/admin-v2/pages/UtilizatoriContent.tsx` | User management composite |
+| `src/components/admin-v2/pages/CereriSupervizareContent.tsx` | Cereri 4-tab composite |
+| `src/components/admin-v2/pages/DocumenteContent.tsx` | Documents composite |
+| `src/components/admin-v2/pages/FinanciarContent.tsx` | Financial analytics composite |
+| `src/components/admin-v2/pages/CalendarContent.tsx` | Calendar composite |
+| `src/components/admin-v2/pages/SetariContent.tsx` | Settings 5-tab composite |
+| `src/stores/admin-ui.ts` | Zustand store (sidebar, cmd, notif) |
+| `src/hooks/use-admin-stats.ts` | React Query for admin dashboard data |
+| `src/hooks/use-monitoring-metrics.ts` | React Query polling for monitoring |
+| `src/hooks/use-admin-calendar.ts` | React Query for calendar events |
+| `src/lib/accent-color.ts` | CSS var utility + localStorage + metadata |
+
+### Modified Files (targeted, minimal changes)
+
+| File | Change |
+|------|--------|
+| `src/app/app/[judet]/[localitate]/layout.tsx` | Add `usePathname()` check — if path includes `/admin`, return `<QueryProvider>{children}</QueryProvider>` only, suppressing old sidebar/header |
+| `src/app/globals.css` | Add `--accent-admin: #ec4899;` to `:root`; add any v2 glass-effect tokens |
+| `src/app/app/[judet]/[localitate]/admin/page.tsx` | Replace existing content with `<AdminDashboardContent />` |
+| `src/app/app/[judet]/[localitate]/admin/utilizatori/page.tsx` | Replace content with `<UtilizatoriContent />` |
+| `src/app/app/[judet]/[localitate]/admin/cereri/page.tsx` | Replace content with `<CereriSupervizareContent />` |
+
+### Unchanged Files
+
+- All `src/components/dashboard/` files — other roles still use DashboardSidebar, DashboardHeader
+- All `src/components/admin/` files — RegistrationQueue, StaffTable, etc., remain for admin sub-pages
+- All hooks: `use-notifications-list`, `use-notifications-realtime`, `use-unread-notifications`, `use-cereri-list`, `use-cereri-notifications` — reused without modification
+- All Server Actions in `src/actions/`
+- All existing API routes (non-monitoring)
+- Supabase schema — no migrations required for v2 layout (Calendar may add `admin_events` table as optional enhancement)
+- Middleware — no changes to auth or x-primarie-id header logic
+
+---
+
+## Integration Points
+
+### Existing Hooks Reused by New Components
+
+| Hook | Reused By | Change Needed |
+|------|-----------|---------------|
+| `use-notifications-list.ts` | `NotificationDrawer` | None |
+| `use-notifications-realtime.ts` | `NotificationDrawer` + `LiveActivityFeed` | None |
+| `use-unread-notifications.ts` | `AdminTopBar` (bell badge count) | None |
+| `use-cereri-notifications.ts` | `LiveActivityFeed` (cereri events) | None |
+| `use-cereri-list.ts` | `CereriSupervizareContent` | None — existing filter params work |
+| `use-dashboard-stats.ts` | `AdminDashboardContent` (partial) | New `use-admin-stats.ts` extends this with admin-specific queries |
+
+### shadcn/ui Primitives Required by New Components
+
+| Primitive | Already Present | Used By |
+|-----------|----------------|---------|
+| `command.tsx` | Yes | `CommandPalette` |
+| `sheet.tsx` | Yes | `NotificationDrawer` |
+| `tabs.tsx` | Yes | `CereriSupervizareContent`, `SetariContent` |
+| `calendar.tsx` | Yes | `CalendarContent` |
+| `dialog.tsx` | Yes | Calendar event creation modal |
+| `scroll-area.tsx` | Yes | `NotificationDrawer`, `LiveActivityFeed` |
+
+All required shadcn primitives are already installed. No new `npx shadcn add` commands needed.
+
+### External Service Touchpoints
+
+| Page | External Service | New Integration Required |
+|------|-----------------|--------------------------|
+| Monitorizare | Better Stack Telemetry API | Yes — new Route Handler, mock first |
+| Dashboard (LiveFeed) | Supabase Realtime | No — existing channels reused |
+| Setari (Aspect) | Supabase Auth `updateUser()` | No — existing auth client |
+| Calendar | Supabase DB | Minimal — new query for cereri SLA deadlines |
+
+---
+
+## Suggested Build Order (Dependency-Aware)
+
+### Step 1 — Foundation (no UI dependencies, build first)
+
+1. `src/stores/admin-ui.ts` — Zustand store (everything else depends on this)
+2. `src/lib/accent-color.ts` — CSS var utility
+3. `src/components/admin-v2/shared/AnimatedCounter.tsx` — pure, no deps
+4. `src/components/admin-v2/shared/ProgressRing.tsx` — pure, no deps
+5. `src/components/admin-v2/shared/DonutChart.tsx` — pure, Framer Motion only
+6. `src/components/admin-v2/shared/StatsCard.tsx` — depends on AnimatedCounter
+7. `globals.css` — add `--accent-admin` token
+
+### Step 2 — Shell Components (depends on Step 1)
+
+8. `AdminSidebar.tsx` — depends on adminUiStore, navSections config
+9. `AdminTopBar.tsx` — depends on adminUiStore, use-unread-notifications
+10. `CommandPalette.tsx` — depends on adminUiStore, shadcn Command
+11. `NotificationDrawer.tsx` — depends on adminUiStore, existing notification hooks, shadcn Sheet
+12. `src/app/app/[judet]/[localitate]/admin/layout.tsx` — composes all of the above
+13. **Modify** `[localitate]/layout.tsx` — add pathname suppression
+
+**Checkpoint:** Navigate to `/app/[judet]/[localitate]/admin`. New sidebar + topbar should render. ⌘K opens palette. Bell opens drawer. Pages below are empty — that is fine.
+
+### Step 3 — Dashboard Page (highest visibility, proves design system)
+
+14. `src/hooks/use-admin-stats.ts` — React Query wrapping existing Server Actions
+15. `src/components/admin-v2/shared/LiveActivityFeed.tsx` — wired to Supabase Realtime hooks
+16. `src/components/admin-v2/pages/AdminDashboardContent.tsx` — composes all shared components
+17. **Modify** `admin/page.tsx` — render `<AdminDashboardContent />`
+
+**Checkpoint:** Dashboard shows animated stats, donut chart, live feed, progress rings. Accent color switch works from Zustand (hardcode a value to test before Setari page exists).
+
+### Step 4 — Settings Page (enables accent color customization)
+
+18. `src/components/admin-v2/pages/SetariContent.tsx` — 5 tabs including Aspect tab
+19. `src/app/app/[judet]/[localitate]/admin/setari/page.tsx`
+
+**Checkpoint:** Accent color picker works end-to-end. Sidebar + topbar + cards all update when color changes. localStorage persists across refresh.
+
+### Step 5 — Enhanced Existing Pages (parallel, no cross-dependencies)
+
+20. `UtilizatoriContent.tsx` + enhanced `admin/utilizatori/page.tsx`
+21. `CereriSupervizareContent.tsx` + enhanced `admin/cereri/page.tsx`
+
+### Step 6 — New Data Pages (depends on Steps 1–3)
+
+22. `src/app/api/admin/monitoring/metrics/route.ts` (mock data first)
+23. `use-monitoring-metrics.ts`
+24. `MonitorizareContent.tsx` + `admin/monitorizare/page.tsx`
+25. `FinanciarContent.tsx` + `admin/financiar/page.tsx`
+26. `DocumenteContent.tsx` + `admin/documente/page.tsx`
+27. `use-admin-calendar.ts`
+28. `CalendarContent.tsx` + `admin/calendar/page.tsx`
+
+---
 
 ## Scaling Considerations
 
 | Scale | Architecture Adjustments |
 |-------|--------------------------|
-| 0-100 primarii (current) | Single Supabase project, shared schema with RLS. Slug-to-primarie lookup can be in-memory cache in middleware. |
-| 100-1K primarii | Add Redis/Vercel KV for slug-to-primarie cache. Consider materialized view for dashboard stats per primarie. |
-| 1K+ primarii | Connection pooling (PgBouncer already included in Supabase). Partition large tables (cereri, plati) by primarie_id. Consider read replicas for dashboard analytics. |
+| Current scale (1 admin per primărie) | No adjustments needed. All queries are RLS-scoped. Admin dashboard data is small (hundreds of cereri per primărie). |
+| 1,000+ active primării | Admin dashboard stats queries stay fast due to RLS isolation. Monitoring API calls are per-primărie scoped. No change needed. |
+| Heavy monitoring polling | Better Stack API has rate limits. Add `cache: 'revalidate=30'` to the Route Handler response. Cache at Vercel edge. |
+| Calendar with many events | Current design (cereri deadlines + manual events) stays performant. If events grow to thousands, add pagination to `getAdminCalendarEvents()` — hook interface stays the same. |
 
-### Scaling Priorities
-
-1. **First bottleneck:** db_pre_request function runs on every request -- must be fast. The EXISTS query against user_primarii should be sub-millisecond with proper indexes. Monitor with `pg_stat_statements`.
-2. **Second bottleneck:** Slug-to-primarie_id resolution in middleware. Cache aggressively (Map in memory for dev, Vercel KV for production). Primarie slugs rarely change.
+---
 
 ## Anti-Patterns
 
-### Anti-Pattern 1: Storing Active Primarie in JWT/User Metadata
+### Anti-Pattern 1: Importing react-router in Next.js App
 
-**What people do:** Update `auth.users.raw_app_meta_data` or `raw_user_meta_data` with the current primarie_id when user switches context.
+**What people do:** Copy Figma reference code directly. The reference uses `react-router` (`useLocation`, `useNavigate`, `Outlet`).
 
-**Why it's wrong:** JWT metadata is shared across ALL sessions. If user is logged in on two devices viewing different primarii, updating metadata on device A changes the context on device B. This is the root cause of the current architecture's multi-primarie limitation.
+**Why it's wrong:** Next.js 15 uses its own router. react-router is not installed and must not be added.
 
-**Do this instead:** Pass primarie context per-request via HTTP header, resolved from URL params. Each request is independent.
+**Do this instead:** `useLocation()` → `usePathname()` from `next/navigation`. `useNavigate(path)` → `router.push(path)` from `useRouter()`. `Outlet` → `{children}` in the layout component. The Figma reference is a visual and logic reference, not copy-paste source.
 
-### Anti-Pattern 2: Manual Primarie Filtering in Application Code
+### Anti-Pattern 2: Double Sidebar from Nested Layout Without Parent Suppression
 
-**What people do:** Add `.eq('primarie_id', activePrimarieId)` to every Supabase query in application code.
+**What people do:** Add `admin/layout.tsx` with AdminSidebar but forget to suppress DashboardSidebar in the parent `[localitate]/layout.tsx`.
 
-**Why it's wrong:** Duplicates RLS logic, easy to forget, creates security holes when a developer skips the filter.
+**Why it's wrong:** Two sidebars render simultaneously. The parent layout always renders DashboardSidebar.
 
-**Do this instead:** Let RLS handle primarie filtering automatically. The `db_pre_request` + `current_user_primarie()` pattern ensures every query is filtered without application-level intervention.
+**Do this instead:** In the parent layout, add `const isAdminV2 = pathname.includes('/admin');` and short-circuit to `<QueryProvider>{children}</QueryProvider>` for admin routes. The nested layout owns the full shell.
 
-### Anti-Pattern 3: Single Role Per User (Current Model)
+### Anti-Pattern 3: Hardcoding Accent Color Hex Values
 
-**What people do:** Store a single `rol` on `utilizatori` table, meaning a user has the same role across all primarii.
+**What people do:** Port the Figma reference with `#ec4899` hardcoded in inline styles and className strings.
 
-**Why it's wrong:** A user could be a `cetatean` in Primaria Alba Iulia but a `functionar` in Primaria Brașov. The role should be per-registration, not per-user.
+**Why it's wrong:** The accent color customization feature (Setari → Aspect) becomes a grep-and-replace exercise. Every component must be updated manually.
 
-**Do this instead:** Store role on `user_primarii` (the junction table), not on `utilizatori`. The `utilizatori.rol` field becomes a "global" role indicator (only meaningful for `super_admin`). Per-primarie role comes from `user_primarii.rol`.
+**Do this instead:** From the first component built, use `var(--accent-admin)` everywhere the Figma reference uses the pink hex. Tailwind arbitrary value: `bg-[var(--accent-admin)]`. One CSS variable controls the entire admin color palette.
 
-### Anti-Pattern 4: Bypassing RLS for Notifications
+### Anti-Pattern 4: Fat page.tsx Files
 
-**What people do:** Use service role client to query notifications across primarii because the RLS context is primarie-scoped.
+**What people do:** Put all monitoring page content (700+ lines of mock data + charts + filters) directly in `admin/monitorizare/page.tsx`.
 
-**Why it's wrong:** Exposes service role usage in client-facing code paths, risk of accidental data leakage.
+**Why it's wrong:** Page files should be thin. Fat pages are hard to test, slow HMR, and cannot be wrapped in Suspense boundaries.
 
-**Do this instead:** Notifications already use `utilizator_id`-scoped RLS (not primarie-scoped). They naturally aggregate across primarii. No service role needed.
+**Do this instead:** `page.tsx` imports and renders `<MonitorizareContent />`. All logic lives in the content component. `page.tsx` handles only `export const metadata` and Suspense wrapping if needed.
 
-## Integration Points
+### Anti-Pattern 5: Client-Side Auth Check in Layout (Redundant Flash)
 
-### External Services
+**What people do:** The existing survey `admin/layout.tsx` does `useEffect` auth checking and shows "Se verifica autorizarea..." spinner before rendering. This pattern is copied into the new admin layout.
 
-| Service | Integration Pattern | Multi-Primarie Notes |
-|---------|---------------------|----------------------|
-| Ghiseul.ro (payments) | Webhook callbacks with HMAC verification | Payment webhook includes `primarie_id` in payload; no context switching needed |
-| CertSign (signatures) | API calls from server actions | Signature request includes `primarie_id`; scoped per cerere |
-| SendGrid (email) | Edge Function triggered by DB trigger | Email templates reference primarie name from cereri -> primarii join |
-| Twilio (SMS) | Edge Function with rate limiting | SMS sent per-user, not per-primarie; no isolation concern |
-| Supabase Realtime | WebSocket subscription | Cannot pass custom headers; use user-scoped RLS for notifications only |
-| WeatherAPI | Client-side fetch per localitate | No auth needed; location from URL params |
+**Why it's wrong:** Middleware already protects all authenticated routes via JWT validation. The client-side check is redundant and causes a visible loading flicker.
 
-### Internal Boundaries
+**Do this instead:** Remove the auth check from the layout. Trust the middleware. For role validation (admin-only routes), use a Server Component at the page level that calls a Server Action to verify role and calls `redirect('/app/...')` if wrong role.
 
-| Boundary | Communication | Notes |
-|----------|---------------|-------|
-| Middleware <-> Server Components | HTTP headers (x-primarie-id) | Middleware injects, server reads |
-| Zustand Store <-> URL | Router navigation | URL is source of truth; store syncs |
-| user_primarii <-> RLS | db_pre_request session variable | Validated on every query |
-| Notifications <-> Other modules | Different RLS scope | Notifications: user-scoped. Everything else: primarie-scoped |
-| Admin approval <-> Registration | user_primarii.status | Approval triggers notification to user |
+### Anti-Pattern 6: Storing Sidebar Collapsed State Only in localStorage
 
-## Build Order Dependencies
+**What people do:** Read/write sidebar state directly from localStorage in the sidebar component itself, as the current DashboardSidebar does.
 
-The multi-primarie architecture must be built in this specific order due to data dependencies:
+**Why it's wrong:** Multiple components (AdminTopBar toggle button, AdminSidebar toggle button, mobile overlay) need to react to sidebar state. Without a shared store, they duplicate localStorage reads or communicate via props through the layout.
 
-### Phase 1: Foundation (Database + RLS)
-**Must build first -- everything depends on this.**
+**Do this instead:** Sidebar collapsed state lives in `useAdminUiStore`. The layout reads initial value from localStorage once on mount and writes it to the store. All components subscribe to the store — zero prop drilling.
 
-1. Create `user_primarii` junction table with migration
-2. Migrate existing `utilizatori.primarie_id` data into `user_primarii`
-3. Create `set_primarie_context()` db_pre_request function
-4. Update `current_user_primarie()` and `current_user_role()` helper functions
-5. Update all existing RLS policies to use new context resolution
-6. Test RLS isolation with multiple users across multiple primarii
-
-**Why first:** Every subsequent feature depends on correct data isolation. If RLS is wrong, all downstream features leak data.
-
-### Phase 2: Middleware + Client Integration
-**Depends on Phase 1 (database must understand primarie context).**
-
-1. Update middleware to resolve URL slugs to primarie_id
-2. Inject `x-primarie-id` header in middleware
-3. Modify `createClient()` in server.ts to pass header
-4. Modify `createClient()` in client.ts to pass header
-5. Create Zustand store for primarie context
-6. Create `use-primarie-context` and `use-user-primarii` hooks
-
-**Why second:** The application layer needs to speak the same language as the database layer.
-
-### Phase 3: Registration + Approval Flow
-**Depends on Phase 1 (user_primarii table) and Phase 2 (context plumbing).**
-
-1. Registration flow creates `user_primarii` record with `status='pending'`
-2. Pending approval screen for users awaiting access
-3. Admin dashboard: registration approval/rejection UI
-4. Notification triggers on approval/rejection
-5. Update `handle_new_user()` trigger for new flow
-
-**Why third:** Users need to register before they can access anything. Admin needs to approve before data flows.
-
-### Phase 4: Context Switching UX
-**Depends on Phase 2 (Zustand store) and Phase 3 (multiple approved primarii).**
-
-1. Primarie switcher dropdown in dashboard header
-2. Cross-primarie notification with context switch popup
-3. Confirm dialog before switching
-4. URL navigation on switch (no re-login)
-
-**Why fourth:** Needs multiple approved registrations and working primarie context to test.
-
-### Phase 5: Role-Based Dashboards
-**Depends on Phase 1 (per-primarie roles) and Phase 2 (context awareness).**
-
-1. Functionar dashboard (primarie-scoped)
-2. Primar dashboard (primarie-scoped)
-3. Admin dashboard (primarie-scoped + approval management)
-4. Super admin panel (cross-primarie)
-
-**Why fifth:** Dashboards render data that depends on correct primarie context and role resolution.
-
-## Migration Strategy for Existing Data
-
-The current `utilizatori` table has a `primarie_id` column that stores a single primarie association. This must be migrated to the junction table:
-
-```sql
--- Migration: Move existing primarie associations to user_primarii
-INSERT INTO user_primarii (user_id, primarie_id, rol, status, data_aprobare)
-SELECT
-  id AS user_id,
-  primarie_id,
-  rol,
-  'approved' AS status,  -- existing users are pre-approved
-  now() AS data_aprobare
-FROM utilizatori
-WHERE primarie_id IS NOT NULL
-  AND deleted_at IS NULL;
-
--- For cetățeni without primarie_id: no migration needed
--- They'll register for primarii through the new flow
-
--- Keep utilizatori.primarie_id temporarily for backward compatibility
--- Remove after all code paths use user_primarii
--- ALTER TABLE utilizatori DROP COLUMN primarie_id; -- Phase 2 cleanup
-```
-
-## Realtime Consideration
-
-Supabase Realtime (WebSocket) cannot pass custom HTTP headers. This means:
-
-- **Notifications:** Must use user-scoped RLS (`utilizator_id = auth.uid()`), NOT primarie-scoped. This is already the case in the current schema. Cross-primarie aggregation works naturally.
-- **Realtime for cereri/plati updates:** These should use the `primarie_id` column in the filter, not RLS context. Example: `supabase.channel('cereri-updates').on('postgres_changes', { filter: 'primarie_id=eq.<id>' })`. The filter is applied at the Realtime subscription level, independent of RLS context headers.
-- **Alternative:** Use polling with React Query (refetchInterval) instead of Realtime for primarie-scoped data. This works with the header-based context and is simpler to implement.
+---
 
 ## Sources
 
-- [Supabase Row Level Security Official Docs](https://supabase.com/docs/guides/database/postgres/row-level-security) -- HIGH confidence
-- [Supabase Custom Access Token Hook](https://supabase.com/docs/guides/auth/auth-hooks/custom-access-token-hook) -- HIGH confidence
-- [Supabase Multi-Tenant Discussion #1615](https://github.com/orgs/supabase/discussions/1615) -- MEDIUM confidence (community discussion)
-- [Supabase Session State for RLS Discussion #6301](https://github.com/orgs/supabase/discussions/6301) -- MEDIUM confidence (community discussion, confirms header approach)
-- [Supabase JS Client - Custom Headers](https://supabase.com/docs/reference/javascript/v1) -- HIGH confidence
-- [Multi-Tenant RLS on Supabase (AntStack)](https://www.antstack.com/blog/multi-tenant-applications-with-rls-on-supabase-postgress/) -- MEDIUM confidence
-- [Supabase Custom Claims & RBAC](https://supabase.com/docs/guides/database/postgres/custom-claims-and-role-based-access-control-rbac) -- HIGH confidence
-- [Supabase RLS Performance Best Practices](https://supabase.com/docs/guides/troubleshooting/rls-performance-and-best-practices-Z5Jjwv) -- HIGH confidence
-- Existing codebase analysis: `supabase/migrations/20250118000002_create_rls_policies.sql` -- HIGH confidence (primary source)
+- Direct codebase inspection: `src/app/app/[judet]/[localitate]/layout.tsx` — existing Client Component layout, DashboardSidebar/DashboardHeader usage
+- Direct codebase inspection: `src/app/admin/layout.tsx` — existing survey admin layout, auth check anti-pattern documented above
+- Direct codebase inspection: `src/components/dashboard/DashboardSidebar.tsx` — current sidebar props interface, navigation structure
+- Direct codebase inspection: `src/app/globals.css` — existing CSS custom property pattern (`--primary`, `--sidebar-background`, etc.)
+- Direct codebase inspection: `src/components/ui/` — confirmed present: `command.tsx`, `sheet.tsx`, `tabs.tsx`, `calendar.tsx`, `dialog.tsx`, `scroll-area.tsx`
+- Figma reference: `Revamp Primarie Admin/src/app/components/Sidebar.tsx` — navSections structure, grouped labels, badge support
+- Figma reference: `Revamp Primarie Admin/src/app/components/Layout.tsx` — shell orchestration (sidebar, topbar, cmd palette, notif drawer, ⌘K event listener)
+- Figma reference: `Revamp Primarie Admin/src/app/components/TopBar.tsx` — topbar elements (location, weather, cmd button, theme, notif, user)
+- Figma reference: `Revamp Primarie Admin/src/app/components/CommandPalette.tsx` — command list, categories, keyboard navigation
+- Figma reference: `Revamp Primarie Admin/src/app/components/NotificationCenter.tsx` — slide-in panel, Notification interface, filter/mark-read/dismiss
+- Figma reference: `Revamp Primarie Admin/src/app/components/StatsCard.tsx`, `DonutChart.tsx`, `ProgressRing.tsx`, `AnimatedCounter.tsx`, `LiveActivityFeed.tsx` — component signatures and animation patterns
+- Figma reference: `Revamp Primarie Admin/src/app/components/pages/SetariPage.tsx` — 5-tab structure, accent color state, Toggle component
+- Figma reference: `Revamp Primarie Admin/src/app/components/pages/MonitorizarePage.tsx` — mock data shapes for monitoring metrics
+- Figma reference: `Revamp Primarie Admin/src/app/components/pages/CalendarPage.tsx` — CalEvent interface, calendar grid structure
 
 ---
-*Architecture research for: primariata.work multi-primarie model*
-*Researched: 2026-03-02*
+
+*Architecture research for: Admin UI Revamp — primariaTa.work v2.0*
+*Researched: 2026-03-05*
