@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Design Revamp
 status: completed
-stopped_at: Completed 13-02-PLAN.md
-last_updated: "2026-03-05T09:33:44.836Z"
-last_activity: 2026-03-05 -- Completed 13-02 (command palette + notification drawer)
+stopped_at: Completed 13-03-PLAN.md
+last_updated: "2026-03-05T11:39:18.571Z"
+last_activity: 2026-03-05 -- Completed 13-04 (notification drawer redesign + a11y fixes)
 progress:
   total_phases: 6
   completed_phases: 2
-  total_plans: 4
-  completed_plans: 4
-  percent: 31
+  total_plans: 6
+  completed_plans: 6
+  percent: 46
 ---
 
 # Project State
@@ -26,24 +26,25 @@ See: .planning/PROJECT.md (updated 2026-03-05)
 ## Current Position
 
 Phase: 13 of 17 (Layout Shell) -- second of 6 v2.0 phases
-Plan: 2 of 3 in current phase
-Status: 13-02 complete, ready for 13-03
-Last activity: 2026-03-05 -- Completed 13-02 (command palette + notification drawer)
+Plan: 4 of 4 in current phase
+Status: 13-04 complete, phase 13 finished
+Last activity: 2026-03-05 -- Completed 13-04 (notification drawer redesign + a11y fixes)
 
-Progress: [███░░░░░░░] 31%
+Progress: [████░░░░░░] 46%
 
 ## Performance Metrics
 
 **Velocity:**
 - Total plans completed: 36 (v1.0)
-- v2.0 plans completed: 3
+- v2.0 plans completed: 5
 - Total execution time: carried from v1.0
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 12-17 | 3/13 | 13min | 4.3min |
+| 12-17 | 5/13 | 21min | 4.2min |
+| Phase 13 P03 | 5min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -69,6 +70,11 @@ Recent decisions affecting current work:
 - [13-02]: Used utilizatori table (not profiles) with nume/prenume fields for admin user search
 - [13-02]: Cereri search uses numar_inregistrare + join to tipuri_cereri for type name display
 - [13-02]: Notification category mapping: cerere_*/status_updated/deadline -> cereri, payment_due -> payments
+- [13-04]: Custom motion.div drawer replaces shadcn Sheet to eliminate Radix Dialog a11y requirements
+- [13-04]: 30s polling fallback for unread badge when realtime subscription fails
+- [13-04]: sr-only DialogTitle in CommandDialog instead of @radix-ui/react-visually-hidden package
+- [Phase 13]: usePathname() in CitizenProviders to detect admin sub-path and switch sidebar config dynamically
+- [Phase 13]: Admin role enforcement uses existing association.rol (no extra DB query for /app/*/admin/*)
 
 ### Pending Todos
 
@@ -82,6 +88,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-05T09:28:00Z
-Stopped at: Completed 13-02-PLAN.md
-Resume file: .planning/phases/13-layout-shell/13-02-SUMMARY.md
+Last session: 2026-03-05T11:39:18.568Z
+Stopped at: Completed 13-03-PLAN.md
+Resume file: None
