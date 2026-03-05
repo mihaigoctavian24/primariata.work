@@ -127,11 +127,17 @@ export const queryKeys = {
     judete: () => [...queryKeys.locations.all, "judete"] as const,
     localitati: (judetId?: string) => [...queryKeys.locations.all, "localitati", judetId] as const,
   },
+  // Admin dashboard queries
+  adminDashboard: {
+    all: ["admin-dashboard"] as const,
+    data: (primarieId: string) => ["admin-dashboard", "data", primarieId] as const,
+  },
 } as const;
 
 // Helper function to invalidate related queries
 export const invalidateQueries = {
   dashboard: () => queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all }),
+  adminDashboard: () => queryClient.invalidateQueries({ queryKey: queryKeys.adminDashboard.all }),
   surveys: () => queryClient.invalidateQueries({ queryKey: queryKeys.surveys.all }),
   users: () => queryClient.invalidateQueries({ queryKey: queryKeys.users.all }),
   locations: () => queryClient.invalidateQueries({ queryKey: queryKeys.locations.all }),
