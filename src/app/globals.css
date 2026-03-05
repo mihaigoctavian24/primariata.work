@@ -102,6 +102,23 @@
     --font-weight-semibold: 600;
     --font-weight-bold: 700;
 
+    /* Status Colors (semantic) */
+    --status-success: oklch(0.72 0.17 160);
+    --status-warning: oklch(0.78 0.15 85);
+    --status-info: oklch(0.62 0.19 260);
+    --status-action: oklch(0.62 0.2 295);
+
+    /* Notification Drawer — Light Mode */
+    --nd-bg-from: oklch(0.985 0.003 90);
+    --nd-bg-to: oklch(0.965 0.005 260);
+    --nd-foreground: oklch(0.2 0.015 260);
+    --nd-muted: oklch(0.5 0.01 260);
+    --nd-dimmed: oklch(0.65 0.008 260);
+    --nd-border: oklch(0.15 0.01 260 / 0.08);
+    --nd-border-section: oklch(0.15 0.01 260 / 0.12);
+    --nd-accent: var(--accent-500);
+    --nd-hover: oklch(0.15 0.01 260 / 0.04);
+
     /* Z-Index Scale */
     --z-dropdown: 1000;
     --z-sticky: 1020;
@@ -159,6 +176,23 @@
     --surface-overlay: oklch(0.2 0 0 / 0.9);
     --border-subtle: oklch(0.25 0.005 260);
     --border-strong: oklch(0.4 0.01 260);
+
+    /* Notification Drawer — Dark Mode */
+    --nd-bg-from: oklch(0.145 0.02 275);
+    --nd-bg-to: oklch(0.09 0.015 275);
+    --nd-foreground: oklch(0.95 0.005 90);
+    --nd-muted: oklch(0.55 0.01 260);
+    --nd-dimmed: oklch(0.4 0.008 260);
+    --nd-border: oklch(0.95 0.005 90 / 0.06);
+    --nd-border-section: oklch(0.95 0.005 90 / 0.1);
+    --nd-accent: var(--accent-400);
+    --nd-hover: oklch(0.95 0.005 90 / 0.05);
+
+    /* Status Colors - Dark (slightly brighter) */
+    --status-success: oklch(0.75 0.18 160);
+    --status-warning: oklch(0.8 0.16 85);
+    --status-info: oklch(0.65 0.2 260);
+    --status-action: oklch(0.65 0.21 295);
 
     /* Chart Colors - Dark Mode (oklch) */
     --chart-1: oklch(0.82 0.14 175);
@@ -448,6 +482,23 @@
   --color-accent-800: var(--accent-800);
   --color-accent-900: var(--accent-900);
   --color-accent-950: var(--accent-950);
+
+  /* Status Colors */
+  --color-status-success: var(--status-success);
+  --color-status-warning: var(--status-warning);
+  --color-status-info: var(--status-info);
+  --color-status-action: var(--status-action);
+
+  /* Notification Drawer */
+  --color-nd-bg-from: var(--nd-bg-from);
+  --color-nd-bg-to: var(--nd-bg-to);
+  --color-nd-foreground: var(--nd-foreground);
+  --color-nd-muted: var(--nd-muted);
+  --color-nd-dimmed: var(--nd-dimmed);
+  --color-nd-border: var(--nd-border);
+  --color-nd-border-section: var(--nd-border-section);
+  --color-nd-accent: var(--nd-accent);
+  --color-nd-hover: var(--nd-hover);
 
   /* Fonts */
   --font-sans: var(--font-montreal), var(--font-inter), var(--font-geist-sans);

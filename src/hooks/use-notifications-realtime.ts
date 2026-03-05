@@ -38,6 +38,7 @@ export function useNotificationsRealtime() {
   useEffect(() => {
     const supabase = createClient();
     let channel: RealtimeChannel | null = null;
+    let mounted = true;
 
     async function setupRealtimeSubscription() {
       try {
@@ -46,6 +47,8 @@ export function useNotificationsRealtime() {
           data: { user },
           error: userError,
         } = await supabase.auth.getUser();
+
+        if (!mounted) return;
 
         if (userError) {
           logger.error("Failed to get user for realtime subscription:", userError);
@@ -71,6 +74,8 @@ export function useNotificationsRealtime() {
               filter: `utilizator_id=eq.${user.id}`, // Only this user's notifications
             },
             (payload) => {
+              if (!mounted) return;
+
               logger.debug("Notification change detected", {
                 eventType: payload.eventType,
                 payload,
@@ -104,6 +109,8 @@ export function useNotificationsRealtime() {
             }
           )
           .subscribe((status) => {
+            if (!mounted) return;
+
             logger.debug("Realtime subscription status:", status);
 
             if (status === "SUBSCRIBED") {
@@ -119,7 +126,14 @@ export function useNotificationsRealtime() {
               });
             }
           });
+
+        // If unmounted during async setup, clean up immediately
+        if (!mounted && channel) {
+          supabase.removeChannel(channel);
+          channel = null;
+        }
       } catch (error) {
+        if (!mounted) return;
         logger.error("Failed to setup realtime subscription:", error);
         setConnectionStatus("error");
 
@@ -134,6 +148,7 @@ export function useNotificationsRealtime() {
 
     // Cleanup subscription on unmount
     return () => {
+      mounted = false;
       if (channel) {
         logger.debug("Cleaning up realtime subscription");
         supabase.removeChannel(channel);

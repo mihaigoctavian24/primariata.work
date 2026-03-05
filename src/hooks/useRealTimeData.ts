@@ -60,6 +60,7 @@ export function useRealTimeData<T>({
 
   const previousDataRef = useRef<T | undefined>(undefined);
   const notificationDebounceRef = useRef<NodeJS.Timeout | null>(null);
+  const pulseTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Query with auto-refetch configuration
   const query = useQuery({
@@ -87,8 +88,9 @@ export function useRealTimeData<T>({
         // Trigger pulse animation
         setState((prev) => ({ ...prev, isPulse: true, lastUpdated: new Date() }));
 
-        // Remove pulse after animation
-        setTimeout(() => {
+        // Remove pulse after animation (tracked for cleanup)
+        if (pulseTimeoutRef.current) clearTimeout(pulseTimeoutRef.current);
+        pulseTimeoutRef.current = setTimeout(() => {
           setState((prev) => ({ ...prev, isPulse: false }));
         }, 1000);
 
@@ -118,6 +120,14 @@ export function useRealTimeData<T>({
       previousDataRef.current = query.data;
     }
   }, [query.data, query.isSuccess, onUpdate, enableNotifications, notificationMessage]);
+
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (pulseTimeoutRef.current) clearTimeout(pulseTimeoutRef.current);
+      if (notificationDebounceRef.current) clearTimeout(notificationDebounceRef.current);
+    };
+  }, []);
 
   // Handle errors
   useEffect(() => {

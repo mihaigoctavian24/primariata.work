@@ -45,9 +45,10 @@ export function TopBarActions({
   const [user, setUser] = useState<UserInfo | null>(null);
 
   useEffect(() => {
+    let mounted = true;
     const supabase = createClient();
     supabase.auth.getUser().then(({ data: { user: authUser } }) => {
-      if (!authUser) return;
+      if (!mounted || !authUser) return;
       const name = authUser.user_metadata?.full_name || authUser.user_metadata?.name || "";
       const email = authUser.email || "";
       setUser({
@@ -57,6 +58,9 @@ export function TopBarActions({
         initials: getInitials(name, email),
       });
     });
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   return (

@@ -33,14 +33,18 @@ export function ShellLayout({ children, sidebarConfig, initialCollapsed }: Shell
   const [notifOpen, setNotifOpen] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const isMobile = useMediaQuery("(max-width: 1023px)");
-  const unreadCount = useUnreadNotifications(userId);
+  const unreadCount = useUnreadNotifications(userId, !!userId);
 
   // Fetch user ID for unread notifications subscription
   useEffect(() => {
+    let mounted = true;
     const supabase = createClient();
     supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) setUserId(user.id);
+      if (mounted && user) setUserId(user.id);
     });
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const toggleCollapse = useCallback(() => {

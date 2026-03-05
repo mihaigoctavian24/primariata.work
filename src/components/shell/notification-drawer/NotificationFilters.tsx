@@ -1,12 +1,11 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-
 /**
  * NotificationFilters
  *
  * All/Unread toggle + type filter chips for the notification drawer.
+ * Uses --nd-* tokens for dark theme surface, --status-* for category dots,
+ * and accent tokens for active state. No hardcoded colors.
  */
 
 interface NotificationFiltersProps {
@@ -18,10 +17,10 @@ interface NotificationFiltersProps {
 
 const TYPE_CHIPS = [
   { value: null, label: "Toate", dotClass: "" },
-  { value: "cereri", label: "Cereri", dotClass: "bg-blue-500" },
-  { value: "users", label: "Utilizatori", dotClass: "bg-violet-500" },
-  { value: "payments", label: "Plati", dotClass: "bg-green-500" },
-  { value: "system", label: "Sistem", dotClass: "bg-amber-500" },
+  { value: "cereri", label: "Cereri", dotClass: "bg-status-info" },
+  { value: "users", label: "Utilizatori", dotClass: "bg-status-action" },
+  { value: "payments", label: "Plati", dotClass: "bg-status-success" },
+  { value: "system", label: "Sistem", dotClass: "bg-status-warning" },
 ] as const;
 
 /** Map notification types to filter categories */
@@ -34,6 +33,29 @@ export function getNotificationCategory(type: string): string {
   return "system";
 }
 
+function ToggleButton({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      className={`rounded-md border px-3 py-1 text-[length:var(--font-size-sm)] transition-colors ${
+        active
+          ? "border-nd-accent/20 bg-nd-accent/15 text-nd-foreground"
+          : "text-nd-muted border-transparent bg-transparent"
+      }`}
+      onClick={onClick}
+    >
+      {children}
+    </button>
+  );
+}
+
 export function NotificationFilters({
   showUnreadOnly,
   onToggleUnread,
@@ -44,44 +66,45 @@ export function NotificationFilters({
     <div className="space-y-2">
       {/* All / Unread toggle */}
       <div className="flex gap-1">
-        <Button
-          variant={!showUnreadOnly ? "default" : "outline"}
-          size="sm"
-          className="h-7 text-xs"
+        <ToggleButton
+          active={!showUnreadOnly}
           onClick={() => {
             if (showUnreadOnly) onToggleUnread();
           }}
         >
           Toate
-        </Button>
-        <Button
-          variant={showUnreadOnly ? "default" : "outline"}
-          size="sm"
-          className="h-7 text-xs"
+        </ToggleButton>
+        <ToggleButton
+          active={showUnreadOnly}
           onClick={() => {
             if (!showUnreadOnly) onToggleUnread();
           }}
         >
           Necitite
-        </Button>
+        </ToggleButton>
       </div>
 
       {/* Type filter chips */}
       <div className="flex flex-wrap gap-1">
-        {TYPE_CHIPS.map((chip) => (
-          <Button
-            key={chip.label}
-            variant={activeType === chip.value ? "default" : "outline"}
-            size="sm"
-            className="h-6 gap-1 px-2 text-xs"
-            onClick={() => onTypeChange(chip.value)}
-          >
-            {chip.dotClass && (
-              <span className={cn("inline-block h-2 w-2 rounded-full", chip.dotClass)} />
-            )}
-            {chip.label}
-          </Button>
-        ))}
+        {TYPE_CHIPS.map((chip) => {
+          const isActive = activeType === chip.value;
+          return (
+            <button
+              key={chip.label}
+              className={`flex items-center gap-1 rounded-md border px-2 py-0.5 text-[length:var(--font-size-sm)] transition-colors ${
+                isActive
+                  ? "border-nd-accent/20 bg-nd-accent/15 text-nd-foreground"
+                  : "text-nd-muted border-transparent bg-transparent"
+              }`}
+              onClick={() => onTypeChange(chip.value)}
+            >
+              {chip.dotClass && (
+                <span className={`inline-block h-2 w-2 rounded-full ${chip.dotClass}`} />
+              )}
+              {chip.label}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
