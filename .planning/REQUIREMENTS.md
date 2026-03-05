@@ -1,235 +1,220 @@
 # Requirements: primariaTa.work
 
-**Defined:** 2026-03-02
+**Defined:** 2026-03-05
 **Core Value:** Citizens can submit cereri and complete plati digitally for any primarie where they're registered, with complete data isolation between primarii and proper role-based access for all user types.
 
-## v1 Requirements
+## v2.0 Requirements
 
-Requirements for production-ready release. Each maps to roadmap phases.
+Requirements for the Design Revamp milestone. Starting with admin primarie module, building app-wide foundation for all future role revamps.
 
-### Security & Data Isolation
+### Design System Foundation
 
-- [x] **SEC-01**: Multi-primarie data isolation works correctly -- user sees only data for currently selected primarie across all modules (cereri, plati, documente, dashboard)
-- [x] **SEC-02**: User can be registered at multiple primarii with different roles per primarie (e.g., cetatean in one, functionar in another)
-- [x] **SEC-03**: RLS policies use per-request primarie context (db_pre_request + x-primarie-id header) instead of static JWT metadata
-- [x] **SEC-04**: All 22 database functions have explicit search_path set to prevent injection attacks
-- [x] **SEC-05**: Payment webhook callbacks verify HMAC signature before processing (currently returns hardcoded false)
-- [x] **SEC-06**: Production code has zero console.log statements; all logging goes through Better Stack structured logging
-- [x] **SEC-07**: CSRF protection is consistently enforced on all state-changing routes (POST/PUT/DELETE/PATCH)
+- [x] **DSF-01**: CSS design token system (surfaces, borders, accents, text colors) in globals.css supporting dark + light themes
+- [x] **DSF-02**: Dynamic accent color engine via CSS custom properties, persisted per-user in Supabase metadata
+- [x] **DSF-03**: Theme engine integrated with next-themes supporting dark/light toggle + accent color, no FOUC
+- [x] **DSF-04**: Typography scale and spacing tokens matching Figma design language (Inter font, size scale)
+- [x] **DSF-05**: Motion system -- standardized Framer Motion variants (fadeIn, slideIn, stagger, spring) reusable across all roles
 
-### Monitoring & Infrastructure
+### App Shell
 
-- [x] **MON-01**: Better Stack replaces Sentry for error tracking, structured logging, and uptime monitoring
-- [x] **MON-02**: Web Vitals (LCP, FID, CLS) are reported to Better Stack via BetterStackWebVitals component
-- [x] **MON-03**: All error boundaries and React Query error handlers report to Better Stack instead of Sentry
-- [x] **MON-04**: Sentry packages and config files fully removed from codebase
+- [ ] **SHELL-01**: Collapsible sidebar component (260px to 72px) with role-adaptive navigation sections and Framer Motion spring
+- [ ] **SHELL-02**: Sidebar nav config system -- each role defines its own sections/items/badges, sidebar renders generically
+- [ ] **SHELL-03**: Top bar component with role badge, location selector, weather widget, theme toggle, user avatar
+- [ ] **SHELL-04**: Command palette (Cmd+K) with searchable pages, actions, navigation -- content adapts per role
+- [ ] **SHELL-05**: Notification drawer (slide-in panel) with real-time Supabase subscriptions, read/dismiss/filter
+- [ ] **SHELL-06**: Sidebar collapse state persisted via cookie (server-readable, no hydration mismatch)
+- [ ] **SHELL-07**: Page transition animations (AnimatePresence) on route changes within shell
+- [ ] **SHELL-08**: Mobile responsive shell -- sidebar as sheet/drawer on small screens
 
-### Bug Fixes
+### Shared Components
 
-- [x] **FIX-01**: /cereri/new route works correctly (currently returns 500) -- either fix or redirect to /cereri/wizard
-- [x] **FIX-02**: /documente route renders document page (currently 404)
-- [x] **FIX-03**: /admin panel accessible for super_admin users (currently 404)
-- [x] **FIX-04**: /admin/settings page renders settings interface (currently 404)
-- [x] **FIX-05**: Dashboard search works across cereri and plati (plati search currently 404)
-- [x] **FIX-06**: Gamification points display consistently (50 pts desktop vs 25 pts mobile)
-- [x] **FIX-07**: Map widget shows correct location for selected primarie (currently shows Bucharest for all)
+- [ ] **SC-01**: AnimatedCounter with requestAnimationFrame easeOutExpo
+- [ ] **SC-02**: StatsCard with icon, value, label, trend indicator, color variants
+- [ ] **SC-03**: DonutChart (Recharts PieChart wrapper) with center label and legend
+- [ ] **SC-04**: ProgressRing (SVG strokeDashoffset) with value, label, color
+- [ ] **SC-05**: LiveActivityFeed with real-time event stream and auto-scroll
+- [ ] **SC-06**: CereriCard with value, label, color-coded status
+- [ ] **SC-07**: ActivityChart (Recharts AreaChart) for time-series data
 
-### Registration & Approval
+### Security
 
-- [x] **REG-01**: User can register freely on any active primarie
-- [x] **REG-02**: Registration goes to pending state requiring primarie admin approval
-- [x] **REG-03**: User sees status screen while awaiting approval (pending / approved / rejected with reason)
-- [x] **REG-04**: Primarie admin can approve or reject registrations with optional reason from admin dashboard
-- [x] **REG-05**: User receives email notification on approval/rejection
-- [x] **REG-06**: Approved user gets full access to primarie modules; rejected user sees rejection reason
+- [ ] **SEC-01**: Role enforcement in middleware -- each protected route validates user role before rendering
+- [ ] **SEC-02**: Admin routes accessible only to admin and super_admin roles
 
-### Staff Dashboards
+### Admin Dashboard
 
-- [x] **DASH-01**: Functionar dashboard shows assigned cereri queue with filtering by status, type, and deadline
-- [x] **DASH-02**: Functionar can change cerere status (depusa -> in verificare -> in procesare -> finalizata/respinsa)
-- [x] **DASH-03**: Functionar can add internal notes/comments on cereri (visible only to staff)
-- [x] **DASH-04**: Functionar can request additional documents from citizen (triggers notification)
-- [x] **DASH-05**: Admin (primarie-level) dashboard shows real user counts, cereri overview by status, and basic analytics
-- [x] **DASH-06**: Admin dashboard includes registration approval queue
-- [x] **DASH-07**: Admin dashboard includes staff invitation management (build on existing invitation system)
-- [x] **DASH-08**: Admin settings page allows primarie info editing, notification preferences
-- [x] **DASH-09**: Primar dashboard shows cereri requiring approval, financial overview (revenue by period/type), staff metrics
-- [x] **DASH-10**: Primar can approve/reject cereri that require primar-level approval with reason
+- [ ] **DASH-01**: Welcome banner with admin name, primarie info, ProgressRings (uptime, cereri resolution, SLA)
+- [ ] **DASH-02**: User stats by role (cetateni, functionari, primar, admini, pending) with real DB counts
+- [ ] **DASH-03**: System health widget (sessions, storage, response time)
+- [ ] **DASH-04**: Cereri overview with DonutChart breakdown by status
+- [ ] **DASH-05**: Functionari performance table with resolution rate and online status
+- [ ] **DASH-06**: Admin alerts panel with actionable items
+- [ ] **DASH-07**: Live activity feed with real Supabase events
 
-### Cereri Processing
+### Admin Monitorizare
 
-- [x] **CER-01**: Status transitions have validation rules (not all transitions allowed from all states)
-- [x] **CER-02**: Every status change is recorded in audit trail with actor, timestamp, and reason
-- [x] **CER-03**: Document validation enforced on cerere submit -- required documents must be present per cerere type
-- [x] **CER-04**: Deadline/SLA tracking shows overdue indicators on cereri list and dashboard
-- [x] **CER-05**: Staff and citizens receive notifications on cerere status changes
-- [x] **CER-06**: Search across cereri works with filters (status, type, date range, reference number)
+- [ ] **MON-01**: Uptime chart (AreaChart) showing platform availability
+- [ ] **MON-02**: Response time breakdown (API, DB, cache) with LineChart
+- [ ] **MON-03**: Error rate chart with BarChart visualization
+- [ ] **MON-04**: Security events log with filterable entries
+- [ ] **MON-05**: Audit trail viewer with actor, action, timestamp
 
-### Documents
+### Admin Utilizatori
 
-- [x] **DOC-01**: /documente page lists all documents attached to user's cereri (uploaded files, generated PDFs, receipts)
-- [x] **DOC-02**: /documente page includes public forms library with downloadable templates
-- [x] **DOC-03**: User can preview and download documents from the documents page
-- [x] **DOC-04**: Dashboard "Documente Recente" widget shows actual recent documents instead of empty state
+- [ ] **UTL-01**: User list with role filter tabs
+- [ ] **UTL-02**: User approve/suspend/reactivate with confirmation
+- [ ] **UTL-03**: Staff invitation flow with role selection
+- [ ] **UTL-04**: User profile detail drawer with activity stats, 2FA status
+- [ ] **UTL-05**: Registration growth chart
 
-### Payments & Receipts
+### Admin Cereri Supervizare
 
-- [x] **PAY-01**: PDF receipt (chitanta) generated on successful payment with Romanian diacritics
-- [x] **PAY-02**: Receipts stored in Supabase Storage with signed download URLs
-- [x] **PAY-03**: Pending payment count in dashboard shows real count (currently hardcoded 0)
-- [x] **PAY-04**: Payment gateway architecture ready for real Ghiseul.ro swap (feature flag controls mock vs production)
+- [ ] **CER-01**: Overview tab with cereri stats, status distribution, SLA summary
+- [ ] **CER-02**: Table view with status/priority filters, SLA countdown, pagination
+- [ ] **CER-03**: Kanban view with click-to-move status columns
+- [ ] **CER-04**: Alerts tab showing SLA breaches, blocked cereri, escalations
+- [ ] **CER-05**: Priority system (urgenta/ridicata/medie/scazuta) with color indicators
+- [ ] **CER-06**: Admin notes on cereri with audit trail
+- [ ] **CER-07**: Cerere reassignment to different functionar
 
-### Notifications
+### Admin Documente
 
-- [x] **NOT-01**: Staff (functionar) receive in-app notifications when citizen submits new cerere
-- [x] **NOT-02**: Staff receive notifications on cerere status changes requiring their action
-- [x] **NOT-03**: Cross-primarie notification aggregation -- user sees notifications from all primarii where registered
-- [x] **NOT-04**: Click on notification from different primarie shows confirmation popup before context switch
-- [x] **NOT-05**: After context switch confirmation, user redirected to source module/page from notification
+- [ ] **DOC-01**: Folder navigation with breadcrumb
+- [ ] **DOC-02**: Grid/list view toggle
+- [ ] **DOC-03**: Drag-and-drop file upload to Supabase Storage
+- [ ] **DOC-04**: File preview with signed URLs
+- [ ] **DOC-05**: Star/favorite documents
+- [ ] **DOC-06**: Storage stats bar
 
-### Map & UX
+### Admin Financiar
 
-- [x] **MAP-01**: Dynamic interactive map (Mapbox GL) replaces Spline 3D, centered on selected localitate
-- [x] **MAP-02**: Map shows primarie location pin with correct coordinates for all localitati
-- [x] **MAP-03**: Status enum values display in Romanian (e.g., "In Verificare" instead of "in_verificare")
+- [ ] **FIN-01**: Monthly revenue AreaChart with target comparison
+- [ ] **FIN-02**: Daily transaction volume BarChart
+- [ ] **FIN-03**: Payment method breakdown DonutChart
+- [ ] **FIN-04**: Category breakdown with progress bars
+- [ ] **FIN-05**: Transaction list with status filtering
 
-### Compliance
+### Admin Calendar
 
-- [x] **GDPR-01**: Privacy policy page accessible from footer and registration flow
-- [x] **GDPR-02**: Cookie consent banner shown on first visit with accept/reject options
-- [x] **GDPR-03**: User can request data export (DSAR) from settings page
-- [x] **GDPR-04**: User can request account deletion from settings page
+- [ ] **CAL-01**: Full month grid (Monday-start) with event dot indicators
+- [ ] **CAL-02**: Event types with distinct colors
+- [ ] **CAL-03**: Event creation modal
+- [ ] **CAL-04**: Day detail panel for selected day
 
-### Testing
+### Admin Setari
 
-- [x] **TEST-01**: Unit tests for authorization functions (requireAuth, requireRole, requireOwnership)
-- [x] **TEST-02**: Unit tests for validation schemas (cereri, profile, payments, common)
-- [x] **TEST-03**: pgTAP tests verify RLS data isolation across primarii (user A cannot see user B's data in different primarie)
-- [x] **TEST-04**: E2E tests cover complete cerere submission flow (create -> submit -> status tracking)
-- [x] **TEST-05**: E2E tests cover payment flow (initiate -> checkout -> webhook -> receipt)
-- [x] **TEST-06**: E2E tests cover auth flow (register -> login -> dashboard -> logout)
-- [x] **TEST-07**: E2E tests cover admin workflows (approve registration, process cerere, manage staff)
+- [ ] **SET-01**: Profil Admin tab (name, email, phone)
+- [ ] **SET-02**: Configurare Primarie tab (CUI, maintenance mode)
+- [ ] **SET-03**: Notificari tab (channel + category preferences)
+- [ ] **SET-04**: Securitate tab (2FA status, password change)
+- [ ] **SET-05**: Aspect tab with accent color picker applying across entire app
 
-## v2 Requirements
+## v3.0 Requirements
 
-Deferred to future release. Tracked but not in current roadmap.
+Deferred to future milestones.
 
-### Advanced Features
+### Role Revamps
 
-- **ADV-01**: Document reuse across cereri (select from previously uploaded documents)
-- **ADV-02**: PDF cerere confirmation documents with primarie branding and QR code
-- **ADV-03**: Financial reporting export to PDF/Excel for primar
-- **ADV-04**: Staff performance metrics (processing time, SLA compliance)
-- **ADV-05**: Delegation during primar absence (auto-forward approvals)
+- **REV-01**: Cetatean role revamp using v2.0 design system and shell
+- **REV-02**: Functionar role revamp using v2.0 design system and shell
+- **REV-03**: Primar role revamp using v2.0 design system and shell
+- **REV-04**: Super Admin role revamp using v2.0 design system and shell
 
 ### Integrations
 
-- **INT-01**: Real Ghiseul.ro payment gateway integration (when credentials available)
-- **INT-02**: Real CertSign digital signature integration (when credentials available)
-- **INT-03**: Appointment scheduling (programari online)
-- **INT-04**: Online complaint system (sesizari)
-
-### Platform
-
-- **PLT-01**: Multi-language support (Hungarian, German minorities)
-- **PLT-02**: PWA manifest for mobile home screen install
-- **PLT-03**: Self-service cerere type builder for primarie admins
+- **INT-01**: Real Ghiseul.ro payment API integration
+- **INT-02**: Real CertSign signature API integration
+- **INT-03**: Real Better Stack Telemetry API (beyond Uptime API)
 
 ## Out of Scope
 
 | Feature | Reason |
 |---------|--------|
-| Real-time chat (citizen <-> functionar) | High complexity, liability for unrecorded conversations, async communication via cerere notes is sufficient |
-| Native mobile app | Web responsive handles 96%+ of mobile use cases (EU Benchmark); doubles effort for 2-person team |
-| Video document uploads | Storage/bandwidth costs; image + PDF uploads cover all use cases |
-| Background job queue (Bull/BullMQ) | Current scale doesn't justify Redis infrastructure; Edge Functions handle async ops |
-| Redis caching layer | React Query client-side caching sufficient; cache invalidation in multi-tenant is risky |
-| Elasticsearch full-text search | PostgreSQL full-text search sufficient for current data volume |
-| GIS/geoportal integration | High complexity, low immediate value |
-| Infokiosk terminal mode | Niche, high complexity |
-| Participatory budgeting | Complex module, separate product |
+| Drag-and-drop kanban (react-dnd) | Use click-to-move; @dnd-kit deferred to avoid React 19 peer dep risk |
+| Real-time Better Stack polling | Rate limits; use manual refresh with cached snapshots |
+| Calendar event DB persistence | Zustand-only for academic milestone; DB table deferred |
+| CSV/Excel export from pages | UI placeholder only; Server Action generation deferred |
+| 2FA enforcement server-side | Display-only; Supabase MFA configuration out of scope |
+| In-platform document editing | Preview via signed URLs only |
+| MUI components | Figma artifact; use shadcn/ui + lucide-react |
+| react-router | Figma artifact; use Next.js App Router |
 
 ## Traceability
 
-Which phases cover which requirements. Updated during roadmap creation.
-
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SEC-01 | Phase 1: Security Foundation | Complete |
-| SEC-02 | Phase 1: Security Foundation | Complete |
-| SEC-03 | Phase 1: Security Foundation | Complete |
-| SEC-04 | Phase 1: Security Foundation | Complete |
-| SEC-05 | Phase 1: Security Foundation | Complete |
-| SEC-06 | Phase 1: Security Foundation | Complete |
-| SEC-07 | Phase 1: Security Foundation | Complete |
-| MON-01 | Phase 2: Infrastructure & Stabilization | Complete |
-| MON-02 | Phase 2: Infrastructure & Stabilization | Complete |
-| MON-03 | Phase 2: Infrastructure & Stabilization | Complete |
-| MON-04 | Phase 2: Infrastructure & Stabilization | Complete |
-| FIX-01 | Phase 2: Infrastructure & Stabilization | Complete |
-| FIX-02 | Phase 2: Infrastructure & Stabilization | Complete |
-| FIX-03 | Phase 2: Infrastructure & Stabilization | Complete |
-| FIX-04 | Phase 2: Infrastructure & Stabilization | Complete |
-| FIX-05 | Phase 2: Infrastructure & Stabilization | Complete |
-| FIX-06 | Phase 2: Infrastructure & Stabilization | Complete |
-| FIX-07 | Phase 2: Infrastructure & Stabilization | Complete |
-| REG-01 | Phase 3: Registration & Approval | Complete |
-| REG-02 | Phase 3: Registration & Approval | Complete |
-| REG-03 | Phase 3: Registration & Approval | Complete |
-| REG-04 | Phase 3: Registration & Approval / Phase 9: Audit Gap Closure | Complete |
-| REG-05 | Phase 3: Registration & Approval / Phase 9: Audit Gap Closure | Complete |
-| REG-06 | Phase 3: Registration & Approval | Complete |
-| CER-01 | Phase 4: Cereri Processing | Complete |
-| CER-02 | Phase 4: Cereri Processing | Complete |
-| CER-03 | Phase 4: Cereri Processing | Complete |
-| CER-04 | Phase 4: Cereri Processing | Complete |
-| CER-05 | Phase 4: Cereri Processing | Complete |
-| CER-06 | Phase 4: Cereri Processing | Complete |
-| DASH-01 | Phase 5: Staff Dashboards | Complete |
-| DASH-02 | Phase 5: Staff Dashboards | Complete |
-| DASH-03 | Phase 5: Staff Dashboards | Complete |
-| DASH-04 | Phase 5: Staff Dashboards | Complete |
-| DASH-05 | Phase 5: Staff Dashboards | Complete |
-| DASH-06 | Phase 5: Staff Dashboards | Complete |
-| DASH-07 | Phase 5: Staff Dashboards / Phase 9: Audit Gap Closure | Complete |
-| DASH-08 | Phase 5: Staff Dashboards | Complete |
-| DASH-09 | Phase 5: Staff Dashboards | Complete |
-| DASH-10 | Phase 5: Staff Dashboards | Complete |
-| NOT-01 | Phase 5: Staff Dashboards | Complete |
-| NOT-02 | Phase 5: Staff Dashboards | Complete |
-| DOC-01 | Phase 6: Citizen Features | Complete |
-| DOC-02 | Phase 6: Citizen Features | Complete |
-| DOC-03 | Phase 6: Citizen Features | Complete |
-| DOC-04 | Phase 6: Citizen Features | Complete |
-| PAY-01 | Phase 6: Citizen Features / Phase 10: Payment & GDPR Critical Fixes | Complete |
-| PAY-02 | Phase 6: Citizen Features / Phase 10: Payment & GDPR Critical Fixes | Complete |
-| PAY-03 | Phase 6: Citizen Features | Complete |
-| PAY-04 | Phase 6: Citizen Features | Complete |
-| MAP-01 | Phase 6: Citizen Features | Complete |
-| MAP-02 | Phase 6: Citizen Features | Complete |
-| MAP-03 | Phase 6: Citizen Features | Complete |
-| NOT-03 | Phase 7: Cross-Primarie Notifications | Complete |
-| NOT-04 | Phase 7: Cross-Primarie Notifications | Complete |
-| NOT-05 | Phase 7: Cross-Primarie Notifications | Complete |
-| GDPR-01 | Phase 8: Compliance & Testing | Complete |
-| GDPR-02 | Phase 8: Compliance & Testing | Complete |
-| GDPR-03 | Phase 8: Compliance & Testing / Phase 10: Payment & GDPR Critical Fixes | Complete |
-| GDPR-04 | Phase 8: Compliance & Testing / Phase 10: Payment & GDPR Critical Fixes | Complete |
-| TEST-01 | Phase 8: Compliance & Testing | Complete |
-| TEST-02 | Phase 8: Compliance & Testing | Complete |
-| TEST-03 | Phase 8: Compliance & Testing | Complete |
-| TEST-04 | Phase 8: Compliance & Testing | Complete |
-| TEST-05 | Phase 8: Compliance & Testing | Complete |
-| TEST-06 | Phase 8: Compliance & Testing | Complete |
-| TEST-07 | Phase 8: Compliance & Testing | Complete |
+| DSF-01 | Phase 12 | Complete |
+| DSF-02 | Phase 12 | Complete |
+| DSF-03 | Phase 12 | Complete |
+| DSF-04 | Phase 12 | Complete |
+| DSF-05 | Phase 12 | Complete |
+| SC-01 | Phase 12 | Pending |
+| SC-02 | Phase 12 | Pending |
+| SC-03 | Phase 12 | Pending |
+| SC-04 | Phase 12 | Pending |
+| SC-05 | Phase 12 | Pending |
+| SC-06 | Phase 12 | Pending |
+| SC-07 | Phase 12 | Pending |
+| SHELL-01 | Phase 13 | Pending |
+| SHELL-02 | Phase 13 | Pending |
+| SHELL-03 | Phase 13 | Pending |
+| SHELL-04 | Phase 13 | Pending |
+| SHELL-05 | Phase 13 | Pending |
+| SHELL-06 | Phase 13 | Pending |
+| SHELL-07 | Phase 13 | Pending |
+| SHELL-08 | Phase 13 | Pending |
+| SEC-01 | Phase 13 | Pending |
+| SEC-02 | Phase 13 | Pending |
+| DASH-01 | Phase 14 | Pending |
+| DASH-02 | Phase 14 | Pending |
+| DASH-03 | Phase 14 | Pending |
+| DASH-04 | Phase 14 | Pending |
+| DASH-05 | Phase 14 | Pending |
+| DASH-06 | Phase 14 | Pending |
+| DASH-07 | Phase 14 | Pending |
+| SET-01 | Phase 15 | Pending |
+| SET-02 | Phase 15 | Pending |
+| SET-03 | Phase 15 | Pending |
+| SET-04 | Phase 15 | Pending |
+| SET-05 | Phase 15 | Pending |
+| UTL-01 | Phase 16 | Pending |
+| UTL-02 | Phase 16 | Pending |
+| UTL-03 | Phase 16 | Pending |
+| UTL-04 | Phase 16 | Pending |
+| UTL-05 | Phase 16 | Pending |
+| CER-01 | Phase 16 | Pending |
+| CER-02 | Phase 16 | Pending |
+| CER-03 | Phase 16 | Pending |
+| CER-04 | Phase 16 | Pending |
+| CER-05 | Phase 16 | Pending |
+| CER-06 | Phase 16 | Pending |
+| CER-07 | Phase 16 | Pending |
+| MON-01 | Phase 17 | Pending |
+| MON-02 | Phase 17 | Pending |
+| MON-03 | Phase 17 | Pending |
+| MON-04 | Phase 17 | Pending |
+| MON-05 | Phase 17 | Pending |
+| DOC-01 | Phase 17 | Pending |
+| DOC-02 | Phase 17 | Pending |
+| DOC-03 | Phase 17 | Pending |
+| DOC-04 | Phase 17 | Pending |
+| DOC-05 | Phase 17 | Pending |
+| DOC-06 | Phase 17 | Pending |
+| FIN-01 | Phase 17 | Pending |
+| FIN-02 | Phase 17 | Pending |
+| FIN-03 | Phase 17 | Pending |
+| FIN-04 | Phase 17 | Pending |
+| FIN-05 | Phase 17 | Pending |
+| CAL-01 | Phase 17 | Pending |
+| CAL-02 | Phase 17 | Pending |
+| CAL-03 | Phase 17 | Pending |
+| CAL-04 | Phase 17 | Pending |
 
 **Coverage:**
-- v1 requirements: 67 total
-- Mapped to phases: 67
-- Complete: 63
-- Pending (gap closure): 4 (PAY-01, PAY-02, GDPR-03, GDPR-04)
+- v2.0 requirements: 66 total
+- Mapped to phases: 66
 - Unmapped: 0
 
 ---
-*Requirements defined: 2026-03-02*
-*Last updated: 2026-03-02 after roadmap creation*
+*Requirements defined: 2026-03-05*
+*Last updated: 2026-03-05 after roadmap creation*

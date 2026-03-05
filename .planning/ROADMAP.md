@@ -50,7 +50,7 @@
 **Plans**: 2 plans
 
 Plans:
-- [ ] 12-01-PLAN.md — oklch token system, accent color engine, typography scale, motion variants
+- [x] 12-01-PLAN.md — oklch token system, accent color engine, typography scale, motion variants
 - [ ] 12-02-PLAN.md — 7 shared admin components (AnimatedCounter, StatsCard, DonutChart, ProgressRing, LiveActivityFeed, CereriCard, ActivityChart)
 
 ### Phase 13: Layout Shell
@@ -152,7 +152,7 @@ Note: Phases 16 and 17 both depend on Phase 13 (not on each other) and could run
 | 9. Audit Gap Closure | v1.0 | 1/1 | Complete | 2026-03-04 |
 | 10. Payment & GDPR Fixes | v1.0 | 1/1 | Complete | 2026-03-04 |
 | 11. E2E Seed & Coverage | v1.0 | 3/3 | Complete | 2026-03-04 |
-| 12. Design System Foundation | v2.0 | 0/2 | Not started | - |
+| 12. Design System Foundation | v2.0 | 1/2 | In progress | - |
 | 13. Layout Shell | v2.0 | 0/2 | Not started | - |
 | 14. Admin Dashboard | v2.0 | 0/2 | Not started | - |
 | 15. Admin Settings | v2.0 | 0/1 | Not started | - |
@@ -161,4 +161,4 @@ Note: Phases 16 and 17 both depend on Phase 13 (not on each other) and could run
 
 ---
 *Roadmap created: 2026-03-02*
-*Last updated: 2026-03-05 after v2.0 roadmap creation*
+*Last updated: 2026-03-05 after 12-01 completion*
