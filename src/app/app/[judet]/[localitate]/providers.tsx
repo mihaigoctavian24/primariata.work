@@ -1,22 +1,30 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { usePathname } from "next/navigation";
 import { QueryProvider } from "@/components/providers/query-provider";
 import { ShellLayout } from "@/components/shell/ShellLayout";
 import { createClient } from "@/lib/supabase/client";
 import { useCereriNotifications } from "@/hooks/use-cereri-notifications";
-import type { SidebarConfig } from "@/components/shell/sidebar/sidebar-config";
+import {
+  getAdminSidebarConfig,
+  getCitizenSidebarConfig,
+} from "@/components/shell/sidebar/sidebar-config";
 
 /**
- * Citizen Providers (Client Component)
+ * Citizen/Admin Providers (Client Component)
  *
- * Wraps citizen pages in QueryProvider + ShellLayout + CereriNotifications.
- * Receives server-read config and collapsed state as props.
+ * Wraps pages in QueryProvider + ShellLayout + CereriNotifications.
+ * Detects admin sub-path via usePathname() and switches sidebar config:
+ *   - /app/[judet]/[localitate]/admin/* -> admin sidebar config
+ *   - /app/[judet]/[localitate]/*       -> citizen sidebar config
+ *
+ * This avoids double-shell nesting since one ShellLayout handles both roles.
  */
 
 interface CitizenProvidersProps {
   children: React.ReactNode;
-  sidebarConfig: SidebarConfig;
+  basePath: string;
   initialCollapsed: boolean;
 }
 
@@ -34,15 +42,21 @@ function CereriNotificationsSubscriber(): null {
   return null;
 }
 
-export function CitizenProviders({
-  children,
-  sidebarConfig,
-  initialCollapsed,
-}: CitizenProvidersProps) {
+export function CitizenProviders({ children, basePath, initialCollapsed }: CitizenProvidersProps) {
+  const pathname = usePathname();
+  const isAdmin = pathname.includes("/admin");
+
+  const sidebarConfig = useMemo(() => {
+    if (isAdmin) {
+      return getAdminSidebarConfig(`${basePath}/admin`);
+    }
+    return getCitizenSidebarConfig(basePath);
+  }, [basePath, isAdmin]);
+
   return (
     <QueryProvider>
       <ShellLayout sidebarConfig={sidebarConfig} initialCollapsed={initialCollapsed}>
-        <CereriNotificationsSubscriber />
+        {!isAdmin && <CereriNotificationsSubscriber />}
         {children}
       </ShellLayout>
     </QueryProvider>

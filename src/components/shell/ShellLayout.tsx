@@ -118,7 +118,7 @@ export function ShellLayout({ children, sidebarConfig, initialCollapsed }: Shell
         open={commandOpen}
         onOpenChange={setCommandOpen}
         role={sidebarConfig.role}
-        basePath={sidebarConfig.role === "admin" ? "/admin" : ""}
+        basePath={sidebarConfig.basePath}
       />
       <NotificationDrawer open={notifOpen} onOpenChange={setNotifOpen} />
     </div>

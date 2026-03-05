@@ -36,6 +36,7 @@ export interface NavSection {
 export interface SidebarConfig {
   role: string;
   roleLabel: string;
+  basePath: string;
   sections: NavSection[];
 }
 
@@ -43,6 +44,7 @@ export function getAdminSidebarConfig(basePath: string): SidebarConfig {
   return {
     role: "admin",
     roleLabel: "Admin Primarie",
+    basePath,
     sections: [
       {
         title: "Principal",
@@ -83,6 +85,7 @@ export function getCitizenSidebarConfig(basePath: string): SidebarConfig {
   return {
     role: "cetatean",
     roleLabel: "Cetatean",
+    basePath,
     sections: [
       {
         title: "Principal",
