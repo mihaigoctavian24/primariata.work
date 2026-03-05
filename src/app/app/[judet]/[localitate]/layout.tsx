@@ -1,25 +1,16 @@
-"use client";
-
-import { use, useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
-import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
-import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
-import { QueryProvider } from "@/components/providers/query-provider";
-import { useCereriNotifications } from "@/hooks/use-cereri-notifications";
-import { UserCheck, Settings } from "lucide-react";
+import { cookies } from "next/headers";
+import { SIDEBAR_COLLAPSED_KEY } from "@/lib/cookies";
+import { getCitizenSidebarConfig } from "@/components/shell/sidebar/sidebar-config";
+import { CitizenProviders } from "./providers";
 
 /**
- * Dashboard Layout
+ * Citizen Dashboard Layout (Server Component)
  *
- * Main authenticated layout with:
- * - Sidebar navigation (240px, collapsible)
- * - Sticky header with location + user menu
- * - Responsive behavior (desktop/tablet/mobile)
- * - Auth middleware protected
+ * Reads sidebar-collapsed cookie on the server to prevent layout shift.
+ * Wraps children in client-side providers (QueryProvider, ShellLayout, CereriNotifications).
+ * Auth enforcement is handled by middleware.
  *
  * Route: /app/[judet]/[localitate]/*
- * Protected: Yes (via middleware)
  */
 
 interface DashboardLayoutProps {
@@ -30,142 +21,18 @@ interface DashboardLayoutProps {
   }>;
 }
 
-export default function DashboardLayout({ children, params }: DashboardLayoutProps) {
-  // Unwrap params Promise for Next.js 15
-  const { judet, localitate } = use(params);
+export default async function DashboardLayout({ children, params }: DashboardLayoutProps) {
+  const { judet, localitate } = await params;
+  const cookieStore = await cookies();
+  const collapsedCookie = cookieStore.get(SIDEBAR_COLLAPSED_KEY);
+  const initialCollapsed = collapsedCookie?.value === "true";
 
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [isMobile, setIsMobile] = useState(false);
-  const [userId, setUserId] = useState<string | null>(null);
-  const [userRole, setUserRole] = useState<string | null>(null);
-  const pathname = usePathname();
-
-  // Get current user for notifications and role detection
-  useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setUserId(user?.id || null);
-
-      // Check user role for admin sidebar links
-      if (user?.id) {
-        supabase
-          .from("user_primarii")
-          .select("rol, primarii!inner(id, localitati!inner(slug, judete!inner(slug)))")
-          .eq("user_id", user.id)
-          .eq("status", "approved")
-          .eq("primarii.localitati.slug", localitate)
-          .eq("primarii.localitati.judete.slug", judet)
-          .maybeSingle()
-          .then(({ data }) => {
-            if (data?.rol) setUserRole(data.rol);
-          });
-      }
-    });
-  }, [judet, localitate]);
-
-  // Subscribe to real-time cereri status notifications
-  useCereriNotifications(userId);
-
-  // Load sidebar state from localStorage
-  useEffect(() => {
-    const savedState = localStorage.getItem("sidebar-collapsed");
-    if (savedState !== null) {
-      setSidebarOpen(savedState === "false");
-    }
-  }, []);
-
-  // Detect mobile/tablet
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 1024);
-      if (window.innerWidth < 1024) {
-        setSidebarOpen(false);
-      }
-    };
-
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
-
-  // Save sidebar state to localStorage
-  useEffect(() => {
-    localStorage.setItem("sidebar-collapsed", String(!sidebarOpen));
-  }, [sidebarOpen]);
-
-  // Close sidebar on mobile when route changes
-  useEffect(() => {
-    if (isMobile) {
-      setSidebarOpen(false);
-    }
-  }, [pathname, isMobile]);
-
-  const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen);
-  };
-
-  // Build admin-specific sidebar links
-  const adminExtraLinks =
-    userRole === "admin" || userRole === "primar" || userRole === "super_admin"
-      ? [
-          {
-            href: `/app/${judet}/${localitate}/admin/registrations`,
-            label: "Inregistrari",
-            icon: UserCheck,
-          },
-          {
-            href: `/app/${judet}/${localitate}/admin/settings`,
-            label: "Setari Primarie",
-            icon: Settings,
-          },
-        ]
-      : undefined;
+  const basePath = `/app/${judet}/${localitate}`;
+  const sidebarConfig = getCitizenSidebarConfig(basePath);
 
   return (
-    <QueryProvider>
-      <div className="relative flex h-screen overflow-hidden">
-        {/* Skip to main content link (accessibility) */}
-        <a
-          href="#main-content"
-          className="focus:bg-primary focus:text-primary-foreground sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:px-4 focus:py-2 focus:font-medium"
-        >
-          Skip to main content
-        </a>
-
-        {/* Sidebar */}
-        <DashboardSidebar
-          open={sidebarOpen}
-          onToggle={toggleSidebar}
-          isMobile={isMobile}
-          judet={judet}
-          localitate={localitate}
-          extraNavigationLinks={adminExtraLinks}
-        />
-
-        {/* Mobile overlay */}
-        {isMobile && sidebarOpen && (
-          <div
-            className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
-            onClick={() => setSidebarOpen(false)}
-          />
-        )}
-
-        {/* Main content */}
-        <div className="flex flex-1 flex-col overflow-hidden">
-          {/* Header */}
-          <DashboardHeader
-            onMenuClick={toggleSidebar}
-            isMobile={isMobile}
-            judet={judet}
-            localitate={localitate}
-          />
-
-          {/* Page content - scrollable */}
-          <main id="main-content" className="flex flex-1 flex-col overflow-hidden" tabIndex={-1}>
-            {children}
-          </main>
-        </div>
-      </div>
-    </QueryProvider>
+    <CitizenProviders sidebarConfig={sidebarConfig} initialCollapsed={initialCollapsed}>
+      {children}
+    </CitizenProviders>
   );
 }

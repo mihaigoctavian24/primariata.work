@@ -109,6 +109,51 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
     return redirectWithCookies(url, supabaseResponse);
   }
 
+  // --- Admin role enforcement (SEC-01, SEC-02) ---
+  // Only users with an approved "admin" role in user_primarii can access /admin/* routes.
+  // super_admin does NOT access /admin/* (they have their own routes).
+  if (isAdminRoute && user) {
+    const serviceClient = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return [];
+          },
+          setAll() {
+            // No-op: service client does not manage browser cookies
+          },
+        },
+      }
+    );
+
+    const { data: adminAssociation } = await serviceClient
+      .from("user_primarii")
+      .select("rol")
+      .eq("user_id", user.id)
+      .in("rol", ["admin"])
+      .eq("status", "approved")
+      .maybeSingle();
+
+    if (!adminAssociation) {
+      // Non-admin user: redirect to citizen dashboard
+      const savedLocation = request.cookies.get("selected_location")?.value;
+      let redirectPath = "/app/bucuresti/sector-1-b/dashboard";
+      if (savedLocation) {
+        try {
+          const { judetSlug, localitateSlug } = JSON.parse(savedLocation);
+          redirectPath = `/app/${judetSlug}/${localitateSlug}/dashboard`;
+        } catch {
+          /* fallback to default */
+        }
+      }
+      const url = request.nextUrl.clone();
+      url.pathname = redirectPath;
+      return redirectWithCookies(url, supabaseResponse);
+    }
+  }
+
   // --- Primarie context resolution ---
   const appRouteMatch = request.nextUrl.pathname.match(/^\/app\/([^/]+)\/([^/]+)/);
 
