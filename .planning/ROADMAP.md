@@ -99,7 +99,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 15-01: TBD
+- [x] 15-01-PLAN.md — Data layer: Zod schemas, Server Actions (profile, primarie config, notifications, password, appearance), verify_user_password RPC, maintenance mode middleware
+- [ ] 15-02-PLAN.md — Settings UI: 5-tab layout with Framer Motion animations, per-tab RHF forms (profile, primarie, notifications, security, appearance)
 
 ### Phase 16: Enhanced Existing Pages
 **Goal**: Admin has comprehensive user management with role filtering and staff invitation, plus cereri supervision with table/kanban views, SLA tracking, priority system, and escalation
@@ -156,11 +157,11 @@ Note: Phases 16 and 17 both depend on Phase 13 (not on each other) and could run
 | 11. E2E Seed & Coverage | v1.0 | 3/3 | Complete | 2026-03-04 |
 | 12. Design System Foundation | 2/2 | Complete    | 2026-03-05 | - |
 | 13. Layout Shell | 4/4 | Complete    | 2026-03-05 | - |
-| 14. Admin Dashboard | 2/2 | Complete   | 2026-03-05 | - |
-| 15. Admin Settings | v2.0 | 0/1 | Not started | - |
+| 14. Admin Dashboard | 2/2 | Complete    | 2026-03-05 | - |
+| 15. Admin Settings | v2.0 | 1/2 | In progress | - |
 | 16. Enhanced Existing Pages | v2.0 | 0/2 | Not started | - |
 | 17. New Data Pages | v2.0 | 0/4 | Not started | - |
 
 ---
 *Roadmap created: 2026-03-02*
-*Last updated: 2026-03-05 after phase 14 planning*
+*Last updated: 2026-03-06 after phase 15 plan 01 execution*

@@ -1,90 +1,72 @@
-"use client";
-
-import { use } from "react";
-import Link from "next/link";
-import { useQuery } from "@tanstack/react-query";
-import { getPrimarieSettings } from "@/actions/dashboard-stats";
-import { AdminSettingsForm } from "@/components/admin/AdminSettingsForm";
-import { ArrowLeft } from "lucide-react";
-
-interface AdminSettingsPageProps {
-  params: Promise<{
-    judet: string;
-    localitate: string;
-  }>;
-}
+import { Suspense } from "react";
+import { getSettingsPageData } from "@/actions/admin-settings";
+import { AdminSettingsTabs } from "@/components/admin/settings/admin-settings-tabs";
 
 /**
- * Admin Settings Page
+ * Admin Settings Page (Server Component)
  * Route: /app/[judet]/[localitate]/admin/settings
  *
- * Allows admin/primar to edit primarie info and notification preferences.
+ * Fetches all settings data server-side and passes to client tab layout.
  */
-export default function AdminSettingsPage({ params }: AdminSettingsPageProps) {
-  const { judet, localitate } = use(params);
+export default async function AdminSettingsPage() {
+  return (
+    <Suspense fallback={<SettingsSkeleton />}>
+      <SettingsContent />
+    </Suspense>
+  );
+}
 
-  const {
-    data: settingsData,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ["primarie-settings"],
-    queryFn: async () => {
-      const result = await getPrimarieSettings();
-      if (!result.success) throw new Error(result.error);
-      return result.data!;
-    },
-    staleTime: 60 * 1000,
-  });
+async function SettingsContent(): Promise<React.JSX.Element> {
+  const result = await getSettingsPageData();
+
+  if (!result.success || !result.data) {
+    return (
+      <div className="mx-auto max-w-5xl p-6">
+        <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-red-700 dark:border-red-800 dark:bg-red-950/30 dark:text-red-300">
+          <p className="font-semibold">Eroare la incarcarea setarilor</p>
+          <p className="mt-1 text-sm">{result.error ?? "A aparut o eroare neasteptata"}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6 p-6">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <Link
-          href={`/app/${judet}/${localitate}`}
-          className="hover:bg-accent rounded-lg p-2 transition-colors"
-        >
-          <ArrowLeft className="h-5 w-5" />
-        </Link>
-        <h1 className="text-2xl font-bold">Setari Primarie</h1>
+    <div className="mx-auto max-w-5xl p-6">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold">Setari</h1>
+        <p className="text-muted-foreground mt-1 text-sm">
+          Gestioneaza profilul, configurarea primariei si preferintele
+        </p>
       </div>
+      <AdminSettingsTabs data={result.data} />
+    </div>
+  );
+}
 
-      {/* Loading State */}
-      {isLoading && (
-        <div className="bg-card border-border/40 rounded-lg border p-6">
-          <div className="space-y-4">
-            <div className="bg-muted h-6 w-48 animate-pulse rounded" />
-            <div className="bg-muted h-10 w-full animate-pulse rounded" />
-            <div className="bg-muted h-10 w-full animate-pulse rounded" />
-            <div className="bg-muted h-24 w-full animate-pulse rounded" />
-            <div className="bg-muted h-10 w-full animate-pulse rounded" />
+function SettingsSkeleton(): React.JSX.Element {
+  return (
+    <div className="mx-auto max-w-5xl p-6">
+      <div className="mb-6">
+        <div className="bg-muted h-8 w-32 animate-pulse rounded" />
+        <div className="bg-muted mt-2 h-4 w-64 animate-pulse rounded" />
+      </div>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+        <div className="space-y-2 lg:col-span-3">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="bg-muted h-10 animate-pulse rounded-lg" />
+          ))}
+        </div>
+        <div className="lg:col-span-9">
+          <div className="border-border/40 rounded-xl border p-6">
+            <div className="space-y-4">
+              <div className="bg-muted h-6 w-48 animate-pulse rounded" />
+              <div className="bg-muted h-10 w-full animate-pulse rounded" />
+              <div className="bg-muted h-10 w-full animate-pulse rounded" />
+              <div className="bg-muted h-24 w-full animate-pulse rounded" />
+            </div>
           </div>
         </div>
-      )}
-
-      {/* Error State */}
-      {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-red-700 dark:border-red-800 dark:bg-red-950/30 dark:text-red-300">
-          <p className="font-medium">Eroare la incarcarea setarilor</p>
-          <p className="mt-1 text-sm">{(error as Error).message}</p>
-        </div>
-      )}
-
-      {/* Settings Form */}
-      {settingsData && (
-        <AdminSettingsForm
-          primarieId={settingsData.id}
-          initialData={{
-            email: settingsData.email,
-            telefon: settingsData.telefon,
-            adresa: settingsData.adresa,
-            program_lucru: settingsData.program_lucru,
-            nume_oficial: settingsData.nume_oficial,
-            config: settingsData.config,
-          }}
-        />
-      )}
+      </div>
     </div>
   );
 }

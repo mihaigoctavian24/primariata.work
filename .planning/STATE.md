@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Design Revamp
 status: in-progress
-stopped_at: Completed 14-02-PLAN.md
-last_updated: "2026-03-05T16:56:30.931Z"
-last_activity: 2026-03-05 -- Completed Phase 14 (admin dashboard UI)
+stopped_at: Completed 15-01-PLAN.md
+last_updated: "2026-03-06T07:56:57Z"
+last_activity: 2026-03-06 -- Completed Phase 15 Plan 01 (admin settings data layer)
 progress:
   total_phases: 6
   completed_phases: 3
-  total_plans: 8
-  completed_plans: 8
-  percent: 100
+  total_plans: 13
+  completed_plans: 9
+  percent: 69
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-05)
 
 **Core value:** Citizens can submit cereri and complete plati digitally for any primarie where they're registered, with complete data isolation between primarii and proper role-based access for all user types.
-**Current focus:** v2.0 Design Revamp -- Phase 14 complete, ready for Phase 15
+**Current focus:** v2.0 Design Revamp -- Phase 15 in progress (admin settings)
 
 ## Current Position
 
-Phase: 14 of 17 (Admin Dashboard) -- third of 6 v2.0 phases (COMPLETE)
-Plan: 2 of 2 in current phase (all complete)
-Status: Phase 14 complete
-Last activity: 2026-03-05 -- Completed Phase 14 (admin dashboard UI)
+Phase: 15 of 17 (Admin Settings) -- fourth of 6 v2.0 phases
+Plan: 1 of 2 in current phase (1 complete)
+Status: Phase 15 Plan 01 complete, Plan 02 next
+Last activity: 2026-03-06 -- Completed Phase 15 Plan 01 (admin settings data layer)
 
-Progress: [██████████] 100%
+Progress: [███████░░░] 69%
 
 ## Performance Metrics
 
@@ -43,10 +43,11 @@ Progress: [██████████] 100%
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 12-17 | 8/13 | 28min | 3.5min |
+| 12-17 | 9/13 | 31min | 3.4min |
 | Phase 13 P03 | 5min | 2 tasks | 6 files |
 | Phase 14 P01 | 5min | 2 tasks | 29 files |
 | Phase 14 P02 | 2min | 2 tasks | 9 files |
+| Phase 15 P01 | 3min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -81,6 +82,10 @@ Recent decisions affecting current work:
 - [14-01]: health_checks queried as 'never' type cast until DB types regenerated
 - [14-01]: pg_cron setup as commented SQL instructions (Vault secrets are env-specific)
 - [Phase 14]: All dashboard sections share same React Query queryKey with select() extractors
+- [15-01]: getAuthContext helper extracts user+primarie ID to reduce Server Action boilerplate
+- [15-01]: Email changes trigger Supabase Auth confirmation flow, not immediate utilizatori update
+- [15-01]: verify_user_password uses SECURITY DEFINER with crypt() for safe password comparison
+- [15-01]: Maintenance mode uses cookie-based check (x-maintenance-mode) in middleware
 
 ### Pending Todos
 
@@ -94,6 +99,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-05T16:56:30.928Z
-Stopped at: Completed 14-02-PLAN.md
-Resume file: None
+Last session: 2026-03-06T07:56:57Z
+Stopped at: Completed 15-01-PLAN.md
+Resume file: .planning/phases/15-admin-settings/15-01-SUMMARY.md
