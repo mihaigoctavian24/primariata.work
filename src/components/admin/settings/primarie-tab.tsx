@@ -3,16 +3,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Building2,
-  MapPin,
-  Database,
-  Check,
-  Server,
-  ChevronDown,
-  Loader2,
-  AlertTriangle,
-} from "lucide-react";
+import { Building2, MapPin, Database, Check, Server, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "motion/react";
 import { Input } from "@/components/ui/input";
