@@ -3,13 +3,11 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
+import { User, Mail, Phone, Building2, Camera } from "lucide-react";
 import { toast } from "sonner";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 import { profileSchema, type ProfileFormValues } from "@/lib/validations/admin-settings";
 import { updateAdminProfile } from "@/actions/admin-settings";
+import { InputWithIcon, GradientSaveButton } from "@/components/admin/settings/settings-ui";
 
 // ============================================================================
 // Types
@@ -52,7 +50,6 @@ export function ProfileTab({ initialData }: ProfileTabProps): React.JSX.Element 
     try {
       const result = await updateAdminProfile(values);
       if (result.success) {
-        // Check if email was changed (message will mention confirmation)
         if (result.message?.includes("confirmare")) {
           toast.info(result.message);
         } else {
@@ -68,68 +65,78 @@ export function ProfileTab({ initialData }: ProfileTabProps): React.JSX.Element 
     }
   }
 
-  // Build initials for avatar
   const initials = `${initialData.prenume.charAt(0)}${initialData.nume.charAt(0)}`.toUpperCase();
+  const fullName = `${initialData.prenume} ${initialData.nume}`;
 
   return (
-    <div className="space-y-6">
-      {/* Avatar + Info Section */}
-      <div className="border-border/40 bg-card rounded-xl border p-6">
-        <div className="flex items-center gap-4">
-          <div className="from-accent-500 to-accent-600 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br text-xl font-bold text-white">
-            {initials}
+    <div
+      className="rounded-2xl p-6"
+      style={{
+        background: "rgba(255,255,255,0.025)",
+        border: "1px solid rgba(255,255,255,0.05)",
+      }}
+    >
+      <div className="flex flex-col gap-6">
+        {/* Avatar + Info */}
+        <div className="flex items-center gap-5">
+          <div className="group relative cursor-pointer">
+            <div
+              className="flex h-20 w-20 items-center justify-center rounded-2xl text-white"
+              style={{
+                background: "linear-gradient(135deg, #8b5cf6, #6366f1)",
+                fontSize: "1.8rem",
+                fontWeight: 700,
+              }}
+            >
+              {initials}
+            </div>
+            <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
+              <Camera className="h-5 w-5 text-white" />
+            </div>
           </div>
           <div>
-            <h2 className="text-lg font-semibold">
-              {initialData.prenume} {initialData.nume}
-            </h2>
-            <p className="text-muted-foreground text-sm">{initialData.primarie_name}</p>
-            <span className="bg-accent-500/12 text-accent-700 dark:text-accent-300 mt-1 inline-block rounded-full px-2.5 py-0.5 text-xs font-medium capitalize">
-              {initialData.rol}
-            </span>
+            <div className="text-foreground" style={{ fontSize: "1.1rem", fontWeight: 600 }}>
+              {fullName}
+            </div>
+            <div className="text-muted-foreground" style={{ fontSize: "0.85rem" }}>
+              Administrator &middot; {initialData.primarie_name}
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Profile Form */}
-      <div className="border-border/40 bg-card rounded-xl border p-6">
-        <h3 className="mb-4 text-base font-semibold">Informatii Profil</h3>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        {/* Form - 2x2 grid */}
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="prenume">Prenume</Label>
-              <Input id="prenume" {...register("prenume")} />
-              {errors.prenume && <p className="text-sm text-red-500">{errors.prenume.message}</p>}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="nume">Nume</Label>
-              <Input id="nume" {...register("nume")} />
-              {errors.nume && <p className="text-sm text-red-500">{errors.nume.message}</p>}
-            </div>
+            <InputWithIcon
+              icon={User}
+              label="Nume complet"
+              defaultValue={fullName}
+              {...register("prenume")}
+              error={errors.prenume?.message || errors.nume?.message}
+            />
+            <InputWithIcon
+              icon={Mail}
+              label="Email"
+              type="email"
+              {...register("email")}
+              error={errors.email?.message}
+            />
+            <InputWithIcon
+              icon={Phone}
+              label="Telefon"
+              placeholder="+40..."
+              {...register("telefon")}
+              error={errors.telefon?.message}
+            />
+            <InputWithIcon
+              icon={Building2}
+              label="Institutie"
+              value={initialData.primarie_name}
+              readOnly
+            />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" {...register("email")} />
-            {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="telefon">Telefon</Label>
-            <Input id="telefon" {...register("telefon")} placeholder="+40..." />
-            {errors.telefon && <p className="text-sm text-red-500">{errors.telefon.message}</p>}
-          </div>
-
-          <div className="flex justify-end pt-2">
-            <Button
-              type="submit"
-              disabled={isSaving}
-              className="from-accent-500 to-accent-600 bg-gradient-to-r text-white"
-            >
-              {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Salveaza Profil
-            </Button>
-          </div>
+          <GradientSaveButton type="submit" loading={isSaving} label="Salveaza" />
         </form>
       </div>
     </div>
