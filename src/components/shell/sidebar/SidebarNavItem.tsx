@@ -15,8 +15,8 @@ import {
   User,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { motion } from "motion/react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import type { NavItem, IconName } from "./sidebar-config";
 
@@ -49,24 +49,49 @@ export function SidebarNavItem({ item, collapsed }: SidebarNavItemProps) {
     <Link
       href={item.href}
       className={cn(
-        "group relative flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
-        "text-sidebar-foreground/70 hover:bg-accent-500/5 hover:text-sidebar-foreground",
-        isActive &&
-          "bg-accent-500/10 text-accent-500 before:bg-accent-500 before:absolute before:inset-y-1 before:left-0 before:w-[3px] before:rounded-full",
-        collapsed && "justify-center px-0"
+        "group relative inline-flex items-center gap-3 rounded-xl px-3 py-2 font-medium transition-all",
+        isActive ? "text-white" : "text-gray-500 hover:text-gray-200",
+        collapsed && "justify-center"
       )}
     >
-      <Icon className={cn("h-5 w-5 shrink-0", isActive && "text-accent-500")} />
+      {isActive && (
+        <motion.div
+          layoutId="activeNav"
+          className="absolute inset-0 rounded-xl"
+          style={{
+            background: "linear-gradient(135deg, rgba(236,72,153,0.15), rgba(139,92,246,0.08))",
+            border: "1px solid rgba(236,72,153,0.15)",
+          }}
+          transition={{ type: "spring", stiffness: 350, damping: 30 }}
+        />
+      )}
+      <div className="relative z-10 shrink-0">
+        <Icon
+          className={cn(
+            "h-[17px] w-[17px] shrink-0 transition-colors",
+            isActive && "text-pink-400"
+          )}
+        />
+        {collapsed && item.badge !== undefined && (
+          <span className="absolute top-0.5 right-0.5 h-2 w-2 rounded-full bg-pink-500" />
+        )}
+      </div>
       {!collapsed && (
         <>
-          <span className="flex-1 overflow-hidden whitespace-nowrap">{item.label}</span>
+          <span className="relative z-10 whitespace-nowrap" style={{ fontSize: "0.82rem" }}>
+            {item.label}
+          </span>
           {item.badge !== undefined && (
-            <Badge
-              variant="secondary"
-              className="ml-auto h-5 min-w-5 shrink-0 justify-center px-1 text-[10px]"
+            <span
+              className="relative z-10 ml-auto min-w-[20px] rounded-full text-center text-white"
+              style={{
+                fontSize: "0.63rem",
+                background: "linear-gradient(135deg, #ec4899, #f43f5e)",
+                padding: "1px 7px",
+              }}
             >
-              {item.badge === "dynamic" ? "..." : item.badge}
-            </Badge>
+              {typeof item.badge === "number" ? item.badge : "•"}
+            </span>
           )}
         </>
       )}

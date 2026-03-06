@@ -26,16 +26,16 @@
     --accent-900: oklch(0.32 0.073 var(--accent-hue));
     --accent-950: oklch(0.238 0.054 var(--accent-hue));
 
-    /* Accent Gradient Engine -- dynamic gradient from accent hue */
+    /* Accent Gradient Engine -- accent to complementary (180deg opposite) */
     --accent-gradient: linear-gradient(
-      135deg,
+      90deg,
       var(--accent-500),
-      oklch(0.573 0.13 calc(var(--accent-hue) + 30))
+      oklch(0.573 0.13 calc(var(--accent-hue) - 60))
     );
     --accent-gradient-subtle: linear-gradient(
-      135deg,
+      90deg,
       oklch(0.648 0.147 var(--accent-hue) / 0.6),
-      oklch(0.573 0.13 calc(var(--accent-hue) + 30) / 0.4)
+      oklch(0.573 0.13 calc(var(--accent-hue) - 60) / 0.4)
     );
     --accent-shadow: oklch(0.648 0.147 var(--accent-hue) / 0.2);
 
@@ -80,7 +80,7 @@
     --border-strong: oklch(0.8 0.01 260);
 
     /* Border Radius */
-    --radius: 0.375rem;
+    --radius: 0.625rem;
 
     /* Chart Colors (oklch) */
     --chart-1: oklch(0.82 0.14 175);

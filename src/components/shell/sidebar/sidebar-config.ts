@@ -49,7 +49,7 @@ export function getAdminSidebarConfig(basePath: string): SidebarConfig {
       {
         title: "Principal",
         items: [
-          { icon: "LayoutDashboard", label: "Dashboard", href: `${basePath}/primariata` },
+          { icon: "LayoutDashboard", label: "Dashboard", href: basePath },
           { icon: "Activity", label: "Monitorizare", href: `${basePath}/monitorizare` },
         ],
       },

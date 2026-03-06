@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { ShieldCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { cn } from "@/lib/utils";
 import { ClickableAvatar } from "@/components/shared/ClickableAvatar";
 
 interface UserInfo {
@@ -16,6 +16,7 @@ interface UserInfo {
 
 interface SidebarUserCardProps {
   collapsed: boolean;
+  roleLabel?: string;
 }
 
 function getInitials(name: string, email: string): string {
@@ -29,7 +30,7 @@ function getInitials(name: string, email: string): string {
   return email.slice(0, 2).toUpperCase();
 }
 
-export function SidebarUserCard({ collapsed }: SidebarUserCardProps) {
+export function SidebarUserCard({ collapsed, roleLabel }: SidebarUserCardProps) {
   const [user, setUser] = useState<UserInfo | null>(null);
   const router = useRouter();
 
@@ -66,6 +67,7 @@ export function SidebarUserCard({ collapsed }: SidebarUserCardProps) {
       currentUrl={user.avatarUrl}
       initials={user.initials}
       size="sm"
+      rounded="rounded-lg"
       bucketPath="avatars"
       onUploadSuccess={handleAvatarUpload}
     />
@@ -88,14 +90,31 @@ export function SidebarUserCard({ collapsed }: SidebarUserCardProps) {
 
   return (
     <div className="border-sidebar-border border-t p-3">
-      <div className="flex items-center gap-3 overflow-hidden">
+      <div
+        className="flex items-center gap-2.5 rounded-xl px-3 py-2.5"
+        style={{
+          background: "rgba(255,255,255,0.03)",
+          border: "1px solid rgba(255,255,255,0.04)",
+        }}
+      >
         {avatar}
-        <div className={cn("min-w-0 overflow-hidden")}>
-          <p className="text-sidebar-foreground truncate text-sm font-medium">
+        <div className="min-w-0 flex-1 overflow-hidden">
+          <p className="text-sidebar-foreground truncate" style={{ fontSize: "0.8rem" }}>
             {user.name || "Utilizator"}
           </p>
-          <p className="text-sidebar-foreground/50 truncate text-xs">{user.email}</p>
+          {roleLabel && (
+            <div className="flex items-center gap-1">
+              <ShieldCheck className="h-2.5 w-2.5 text-pink-400" />
+              <span
+                className="truncate text-pink-400/70"
+                style={{ fontSize: "0.63rem", fontWeight: 600 }}
+              >
+                {roleLabel}
+              </span>
+            </div>
+          )}
         </div>
+        <div className="h-2 w-2 shrink-0 rounded-full bg-emerald-400" />
       </div>
     </div>
   );

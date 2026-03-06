@@ -16,6 +16,7 @@ interface ClickableAvatarProps {
   currentUrl: string | null;
   initials: string;
   size?: "sm" | "md" | "lg";
+  rounded?: string;
   bucketPath?: string;
   onUploadSuccess: (url: string) => void;
   className?: string;
@@ -39,6 +40,7 @@ export function ClickableAvatar({
   currentUrl,
   initials,
   size = "lg",
+  rounded = "rounded-2xl",
   bucketPath = "avatars",
   onUploadSuccess,
   className,
@@ -124,18 +126,18 @@ export function ClickableAvatar({
         onClick={() => fileInputRef.current?.click()}
         disabled={uploading}
         className={cn(
-          "group focus-visible:ring-accent-500 relative overflow-hidden rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
+          `group focus-visible:ring-accent-500 relative overflow-hidden ${rounded} focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2`,
           sizeConfig.container
         )}
         aria-label="Schimba imaginea"
       >
         {/* Image or fallback */}
         {displayUrl ? (
-          <img src={displayUrl} alt="Avatar" className="h-full w-full rounded-2xl object-cover" />
+          <img src={displayUrl} alt="Avatar" className={`h-full w-full ${rounded} object-cover`} />
         ) : (
           <div
             className={cn(
-              "flex h-full w-full items-center justify-center rounded-2xl font-bold text-white",
+              `flex h-full w-full items-center justify-center ${rounded} font-bold text-white`,
               sizeConfig.text
             )}
             style={{
@@ -149,7 +151,7 @@ export function ClickableAvatar({
         {/* Hover overlay with Camera icon */}
         {!uploading && (
           <motion.div
-            className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/50 opacity-0 group-hover:opacity-100"
+            className={`absolute inset-0 flex items-center justify-center ${rounded} bg-black/50 opacity-0 group-hover:opacity-100`}
             initial={false}
             whileHover={{ opacity: 1 }}
             transition={{ duration: 0.15 }}
@@ -160,7 +162,9 @@ export function ClickableAvatar({
 
         {/* Loading spinner overlay */}
         {uploading && (
-          <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/50">
+          <div
+            className={`absolute inset-0 flex items-center justify-center ${rounded} bg-black/50`}
+          >
             <Loader2 className={cn("animate-spin text-white", sizeConfig.spinnerSize)} />
           </div>
         )}
