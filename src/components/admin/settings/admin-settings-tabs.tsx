@@ -1,7 +1,6 @@
 "use client";
 
-import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { useCallback, useMemo } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { User, Building2, Bell, Shield, Palette } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -23,6 +22,7 @@ interface SettingsPageData {
     nume: string;
     prenume: string;
     telefon: string | null;
+    avatar_url: string | null;
   };
   primarie: {
     id: string;
@@ -31,6 +31,7 @@ interface SettingsPageData {
     adresa: string | null;
     program_lucru: string | null;
     nume_oficial: string;
+    logo_url: string | null;
     config: {
       maintenance_mode: boolean;
       auto_approve: boolean;
@@ -65,31 +66,12 @@ const TABS = [
 
 type TabId = (typeof TABS)[number]["id"];
 
-const VALID_TAB_IDS = new Set<string>(TABS.map((t) => t.id));
-
 // ============================================================================
 // Component
 // ============================================================================
 
 export function AdminSettingsTabs({ data }: AdminSettingsTabsProps): React.JSX.Element {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const pathname = usePathname();
-
-  const activeTab = useMemo((): TabId => {
-    const param = searchParams.get("tab");
-    if (param && VALID_TAB_IDS.has(param)) return param as TabId;
-    return "profil";
-  }, [searchParams]);
-
-  const setActiveTab = useCallback(
-    (tabId: TabId): void => {
-      const params = new URLSearchParams(searchParams.toString());
-      params.set("tab", tabId);
-      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-    },
-    [searchParams, router, pathname]
-  );
+  const [activeTab, setActiveTab] = useState<TabId>("profil");
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
@@ -116,17 +98,12 @@ export function AdminSettingsTabs({ data }: AdminSettingsTabsProps): React.JSX.E
                 {isActive && (
                   <motion.div
                     layoutId="settings-tab-indicator"
-                    className="absolute inset-0 rounded-xl"
-                    style={{
-                      background:
-                        "linear-gradient(135deg, rgba(236,72,153,0.12), rgba(139,92,246,0.06))",
-                      border: "1px solid rgba(236,72,153,0.12)",
-                    }}
+                    className="bg-accent-500/[0.08] border-accent-500/[0.12] absolute inset-0 rounded-xl border"
                     transition={{ type: "spring", stiffness: 350, damping: 30 }}
                   />
                 )}
                 <Icon
-                  className={cn("relative z-10 h-4 w-4 shrink-0", isActive && "text-pink-400")}
+                  className={cn("relative z-10 h-4 w-4 shrink-0", isActive && "text-accent-500")}
                 />
                 <span className="relative z-10">{tab.label}</span>
               </button>
@@ -157,6 +134,7 @@ export function AdminSettingsTabs({ data }: AdminSettingsTabsProps): React.JSX.E
                   telefon: data.user.telefon ?? "",
                   primarie_name: data.primarie.nume_oficial,
                   rol: "admin",
+                  avatar_url: data.user.avatar_url,
                 }}
               />
             )}
@@ -169,6 +147,7 @@ export function AdminSettingsTabs({ data }: AdminSettingsTabsProps): React.JSX.E
                   adresa: data.primarie.adresa ?? "",
                   program_lucru: data.primarie.program_lucru ?? "",
                   nume_oficial: data.primarie.nume_oficial,
+                  logo_url: data.primarie.logo_url,
                   config: data.primarie.config,
                 }}
               />

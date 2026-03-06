@@ -1,15 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { ClickableAvatar } from "@/components/shared/ClickableAvatar";
 
 interface UserInfo {
   name: string;
   email: string;
-  avatarUrl?: string;
+  avatarUrl: string | null;
   initials: string;
 }
 
@@ -30,6 +31,7 @@ function getInitials(name: string, email: string): string {
 
 export function SidebarUserCard({ collapsed }: SidebarUserCardProps) {
   const [user, setUser] = useState<UserInfo | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     let mounted = true;
@@ -41,7 +43,7 @@ export function SidebarUserCard({ collapsed }: SidebarUserCardProps) {
       setUser({
         name,
         email,
-        avatarUrl: authUser.user_metadata?.avatar_url,
+        avatarUrl: authUser.user_metadata?.avatar_url ?? null,
         initials: getInitials(name, email),
       });
     });
@@ -52,13 +54,21 @@ export function SidebarUserCard({ collapsed }: SidebarUserCardProps) {
 
   if (!user) return null;
 
+  async function handleAvatarUpload(url: string): Promise<void> {
+    const supabase = createClient();
+    await supabase.auth.updateUser({ data: { avatar_url: url } });
+    setUser((prev) => (prev ? { ...prev, avatarUrl: url } : prev));
+    router.refresh();
+  }
+
   const avatar = (
-    <Avatar className="h-8 w-8 shrink-0">
-      {user.avatarUrl && <AvatarImage src={user.avatarUrl} alt={user.name || user.email} />}
-      <AvatarFallback className="bg-sidebar-primary/20 text-sidebar-primary text-xs">
-        {user.initials}
-      </AvatarFallback>
-    </Avatar>
+    <ClickableAvatar
+      currentUrl={user.avatarUrl}
+      initials={user.initials}
+      size="sm"
+      bucketPath="avatars"
+      onUploadSuccess={handleAvatarUpload}
+    />
   );
 
   if (collapsed) {
