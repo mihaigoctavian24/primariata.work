@@ -3,16 +3,14 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, ShieldCheck, ShieldX } from "lucide-react";
+import { Shield, Lock, ShieldCheck, ShieldX } from "lucide-react";
 import { toast } from "sonner";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 import {
   passwordChangeSchema,
   type PasswordChangeFormValues,
 } from "@/lib/validations/admin-settings";
 import { changePassword } from "@/actions/admin-settings";
+import { InputWithIcon, GradientSaveButton } from "@/components/admin/settings/settings-ui";
 
 // ============================================================================
 // Types
@@ -61,10 +59,26 @@ export function SecurityTab({ has2FA = false }: SecurityTabProps): React.JSX.Ele
   }
 
   return (
-    <div className="space-y-6">
-      {/* 2FA Status */}
-      <div className="border-border/40 bg-card rounded-xl border p-6">
-        <div className="flex items-center justify-between">
+    <div
+      className="rounded-2xl p-6"
+      style={{
+        background: "rgba(255,255,255,0.025)",
+        border: "1px solid rgba(255,255,255,0.05)",
+      }}
+    >
+      <div className="flex flex-col gap-5">
+        <h3 className="text-foreground" style={{ fontSize: "1.05rem", fontWeight: 600 }}>
+          Securitate Cont
+        </h3>
+
+        {/* 2FA Status */}
+        <div
+          className="flex items-center justify-between rounded-xl px-4 py-3"
+          style={{
+            background: "rgba(255,255,255,0.03)",
+            border: "1px solid rgba(255,255,255,0.05)",
+          }}
+        >
           <div className="flex items-center gap-3">
             {has2FA ? (
               <ShieldCheck className="h-5 w-5 text-emerald-500" />
@@ -72,10 +86,12 @@ export function SecurityTab({ has2FA = false }: SecurityTabProps): React.JSX.Ele
               <ShieldX className="text-muted-foreground h-5 w-5" />
             )}
             <div>
-              <h3 className="text-sm font-semibold">Autentificare in doi pasi</h3>
-              <p className="text-muted-foreground text-xs">
+              <div className="text-foreground" style={{ fontSize: "0.9rem" }}>
+                Autentificare in doi pasi (2FA)
+              </div>
+              <div className="text-gray-600" style={{ fontSize: "0.78rem" }}>
                 Configurarea 2FA se face din setarile contului Supabase
-              </p>
+              </div>
             </div>
           </div>
           <span
@@ -88,63 +104,46 @@ export function SecurityTab({ has2FA = false }: SecurityTabProps): React.JSX.Ele
             {has2FA ? "Activa" : "Inactiva"}
           </span>
         </div>
-      </div>
 
-      {/* Password Change Form */}
-      <div className="border-border/40 bg-card rounded-xl border p-6">
-        <h3 className="mb-4 text-base font-semibold">Schimba Parola</h3>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="currentPassword">Parola Actuala</Label>
-            <Input
-              id="currentPassword"
+        {/* Password Change Form */}
+        <div>
+          <label className="mb-3 block text-gray-400" style={{ fontSize: "0.8rem" }}>
+            Schimba parola
+          </label>
+          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3">
+            <InputWithIcon
+              icon={Lock}
               type="password"
+              placeholder="Parola actuala"
               autoComplete="current-password"
               {...register("currentPassword")}
+              error={errors.currentPassword?.message}
             />
-            {errors.currentPassword && (
-              <p className="text-sm text-red-500">{errors.currentPassword.message}</p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="newPassword">Parola Noua</Label>
-            <Input
-              id="newPassword"
+            <InputWithIcon
+              icon={Shield}
               type="password"
+              placeholder="Parola noua"
               autoComplete="new-password"
               {...register("newPassword")}
+              error={errors.newPassword?.message}
             />
-            {errors.newPassword && (
-              <p className="text-sm text-red-500">{errors.newPassword.message}</p>
-            )}
-            <p className="text-muted-foreground text-xs">Minim 8 caractere</p>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirma Parola</Label>
-            <Input
-              id="confirmPassword"
+            <InputWithIcon
+              icon={Shield}
               type="password"
+              placeholder="Confirma parola noua"
               autoComplete="new-password"
               {...register("confirmPassword")}
+              error={errors.confirmPassword?.message}
             />
-            {errors.confirmPassword && (
-              <p className="text-sm text-red-500">{errors.confirmPassword.message}</p>
-            )}
-          </div>
 
-          <div className="flex justify-end pt-2">
-            <Button
+            <GradientSaveButton
               type="submit"
-              disabled={isSaving}
-              className="from-accent-500 to-accent-600 bg-gradient-to-r text-white"
-            >
-              {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Schimba Parola
-            </Button>
-          </div>
-        </form>
+              loading={isSaving}
+              label="Actualizeaza"
+              icon={Shield}
+            />
+          </form>
+        </div>
       </div>
     </div>
   );
