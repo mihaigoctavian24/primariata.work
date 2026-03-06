@@ -45,6 +45,16 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/app/dashboard", request.url));
   }
 
+  // Maintenance mode: redirect citizens (not admins) to maintenance page
+  const pathname = request.nextUrl.pathname;
+  const isAppRoute = pathname.startsWith("/app/");
+  const isAdminRoute = pathname.includes("/admin/");
+  const maintenanceCookie = request.cookies.get("x-maintenance-mode");
+
+  if (isAppRoute && !isAdminRoute && maintenanceCookie?.value === "true") {
+    return NextResponse.rewrite(new URL("/maintenance", request.url));
+  }
+
   return supabaseResponse;
 }
 
