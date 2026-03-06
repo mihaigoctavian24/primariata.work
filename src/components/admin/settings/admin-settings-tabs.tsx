@@ -105,21 +105,29 @@ export function AdminSettingsTabs({ data }: AdminSettingsTabsProps): React.JSX.E
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={cn(
-                  "relative flex items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium whitespace-nowrap transition-colors",
+                  "relative flex items-center gap-2.5 rounded-xl px-4 py-3 font-medium whitespace-nowrap transition-colors",
                   "lg:w-full",
                   isActive
-                    ? "text-accent-700 dark:text-accent-300"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    ? "text-foreground"
+                    : "text-muted-foreground hover:text-foreground hover:bg-white/[0.03]"
                 )}
+                style={{ fontSize: "0.88rem" }}
               >
                 {isActive && (
                   <motion.div
                     layoutId="settings-tab-indicator"
-                    className="bg-accent-500/12 border-accent-500/20 absolute inset-0 rounded-lg border"
-                    transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                    className="absolute inset-0 rounded-xl"
+                    style={{
+                      background:
+                        "linear-gradient(135deg, rgba(236,72,153,0.12), rgba(139,92,246,0.06))",
+                      border: "1px solid rgba(236,72,153,0.12)",
+                    }}
+                    transition={{ type: "spring", stiffness: 350, damping: 30 }}
                   />
                 )}
-                <Icon className="relative z-10 h-4 w-4 shrink-0" />
+                <Icon
+                  className={cn("relative z-10 h-4 w-4 shrink-0", isActive && "text-pink-400")}
+                />
                 <span className="relative z-10">{tab.label}</span>
               </button>
             );
@@ -130,13 +138,13 @@ export function AdminSettingsTabs({ data }: AdminSettingsTabsProps): React.JSX.E
       {/* Tab content panel */}
       <div className="lg:col-span-9">
         {/* AnimatePresence for visual transition only */}
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="popLayout">
           <motion.div
             key={activeTab}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.1 }}
           >
             {/* Render active tab content only -- forms are simple enough that remounting is fine
                 since they use defaultValues from server data */}

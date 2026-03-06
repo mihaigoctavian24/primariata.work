@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { Settings } from "lucide-react";
 import { getSettingsPageData } from "@/actions/admin-settings";
 import { AdminSettingsTabs } from "@/components/admin/settings/admin-settings-tabs";
 
@@ -33,7 +34,10 @@ async function SettingsContent(): Promise<React.JSX.Element> {
   return (
     <div className="mx-auto max-w-5xl p-6">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold">Setari</h1>
+        <h1 className="flex items-center gap-2 text-2xl font-bold">
+          <Settings className="text-muted-foreground h-6 w-6" />
+          Setari
+        </h1>
         <p className="text-muted-foreground mt-1 text-sm">
           Gestioneaza profilul, configurarea primariei si preferintele
         </p>
