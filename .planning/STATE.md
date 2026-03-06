@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Design Revamp
 status: completed
-stopped_at: Completed 16-03-PLAN.md (admin login & routing)
-last_updated: "2026-03-06T11:34:26.058Z"
-last_activity: 2026-03-06 -- Completed Phase 16 Plan 03 (admin login & routing)
+stopped_at: Completed 16-02-PLAN.md (ClickableAvatar upload)
+last_updated: "2026-03-06T12:16:29Z"
+last_activity: 2026-03-06 -- Completed Phase 16 Plan 02 (ClickableAvatar upload)
 progress:
   total_phases: 7
   completed_phases: 4
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-03-05)
 ## Current Position
 
 Phase: 16 of 18 (Accent Color Propagation & Polish) -- fifth of 7 v2.0 phases
-Plan: 3 of 5 in current phase (3 complete)
+Plan: 4 of 5 in current phase (4 complete)
 Status: Executing Phase 16 plans
-Last activity: 2026-03-06 -- Completed Phase 16 Plan 03 (admin login & routing)
+Last activity: 2026-03-06 -- Completed Phase 16 Plan 02 (ClickableAvatar upload)
 
 Progress: [██████████] 100%
 
@@ -51,6 +51,7 @@ Progress: [██████████] 100%
 | Phase 15 P02 | 4min | 2 tasks | 7 files |
 | Phase 15 P03 | 5min | 6 tasks | 8 files |
 | Phase 16 P03 | 4min | 2 tasks | 9 files |
+| Phase 16 P02 | 6min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -99,6 +100,9 @@ Recent decisions affecting current work:
 - [16-03]: AdminLoginForm uses user_primarii role check (not utilizatori.rol) for staff auth
 - [16-03]: Middleware admin route isolation: staff on citizen routes redirected to admin dashboard
 - [16-03]: Password reset return=admin query param chain through reset and update forms
+- [16-02]: ClickableAvatar uses rounded-2xl to match Figma settings card style
+- [16-02]: TopBarActions avatar is standalone, so direct click-to-upload (no dropdown conflict)
+- [16-02]: Sidebar/top bar update local state immediately + router.refresh for server sync
 
 ### Pending Todos
 
@@ -106,7 +110,7 @@ Recent decisions affecting current work:
 - Butoane responsive la accent color (ui)
 - Propagare accent color peste tot elementele din app (ui)
 - Aliniere vizuala cu Figma design system (ui)
-- Avatar editabil in configurare primarie (ui)
+- ~~Avatar editabil in configurare primarie (ui)~~ -- DONE (16-02)
 - Admin routing fix - redirect si izolare rute (auth)
 - Locality selection - 3 user scenarios (ui)
 
@@ -122,6 +126,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-06T12:15:08Z
-Stopped at: Completed 16-03-PLAN.md (admin login & routing)
-Resume file: .planning/phases/16-accent-color-propagation-polish/16-03-SUMMARY.md
+Last session: 2026-03-06T12:16:29Z
+Stopped at: Completed 16-02-PLAN.md (ClickableAvatar upload)
+Resume file: .planning/phases/16-accent-color-propagation-polish/16-02-SUMMARY.md
