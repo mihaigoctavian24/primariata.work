@@ -89,15 +89,15 @@ function ActivityChart({
                 style={{
                   minHeight: 4,
                   background: isHighlighted
-                    ? "var(--accent-gradient)"
+                    ? "linear-gradient(180deg, #ec4899, #f43f5e)"
                     : "linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.04))",
-                  boxShadow: isHighlighted ? "0 0 20px var(--accent-shadow)" : "none",
+                  boxShadow: isHighlighted ? "0 0 20px rgba(236,72,153,0.3)" : "none",
                 }}
               />
 
               {/* Label */}
               <span
-                className={isHighlighted ? "text-accent-500" : "text-gray-600"}
+                className={isHighlighted ? "text-pink-400" : "text-gray-600"}
                 style={{ fontSize: "0.7rem" }}
               >
                 {String(item[xAxisKey])}

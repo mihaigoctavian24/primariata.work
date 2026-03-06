@@ -118,14 +118,7 @@ function StatCard({ title, value, icon, color, delay, comparison }: StatCardProp
             </div>
           )}
         </div>
-        <div
-          className="flex-shrink-0 rounded-lg p-2.5"
-          style={{
-            backgroundColor: color.startsWith("var(")
-              ? `color-mix(in oklch, ${color} 8%, transparent)`
-              : `${color}15`,
-          }}
-        >
+        <div className="flex-shrink-0 rounded-lg p-2.5" style={{ backgroundColor: `${color}15` }}>
           <div style={{ color }}>{icon}</div>
         </div>
       </div>
@@ -200,7 +193,7 @@ export function StatisticsCards({ stats, isLoading, comparisonData }: Statistics
       title: "Total Plăți",
       value: formatPayment(stats.plati.total_suma),
       icon: <CreditCard className="h-5 w-5" />,
-      color: "var(--accent-500)", // accent color
+      color: "#8b5cf6", // violet-500
       delay: 0.3,
       // No comparison for total payments (absolute value, not comparable)
     },

@@ -45,7 +45,7 @@ function FunctionariPerformance({ initialData, primarieId }: FunctionariPerforma
     >
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <UserCog className="text-accent-500 h-4 w-4" />
+          <UserCog className="h-4 w-4 text-violet-400" />
           <h3 className="text-foreground text-[0.9rem] font-semibold">Performanta Functionari</h3>
         </div>
         <Link
@@ -74,7 +74,7 @@ function FunctionariPerformance({ initialData, primarieId }: FunctionariPerforma
               <div
                 className="flex h-8 w-8 items-center justify-center rounded-lg text-white"
                 style={{
-                  background: "var(--accent-gradient)",
+                  background: "linear-gradient(135deg, #8b5cf6, #6366f1)",
                   fontSize: "0.65rem",
                   fontWeight: 600,
                 }}

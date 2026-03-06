@@ -62,7 +62,7 @@ export interface MetricDetailsModalProps {
   suffix?: string;
 }
 
-const CHART_COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#06b6d4", "#f97316"];
+const CHART_COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899"];
 
 export function MetricDetailsModal({
   open,

@@ -121,44 +121,6 @@ export async function GET(request: Request) {
         }
       }
 
-      // Role-aware redirect: check if user is admin/staff and redirect to admin dashboard
-      try {
-        const {
-          data: { user: currentUser },
-        } = await supabase.auth.getUser();
-
-        if (currentUser && redirectPath.startsWith("/app/")) {
-          const serviceClient = createServiceRoleClient();
-
-          // Find approved staff association for this user at any primarie
-          const { data: staffAssoc } = await serviceClient
-            .from("user_primarii")
-            .select("rol, primarii(localitate_id, localitati(slug, judete(slug)))")
-            .eq("user_id", currentUser.id)
-            .in("rol", ["admin", "functionar", "primar", "super_admin"])
-            .eq("status", "approved")
-            .limit(1)
-            .single();
-
-          if (staffAssoc) {
-            const primarii = staffAssoc.primarii as unknown as {
-              localitate_id: number;
-              localitati: { slug: string; judete: { slug: string } };
-            };
-            const jSlug = primarii?.localitati?.judete?.slug;
-            const lSlug = primarii?.localitati?.slug;
-
-            if (jSlug && lSlug) {
-              redirectPath = `/app/${jSlug}/${lSlug}/admin`;
-              logger.debug("[auth/callback] Admin user detected, redirecting to admin dashboard");
-            }
-          }
-        }
-      } catch (roleCheckError) {
-        logger.error("[auth/callback] Role check failed:", roleCheckError);
-        // Don't block auth flow if role check fails
-      }
-
       // Ensure redirect path is relative
       if (!redirectPath.startsWith("/")) {
         redirectPath = "/";

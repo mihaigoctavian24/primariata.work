@@ -60,7 +60,7 @@ const colorSchemes: Record<
     iconBg: "bg-purple-500/10",
     iconColor: "text-purple-600 dark:text-purple-400",
     textColor: "text-purple-700 dark:text-purple-400",
-    sparklineColor: "var(--accent-500)",
+    sparklineColor: "#a855f7",
   },
   orange: {
     iconBg: "bg-orange-500/10",

@@ -5,7 +5,6 @@ import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import CountUp from "@/components/ui/CountUp";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LocationWheelPickerForm } from "@/components/location/LocationWheelPickerForm";
@@ -490,21 +489,6 @@ export function HeroSection({
               >
                 Renunță
               </motion.button>
-            </motion.div>
-
-            {/* Staff Login Link - visible only in STEP 1 */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={step === 1 ? { opacity: 0.7 } : { opacity: 0 }}
-              transition={{ delay: 1.5, duration: 0.5 }}
-              className="mt-6 text-center"
-            >
-              <Link
-                href="/admin/login"
-                className="text-muted-foreground hover:text-primary font-montreal text-xs transition-colors sm:text-sm"
-              >
-                Staff? Autentificare personal
-              </Link>
             </motion.div>
           </motion.div>
 

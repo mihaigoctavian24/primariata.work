@@ -3,14 +3,11 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { User, Mail, Phone, Building2 } from "lucide-react";
+import { User, Mail, Phone, Building2, Camera } from "lucide-react";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 import { profileSchema, type ProfileFormValues } from "@/lib/validations/admin-settings";
 import { updateAdminProfile } from "@/actions/admin-settings";
 import { InputWithIcon, GradientSaveButton } from "@/components/admin/settings/settings-ui";
-import { ClickableAvatar } from "@/components/shared/ClickableAvatar";
-import { createClient } from "@/lib/supabase/client";
 
 // ============================================================================
 // Types
@@ -24,7 +21,6 @@ interface ProfileTabProps {
     telefon: string;
     primarie_name: string;
     rol: string;
-    avatar_url: string | null;
   };
 }
 
@@ -34,7 +30,6 @@ interface ProfileTabProps {
 
 export function ProfileTab({ initialData }: ProfileTabProps): React.JSX.Element {
   const [isSaving, setIsSaving] = useState(false);
-  const router = useRouter();
 
   const {
     register,
@@ -70,13 +65,6 @@ export function ProfileTab({ initialData }: ProfileTabProps): React.JSX.Element 
     }
   }
 
-  async function handleAvatarUpload(url: string): Promise<void> {
-    // Update user metadata with new avatar URL
-    const supabase = createClient();
-    await supabase.auth.updateUser({ data: { avatar_url: url } });
-    router.refresh();
-  }
-
   const initials = `${initialData.prenume.charAt(0)}${initialData.nume.charAt(0)}`.toUpperCase();
   const fullName = `${initialData.prenume} ${initialData.nume}`;
 
@@ -91,13 +79,21 @@ export function ProfileTab({ initialData }: ProfileTabProps): React.JSX.Element 
       <div className="flex flex-col gap-6">
         {/* Avatar + Info */}
         <div className="flex items-center gap-5">
-          <ClickableAvatar
-            currentUrl={initialData.avatar_url}
-            initials={initials}
-            size="lg"
-            bucketPath="avatars"
-            onUploadSuccess={handleAvatarUpload}
-          />
+          <div className="group relative cursor-pointer">
+            <div
+              className="flex h-20 w-20 items-center justify-center rounded-2xl text-white"
+              style={{
+                background: "linear-gradient(135deg, #8b5cf6, #6366f1)",
+                fontSize: "1.8rem",
+                fontWeight: 700,
+              }}
+            >
+              {initials}
+            </div>
+            <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
+              <Camera className="h-5 w-5 text-white" />
+            </div>
+          </div>
           <div>
             <div className="text-foreground" style={{ fontSize: "1.1rem", fontWeight: 600 }}>
               {fullName}
@@ -114,8 +110,8 @@ export function ProfileTab({ initialData }: ProfileTabProps): React.JSX.Element 
             <InputWithIcon
               icon={User}
               label="Nume complet"
-              {...register("prenume")}
               defaultValue={fullName}
+              {...register("prenume")}
               error={errors.prenume?.message || errors.nume?.message}
             />
             <InputWithIcon

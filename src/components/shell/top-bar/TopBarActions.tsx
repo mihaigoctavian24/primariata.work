@@ -2,13 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { Search, Bell } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { WeatherWidgetMinimal } from "@/components/weather/WeatherWidgetMinimal";
-import { ClickableAvatar } from "@/components/shared/ClickableAvatar";
 import { createClient } from "@/lib/supabase/client";
 import type { SidebarConfig } from "@/components/shell/sidebar/sidebar-config";
 
@@ -22,7 +21,7 @@ interface TopBarActionsProps {
 interface UserInfo {
   name: string;
   email: string;
-  avatarUrl: string | null;
+  avatarUrl?: string;
   initials: string;
 }
 
@@ -44,7 +43,6 @@ export function TopBarActions({
   unreadCount = 0,
 }: TopBarActionsProps) {
   const [user, setUser] = useState<UserInfo | null>(null);
-  const router = useRouter();
 
   useEffect(() => {
     let mounted = true;
@@ -56,7 +54,7 @@ export function TopBarActions({
       setUser({
         name,
         email,
-        avatarUrl: authUser.user_metadata?.avatar_url ?? null,
+        avatarUrl: authUser.user_metadata?.avatar_url,
         initials: getInitials(name, email),
       });
     });
@@ -64,13 +62,6 @@ export function TopBarActions({
       mounted = false;
     };
   }, []);
-
-  async function handleAvatarUpload(url: string): Promise<void> {
-    const supabase = createClient();
-    await supabase.auth.updateUser({ data: { avatar_url: url } });
-    setUser((prev) => (prev ? { ...prev, avatarUrl: url } : prev));
-    router.refresh();
-  }
 
   return (
     <div className="flex items-center gap-1">
@@ -115,7 +106,7 @@ export function TopBarActions({
             >
               <Bell className="h-4 w-4" />
               {unreadCount > 0 && (
-                <span className="bg-accent-500 absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-medium text-white">
+                <span className="bg-destructive text-destructive-foreground absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-medium">
                   {unreadCount > 9 ? "9+" : unreadCount}
                 </span>
               )}
@@ -125,15 +116,12 @@ export function TopBarActions({
         </Tooltip>
       </TooltipProvider>
 
-      {/* User avatar -- clickable for upload */}
+      {/* User avatar */}
       {user && (
-        <ClickableAvatar
-          currentUrl={user.avatarUrl}
-          initials={user.initials}
-          size="sm"
-          bucketPath="avatars"
-          onUploadSuccess={handleAvatarUpload}
-        />
+        <Avatar className="h-8 w-8">
+          {user.avatarUrl && <AvatarImage src={user.avatarUrl} alt={user.name || user.email} />}
+          <AvatarFallback className="text-xs">{user.initials}</AvatarFallback>
+        </Avatar>
       )}
     </div>
   );

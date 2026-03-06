@@ -26,19 +26,6 @@
     --accent-900: oklch(0.32 0.073 var(--accent-hue));
     --accent-950: oklch(0.238 0.054 var(--accent-hue));
 
-    /* Accent Gradient Engine -- dynamic gradient from accent hue */
-    --accent-gradient: linear-gradient(
-      135deg,
-      var(--accent-500),
-      oklch(0.573 0.13 calc(var(--accent-hue) + 30))
-    );
-    --accent-gradient-subtle: linear-gradient(
-      135deg,
-      oklch(0.648 0.147 var(--accent-hue) / 0.6),
-      oklch(0.573 0.13 calc(var(--accent-hue) + 30) / 0.4)
-    );
-    --accent-shadow: oklch(0.648 0.147 var(--accent-hue) / 0.2);
-
     /* Primary maps to accent-500 for backward compatibility */
     --primary: var(--accent-500);
     --primary-foreground: oklch(0.95 0.005 90);
@@ -176,7 +163,7 @@
     /* Sidebar - Dark */
     --sidebar-background: oklch(0.145 0 0);
     --sidebar-foreground: oklch(0.975 0.005 90);
-    --sidebar-primary: var(--accent-500);
+    --sidebar-primary: oklch(0.975 0.005 90);
     --sidebar-primary-foreground: oklch(0.975 0.005 90);
     --sidebar-accent: oklch(0.145 0 0);
     --sidebar-accent-foreground: var(--accent-500);

@@ -17,7 +17,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { useSearchParams } from "next/navigation";
 import { Mail, CheckCircle2 } from "lucide-react";
 
 /**
@@ -45,11 +44,6 @@ const resetPasswordSchema = z.object({
 type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
 
 export function ResetPasswordForm({ className = "" }: ResetPasswordFormProps) {
-  const searchParams = useSearchParams();
-  const returnTo = searchParams.get("return");
-  const isAdminReturn = returnTo === "admin";
-  const backToLoginHref = isAdminReturn ? "/admin/login" : "/auth/login";
-
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [emailSent, setEmailSent] = useState(false);
@@ -70,11 +64,8 @@ export function ResetPasswordForm({ className = "" }: ResetPasswordFormProps) {
       const supabase = createClient();
 
       // Send password reset email with redirect URL
-      const updatePasswordUrl = isAdminReturn
-        ? `${window.location.origin}/auth/update-password?return=admin`
-        : `${window.location.origin}/auth/update-password`;
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(data.email, {
-        redirectTo: updatePasswordUrl,
+        redirectTo: `${window.location.origin}/auth/update-password`,
       });
 
       if (resetError) {
@@ -116,7 +107,7 @@ export function ResetPasswordForm({ className = "" }: ResetPasswordFormProps) {
         </div>
 
         <div className="space-y-3 pt-4">
-          <Link href={backToLoginHref} className="block">
+          <Link href="/auth/login" className="block">
             <Button variant="outline" className="w-full">
               Înapoi la autentificare
             </Button>
@@ -192,7 +183,7 @@ export function ResetPasswordForm({ className = "" }: ResetPasswordFormProps) {
         {/* Back to Login Link */}
         <div className="text-center">
           <Link
-            href={backToLoginHref}
+            href="/auth/login"
             className="text-muted-foreground hover:text-foreground text-sm transition-colors"
           >
             Înapoi la autentificare

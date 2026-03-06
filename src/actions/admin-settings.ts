@@ -32,7 +32,6 @@ interface SettingsPageData {
     nume: string;
     prenume: string;
     telefon: string | null;
-    avatar_url: string | null;
   };
   primarie: {
     id: string;
@@ -41,7 +40,6 @@ interface SettingsPageData {
     adresa: string | null;
     program_lucru: string | null;
     nume_oficial: string;
-    logo_url: string | null;
     config: {
       maintenance_mode: boolean;
       auto_approve: boolean;
@@ -121,7 +119,7 @@ export async function getSettingsPageData(): Promise<{
         .single(),
       supabase
         .from("primarii")
-        .select("id, email, telefon, adresa, program_lucru, nume_oficial, logo_url, config")
+        .select("id, email, telefon, adresa, program_lucru, nume_oficial, config")
         .eq("id", primarieId)
         .single(),
       supabase.auth.getUser(),
@@ -158,7 +156,6 @@ export async function getSettingsPageData(): Promise<{
           nume: userData.nume,
           prenume: userData.prenume,
           telefon: userData.telefon,
-          avatar_url: (authUser?.user_metadata?.avatar_url as string) ?? null,
         },
         primarie: {
           id: primarieData.id,
@@ -167,7 +164,6 @@ export async function getSettingsPageData(): Promise<{
           adresa: primarieData.adresa,
           program_lucru: primarieData.program_lucru,
           nume_oficial: primarieData.nume_oficial,
-          logo_url: primarieData.logo_url ?? null,
           config: {
             maintenance_mode: rawConfig.maintenance_mode ?? false,
             auto_approve: rawConfig.auto_approve ?? false,
@@ -496,44 +492,6 @@ export async function updateAppearance(primarieId: string, preset: string): Prom
     return { success: true, message: "Aspectul a fost actualizat" };
   } catch (error) {
     logger.error("Unexpected error in updateAppearance:", error);
-    return { success: false, error: "A aparut o eroare neasteptata" };
-  }
-}
-
-// ============================================================================
-// 7. updatePrimarieLogo
-// ============================================================================
-
-/**
- * Update the primarie logo_url after a successful avatar/logo upload.
- */
-export async function updatePrimarieLogo(
-  primarieId: string,
-  logoUrl: string
-): Promise<ActionResult> {
-  try {
-    const ctx = await getAuthContext();
-    if ("error" in ctx && !("supabase" in ctx)) {
-      return { success: false, error: ctx.error };
-    }
-    const { supabase } = ctx as Exclude<typeof ctx, { error: string }>;
-
-    const { error: updateError } = await supabase
-      .from("primarii")
-      .update({
-        logo_url: logoUrl,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", primarieId);
-
-    if (updateError) {
-      logger.error("Error updating primarie logo:", updateError);
-      return { success: false, error: "Eroare la actualizarea logo-ului" };
-    }
-
-    return { success: true, message: "Logo-ul a fost actualizat" };
-  } catch (error) {
-    logger.error("Unexpected error in updatePrimarieLogo:", error);
     return { success: false, error: "A aparut o eroare neasteptata" };
   }
 }

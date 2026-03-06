@@ -32,7 +32,7 @@
 - [x] **Phase 13: Layout Shell** - Collapsible sidebar, top bar, command palette, notification drawer, admin role enforcement (gap closure in progress) (completed 2026-03-05)
 - [x] **Phase 14: Admin Dashboard** - Welcome banner, user stats, system health, cereri overview, performance table, activity feed (completed 2026-03-05)
 - [x] **Phase 15: Admin Settings** - 5-tab settings with accent color picker wired end-to-end (completed 2026-03-06)
-- [x] **Phase 16: Accent Color Propagation & Polish** - Make all UI elements responsive to accent color, align with Figma design, integrate avatar upload, fix admin routing, dedicated admin login page (completed 2026-03-06)
+- [ ] **Phase 16: Accent Color Propagation & Polish** - Make all UI elements responsive to accent color, align with Figma design, integrate avatar upload, fix admin routing, dedicated admin login page
 - [ ] **Phase 17: Enhanced Existing Pages** - Utilizatori management revamp + Cereri supervizare with kanban/SLA/priority
 - [ ] **Phase 18: New Data Pages** - Monitorizare, Documente, Financiar, Calendar
 
@@ -177,7 +177,7 @@ Note: Phases 17 and 18 both depend on Phase 13 (not on each other) and could run
 | 13. Layout Shell | 4/4 | Complete    | 2026-03-05 | - |
 | 14. Admin Dashboard | 2/2 | Complete    | 2026-03-05 | - |
 | 15. Admin Settings | 3/3 | Complete    | 2026-03-06 | 2026-03-06 |
-| 16. Accent Color Propagation & Polish | 3/3 | Complete   | 2026-03-06 | - |
+| 16. Accent Color Propagation & Polish | v2.0 | 0/3 | Not started | - |
 | 17. Enhanced Existing Pages | v2.0 | 0/2 | Not started | - |
 | 18. New Data Pages | v2.0 | 0/4 | Not started | - |
 

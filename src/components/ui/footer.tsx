@@ -56,7 +56,6 @@ const defaultSections = [
       { name: "Contact", href: "#contact" },
       { name: "Întrebări frecvente", href: "#faq" },
       { name: "Status", href: "#status" },
-      { name: "Autentificare personal", href: "/admin/login" },
     ],
   },
 ];
