@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Design Revamp
-status: in-progress
-stopped_at: Completed 15-02-PLAN.md
-last_updated: "2026-03-06T08:05:08Z"
-last_activity: 2026-03-06 -- Completed Phase 15 Plan 02 (admin settings UI)
+status: completed
+stopped_at: Completed 15-03-PLAN.md
+last_updated: "2026-03-06T08:47:31.130Z"
+last_activity: 2026-03-06 -- Completed Phase 15 Plan 03 (settings Figma visual overhaul)
 progress:
   total_phases: 6
   completed_phases: 4
-  total_plans: 13
-  completed_plans: 10
+  total_plans: 11
+  completed_plans: 11
   percent: 77
 ---
 
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-05)
 
 **Core value:** Citizens can submit cereri and complete plati digitally for any primarie where they're registered, with complete data isolation between primarii and proper role-based access for all user types.
-**Current focus:** v2.0 Design Revamp -- Phase 15 in progress (admin settings)
+**Current focus:** v2.0 Design Revamp -- Phase 15 complete (admin settings), Phase 16 next
 
 ## Current Position
 
 Phase: 15 of 17 (Admin Settings) -- fourth of 6 v2.0 phases
-Plan: 2 of 2 in current phase (2 complete -- phase complete)
+Plan: 3 of 3 in current phase (3 complete -- phase complete)
 Status: Phase 15 complete, Phase 16 next
-Last activity: 2026-03-06 -- Completed Phase 15 Plan 02 (admin settings UI)
+Last activity: 2026-03-06 -- Completed Phase 15 Plan 03 (settings Figma visual overhaul)
 
-Progress: [████████░░] 77%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -49,6 +49,7 @@ Progress: [████████░░] 77%
 | Phase 14 P02 | 2min | 2 tasks | 9 files |
 | Phase 15 P01 | 3min | 2 tasks | 6 files |
 | Phase 15 P02 | 4min | 2 tasks | 7 files |
+| Phase 15 P03 | 5min | 6 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -91,6 +92,9 @@ Recent decisions affecting current work:
 - [15-02]: AnimatePresence mode="wait" for tab content transitions, layoutId for tab indicator
 - [15-02]: Accent color instant preview via Zustand setPreset, separate DB save action
 - [15-02]: Per-tab independent RHF forms with zodResolver for independent save
+- [15-03]: popLayout AnimatePresence mode for instant tab switching (~100ms)
+- [15-03]: Shared settings-ui.tsx with InputWithIcon/GradientSaveButton/AnimatedToggle for Figma tokens
+- [15-03]: Collapsible contact section in primarie tab to keep Figma-matching main area clean
 
 ### Pending Todos
 
@@ -104,6 +108,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-06T08:05:08Z
-Stopped at: Completed 15-02-PLAN.md
-Resume file: .planning/phases/15-admin-settings/15-02-SUMMARY.md
+Last session: 2026-03-06T08:41:38Z
+Stopped at: Completed 15-03-PLAN.md
+Resume file: .planning/phases/15-admin-settings/15-03-SUMMARY.md

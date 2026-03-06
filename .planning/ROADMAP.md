@@ -158,7 +158,7 @@ Note: Phases 16 and 17 both depend on Phase 13 (not on each other) and could run
 | 12. Design System Foundation | 2/2 | Complete    | 2026-03-05 | - |
 | 13. Layout Shell | 4/4 | Complete    | 2026-03-05 | - |
 | 14. Admin Dashboard | 2/2 | Complete    | 2026-03-05 | - |
-| 15. Admin Settings | v2.0 | 2/2 | Complete | 2026-03-06 |
+| 15. Admin Settings | 3/3 | Complete   | 2026-03-06 | 2026-03-06 |
 | 16. Enhanced Existing Pages | v2.0 | 0/2 | Not started | - |
 | 17. New Data Pages | v2.0 | 0/4 | Not started | - |
 
