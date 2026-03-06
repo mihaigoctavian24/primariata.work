@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-03-05)
 ## Current Position
 
 Phase: 16 of 18 (Accent Color Propagation & Polish) -- fifth of 7 v2.0 phases
-Plan: 4 of 5 in current phase (4 complete)
+Plan: 1 of 3 in current phase (1 complete)
 Status: Executing Phase 16 plans
-Last activity: 2026-03-06 -- Completed Phase 16 Plan 02 (ClickableAvatar upload)
+Last activity: 2026-03-06 -- Completed Phase 16 Plan 01 (accent gradient CSS + hex replacement)
 
 Progress: [██████████] 100%
 
@@ -100,6 +100,10 @@ Recent decisions affecting current work:
 - [16-03]: AdminLoginForm uses user_primarii role check (not utilizatori.rol) for staff auth
 - [16-03]: Middleware admin route isolation: staff on citizen routes redirected to admin dashboard
 - [16-03]: Password reset return=admin query param chain through reset and update forms
+- [16-01]: CSS var gradients use oklch hue-shift +30deg for dynamic accent pairing
+- [16-01]: Chart palettes replaced purple/pink with neutral cyan/orange/slate to avoid accent collision
+- [16-01]: StatisticsCards uses color-mix() for CSS-variable-compatible opacity backgrounds
+- [16-01]: system-health/admin-alerts hex-alpha-concat colors kept (pattern incompatible with CSS vars)
 - [16-02]: ClickableAvatar uses rounded-2xl to match Figma settings card style
 - [16-02]: TopBarActions avatar is standalone, so direct click-to-upload (no dropdown conflict)
 - [16-02]: Sidebar/top bar update local state immediately + router.refresh for server sync
@@ -126,6 +130,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-06T12:16:29Z
-Stopped at: Completed 16-02-PLAN.md (ClickableAvatar upload)
-Resume file: .planning/phases/16-accent-color-propagation-polish/16-02-SUMMARY.md
+Last session: 2026-03-06T12:18:09Z
+Stopped at: Completed 16-01-PLAN.md (accent gradient CSS + hex replacement)
+Resume file: .planning/phases/16-accent-color-propagation-polish/16-01-SUMMARY.md
