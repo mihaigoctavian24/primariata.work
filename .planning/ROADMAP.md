@@ -177,7 +177,7 @@ Note: Phases 17 and 18 both depend on Phase 13 (not on each other) and could run
 | 13. Layout Shell | 4/4 | Complete    | 2026-03-05 | - |
 | 14. Admin Dashboard | 2/2 | Complete    | 2026-03-05 | - |
 | 15. Admin Settings | 3/3 | Complete    | 2026-03-06 | 2026-03-06 |
-| 16. Accent Color Propagation & Polish | v2.0 | 0/3 | Not started | - |
+| 16. Accent Color Propagation & Polish | 1/3 | In Progress|  | - |
 | 17. Enhanced Existing Pages | v2.0 | 0/2 | Not started | - |
 | 18. New Data Pages | v2.0 | 0/4 | Not started | - |
 
