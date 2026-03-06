@@ -35,7 +35,7 @@ import {
  * <AdminLoginForm />
  */
 
-const ADMIN_ROLES = ["admin", "admin_primarie", "functionar", "primar", "super_admin"];
+const ADMIN_ROLES = ["admin", "functionar", "primar", "super_admin"] as const;
 
 const adminLoginSchema = z.object({
   email: z.string().email("Adresa de email invalida"),

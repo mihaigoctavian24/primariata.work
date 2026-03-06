@@ -17,6 +17,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { useSearchParams } from "next/navigation";
 import { PasswordStrengthIndicator } from "@/components/auth/PasswordStrengthIndicator";
 import { Lock, AlertCircle } from "lucide-react";
 
@@ -58,6 +59,10 @@ type UpdatePasswordFormData = z.infer<typeof updatePasswordSchema>;
 
 export function UpdatePasswordForm({ className = "" }: UpdatePasswordFormProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnTo = searchParams.get("return");
+  const isAdminReturn = returnTo === "admin";
+
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [tokenValid, setTokenValid] = useState<boolean | null>(null);
@@ -122,8 +127,12 @@ export function UpdatePasswordForm({ className = "" }: UpdatePasswordFormProps) 
         throw updateError;
       }
 
-      // Redirect to success page
-      router.push("/auth/password-reset-success");
+      // Redirect to success page or admin login
+      if (isAdminReturn) {
+        router.push("/admin/login");
+      } else {
+        router.push("/auth/password-reset-success");
+      }
     } catch (err) {
       logger.error("Password update error:", err);
       setError(
