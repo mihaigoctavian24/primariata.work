@@ -3,7 +3,7 @@
 ## Milestones
 
 - [x] **v1.0 MVP** - Phases 1-11 (shipped 2026-03-05)
-- [ ] **v2.0 Design Revamp** - Phases 12-17 (in progress)
+- [ ] **v2.0 Design Revamp** - Phases 12-18 (in progress)
 
 ## Phases
 
@@ -32,8 +32,9 @@
 - [x] **Phase 13: Layout Shell** - Collapsible sidebar, top bar, command palette, notification drawer, admin role enforcement (gap closure in progress) (completed 2026-03-05)
 - [x] **Phase 14: Admin Dashboard** - Welcome banner, user stats, system health, cereri overview, performance table, activity feed (completed 2026-03-05)
 - [x] **Phase 15: Admin Settings** - 5-tab settings with accent color picker wired end-to-end (completed 2026-03-06)
-- [ ] **Phase 16: Enhanced Existing Pages** - Utilizatori management revamp + Cereri supervizare with kanban/SLA/priority
-- [ ] **Phase 17: New Data Pages** - Monitorizare, Documente, Financiar, Calendar
+- [ ] **Phase 16: Accent Color Propagation & Polish** - Make all UI elements responsive to accent color, align with Figma design, integrate avatar upload, fix admin routing, dedicated admin login page
+- [ ] **Phase 17: Enhanced Existing Pages** - Utilizatori management revamp + Cereri supervizare with kanban/SLA/priority
+- [ ] **Phase 18: New Data Pages** - Monitorizare, Documente, Financiar, Calendar
 
 ## Phase Details
 
@@ -102,7 +103,24 @@ Plans:
 - [x] 15-01-PLAN.md — Data layer: Zod schemas, Server Actions (profile, primarie config, notifications, password, appearance), verify_user_password RPC, maintenance mode middleware
 - [x] 15-02-PLAN.md — Settings UI: 5-tab layout with Framer Motion animations, per-tab RHF forms (profile, primarie, notifications, security, appearance)
 
-### Phase 16: Enhanced Existing Pages
+### Phase 16: Accent Color Propagation & Polish
+**Goal**: Every UI element responds to accent color selection, visual design matches Figma references, avatar upload works, admin routing is correct, and admin staff have a dedicated login experience
+**Depends on**: Phase 15
+**Success Criteria** (what must be TRUE):
+  1. Changing accent color in Appearance tab updates ALL gradient buttons, toggles, chart highlights, avatar backgrounds, tab indicators, and welcome banner — no hardcoded pink/violet hex values remain
+  2. Gradient buttons use dynamic algorithm: selected accent color + programmatically shifted darker/lighter shade (not fixed hex pairs)
+  3. Admin settings visual treatment closely matches Figma reference (inline input icons, gradient save buttons, card contrast, tab indicator)
+  4. Admin can click avatar in Profile and Primarie tabs to upload a new image (using existing AvatarUpload component + Supabase Storage)
+  5. Admin is redirected to /app/[judet]/[localitate]/admin after login (not citizen route), and admin cannot access citizen routes
+  6. Admin staff (super_admin, admin_primarie, functionar) have a dedicated login page (/admin/login) with separate UI design from citizen login — same Supabase Auth backend but professional, staff-oriented visual experience
+**Plans**: 3 plans
+
+Plans:
+- [ ] 16-01-PLAN.md — CSS accent gradient engine + systematic hex replacement + Figma visual match verification (SC-1, SC-2, SC-3)
+- [ ] 16-02-PLAN.md — ClickableAvatar component + avatar upload in settings, sidebar, top bar (SC-4)
+- [ ] 16-03-PLAN.md — Dedicated admin login page + admin routing fix + landing page links (SC-5, SC-6)
+
+### Phase 17: Enhanced Existing Pages
 **Goal**: Admin has comprehensive user management with role filtering and staff invitation, plus cereri supervision with table/kanban views, SLA tracking, priority system, and escalation
 **Depends on**: Phase 13
 **Requirements**: UTL-01, UTL-02, UTL-03, UTL-04, UTL-05, CER-01, CER-02, CER-03, CER-04, CER-05, CER-06, CER-07
@@ -115,10 +133,10 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 16-01: TBD
-- [ ] 16-02: TBD
+- [ ] 17-01: TBD
+- [ ] 17-02: TBD
 
-### Phase 17: New Data Pages
+### Phase 18: New Data Pages
 **Goal**: Admin has access to system monitoring, document management, financial analytics, and a calendar -- completing the full admin experience
 **Depends on**: Phase 13
 **Requirements**: MON-01, MON-02, MON-03, MON-04, MON-05, DOC-01, DOC-02, DOC-03, DOC-04, DOC-05, DOC-06, FIN-01, FIN-02, FIN-03, FIN-04, FIN-05, CAL-01, CAL-02, CAL-03, CAL-04
@@ -128,19 +146,19 @@ Plans:
   3. Financiar page shows monthly revenue chart with target comparison, daily transaction volume, payment method breakdown, category progress bars, and a filterable transaction list
   4. Calendar displays a full month grid (Monday-start) with color-coded event type indicators, event creation modal, and day detail panel
   5. All monitoring metrics route through a server-side handler (no API keys exposed to the client)
-**Plans**: 2 plans
+**Plans**: 4 plans
 
 Plans:
-- [ ] 17-01: TBD
-- [ ] 17-02: TBD
-- [ ] 17-03: TBD
-- [ ] 17-04: TBD
+- [ ] 18-01: TBD
+- [ ] 18-02: TBD
+- [ ] 18-03: TBD
+- [ ] 18-04: TBD
 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 12 > 13 > 14 > 15 > 16 > 17
-Note: Phases 16 and 17 both depend on Phase 13 (not on each other) and could run in parallel.
+Phases execute in numeric order: 12 > 13 > 14 > 15 > 16 > 17 > 18
+Note: Phases 17 and 18 both depend on Phase 13 (not on each other) and could run in parallel.
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -158,10 +176,11 @@ Note: Phases 16 and 17 both depend on Phase 13 (not on each other) and could run
 | 12. Design System Foundation | 2/2 | Complete    | 2026-03-05 | - |
 | 13. Layout Shell | 4/4 | Complete    | 2026-03-05 | - |
 | 14. Admin Dashboard | 2/2 | Complete    | 2026-03-05 | - |
-| 15. Admin Settings | 3/3 | Complete   | 2026-03-06 | 2026-03-06 |
-| 16. Enhanced Existing Pages | v2.0 | 0/2 | Not started | - |
-| 17. New Data Pages | v2.0 | 0/4 | Not started | - |
+| 15. Admin Settings | 3/3 | Complete    | 2026-03-06 | 2026-03-06 |
+| 16. Accent Color Propagation & Polish | v2.0 | 0/3 | Not started | - |
+| 17. Enhanced Existing Pages | v2.0 | 0/2 | Not started | - |
+| 18. New Data Pages | v2.0 | 0/4 | Not started | - |
 
 ---
 *Roadmap created: 2026-03-02*
-*Last updated: 2026-03-06 after phase 15 plan 02 execution*
+*Last updated: 2026-03-06 after phase 16 plan revision*

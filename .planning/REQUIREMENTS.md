@@ -177,38 +177,38 @@ Deferred to future milestones.
 | SET-03 | Phase 15 | Complete |
 | SET-04 | Phase 15 | Complete |
 | SET-05 | Phase 15 | Complete |
-| UTL-01 | Phase 16 | Pending |
-| UTL-02 | Phase 16 | Pending |
-| UTL-03 | Phase 16 | Pending |
-| UTL-04 | Phase 16 | Pending |
-| UTL-05 | Phase 16 | Pending |
-| CER-01 | Phase 16 | Pending |
-| CER-02 | Phase 16 | Pending |
-| CER-03 | Phase 16 | Pending |
-| CER-04 | Phase 16 | Pending |
-| CER-05 | Phase 16 | Pending |
-| CER-06 | Phase 16 | Pending |
-| CER-07 | Phase 16 | Pending |
-| MON-01 | Phase 17 | Pending |
-| MON-02 | Phase 17 | Pending |
-| MON-03 | Phase 17 | Pending |
-| MON-04 | Phase 17 | Pending |
-| MON-05 | Phase 17 | Pending |
-| DOC-01 | Phase 17 | Pending |
-| DOC-02 | Phase 17 | Pending |
-| DOC-03 | Phase 17 | Pending |
-| DOC-04 | Phase 17 | Pending |
-| DOC-05 | Phase 17 | Pending |
-| DOC-06 | Phase 17 | Pending |
-| FIN-01 | Phase 17 | Pending |
-| FIN-02 | Phase 17 | Pending |
-| FIN-03 | Phase 17 | Pending |
-| FIN-04 | Phase 17 | Pending |
-| FIN-05 | Phase 17 | Pending |
-| CAL-01 | Phase 17 | Pending |
-| CAL-02 | Phase 17 | Pending |
-| CAL-03 | Phase 17 | Pending |
-| CAL-04 | Phase 17 | Pending |
+| UTL-01 | Phase 17 | Pending |
+| UTL-02 | Phase 17 | Pending |
+| UTL-03 | Phase 17 | Pending |
+| UTL-04 | Phase 17 | Pending |
+| UTL-05 | Phase 17 | Pending |
+| CER-01 | Phase 17 | Pending |
+| CER-02 | Phase 17 | Pending |
+| CER-03 | Phase 17 | Pending |
+| CER-04 | Phase 17 | Pending |
+| CER-05 | Phase 17 | Pending |
+| CER-06 | Phase 17 | Pending |
+| CER-07 | Phase 17 | Pending |
+| MON-01 | Phase 18 | Pending |
+| MON-02 | Phase 18 | Pending |
+| MON-03 | Phase 18 | Pending |
+| MON-04 | Phase 18 | Pending |
+| MON-05 | Phase 18 | Pending |
+| DOC-01 | Phase 18 | Pending |
+| DOC-02 | Phase 18 | Pending |
+| DOC-03 | Phase 18 | Pending |
+| DOC-04 | Phase 18 | Pending |
+| DOC-05 | Phase 18 | Pending |
+| DOC-06 | Phase 18 | Pending |
+| FIN-01 | Phase 18 | Pending |
+| FIN-02 | Phase 18 | Pending |
+| FIN-03 | Phase 18 | Pending |
+| FIN-04 | Phase 18 | Pending |
+| FIN-05 | Phase 18 | Pending |
+| CAL-01 | Phase 18 | Pending |
+| CAL-02 | Phase 18 | Pending |
+| CAL-03 | Phase 18 | Pending |
+| CAL-04 | Phase 18 | Pending |
 
 **Coverage:**
 - v2.0 requirements: 66 total
@@ -217,4 +217,4 @@ Deferred to future milestones.
 
 ---
 *Requirements defined: 2026-03-05*
-*Last updated: 2026-03-05 after roadmap creation*
+*Last updated: 2026-03-06 after phase 16 plan revision*
