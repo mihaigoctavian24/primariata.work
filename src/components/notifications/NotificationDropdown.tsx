@@ -301,7 +301,7 @@ export function NotificationDropdown({ judet, localitate }: NotificationDropdown
             >
               <Bell className="text-foreground h-5 w-5" />
               {unreadCount > 0 && (
-                <Badge className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#be3144] p-0 text-[10px] font-bold text-white">
+                <Badge className="bg-accent-500 absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full p-0 text-[10px] font-bold text-white">
                   {badgeCount}
                 </Badge>
               )}
@@ -339,7 +339,7 @@ export function NotificationDropdown({ judet, localitate }: NotificationDropdown
           >
             <Bell className="text-foreground h-5 w-5" />
             {unreadCount > 0 && (
-              <Badge className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#be3144] p-0 text-[10px] font-bold text-white">
+              <Badge className="bg-accent-500 absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full p-0 text-[10px] font-bold text-white">
                 {badgeCount}
               </Badge>
             )}

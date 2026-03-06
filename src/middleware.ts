@@ -190,13 +190,16 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
           }
         }
       } else {
-        // Admin sub-path enforcement (SEC-01, SEC-02)
-        // Only users with "admin" role at this primarie can access /app/[judet]/[localitate]/admin/*
+        const adminRoles = ["admin", "functionar", "primar", "super_admin"];
+        const isStaffUser = adminRoles.includes(association.rol);
         const pathAfterLocalitateForAdmin = request.nextUrl.pathname.replace(
           /^\/app\/[^/]+\/[^/]+/,
           ""
         );
-        if (pathAfterLocalitateForAdmin.startsWith("/admin") && association.rol !== "admin") {
+
+        // Admin sub-path enforcement (SEC-01, SEC-02)
+        // Only users with admin/staff roles at this primarie can access /app/[judet]/[localitate]/admin/*
+        if (pathAfterLocalitateForAdmin.startsWith("/admin") && !isStaffUser) {
           logger.security({
             type: "auth",
             action: "access_denied",
@@ -211,6 +214,14 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
 
           const url = request.nextUrl.clone();
           url.pathname = `/app/${judetSlug}/${localitateSlug}`;
+          return redirectWithCookies(url, supabaseResponse);
+        }
+
+        // Admin route isolation: block staff users from citizen dashboard routes
+        // Staff users on citizen routes (not /admin/*) get redirected to admin dashboard
+        if (isStaffUser && !pathAfterLocalitateForAdmin.startsWith("/admin")) {
+          const url = request.nextUrl.clone();
+          url.pathname = `/app/${judetSlug}/${localitateSlug}/admin`;
           return redirectWithCookies(url, supabaseResponse);
         }
 

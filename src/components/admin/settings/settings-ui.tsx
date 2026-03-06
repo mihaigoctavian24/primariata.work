@@ -76,8 +76,8 @@ export function GradientSaveButton({
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       disabled={loading || buttonProps.disabled}
-      className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-white disabled:opacity-60"
-      style={{ background: "linear-gradient(135deg, #ec4899, #8b5cf6)" }}
+      className="flex items-center gap-2 self-start rounded-xl px-5 py-2.5 text-white disabled:opacity-60"
+      style={{ background: "var(--accent-gradient)" }}
       {...(buttonProps as React.ComponentPropsWithoutRef<typeof motion.button>)}
     >
       {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ButtonIcon className="h-4 w-4" />}
@@ -110,7 +110,7 @@ export function AnimatedToggle({
       onClick={() => onCheckedChange(!checked)}
       className="relative h-6 w-11 cursor-pointer rounded-full transition-all disabled:cursor-not-allowed disabled:opacity-50"
       style={{
-        background: checked ? "linear-gradient(135deg, #ec4899, #8b5cf6)" : "rgba(255,255,255,0.1)",
+        background: checked ? "var(--accent-gradient)" : "rgba(255,255,255,0.1)",
       }}
     >
       <motion.div

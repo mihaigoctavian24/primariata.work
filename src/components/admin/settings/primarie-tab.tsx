@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Building2, MapPin, Database, Check, Server, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,6 +21,8 @@ import {
   GradientSaveButton,
   AnimatedToggle,
 } from "@/components/admin/settings/settings-ui";
+import { ClickableAvatar } from "@/components/shared/ClickableAvatar";
+import { updatePrimarieLogo } from "@/actions/admin-settings";
 
 // ============================================================================
 // Types
@@ -33,6 +36,7 @@ interface PrimarieTabProps {
     adresa: string;
     program_lucru: string;
     nume_oficial: string;
+    logo_url: string | null;
     config: {
       maintenance_mode: boolean;
       auto_approve: boolean;
@@ -51,6 +55,17 @@ interface PrimarieTabProps {
 export function PrimarieTab({ primarieId, initialData }: PrimarieTabProps): React.JSX.Element {
   const [isSaving, setIsSaving] = useState(false);
   const [contactExpanded, setContactExpanded] = useState(false);
+  const router = useRouter();
+
+  async function handleLogoUpload(url: string): Promise<void> {
+    const result = await updatePrimarieLogo(primarieId, url);
+    if (!result.success) {
+      toast.error(result.error ?? "Eroare la salvarea logo-ului");
+    }
+    router.refresh();
+  }
+
+  const primarieInitials = initialData.nume_oficial.slice(0, 2).toUpperCase();
 
   const {
     register,
@@ -108,9 +123,18 @@ export function PrimarieTab({ primarieId, initialData }: PrimarieTabProps): Reac
       }}
     >
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
-        <h3 className="text-foreground" style={{ fontSize: "1.05rem", fontWeight: 600 }}>
-          Configurare Primarie
-        </h3>
+        <div className="flex items-center gap-4">
+          <ClickableAvatar
+            currentUrl={initialData.logo_url}
+            initials={primarieInitials}
+            size="lg"
+            bucketPath="logos"
+            onUploadSuccess={handleLogoUpload}
+          />
+          <h3 className="text-foreground" style={{ fontSize: "1.05rem", fontWeight: 600 }}>
+            Configurare Primarie
+          </h3>
+        </div>
 
         {/* Figma 2x2 grid: Nume, Judet, Localitate, CUI */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -146,7 +170,7 @@ export function PrimarieTab({ primarieId, initialData }: PrimarieTabProps): Reac
             >
               <Check className="h-4 w-4 text-gray-600" />
               <span className="text-muted-foreground flex-1" style={{ fontSize: "0.88rem" }}>
-                {autoApprove ? "Activa" : "Inactiva"}
+                Aprobare Automata
               </span>
               <AnimatedToggle
                 checked={autoApprove}
@@ -167,7 +191,7 @@ export function PrimarieTab({ primarieId, initialData }: PrimarieTabProps): Reac
             >
               <Server className="h-4 w-4 text-gray-600" />
               <span className="text-muted-foreground flex-1" style={{ fontSize: "0.88rem" }}>
-                {maintenanceMode ? "Activ" : "Inactiv"}
+                Mod de Mentenanta
               </span>
               <AnimatedToggle
                 checked={maintenanceMode}

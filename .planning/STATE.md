@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Design Revamp
 status: completed
-stopped_at: Completed 15-03-PLAN.md
-last_updated: "2026-03-06T08:47:31.130Z"
-last_activity: 2026-03-06 -- Completed Phase 15 Plan 03 (settings Figma visual overhaul)
+stopped_at: Completed 16-02-PLAN.md (ClickableAvatar upload)
+last_updated: "2026-03-06T12:16:29Z"
+last_activity: 2026-03-06 -- Completed Phase 16 Plan 02 (ClickableAvatar upload)
 progress:
-  total_phases: 6
+  total_phases: 7
   completed_phases: 4
   total_plans: 11
   completed_plans: 11
-  percent: 77
+  percent: 100
 ---
 
 # Project State
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-05)
 
 **Core value:** Citizens can submit cereri and complete plati digitally for any primarie where they're registered, with complete data isolation between primarii and proper role-based access for all user types.
-**Current focus:** v2.0 Design Revamp -- Phase 15 complete (admin settings), Phase 16 next
+**Current focus:** v2.0 Design Revamp -- Phase 16 (Accent Color Propagation & Polish) in progress
 
 ## Current Position
 
-Phase: 15 of 17 (Admin Settings) -- fourth of 6 v2.0 phases
-Plan: 3 of 3 in current phase (3 complete -- phase complete)
-Status: Phase 15 complete, Phase 16 next
-Last activity: 2026-03-06 -- Completed Phase 15 Plan 03 (settings Figma visual overhaul)
+Phase: 16 of 18 (Accent Color Propagation & Polish) -- fifth of 7 v2.0 phases
+Plan: 1 of 3 in current phase (1 complete)
+Status: Executing Phase 16 plans
+Last activity: 2026-03-06 -- Completed Phase 16 Plan 01 (accent gradient CSS + hex replacement)
 
 Progress: [██████████] 100%
 
@@ -50,6 +50,8 @@ Progress: [██████████] 100%
 | Phase 15 P01 | 3min | 2 tasks | 6 files |
 | Phase 15 P02 | 4min | 2 tasks | 7 files |
 | Phase 15 P03 | 5min | 6 tasks | 8 files |
+| Phase 16 P03 | 4min | 2 tasks | 9 files |
+| Phase 16 P02 | 6min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -95,10 +97,30 @@ Recent decisions affecting current work:
 - [15-03]: popLayout AnimatePresence mode for instant tab switching (~100ms)
 - [15-03]: Shared settings-ui.tsx with InputWithIcon/GradientSaveButton/AnimatedToggle for Figma tokens
 - [15-03]: Collapsible contact section in primarie tab to keep Figma-matching main area clean
+- [16-03]: AdminLoginForm uses user_primarii role check (not utilizatori.rol) for staff auth
+- [16-03]: Middleware admin route isolation: staff on citizen routes redirected to admin dashboard
+- [16-03]: Password reset return=admin query param chain through reset and update forms
+- [16-01]: CSS var gradients use oklch hue-shift +30deg for dynamic accent pairing
+- [16-01]: Chart palettes replaced purple/pink with neutral cyan/orange/slate to avoid accent collision
+- [16-01]: StatisticsCards uses color-mix() for CSS-variable-compatible opacity backgrounds
+- [16-01]: system-health/admin-alerts hex-alpha-concat colors kept (pattern incompatible with CSS vars)
+- [16-02]: ClickableAvatar uses rounded-2xl to match Figma settings card style
+- [16-02]: TopBarActions avatar is standalone, so direct click-to-upload (no dropdown conflict)
+- [16-02]: Sidebar/top bar update local state immediately + router.refresh for server sync
 
 ### Pending Todos
 
-None yet.
+6 pending todos:
+- Butoane responsive la accent color (ui)
+- Propagare accent color peste tot elementele din app (ui)
+- Aliniere vizuala cu Figma design system (ui)
+- ~~Avatar editabil in configurare primarie (ui)~~ -- DONE (16-02)
+- Admin routing fix - redirect si izolare rute (auth)
+- Locality selection - 3 user scenarios (ui)
+
+### Roadmap Evolution
+
+- Phase 16 inserted: Accent Color Propagation & Polish (old 16→17, old 17→18)
 
 ### Blockers/Concerns
 
@@ -108,6 +130,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-06T08:41:38Z
-Stopped at: Completed 15-03-PLAN.md
-Resume file: .planning/phases/15-admin-settings/15-03-SUMMARY.md
+Last session: 2026-03-06T12:18:09Z
+Stopped at: Completed 16-01-PLAN.md (accent gradient CSS + hex replacement)
+Resume file: .planning/phases/16-accent-color-propagation-polish/16-01-SUMMARY.md

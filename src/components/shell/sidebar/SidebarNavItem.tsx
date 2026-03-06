@@ -50,13 +50,13 @@ export function SidebarNavItem({ item, collapsed }: SidebarNavItemProps) {
       href={item.href}
       className={cn(
         "group relative flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
-        "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground",
+        "text-sidebar-foreground/70 hover:bg-accent-500/5 hover:text-sidebar-foreground",
         isActive &&
-          "bg-sidebar-primary/10 text-sidebar-primary before:bg-sidebar-primary before:absolute before:inset-y-1 before:left-0 before:w-[3px] before:rounded-full",
+          "bg-accent-500/10 text-accent-500 before:bg-accent-500 before:absolute before:inset-y-1 before:left-0 before:w-[3px] before:rounded-full",
         collapsed && "justify-center px-0"
       )}
     >
-      <Icon className="h-5 w-5 shrink-0" />
+      <Icon className={cn("h-5 w-5 shrink-0", isActive && "text-accent-500")} />
       {!collapsed && (
         <>
           <span className="flex-1 overflow-hidden whitespace-nowrap">{item.label}</span>
