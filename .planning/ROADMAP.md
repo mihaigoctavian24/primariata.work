@@ -31,7 +31,7 @@
 - [x] **Phase 12: Design System Foundation** - CSS tokens, shared components, motion system, accent color engine (completed 2026-03-05)
 - [x] **Phase 13: Layout Shell** - Collapsible sidebar, top bar, command palette, notification drawer, admin role enforcement (gap closure in progress) (completed 2026-03-05)
 - [x] **Phase 14: Admin Dashboard** - Welcome banner, user stats, system health, cereri overview, performance table, activity feed (completed 2026-03-05)
-- [ ] **Phase 15: Admin Settings** - 5-tab settings with accent color picker wired end-to-end
+- [x] **Phase 15: Admin Settings** - 5-tab settings with accent color picker wired end-to-end (completed 2026-03-06)
 - [ ] **Phase 16: Enhanced Existing Pages** - Utilizatori management revamp + Cereri supervizare with kanban/SLA/priority
 - [ ] **Phase 17: New Data Pages** - Monitorizare, Documente, Financiar, Calendar
 
@@ -100,7 +100,7 @@ Plans:
 
 Plans:
 - [x] 15-01-PLAN.md — Data layer: Zod schemas, Server Actions (profile, primarie config, notifications, password, appearance), verify_user_password RPC, maintenance mode middleware
-- [ ] 15-02-PLAN.md — Settings UI: 5-tab layout with Framer Motion animations, per-tab RHF forms (profile, primarie, notifications, security, appearance)
+- [x] 15-02-PLAN.md — Settings UI: 5-tab layout with Framer Motion animations, per-tab RHF forms (profile, primarie, notifications, security, appearance)
 
 ### Phase 16: Enhanced Existing Pages
 **Goal**: Admin has comprehensive user management with role filtering and staff invitation, plus cereri supervision with table/kanban views, SLA tracking, priority system, and escalation
@@ -158,10 +158,10 @@ Note: Phases 16 and 17 both depend on Phase 13 (not on each other) and could run
 | 12. Design System Foundation | 2/2 | Complete    | 2026-03-05 | - |
 | 13. Layout Shell | 4/4 | Complete    | 2026-03-05 | - |
 | 14. Admin Dashboard | 2/2 | Complete    | 2026-03-05 | - |
-| 15. Admin Settings | v2.0 | 1/2 | In progress | - |
+| 15. Admin Settings | v2.0 | 2/2 | Complete | 2026-03-06 |
 | 16. Enhanced Existing Pages | v2.0 | 0/2 | Not started | - |
 | 17. New Data Pages | v2.0 | 0/4 | Not started | - |
 
 ---
 *Roadmap created: 2026-03-02*
-*Last updated: 2026-03-06 after phase 15 plan 01 execution*
+*Last updated: 2026-03-06 after phase 15 plan 02 execution*

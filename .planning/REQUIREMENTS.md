@@ -103,11 +103,11 @@ Requirements for the Design Revamp milestone. Starting with admin primarie modul
 
 ### Admin Setari
 
-- [ ] **SET-01**: Profil Admin tab (name, email, phone)
-- [ ] **SET-02**: Configurare Primarie tab (CUI, maintenance mode)
-- [ ] **SET-03**: Notificari tab (channel + category preferences)
-- [ ] **SET-04**: Securitate tab (2FA status, password change)
-- [ ] **SET-05**: Aspect tab with accent color picker applying across entire app
+- [x] **SET-01**: Profil Admin tab (name, email, phone)
+- [x] **SET-02**: Configurare Primarie tab (CUI, maintenance mode)
+- [x] **SET-03**: Notificari tab (channel + category preferences)
+- [x] **SET-04**: Securitate tab (2FA status, password change)
+- [x] **SET-05**: Aspect tab with accent color picker applying across entire app
 
 ## v3.0 Requirements
 
@@ -172,11 +172,11 @@ Deferred to future milestones.
 | DASH-05 | Phase 14 | Complete |
 | DASH-06 | Phase 14 | Complete |
 | DASH-07 | Phase 14 | Complete |
-| SET-01 | Phase 15 | Pending |
-| SET-02 | Phase 15 | Pending |
-| SET-03 | Phase 15 | Pending |
-| SET-04 | Phase 15 | Pending |
-| SET-05 | Phase 15 | Pending |
+| SET-01 | Phase 15 | Complete |
+| SET-02 | Phase 15 | Complete |
+| SET-03 | Phase 15 | Complete |
+| SET-04 | Phase 15 | Complete |
+| SET-05 | Phase 15 | Complete |
 | UTL-01 | Phase 16 | Pending |
 | UTL-02 | Phase 16 | Pending |
 | UTL-03 | Phase 16 | Pending |
