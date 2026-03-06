@@ -614,6 +614,10 @@ export async function getPrimarieSettings(): Promise<{
     config: {
       notificari_registrari: boolean;
       notificari_cereri: boolean;
+      maintenance_mode: boolean;
+      auto_approve: boolean;
+      accent_preset: string;
+      cui: string;
     } | null;
   };
   error?: string;
@@ -660,10 +664,18 @@ export async function getPrimarieSettings(): Promise<{
       ? {
           notificari_registrari: rawConfig.notificari_registrari ?? true,
           notificari_cereri: rawConfig.notificari_cereri ?? true,
+          maintenance_mode: rawConfig.maintenance_mode ?? false,
+          auto_approve: rawConfig.auto_approve ?? false,
+          accent_preset: (rawConfig.accent_preset as string) ?? "crimson",
+          cui: (rawConfig.cui as string) ?? "",
         }
       : {
           notificari_registrari: true,
           notificari_cereri: true,
+          maintenance_mode: false,
+          auto_approve: false,
+          accent_preset: "crimson",
+          cui: "",
         };
 
     return {
