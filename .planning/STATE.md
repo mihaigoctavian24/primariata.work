@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Design Revamp
 status: executing
-stopped_at: Phase 19 context gathered
-last_updated: "2026-03-06T22:26:42.459Z"
+stopped_at: Completed Phase 19 Plan 00 (Wave 0 foundation)
+last_updated: "2026-03-07T22:10:29.600Z"
 last_activity: 2026-03-06 -- Completed Phase 16 Plan 01 (accent gradient CSS + hex replacement)
 progress:
   total_phases: 6
   completed_phases: 5
-  total_plans: 14
-  completed_plans: 14
+  total_plans: 21
+  completed_plans: 15
   percent: 100
 ---
 
@@ -52,6 +52,7 @@ Progress: [██████████] 100%
 | Phase 15 P03 | 5min | 6 tasks | 8 files |
 | Phase 16 P03 | 4min | 2 tasks | 9 files |
 | Phase 16 P02 | 6min | 2 tasks | 7 files |
+| Phase 19 P00 | 4 | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -107,6 +108,9 @@ Recent decisions affecting current work:
 - [16-02]: ClickableAvatar uses rounded-2xl to match Figma settings card style
 - [16-02]: TopBarActions avatar is standalone, so direct click-to-upload (no dropdown conflict)
 - [16-02]: Sidebar/top bar update local state immediately + router.refresh for server sync
+- [Phase 19]: getAuthContext returns typed AuthContext (not any) using Awaited<ReturnType<typeof createClient>> for full type safety
+- [Phase 19]: aggregateByMonth groups by YYYY-MM key to correctly handle multi-year payment data
+- [Phase 19]: pnpm types:generate skipped -- migration must be applied to live DB first; Wave 1 plans should run it after DB apply
 
 ### Pending Todos
 
@@ -131,6 +135,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-06T22:26:42.455Z
-Stopped at: Phase 19 context gathered
-Resume file: .planning/phases/19-admin-pages-from-figma-monitorizare-utilizatori-cereri-documente-financiar-calendar/19-CONTEXT.md
+Last session: 2026-03-07T22:10:29.597Z
+Stopped at: Completed Phase 19 Plan 00 (Wave 0 foundation)
+Resume file: None

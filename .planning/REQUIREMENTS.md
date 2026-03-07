@@ -73,8 +73,8 @@ Requirements for the Design Revamp milestone. Starting with admin primarie modul
 - [ ] **CER-02**: Table view with status/priority filters, SLA countdown, pagination
 - [ ] **CER-03**: Kanban view with click-to-move status columns
 - [ ] **CER-04**: Alerts tab showing SLA breaches, blocked cereri, escalations
-- [ ] **CER-05**: Priority system (urgenta/ridicata/medie/scazuta) with color indicators
-- [ ] **CER-06**: Admin notes on cereri with audit trail
+- [x] **CER-05**: Priority system (urgenta/ridicata/medie/scazuta) with color indicators
+- [x] **CER-06**: Admin notes on cereri with audit trail
 - [ ] **CER-07**: Cerere reassignment to different functionar
 
 ### Admin Documente
@@ -88,7 +88,7 @@ Requirements for the Design Revamp milestone. Starting with admin primarie modul
 
 ### Admin Financiar
 
-- [ ] **FIN-01**: Monthly revenue AreaChart with target comparison
+- [x] **FIN-01**: Monthly revenue AreaChart with target comparison
 - [ ] **FIN-02**: Daily transaction volume BarChart
 - [ ] **FIN-03**: Payment method breakdown DonutChart
 - [ ] **FIN-04**: Category breakdown with progress bars
@@ -96,9 +96,9 @@ Requirements for the Design Revamp milestone. Starting with admin primarie modul
 
 ### Admin Calendar
 
-- [ ] **CAL-01**: Full month grid (Monday-start) with event dot indicators
+- [x] **CAL-01**: Full month grid (Monday-start) with event dot indicators
 - [ ] **CAL-02**: Event types with distinct colors
-- [ ] **CAL-03**: Event creation modal
+- [x] **CAL-03**: Event creation modal
 - [ ] **CAL-04**: Day detail panel for selected day
 
 ### Admin Setari
@@ -186,8 +186,8 @@ Deferred to future milestones.
 | CER-02 | Phase 17 | Pending |
 | CER-03 | Phase 17 | Pending |
 | CER-04 | Phase 17 | Pending |
-| CER-05 | Phase 17 | Pending |
-| CER-06 | Phase 17 | Pending |
+| CER-05 | Phase 17 | Complete |
+| CER-06 | Phase 17 | Complete |
 | CER-07 | Phase 17 | Pending |
 | MON-01 | Phase 18 | Pending |
 | MON-02 | Phase 18 | Pending |
@@ -200,14 +200,14 @@ Deferred to future milestones.
 | DOC-04 | Phase 18 | Pending |
 | DOC-05 | Phase 18 | Pending |
 | DOC-06 | Phase 18 | Pending |
-| FIN-01 | Phase 18 | Pending |
+| FIN-01 | Phase 18 | Complete |
 | FIN-02 | Phase 18 | Pending |
 | FIN-03 | Phase 18 | Pending |
 | FIN-04 | Phase 18 | Pending |
 | FIN-05 | Phase 18 | Pending |
-| CAL-01 | Phase 18 | Pending |
+| CAL-01 | Phase 18 | Complete |
 | CAL-02 | Phase 18 | Pending |
-| CAL-03 | Phase 18 | Pending |
+| CAL-03 | Phase 18 | Complete |
 | CAL-04 | Phase 18 | Pending |
 
 **Coverage:**
