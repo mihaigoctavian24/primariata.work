@@ -1,9 +1,9 @@
 "use server";
 
 import { createClient, createServiceRoleClient } from "@/lib/supabase/server";
-import { headers } from "next/headers";
 import { logger } from "@/lib/logger";
 import { ACCENT_PRESETS } from "@/store/accent-color-store";
+import { getAuthContext } from "@/lib/auth/get-auth-context";
 import {
   profileSchema,
   primarieConfigSchema,
@@ -56,40 +56,6 @@ interface SettingsPageData {
     push: { enabled: boolean; cereri: boolean; plati: boolean; sistem: boolean };
     sms: { enabled: boolean; cereri: boolean; plati: boolean; sistem: boolean };
   };
-}
-
-// ============================================================================
-// Helper: get authenticated user + primarie ID
-// ============================================================================
-
-async function getAuthContext(): Promise<
-  | {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      supabase: any;
-      userId: string;
-      primarieId: string;
-      error?: string;
-    }
-  | { error: string }
-> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
-  if (authError || !user) {
-    return { error: "Autentificare necesara" };
-  }
-
-  const headersList = await headers();
-  const primarieId = headersList.get("x-primarie-id");
-
-  if (!primarieId) {
-    return { error: "Primaria nu a fost identificata" };
-  }
-
-  return { supabase, userId: user.id, primarieId };
 }
 
 // ============================================================================
