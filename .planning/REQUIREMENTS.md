@@ -89,10 +89,10 @@ Requirements for the Design Revamp milestone. Starting with admin primarie modul
 ### Admin Financiar
 
 - [x] **FIN-01**: Monthly revenue AreaChart with target comparison
-- [ ] **FIN-02**: Daily transaction volume BarChart
-- [ ] **FIN-03**: Payment method breakdown DonutChart
-- [ ] **FIN-04**: Category breakdown with progress bars
-- [ ] **FIN-05**: Transaction list with status filtering
+- [x] **FIN-02**: Daily transaction volume BarChart
+- [x] **FIN-03**: Payment method breakdown DonutChart
+- [x] **FIN-04**: Category breakdown with progress bars
+- [x] **FIN-05**: Transaction list with status filtering
 
 ### Admin Calendar
 
@@ -201,10 +201,10 @@ Deferred to future milestones.
 | DOC-05 | Phase 18 | Complete |
 | DOC-06 | Phase 18 | Complete |
 | FIN-01 | Phase 18 | Complete |
-| FIN-02 | Phase 18 | Pending |
-| FIN-03 | Phase 18 | Pending |
-| FIN-04 | Phase 18 | Pending |
-| FIN-05 | Phase 18 | Pending |
+| FIN-02 | Phase 18 | Complete |
+| FIN-03 | Phase 18 | Complete |
+| FIN-04 | Phase 18 | Complete |
+| FIN-05 | Phase 18 | Complete |
 | CAL-01 | Phase 18 | Complete |
 | CAL-02 | Phase 18 | Complete |
 | CAL-03 | Phase 18 | Complete |

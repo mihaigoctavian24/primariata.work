@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Design Revamp
 status: executing
-stopped_at: Completed Phase 19 Plan 03 (cereri supervizare 4-tab page)
-last_updated: "2026-03-07T22:26:39.356Z"
+stopped_at: Completed Phase 19 Plan 05 (Financiar admin page)
+last_updated: "2026-03-07T22:28:34.866Z"
 last_activity: 2026-03-06 -- Completed Phase 16 Plan 01 (accent gradient CSS + hex replacement)
 progress:
   total_phases: 6
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 21
-  completed_plans: 20
+  completed_plans: 21
   percent: 100
 ---
 
@@ -58,6 +58,7 @@ Progress: [██████████] 100%
 | Phase 19 P06 | 10 | 2 tasks | 7 files |
 | Phase 19 P04 | 22 | 2 tasks | 8 files |
 | Phase 19 P03 | 35 | 2 tasks | 9 files |
+| Phase 19 P05 | 13min | 2 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -128,6 +129,9 @@ Recent decisions affecting current work:
 - [Phase 19]: cereri-status.ts shared lib: status mapping constants separate from 'use server' file for Next.js boundary compliance
 - [Phase 19]: CerereRow as plain interface (not extending DB Row) to handle Wave 0 migration columns not yet in generated types
 - [Phase 19]: Click-to-move Kanban (no dnd-kit) confirmed as pattern for cereri supervizare
+- [Phase 19]: Recharts SVG strokes use semantic hex palette (blue-500/cyan-500/amber-500) — CSS vars can't be used in SVG stroke attributes
+- [Phase 19]: Category progress bars use graceful mock fallback (Stare Civilă/Urbanism/Social) for fresh deployments with no plati data
+- [Phase 19]: DB_TO_UI_STATUS constants extracted to @/lib/cereri-status.ts — non-async exports cannot live in use-server files in Next.js 15
 
 ### Pending Todos
 
@@ -152,6 +156,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-07T22:26:39.354Z
-Stopped at: Completed Phase 19 Plan 03 (cereri supervizare 4-tab page)
+Last session: 2026-03-07T22:28:34.863Z
+Stopped at: Completed Phase 19 Plan 05 (Financiar admin page)
 Resume file: None
