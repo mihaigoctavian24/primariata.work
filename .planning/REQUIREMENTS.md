@@ -53,11 +53,11 @@ Requirements for the Design Revamp milestone. Starting with admin primarie modul
 
 ### Admin Monitorizare
 
-- [ ] **MON-01**: Uptime chart (AreaChart) showing platform availability
-- [ ] **MON-02**: Response time breakdown (API, DB, cache) with LineChart
-- [ ] **MON-03**: Error rate chart with BarChart visualization
-- [ ] **MON-04**: Security events log with filterable entries
-- [ ] **MON-05**: Audit trail viewer with actor, action, timestamp
+- [x] **MON-01**: Uptime chart (AreaChart) showing platform availability
+- [x] **MON-02**: Response time breakdown (API, DB, cache) with LineChart
+- [x] **MON-03**: Error rate chart with BarChart visualization
+- [x] **MON-04**: Security events log with filterable entries
+- [x] **MON-05**: Audit trail viewer with actor, action, timestamp
 
 ### Admin Utilizatori
 
@@ -189,11 +189,11 @@ Deferred to future milestones.
 | CER-05 | Phase 17 | Complete |
 | CER-06 | Phase 17 | Complete |
 | CER-07 | Phase 17 | Pending |
-| MON-01 | Phase 18 | Pending |
-| MON-02 | Phase 18 | Pending |
-| MON-03 | Phase 18 | Pending |
-| MON-04 | Phase 18 | Pending |
-| MON-05 | Phase 18 | Pending |
+| MON-01 | Phase 18 | Complete |
+| MON-02 | Phase 18 | Complete |
+| MON-03 | Phase 18 | Complete |
+| MON-04 | Phase 18 | Complete |
+| MON-05 | Phase 18 | Complete |
 | DOC-01 | Phase 18 | Pending |
 | DOC-02 | Phase 18 | Pending |
 | DOC-03 | Phase 18 | Pending |
