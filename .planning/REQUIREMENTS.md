@@ -69,13 +69,13 @@ Requirements for the Design Revamp milestone. Starting with admin primarie modul
 
 ### Admin Cereri Supervizare
 
-- [ ] **CER-01**: Overview tab with cereri stats, status distribution, SLA summary
-- [ ] **CER-02**: Table view with status/priority filters, SLA countdown, pagination
-- [ ] **CER-03**: Kanban view with click-to-move status columns
-- [ ] **CER-04**: Alerts tab showing SLA breaches, blocked cereri, escalations
+- [x] **CER-01**: Overview tab with cereri stats, status distribution, SLA summary
+- [x] **CER-02**: Table view with status/priority filters, SLA countdown, pagination
+- [x] **CER-03**: Kanban view with click-to-move status columns
+- [x] **CER-04**: Alerts tab showing SLA breaches, blocked cereri, escalations
 - [x] **CER-05**: Priority system (urgenta/ridicata/medie/scazuta) with color indicators
 - [x] **CER-06**: Admin notes on cereri with audit trail
-- [ ] **CER-07**: Cerere reassignment to different functionar
+- [x] **CER-07**: Cerere reassignment to different functionar
 
 ### Admin Documente
 
@@ -182,13 +182,13 @@ Deferred to future milestones.
 | UTL-03 | Phase 17 | Complete |
 | UTL-04 | Phase 17 | Complete |
 | UTL-05 | Phase 17 | Complete |
-| CER-01 | Phase 17 | Pending |
-| CER-02 | Phase 17 | Pending |
-| CER-03 | Phase 17 | Pending |
-| CER-04 | Phase 17 | Pending |
+| CER-01 | Phase 17 | Complete |
+| CER-02 | Phase 17 | Complete |
+| CER-03 | Phase 17 | Complete |
+| CER-04 | Phase 17 | Complete |
 | CER-05 | Phase 17 | Complete |
 | CER-06 | Phase 17 | Complete |
-| CER-07 | Phase 17 | Pending |
+| CER-07 | Phase 17 | Complete |
 | MON-01 | Phase 18 | Complete |
 | MON-02 | Phase 18 | Complete |
 | MON-03 | Phase 18 | Complete |

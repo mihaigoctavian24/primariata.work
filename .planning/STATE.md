@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Design Revamp
 status: executing
-stopped_at: Completed Phase 19 Plan 04 (Documente admin page)
-last_updated: "2026-03-07T22:26:05.372Z"
+stopped_at: Completed Phase 19 Plan 03 (cereri supervizare 4-tab page)
+last_updated: "2026-03-07T22:26:39.356Z"
 last_activity: 2026-03-06 -- Completed Phase 16 Plan 01 (accent gradient CSS + hex replacement)
 progress:
   total_phases: 6
   completed_phases: 5
   total_plans: 21
-  completed_plans: 19
+  completed_plans: 20
   percent: 100
 ---
 
@@ -57,6 +57,7 @@ Progress: [██████████] 100%
 | Phase 19 P01 | 7 | 2 tasks | 6 files |
 | Phase 19 P06 | 10 | 2 tasks | 7 files |
 | Phase 19 P04 | 22 | 2 tasks | 8 files |
+| Phase 19 P03 | 35 | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -124,6 +125,9 @@ Recent decisions affecting current work:
 - [Phase 19]: Calendar event color: store Tailwind bg-* class name strings, not hex — enables CSS-variable-compatible theming
 - [Phase 19]: Local StorageFile interface in types.ts avoids @supabase/storage-js direct import (not a direct dep)
 - [Phase 19]: Documente upload uses client-side supabase.storage; preview uses createSignedUrl(path, 3600) on modal open
+- [Phase 19]: cereri-status.ts shared lib: status mapping constants separate from 'use server' file for Next.js boundary compliance
+- [Phase 19]: CerereRow as plain interface (not extending DB Row) to handle Wave 0 migration columns not yet in generated types
+- [Phase 19]: Click-to-move Kanban (no dnd-kit) confirmed as pattern for cereri supervizare
 
 ### Pending Todos
 
@@ -148,6 +152,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-07T22:26:05.369Z
-Stopped at: Completed Phase 19 Plan 04 (Documente admin page)
+Last session: 2026-03-07T22:26:39.354Z
+Stopped at: Completed Phase 19 Plan 03 (cereri supervizare 4-tab page)
 Resume file: None
