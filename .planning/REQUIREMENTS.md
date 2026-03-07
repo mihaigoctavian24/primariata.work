@@ -79,12 +79,12 @@ Requirements for the Design Revamp milestone. Starting with admin primarie modul
 
 ### Admin Documente
 
-- [ ] **DOC-01**: Folder navigation with breadcrumb
-- [ ] **DOC-02**: Grid/list view toggle
-- [ ] **DOC-03**: Drag-and-drop file upload to Supabase Storage
-- [ ] **DOC-04**: File preview with signed URLs
-- [ ] **DOC-05**: Star/favorite documents
-- [ ] **DOC-06**: Storage stats bar
+- [x] **DOC-01**: Folder navigation with breadcrumb
+- [x] **DOC-02**: Grid/list view toggle
+- [x] **DOC-03**: Drag-and-drop file upload to Supabase Storage
+- [x] **DOC-04**: File preview with signed URLs
+- [x] **DOC-05**: Star/favorite documents
+- [x] **DOC-06**: Storage stats bar
 
 ### Admin Financiar
 
@@ -97,9 +97,9 @@ Requirements for the Design Revamp milestone. Starting with admin primarie modul
 ### Admin Calendar
 
 - [x] **CAL-01**: Full month grid (Monday-start) with event dot indicators
-- [ ] **CAL-02**: Event types with distinct colors
+- [x] **CAL-02**: Event types with distinct colors
 - [x] **CAL-03**: Event creation modal
-- [ ] **CAL-04**: Day detail panel for selected day
+- [x] **CAL-04**: Day detail panel for selected day
 
 ### Admin Setari
 
@@ -194,21 +194,21 @@ Deferred to future milestones.
 | MON-03 | Phase 18 | Complete |
 | MON-04 | Phase 18 | Complete |
 | MON-05 | Phase 18 | Complete |
-| DOC-01 | Phase 18 | Pending |
-| DOC-02 | Phase 18 | Pending |
-| DOC-03 | Phase 18 | Pending |
-| DOC-04 | Phase 18 | Pending |
-| DOC-05 | Phase 18 | Pending |
-| DOC-06 | Phase 18 | Pending |
+| DOC-01 | Phase 18 | Complete |
+| DOC-02 | Phase 18 | Complete |
+| DOC-03 | Phase 18 | Complete |
+| DOC-04 | Phase 18 | Complete |
+| DOC-05 | Phase 18 | Complete |
+| DOC-06 | Phase 18 | Complete |
 | FIN-01 | Phase 18 | Complete |
 | FIN-02 | Phase 18 | Pending |
 | FIN-03 | Phase 18 | Pending |
 | FIN-04 | Phase 18 | Pending |
 | FIN-05 | Phase 18 | Pending |
 | CAL-01 | Phase 18 | Complete |
-| CAL-02 | Phase 18 | Pending |
+| CAL-02 | Phase 18 | Complete |
 | CAL-03 | Phase 18 | Complete |
-| CAL-04 | Phase 18 | Pending |
+| CAL-04 | Phase 18 | Complete |
 
 **Coverage:**
 - v2.0 requirements: 66 total

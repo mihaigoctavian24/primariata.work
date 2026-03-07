@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Design Revamp
 status: executing
-stopped_at: Completed Phase 19 Plan 01 (Monitorizare page)
-last_updated: "2026-03-07T22:22:27.072Z"
+stopped_at: Completed Phase 19 Plan 04 (Documente admin page)
+last_updated: "2026-03-07T22:26:05.372Z"
 last_activity: 2026-03-06 -- Completed Phase 16 Plan 01 (accent gradient CSS + hex replacement)
 progress:
   total_phases: 6
   completed_phases: 5
   total_plans: 21
-  completed_plans: 17
+  completed_plans: 19
   percent: 100
 ---
 
@@ -55,6 +55,8 @@ Progress: [██████████] 100%
 | Phase 19 P00 | 4 | 2 tasks | 7 files |
 | Phase 19 P02 | 4 | 2 tasks | 7 files |
 | Phase 19 P01 | 7 | 2 tasks | 6 files |
+| Phase 19 P06 | 10 | 2 tasks | 7 files |
+| Phase 19 P04 | 22 | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -118,6 +120,10 @@ Recent decisions affecting current work:
 - [Phase 19-01]: CHART_COLORS.primary[] is an array indexed by position (0=blue,1=cyan,2=emerald,3=amber,4=orange,5=slate) not named keys as plan context implied
 - [Phase 19-01]: ServiceHealth.iconName is a string key (not LucideIcon) to allow Server Component serialization through Suspense boundary
 - [Phase 19-01]: Inline StatCard in monitorizare-content (not shared StatsCard) because AnimatedCounter only accepts integer targets; monitorizare has decimal %% values
+- [Phase 19]: Zod 4: use z.string().refine() for numeric date validation in RHF modals (z.coerce breaks resolver typing)
+- [Phase 19]: Calendar event color: store Tailwind bg-* class name strings, not hex — enables CSS-variable-compatible theming
+- [Phase 19]: Local StorageFile interface in types.ts avoids @supabase/storage-js direct import (not a direct dep)
+- [Phase 19]: Documente upload uses client-side supabase.storage; preview uses createSignedUrl(path, 3600) on modal open
 
 ### Pending Todos
 
@@ -142,6 +148,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-07T22:22:27.068Z
-Stopped at: Completed Phase 19 Plan 01 (Monitorizare page)
+Last session: 2026-03-07T22:26:05.369Z
+Stopped at: Completed Phase 19 Plan 04 (Documente admin page)
 Resume file: None
