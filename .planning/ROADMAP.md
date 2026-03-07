@@ -33,8 +33,7 @@
 - [x] **Phase 14: Admin Dashboard** - Welcome banner, user stats, system health, cereri overview, performance table, activity feed (completed 2026-03-05)
 - [x] **Phase 15: Admin Settings** - 5-tab settings with accent color picker wired end-to-end (completed 2026-03-06)
 - [x] **Phase 16: Accent Color Propagation & Polish** - Make all UI elements responsive to accent color, align with Figma design, integrate avatar upload, fix admin routing, dedicated admin login page (completed 2026-03-06)
-- [ ] **Phase 17: Enhanced Existing Pages** - Utilizatori management revamp + Cereri supervizare with kanban/SLA/priority
-- [ ] **Phase 18: New Data Pages** - Monitorizare, Documente, Financiar, Calendar
+- [ ] **Phase 19: All Admin Pages from Figma** - Pixel-perfect Monitorizare, Utilizatori, Cereri, Documente, Financiar, Calendar (replaces original Phase 17+18)
 
 ## Phase Details
 
@@ -120,45 +119,34 @@ Plans:
 - [ ] 16-02-PLAN.md — ClickableAvatar component + avatar upload in settings, sidebar, top bar (SC-4)
 - [ ] 16-03-PLAN.md — Dedicated admin login page + admin routing fix + landing page links (SC-5, SC-6)
 
-### Phase 17: Enhanced Existing Pages
-**Goal**: Admin has comprehensive user management with role filtering and staff invitation, plus cereri supervision with table/kanban views, SLA tracking, priority system, and escalation
-**Depends on**: Phase 13
-**Requirements**: UTL-01, UTL-02, UTL-03, UTL-04, UTL-05, CER-01, CER-02, CER-03, CER-04, CER-05, CER-06, CER-07
+### Phase 19: All Admin Pages from Figma
+**Goal**: Admin has all 6 remaining pages implemented as pixel-perfect Figma matches: Monitorizare, Utilizatori, Cereri supervizare, Documente, Financiar, Calendar -- completing the full admin primarie experience
+**Depends on**: Phase 16 (fully complete)
+**Requirements**: MON-01, MON-02, MON-03, MON-04, MON-05, UTL-01, UTL-02, UTL-03, UTL-04, UTL-05, CER-01, CER-02, CER-03, CER-04, CER-05, CER-06, CER-07, DOC-01, DOC-02, DOC-03, DOC-04, DOC-05, DOC-06, FIN-01, FIN-02, FIN-03, FIN-04, FIN-05, CAL-01, CAL-02, CAL-03, CAL-04
 **Success Criteria** (what must be TRUE):
-  1. Admin can filter users by role tabs (cetateni/functionari/primar/admini), view user profile details in a drawer, and approve/suspend/reactivate accounts with confirmation
-  2. Admin can invite new staff members with role selection and the invitation flow completes end-to-end
-  3. Admin can view cereri in both table and kanban (click-to-move) layouts with status/priority filters and SLA countdown indicators
-  4. Admin can set cereri priority (urgenta/ridicata/medie/scazuta), add admin notes, and reassign cereri to different functionari
-  5. Alerts tab surfaces SLA breaches, blocked cereri, and escalation flags requiring admin attention
-**Plans**: 2 plans
+  1. Monitorizare page displays uptime, response time, and error rate charts (mock data) plus a filterable security events log and audit trail viewer
+  2. Utilizatori page (full rewrite of /admin/users) has role filter tabs, user profile drawer, approve/suspend/reactivate actions, staff invitation flow, and registration growth chart
+  3. Cereri supervizare page has 4 tabs (overview, table, kanban, alerts) + priority setting, admin notes, and functionar reassignment -- all using real cereri DB data
+  4. Documente page supports folder navigation, grid/list toggle, drag-and-drop upload to Supabase Storage, file preview via signed URLs, and storage usage stats
+  5. Financiar page shows monthly revenue chart, daily volume, payment method breakdown, category progress bars, and filterable transaction list -- all from real plati table data
+  6. Calendar page displays full month grid (Monday-start), event creation modal, day detail panel -- Zustand-only event persistence
+  7. All pages: pixel-perfect Figma match, full CSS token system (no hardcoded hex), full Framer Motion animations, skeleton loaders
+**Plans**: 7 plans (Wave 0 shared setup + 6 parallel page plans)
 
 Plans:
-- [ ] 17-01: TBD
-- [ ] 17-02: TBD
-
-### Phase 18: New Data Pages
-**Goal**: Admin has access to system monitoring, document management, financial analytics, and a calendar -- completing the full admin experience
-**Depends on**: Phase 13
-**Requirements**: MON-01, MON-02, MON-03, MON-04, MON-05, DOC-01, DOC-02, DOC-03, DOC-04, DOC-05, DOC-06, FIN-01, FIN-02, FIN-03, FIN-04, FIN-05, CAL-01, CAL-02, CAL-03, CAL-04
-**Success Criteria** (what must be TRUE):
-  1. Monitorizare page displays uptime, response time, and error rate charts plus a filterable security events log and audit trail viewer
-  2. Documente page supports folder navigation with breadcrumbs, grid/list view toggle, drag-and-drop file upload, file preview via signed URLs, and storage usage stats
-  3. Financiar page shows monthly revenue chart with target comparison, daily transaction volume, payment method breakdown, category progress bars, and a filterable transaction list
-  4. Calendar displays a full month grid (Monday-start) with color-coded event type indicators, event creation modal, and day detail panel
-  5. All monitoring metrics route through a server-side handler (no API keys exposed to the client)
-**Plans**: 4 plans
-
-Plans:
-- [ ] 18-01: TBD
-- [ ] 18-02: TBD
-- [ ] 18-03: TBD
-- [ ] 18-04: TBD
+- [ ] 19-00-PLAN.md — Wave 0: DB migration (cereri admin columns), shared getAuthContext helper, calendar + financiar utility modules with unit tests
+- [ ] 19-01-PLAN.md — Monitorizare page: uptime/response/error charts (mock), services grid, security events log
+- [ ] 19-02-PLAN.md — Utilizatori page: role tabs, user profile drawer, approve/suspend/invite, registration growth chart
+- [ ] 19-03-PLAN.md — Cereri supervizare page: 4 tabs (overview, table, kanban, alerts), priority + notes + reassignment actions
+- [ ] 19-04-PLAN.md — Documente page: Storage folder nav, grid/list toggle, drag-and-drop upload, signed URL preview, starred docs
+- [ ] 19-05-PLAN.md — Financiar page: monthly revenue chart, daily volume, payment method breakdown, transaction list
+- [ ] 19-06-PLAN.md — Calendar page: month grid (Monday-start), event dots, day detail panel, event creation modal, Zustand persistence
 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 12 > 13 > 14 > 15 > 16 > 17 > 18
-Note: Phases 17 and 18 both depend on Phase 13 (not on each other) and could run in parallel.
+Phases execute in numeric order: 12 > 13 > 14 > 15 > 16 > 19
+Note: Phase 17 and Phase 18 were removed -- consolidated into Phase 19.
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -173,14 +161,13 @@ Note: Phases 17 and 18 both depend on Phase 13 (not on each other) and could run
 | 9. Audit Gap Closure | v1.0 | 1/1 | Complete | 2026-03-04 |
 | 10. Payment & GDPR Fixes | v1.0 | 1/1 | Complete | 2026-03-04 |
 | 11. E2E Seed & Coverage | v1.0 | 3/3 | Complete | 2026-03-04 |
-| 12. Design System Foundation | 2/2 | Complete    | 2026-03-05 | - |
-| 13. Layout Shell | 4/4 | Complete    | 2026-03-05 | - |
-| 14. Admin Dashboard | 2/2 | Complete    | 2026-03-05 | - |
-| 15. Admin Settings | 3/3 | Complete    | 2026-03-06 | 2026-03-06 |
-| 16. Accent Color Propagation & Polish | 3/3 | Complete   | 2026-03-06 | - |
-| 17. Enhanced Existing Pages | v2.0 | 0/2 | Not started | - |
-| 18. New Data Pages | v2.0 | 0/4 | Not started | - |
+| 12. Design System Foundation | v2.0 | 2/2 | Complete | 2026-03-05 |
+| 13. Layout Shell | v2.0 | 4/4 | Complete | 2026-03-05 |
+| 14. Admin Dashboard | v2.0 | 2/2 | Complete | 2026-03-05 |
+| 15. Admin Settings | v2.0 | 3/3 | Complete | 2026-03-06 |
+| 16. Accent Color Propagation & Polish | v2.0 | 1/3 | In progress | - |
+| 19. All Admin Pages from Figma | v2.0 | 0/7 | Not started | - |
 
 ---
 *Roadmap created: 2026-03-02*
-*Last updated: 2026-03-06 after phase 16 plan revision*
+*Last updated: 2026-03-07 — Phase 19 plans created (7 plans: Wave 0 + 6 parallel page plans)*
