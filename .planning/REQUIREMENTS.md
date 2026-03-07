@@ -61,11 +61,11 @@ Requirements for the Design Revamp milestone. Starting with admin primarie modul
 
 ### Admin Utilizatori
 
-- [ ] **UTL-01**: User list with role filter tabs
-- [ ] **UTL-02**: User approve/suspend/reactivate with confirmation
-- [ ] **UTL-03**: Staff invitation flow with role selection
-- [ ] **UTL-04**: User profile detail drawer with activity stats, 2FA status
-- [ ] **UTL-05**: Registration growth chart
+- [x] **UTL-01**: User list with role filter tabs
+- [x] **UTL-02**: User approve/suspend/reactivate with confirmation
+- [x] **UTL-03**: Staff invitation flow with role selection
+- [x] **UTL-04**: User profile detail drawer with activity stats, 2FA status
+- [x] **UTL-05**: Registration growth chart
 
 ### Admin Cereri Supervizare
 
@@ -177,11 +177,11 @@ Deferred to future milestones.
 | SET-03 | Phase 15 | Complete |
 | SET-04 | Phase 15 | Complete |
 | SET-05 | Phase 15 | Complete |
-| UTL-01 | Phase 17 | Pending |
-| UTL-02 | Phase 17 | Pending |
-| UTL-03 | Phase 17 | Pending |
-| UTL-04 | Phase 17 | Pending |
-| UTL-05 | Phase 17 | Pending |
+| UTL-01 | Phase 17 | Complete |
+| UTL-02 | Phase 17 | Complete |
+| UTL-03 | Phase 17 | Complete |
+| UTL-04 | Phase 17 | Complete |
+| UTL-05 | Phase 17 | Complete |
 | CER-01 | Phase 17 | Pending |
 | CER-02 | Phase 17 | Pending |
 | CER-03 | Phase 17 | Pending |
