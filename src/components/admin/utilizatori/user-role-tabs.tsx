@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 // Types
 // ============================================================================
 
-export type UserRoleTab = "all" | "cetatean" | "functionar" | "primar" | "admin" | "pending";
+export type UserRoleTab = "all" | "cetatean" | "functionar" | "primar" | "admin";
 
 interface TabConfig {
   key: UserRoleTab;
@@ -19,14 +19,13 @@ const TABS: TabConfig[] = [
   { key: "cetatean", label: "Cetățeni" },
   { key: "functionar", label: "Funcționari" },
   { key: "primar", label: "Primar" },
-  { key: "admin", label: "Admini" },
-  { key: "pending", label: "În așteptare" },
+  { key: "admin", label: "Admin" },
 ];
 
 interface UserRoleTabsProps {
-  activeTab: UserRoleTab;
-  onTabChange: (tab: UserRoleTab) => void;
-  counts: Partial<Record<UserRoleTab, number>>;
+  activeRole: string;
+  onRoleChange: (role: string) => void;
+  counts: Record<string, number>;
 }
 
 // ============================================================================
@@ -34,33 +33,31 @@ interface UserRoleTabsProps {
 // ============================================================================
 
 export function UserRoleTabs({
-  activeTab,
-  onTabChange,
+  activeRole,
+  onRoleChange,
   counts,
 }: UserRoleTabsProps): React.ReactElement {
   return (
     <div className="flex items-center gap-0.5 border-b border-white/[0.06]">
       {TABS.map((tab) => {
-        const isActive = activeTab === tab.key;
+        const isActive = activeRole === tab.key;
         const count = counts[tab.key] ?? 0;
 
         return (
           <button
             key={tab.key}
             type="button"
-            onClick={() => onTabChange(tab.key)}
+            onClick={() => onRoleChange(tab.key)}
             className={cn(
               "relative flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium transition-colors duration-150 select-none",
-              isActive ? "text-accent-500" : "text-muted-foreground hover:text-foreground"
+              isActive ? "text-white" : "text-white/40 hover:text-white/70"
             )}
           >
             {tab.label}
             <span
               className={cn(
                 "rounded-full px-1.5 py-0 text-[10px] leading-4 font-semibold tabular-nums",
-                isActive
-                  ? "bg-accent-500/15 text-accent-500"
-                  : "text-muted-foreground bg-white/[0.06]"
+                isActive ? "bg-accent-500/20 text-accent-500" : "bg-white/[0.06] text-white/40"
               )}
             >
               {count}
@@ -69,7 +66,7 @@ export function UserRoleTabs({
             {/* Animated active indicator */}
             {isActive && (
               <motion.div
-                layoutId="userRoleTabIndicator"
+                layoutId="role-tab-indicator"
                 className="bg-accent-500 absolute right-0 bottom-0 left-0 h-[2px] rounded-full"
                 transition={{ type: "spring", stiffness: 400, damping: 35 }}
               />

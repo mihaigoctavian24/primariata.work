@@ -10,21 +10,23 @@ import {
   Clock,
   ShieldOff,
   CheckCircle2,
-  XCircle,
   RefreshCcw,
   Mail,
   Phone,
   Building2,
   Shield,
+  ChevronDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { approveUser, suspendUser, reactivateUser } from "@/actions/admin-users";
+import { RoleColorBadge } from "@/components/admin/shared/role-color-badge";
+import type { RoleKey } from "@/components/admin/shared/role-color-badge";
+import { updateUserStatus, updateUserRole } from "@/components/admin/utilizatori/actions";
 
 // ============================================================================
 // Types
 // ============================================================================
 
-interface UtilizatorRow {
+interface UtilizatoriUser {
   id: string;
   email: string;
   nume: string;
@@ -41,9 +43,11 @@ interface UtilizatorRow {
 }
 
 interface UserProfileDrawerProps {
-  user: UtilizatorRow | null;
-  open: boolean;
+  user: UtilizatoriUser | null;
   onClose: () => void;
+  primarieId: string;
+  onRoleUpdated: () => void;
+  onStatusUpdated: () => void;
 }
 
 // ============================================================================
@@ -61,28 +65,6 @@ function formatDate(dateStr: string | null): string {
     month: "short",
     year: "numeric",
   });
-}
-
-function rolLabel(rol: string): string {
-  const labels: Record<string, string> = {
-    cetatean: "Cetățean",
-    functionar: "Funcționar",
-    primar: "Primar",
-    admin: "Administrator",
-    super_admin: "Super Admin",
-  };
-  return labels[rol] ?? rol;
-}
-
-function rolColor(rol: string): string {
-  const colors: Record<string, string> = {
-    cetatean: "bg-blue-500/15 text-blue-400",
-    functionar: "bg-emerald-500/15 text-emerald-400",
-    primar: "bg-amber-500/15 text-amber-400",
-    admin: "bg-accent-500/15 text-accent-500",
-    super_admin: "bg-violet-500/15 text-violet-400",
-  };
-  return colors[rol] ?? "bg-white/10 text-white/70";
 }
 
 function statusLabel(status: string | null): string {
@@ -105,250 +87,12 @@ function statusColor(status: string | null): string {
   return colors[status ?? ""] ?? "bg-white/10 text-white/40";
 }
 
-// ============================================================================
-// Component
-// ============================================================================
-
-export function UserProfileDrawer({
-  user,
-  open,
-  onClose,
-}: UserProfileDrawerProps): React.ReactElement {
-  const [pendingAction, setPendingAction] = useState<string | null>(null);
-
-  async function handleApprove(): Promise<void> {
-    if (!user) return;
-    setPendingAction("approve");
-    const result = await approveUser(user.id);
-    setPendingAction(null);
-    if (result.success) {
-      toast.success("Utilizator aprobat cu succes");
-      onClose();
-    } else {
-      toast.error("Eroare la aprobare", { description: result.error });
-    }
-  }
-
-  async function handleSuspend(): Promise<void> {
-    if (!user) return;
-    setPendingAction("suspend");
-    const result = await suspendUser(user.id);
-    setPendingAction(null);
-    if (result.success) {
-      toast.success("Utilizator suspendat");
-      onClose();
-    } else {
-      toast.error("Eroare la suspendare", { description: result.error });
-    }
-  }
-
-  async function handleReactivate(): Promise<void> {
-    if (!user) return;
-    setPendingAction("reactivate");
-    const result = await reactivateUser(user.id);
-    setPendingAction(null);
-    if (result.success) {
-      toast.success("Utilizator reactivat cu succes");
-      onClose();
-    } else {
-      toast.error("Eroare la reactivare", { description: result.error });
-    }
-  }
-
-  return (
-    <AnimatePresence>
-      {open && user && (
-        <>
-          {/* Overlay */}
-          <motion.div
-            key="drawer-overlay"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-40 bg-black/50"
-            onClick={onClose}
-          />
-
-          {/* Panel */}
-          <motion.div
-            key="drawer-panel"
-            initial={{ x: "100%" }}
-            animate={{ x: 0 }}
-            exit={{ x: "100%" }}
-            transition={{ type: "spring", stiffness: 320, damping: 32 }}
-            className="fixed top-0 right-0 z-50 flex h-full w-[420px] flex-col overflow-y-auto border-l border-white/[0.06] bg-[var(--surface-raised,#1a1a2e)]"
-          >
-            {/* Header */}
-            <div className="flex items-center justify-between border-b border-white/[0.06] px-6 py-4">
-              <h2 className="text-sm font-semibold text-white/80">Profil utilizator</h2>
-              <button
-                type="button"
-                onClick={onClose}
-                className="flex h-7 w-7 items-center justify-center rounded-md text-white/40 transition-colors hover:bg-white/[0.06] hover:text-white/80"
-                aria-label="Închide"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-
-            <div className="flex flex-1 flex-col gap-6 p-6">
-              {/* Avatar + identity */}
-              <div className="flex flex-col items-center gap-3 text-center">
-                <div className="relative">
-                  {user.avatar_url ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={user.avatar_url}
-                      alt={`${user.prenume} ${user.nume}`}
-                      className="h-20 w-20 rounded-full object-cover ring-2 ring-white/[0.08]"
-                    />
-                  ) : (
-                    <div className="bg-accent-500/20 text-accent-500 flex h-20 w-20 items-center justify-center rounded-full text-xl font-bold ring-2 ring-white/[0.08]">
-                      {getInitials(user.nume, user.prenume)}
-                    </div>
-                  )}
-                </div>
-                <div>
-                  <p className="text-base font-semibold text-white">
-                    {user.prenume} {user.nume}
-                  </p>
-                  <p className="mt-0.5 text-sm text-white/50">{user.email}</p>
-                </div>
-                <div className="flex gap-2">
-                  <span
-                    className={cn(
-                      "rounded-full px-2.5 py-0.5 text-xs font-medium",
-                      rolColor(user.rol)
-                    )}
-                  >
-                    {rolLabel(user.rol)}
-                  </span>
-                  <span
-                    className={cn(
-                      "rounded-full px-2.5 py-0.5 text-xs font-medium",
-                      statusColor(user.status)
-                    )}
-                  >
-                    {statusLabel(user.status)}
-                  </span>
-                </div>
-              </div>
-
-              {/* Info grid */}
-              <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
-                <p className="mb-3 text-xs font-semibold tracking-wide text-white/40 uppercase">
-                  Detalii cont
-                </p>
-                <div className="space-y-3">
-                  <InfoRow
-                    icon={<Mail className="h-3.5 w-3.5" />}
-                    label="Email"
-                    value={user.email}
-                  />
-                  <InfoRow
-                    icon={<Phone className="h-3.5 w-3.5" />}
-                    label="Telefon"
-                    value={user.telefon ?? "N/D"}
-                  />
-                  {user.departament && (
-                    <InfoRow
-                      icon={<Building2 className="h-3.5 w-3.5" />}
-                      label="Departament"
-                      value={user.departament}
-                    />
-                  )}
-                  <InfoRow
-                    icon={<User className="h-3.5 w-3.5" />}
-                    label="Rol"
-                    value={rolLabel(user.rol)}
-                  />
-                </div>
-              </div>
-
-              {/* Stats */}
-              <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
-                <p className="mb-3 text-xs font-semibold tracking-wide text-white/40 uppercase">
-                  Activitate
-                </p>
-                <div className="space-y-3">
-                  <InfoRow
-                    icon={<Calendar className="h-3.5 w-3.5" />}
-                    label="Înregistrat"
-                    value={formatDate(user.created_at)}
-                  />
-                  <InfoRow
-                    icon={<Clock className="h-3.5 w-3.5" />}
-                    label="Ultima autentificare"
-                    value={formatDate(user.last_login_at)}
-                  />
-                  <InfoRow icon={<Shield className="h-3.5 w-3.5" />} label="2FA" value="N/D" />
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
-                <p className="mb-3 text-xs font-semibold tracking-wide text-white/40 uppercase">
-                  Acțiuni
-                </p>
-                <div className="flex flex-col gap-2">
-                  {/* pending → Aprobă + Respinge */}
-                  {user.status === "pending" && (
-                    <>
-                      <ActionButton
-                        onClick={handleApprove}
-                        loading={pendingAction === "approve"}
-                        variant="success"
-                        icon={<CheckCircle2 className="h-4 w-4" />}
-                        label="Aprobă"
-                      />
-                      <ActionButton
-                        onClick={handleSuspend}
-                        loading={pendingAction === "suspend"}
-                        variant="danger"
-                        icon={<XCircle className="h-4 w-4" />}
-                        label="Respinge"
-                      />
-                    </>
-                  )}
-
-                  {/* activ → Suspendă */}
-                  {user.status === "activ" && (
-                    <ActionButton
-                      onClick={handleSuspend}
-                      loading={pendingAction === "suspend"}
-                      variant="warning"
-                      icon={<ShieldOff className="h-4 w-4" />}
-                      label="Suspendă"
-                    />
-                  )}
-
-                  {/* suspendat → Reactivează */}
-                  {user.status === "suspendat" && (
-                    <ActionButton
-                      onClick={handleReactivate}
-                      loading={pendingAction === "reactivate"}
-                      variant="success"
-                      icon={<RefreshCcw className="h-4 w-4" />}
-                      label="Reactivează"
-                    />
-                  )}
-
-                  {/* inactiv → no specific action */}
-                  {user.status === "inactiv" && (
-                    <p className="text-center text-sm text-white/40">
-                      Cont inactiv — nicio acțiune disponibilă
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
-  );
-}
+const ROLE_OPTIONS = [
+  { value: "cetatean", label: "Cetățean" },
+  { value: "functionar", label: "Funcționar" },
+  { value: "primar", label: "Primar" },
+  { value: "admin", label: "Admin" },
+] as const;
 
 // ============================================================================
 // Sub-components
@@ -408,5 +152,281 @@ function ActionButton({
       )}
       {label}
     </button>
+  );
+}
+
+// ============================================================================
+// Component
+// ============================================================================
+
+export function UserProfileDrawer({
+  user,
+  onClose,
+  primarieId,
+  onRoleUpdated,
+  onStatusUpdated,
+}: UserProfileDrawerProps): React.ReactElement {
+  const [pendingAction, setPendingAction] = useState<string | null>(null);
+  const [showRoleSelect, setShowRoleSelect] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<string>("");
+
+  const open = user !== null;
+
+  async function handleStatusChange(
+    newStatus: "activ" | "suspendat" | "inactiv" | "pending"
+  ): Promise<void> {
+    if (!user) return;
+    setPendingAction(newStatus);
+    const result = await updateUserStatus(user.id, newStatus, primarieId);
+    setPendingAction(null);
+    if (result.error) {
+      toast.error("Eroare la actualizare", { description: result.error });
+    } else {
+      const messages: Record<string, string> = {
+        activ: "Utilizator aprobat / reactivat",
+        suspendat: "Utilizator suspendat",
+        inactiv: "Utilizator dezactivat",
+      };
+      toast.success(messages[newStatus] ?? "Status actualizat");
+      onStatusUpdated();
+      onClose();
+    }
+  }
+
+  async function handleRoleChange(): Promise<void> {
+    if (!user || !selectedRole) return;
+    setPendingAction("role");
+    const result = await updateUserRole(user.id, selectedRole, primarieId);
+    setPendingAction(null);
+    setShowRoleSelect(false);
+    if (result.error) {
+      toast.error("Eroare la schimbarea rolului", { description: result.error });
+    } else {
+      toast.success("Rol actualizat cu succes");
+      onRoleUpdated();
+      onClose();
+    }
+  }
+
+  return (
+    <AnimatePresence>
+      {open && user && (
+        <>
+          {/* Backdrop */}
+          <motion.div
+            key="drawer-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-[80] bg-black/50"
+            onClick={onClose}
+          />
+
+          {/* Panel */}
+          <motion.div
+            key="drawer-panel"
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", stiffness: 320, damping: 32 }}
+            className="bg-card fixed top-0 right-0 z-[90] flex h-full w-96 flex-col overflow-y-auto border-l border-white/[0.06]"
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-white/[0.06] px-6 py-4">
+              <h2 className="text-sm font-semibold text-white/80">Profil utilizator</h2>
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex h-7 w-7 items-center justify-center rounded-md text-white/40 transition-colors hover:bg-white/[0.06] hover:text-white/80"
+                aria-label="Închide"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="flex flex-1 flex-col gap-6 p-6">
+              {/* Avatar + identity */}
+              <div className="flex flex-col items-center gap-3 text-center">
+                <div className="relative">
+                  {user.avatar_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={user.avatar_url}
+                      alt={`${user.prenume} ${user.nume}`}
+                      className="h-20 w-20 rounded-full object-cover ring-2 ring-white/[0.08]"
+                    />
+                  ) : (
+                    <div className="bg-accent-500/20 text-accent-500 flex h-20 w-20 items-center justify-center rounded-full text-xl font-bold ring-2 ring-white/[0.08]">
+                      {getInitials(user.nume, user.prenume)}
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <p className="text-base font-semibold text-white">
+                    {user.prenume} {user.nume}
+                  </p>
+                  <p className="mt-0.5 text-sm text-white/50">{user.email}</p>
+                </div>
+                <div className="flex gap-2">
+                  <RoleColorBadge role={user.rol as RoleKey} />
+                  <span
+                    className={cn(
+                      "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
+                      statusColor(user.status)
+                    )}
+                  >
+                    {statusLabel(user.status)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Info grid */}
+              <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+                <p className="mb-3 text-xs font-semibold tracking-wide text-white/40 uppercase">
+                  Detalii cont
+                </p>
+                <div className="space-y-3">
+                  <InfoRow
+                    icon={<Mail className="h-3.5 w-3.5" />}
+                    label="Email"
+                    value={user.email}
+                  />
+                  <InfoRow
+                    icon={<Phone className="h-3.5 w-3.5" />}
+                    label="Telefon"
+                    value={user.telefon ?? "N/D"}
+                  />
+                  {user.departament && (
+                    <InfoRow
+                      icon={<Building2 className="h-3.5 w-3.5" />}
+                      label="Departament"
+                      value={user.departament}
+                    />
+                  )}
+                  <InfoRow icon={<User className="h-3.5 w-3.5" />} label="Cereri" value="—" />
+                </div>
+              </div>
+
+              {/* Activity */}
+              <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+                <p className="mb-3 text-xs font-semibold tracking-wide text-white/40 uppercase">
+                  Activitate
+                </p>
+                <div className="space-y-3">
+                  <InfoRow
+                    icon={<Calendar className="h-3.5 w-3.5" />}
+                    label="Înregistrat"
+                    value={formatDate(user.created_at)}
+                  />
+                  <InfoRow
+                    icon={<Clock className="h-3.5 w-3.5" />}
+                    label="Ultima login"
+                    value={formatDate(user.last_login_at)}
+                  />
+                  <InfoRow icon={<Shield className="h-3.5 w-3.5" />} label="2FA" value="N/D" />
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+                <p className="mb-3 text-xs font-semibold tracking-wide text-white/40 uppercase">
+                  Acțiuni
+                </p>
+                <div className="flex flex-col gap-2">
+                  {/* pending → Aprobă */}
+                  {user.status === "pending" && (
+                    <ActionButton
+                      onClick={async () => handleStatusChange("activ")}
+                      loading={pendingAction === "activ"}
+                      variant="success"
+                      icon={<CheckCircle2 className="h-4 w-4" />}
+                      label="Aprobă"
+                    />
+                  )}
+
+                  {/* activ → Suspendă */}
+                  {user.status === "activ" && (
+                    <ActionButton
+                      onClick={async () => handleStatusChange("suspendat")}
+                      loading={pendingAction === "suspendat"}
+                      variant="warning"
+                      icon={<ShieldOff className="h-4 w-4" />}
+                      label="Suspendă"
+                    />
+                  )}
+
+                  {/* suspendat → Reactivează */}
+                  {user.status === "suspendat" && (
+                    <ActionButton
+                      onClick={async () => handleStatusChange("activ")}
+                      loading={pendingAction === "activ"}
+                      variant="success"
+                      icon={<RefreshCcw className="h-4 w-4" />}
+                      label="Reactivează"
+                    />
+                  )}
+
+                  {/* inactiv — no specific action */}
+                  {user.status === "inactiv" && (
+                    <p className="text-center text-sm text-white/40">
+                      Cont inactiv — nicio acțiune disponibilă
+                    </p>
+                  )}
+
+                  {/* Schimbă rol */}
+                  {!showRoleSelect ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedRole(user.rol);
+                        setShowRoleSelect(true);
+                      }}
+                      className="flex w-full items-center justify-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.04] px-4 py-2.5 text-sm font-medium text-white/60 transition-colors hover:bg-white/[0.07] hover:text-white/80"
+                    >
+                      <ChevronDown className="h-4 w-4" />
+                      Schimbă rol
+                    </button>
+                  ) : (
+                    <div className="flex gap-2">
+                      <select
+                        value={selectedRole}
+                        onChange={(e) => setSelectedRole(e.target.value)}
+                        className="focus:border-accent-500/50 flex-1 rounded-lg border border-white/[0.08] bg-white/[0.04] px-3 py-2 text-sm text-white outline-none"
+                      >
+                        {ROLE_OPTIONS.map((r) => (
+                          <option key={r.value} value={r.value} className="bg-gray-900">
+                            {r.label}
+                          </option>
+                        ))}
+                      </select>
+                      <button
+                        type="button"
+                        onClick={handleRoleChange}
+                        disabled={pendingAction === "role" || selectedRole === user.rol}
+                        className="bg-accent-500 flex items-center justify-center gap-1 rounded-lg px-3 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {pendingAction === "role" ? (
+                          <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                        ) : (
+                          "OK"
+                        )}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setShowRoleSelect(false)}
+                        className="rounded-lg border border-white/[0.08] px-3 py-2 text-sm text-white/40 hover:text-white/70"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
   );
 }

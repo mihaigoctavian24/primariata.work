@@ -19,7 +19,7 @@ export function UtilizatoriSkeleton(): React.ReactElement {
 
       {/* Tab bar */}
       <div className="flex items-center gap-1 border-b border-white/[0.06] pb-0">
-        {[80, 72, 92, 64, 60, 100].map((width, i) => (
+        {[80, 72, 92, 64, 60].map((width, i) => (
           <div key={i} className="h-9 rounded-t-md bg-white/[0.06]" style={{ width }} />
         ))}
       </div>
@@ -27,10 +27,10 @@ export function UtilizatoriSkeleton(): React.ReactElement {
       {/* Search bar */}
       <div className="h-10 w-full max-w-sm rounded-lg bg-white/[0.06]" />
 
-      {/* User rows */}
+      {/* User rows — 8 skeleton rows */}
       <div className="space-y-2">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="flex items-center gap-4 rounded-xl bg-white/[0.025] p-4">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <div key={i} className="flex h-14 items-center gap-4 rounded-xl bg-white/[0.025] px-4">
             {/* Avatar circle */}
             <div className="h-10 w-10 flex-shrink-0 rounded-full bg-white/[0.08]" />
             {/* Name + email */}
@@ -44,8 +44,6 @@ export function UtilizatoriSkeleton(): React.ReactElement {
             <div className="h-5 w-16 rounded-full bg-white/[0.06]" />
             {/* Date */}
             <div className="h-4 w-24 rounded bg-white/[0.04]" />
-            {/* Action */}
-            <div className="h-7 w-7 rounded-md bg-white/[0.06]" />
           </div>
         ))}
       </div>
@@ -53,7 +51,7 @@ export function UtilizatoriSkeleton(): React.ReactElement {
       {/* Growth chart card */}
       <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
         <div className="mb-4 h-5 w-48 rounded bg-white/[0.06]" />
-        <div className="h-[160px] rounded-lg bg-white/[0.04]" />
+        <div className="h-[180px] rounded-lg bg-white/[0.04]" />
       </div>
     </div>
   );
