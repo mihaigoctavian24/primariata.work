@@ -147,7 +147,7 @@ Plans:
 **Goal:** Full rewrite of all 6 Phase 19 admin pages as pixel-perfect Figma matches connected to real Supabase data — role color tokens, no hardcoded hex, shared component directory, serial wave execution one page at a time
 **Requirements**: UTL-01, UTL-02, UTL-03, UTL-04, UTL-05, CER-01, CER-02, CER-03, CER-04, CER-05, CER-06, CER-07, FIN-01, FIN-02, FIN-03, FIN-04, FIN-05, DOC-01, DOC-02, DOC-03, DOC-04, DOC-05, DOC-06, CAL-01, CAL-02, CAL-03, CAL-04, MON-01, MON-02, MON-03, MON-04, MON-05
 **Depends on:** Phase 19
-**Plans:** 14 plans (7 complete + 7 gap closure plans)
+**Plans:** 8/14 plans executed
 
 Plans:
 - [x] 20-00-PLAN.md — Wave 0 prep: role color tokens in globals.css + shared/ directory with 7 migrated/new components
@@ -155,8 +155,8 @@ Plans:
 - [x] 20-02-PLAN.md — Wave 2 Cereri: delete + rewrite, 4-tab UI, real cereri data, kanban click-to-move, confetti approve
 - [x] 20-03-PLAN.md — Wave 3 Financiar: delete + rewrite, real plati data, 6 KPI cards, revenue charts, transaction list
 - [x] 20-04-PLAN.md — Wave 4 Documente: delete + rewrite, Supabase Storage folder nav, upload zone, signed URL preview
-- [x] 20-05-PLAN.md — Wave 5 Calendar: delete + rewrite, Zustand events, month grid (Monday-start), event creation modal
-- [x] 20-06-PLAN.md — Wave 6 Monitorizare: delete + rewrite, mock setInterval CPU/RAM/Disk, 5-tab layout, GaugeSVG
+- [ ] 20-05-PLAN.md — Wave 5 Calendar: delete + rewrite, Zustand events, month grid (Monday-start), event creation modal
+- [ ] 20-06-PLAN.md — Wave 6 Monitorizare: delete + rewrite, mock setInterval CPU/RAM/Disk, 5-tab layout, GaugeSVG
 - [ ] 20-07-PLAN.md — GAP Wave 7: AdminModal shared component + AdminErrorBoundary + semantic CSS color tokens
 - [ ] 20-08-PLAN.md — GAP Wave 8: Cereri — detail drawer + bulk select + escalation + priority change + CSS tokens
 - [ ] 20-09-PLAN.md — GAP Wave 8: Calendar — edit modal + color picker + type selector + recurring + overflow dots

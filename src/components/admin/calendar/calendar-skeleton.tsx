@@ -1,131 +1,64 @@
 "use client";
 
-// ============================================================================
-// CalendarSkeleton — layout-matched loading state for the Calendar page
-// Two-column: 8/12 calendar grid + 4/12 detail panel
-// ============================================================================
+import { motion } from "framer-motion";
 
-export function CalendarSkeleton(): React.JSX.Element {
+export function CalendarSkeleton() {
   return (
-    <div className="space-y-6">
-      {/* Page header */}
-      <div className="flex items-center justify-between">
-        <div className="space-y-2">
-          <div
-            className="animate-pulse rounded-xl"
-            style={{ width: 180, height: 28, background: "rgba(255,255,255,0.06)" }}
-          />
-          <div
-            className="animate-pulse rounded-lg"
-            style={{ width: 300, height: 16, background: "rgba(255,255,255,0.03)" }}
-          />
+    <div className="flex flex-col gap-6">
+      {/* Header Skeleton */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <div className="h-8 w-48 bg-white/[0.06] animate-pulse rounded-lg mb-2" />
+          <div className="h-4 w-72 bg-white/[0.06] animate-pulse rounded-md" />
         </div>
-        {/* "Eveniment Nou" button skeleton */}
-        <div
-          className="animate-pulse rounded-xl"
-          style={{ width: 160, height: 40, background: "rgba(255,255,255,0.06)" }}
-        />
+        <div className="h-10 w-36 bg-white/[0.06] animate-pulse rounded-xl" />
       </div>
 
-      {/* Grid layout */}
-      <div className="grid grid-cols-12 gap-5">
-        {/* Calendar grid — col-span-8 */}
-        <div
-          className="col-span-8 animate-pulse rounded-2xl p-5"
-          style={{
-            background: "rgba(255,255,255,0.025)",
-            border: "1px solid rgba(255,255,255,0.05)",
-          }}
-        >
-          {/* Month nav */}
-          <div className="mb-5 flex items-center justify-between">
-            <div
-              className="rounded-xl"
-              style={{ width: 140, height: 24, background: "rgba(255,255,255,0.06)" }}
-            />
-            <div className="flex gap-1">
-              {[36, 52, 36].map((w, i) => (
-                <div
-                  key={i}
-                  className="rounded-xl"
-                  style={{ width: w, height: 32, background: "rgba(255,255,255,0.04)" }}
-                />
-              ))}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        {/* Calendar Grid Skeleton (col-span-8) */}
+        <div className="col-span-1 lg:col-span-8 bg-white/[0.025] border border-white/[0.05] rounded-2xl p-5">
+          {/* Month Nav Bar Skeleton */}
+          <div className="flex justify-between items-center mb-6">
+            <div className="h-6 w-32 bg-white/[0.06] animate-pulse rounded-md" />
+            <div className="flex gap-2">
+              <div className="h-8 w-8 bg-white/[0.06] animate-pulse rounded-md" />
+              <div className="h-8 w-16 bg-white/[0.06] animate-pulse rounded-md" />
+              <div className="h-8 w-8 bg-white/[0.06] animate-pulse rounded-md" />
             </div>
           </div>
 
-          {/* Day name headers */}
-          <div className="mb-2 grid grid-cols-7 gap-1">
+          {/* Day Headers */}
+          <div className="grid grid-cols-7 gap-2 mb-4">
             {Array.from({ length: 7 }).map((_, i) => (
-              <div
-                key={i}
-                className="rounded-lg py-2"
-                style={{ background: "rgba(255,255,255,0.03)" }}
-              />
+              <div key={i} className="h-4 w-8 mx-auto bg-white/[0.06] animate-pulse rounded-sm" />
             ))}
           </div>
 
-          {/* Grid cells — 42 cells (6 rows × 7 cols) */}
-          <div className="grid grid-cols-7 gap-1">
+          {/* Grid Cells */}
+          <div className="grid grid-cols-7 gap-2">
             {Array.from({ length: 42 }).map((_, i) => (
               <div
                 key={i}
-                className="rounded-xl"
-                style={{
-                  minHeight: 60,
-                  background: i % 5 === 0 ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.015)",
-                }}
+                className="h-[60px] bg-white/[0.06] animate-pulse rounded-xl"
               />
             ))}
           </div>
         </div>
 
-        {/* Detail panel — col-span-4 */}
-        <div
-          className="col-span-4 flex animate-pulse flex-col gap-4 rounded-2xl p-5"
-          style={{
-            background: "rgba(255,255,255,0.025)",
-            border: "1px solid rgba(255,255,255,0.05)",
-          }}
-        >
-          {/* Panel header */}
-          <div
-            className="rounded-xl"
-            style={{ width: "60%", height: 20, background: "rgba(255,255,255,0.06)" }}
-          />
-
-          {/* Event cards skeleton */}
-          {[1, 2].map((i) => (
-            <div
-              key={i}
-              className="rounded-xl p-3"
-              style={{
-                background: "rgba(255,255,255,0.025)",
-                border: "1px solid rgba(255,255,255,0.04)",
-                height: 80,
-              }}
-            />
-          ))}
-
-          {/* Separator */}
-          <div className="rounded" style={{ height: 1, background: "rgba(255,255,255,0.05)" }} />
-
-          {/* Upcoming events skeleton */}
-          <div
-            className="rounded-xl"
-            style={{ width: "50%", height: 16, background: "rgba(255,255,255,0.06)" }}
-          />
-          {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="rounded-xl"
-              style={{
-                height: 48,
-                background: "rgba(255,255,255,0.02)",
-                border: "1px solid rgba(255,255,255,0.04)",
-              }}
-            />
-          ))}
+        {/* Panel Skeleton (col-span-4) */}
+        <div className="col-span-1 lg:col-span-4 flex flex-col gap-4">
+          <div className="h-64 bg-white/[0.025] border border-white/[0.05] rounded-2xl p-5 flex flex-col gap-4">
+            <div className="h-6 w-3/4 bg-white/[0.06] animate-pulse rounded-md" />
+            <div className="h-20 bg-white/[0.06] animate-pulse rounded-xl" />
+            <div className="h-20 bg-white/[0.06] animate-pulse rounded-xl" />
+          </div>
+          
+          <div className="h-64 bg-white/[0.025] border border-white/[0.05] rounded-2xl p-5 flex flex-col gap-4">
+            <div className="h-6 w-1/2 bg-white/[0.06] animate-pulse rounded-md" />
+            <div className="h-12 bg-white/[0.06] animate-pulse rounded-xl" />
+            <div className="h-12 bg-white/[0.06] animate-pulse rounded-xl" />
+            <div className="h-12 bg-white/[0.06] animate-pulse rounded-xl" />
+          </div>
         </div>
       </div>
     </div>

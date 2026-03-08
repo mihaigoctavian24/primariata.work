@@ -1,13 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
-import { CalendarDays, X } from "lucide-react";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { X } from "lucide-react";
 import type { CalEvent } from "@/store/calendar-store";
-
-// ============================================================================
-// Types
-// ============================================================================
 
 interface CreateEventModalProps {
   open: boolean;
@@ -15,245 +11,176 @@ interface CreateEventModalProps {
   onEventCreate: (event: Omit<CalEvent, "id">) => void;
 }
 
-// ============================================================================
-// Color picker options — stores Tailwind class strings (not hex)
-// ============================================================================
-
-const COLOR_OPTIONS: { label: string; tailwind: string }[] = [
-  { label: "Roz", tailwind: "bg-pink-500" },
-  { label: "Roșu", tailwind: "bg-red-500" },
-  { label: "Portocaliu", tailwind: "bg-amber-500" },
-  { label: "Albastru", tailwind: "bg-blue-500" },
-  { label: "Violet", tailwind: "bg-violet-500" },
-  { label: "Verde", tailwind: "bg-emerald-500" },
-  { label: "Cyan", tailwind: "bg-cyan-500" },
+const COLORS = [
+  "bg-pink-500",
+  "bg-red-500",
+  "bg-amber-500",
+  "bg-blue-500",
+  "bg-violet-500",
+  "bg-emerald-500",
+  "bg-cyan-500",
 ];
-
-// ============================================================================
-// CreateEventModal
-// ============================================================================
 
 export function CreateEventModal({
   open,
   onClose,
   onEventCreate,
-}: CreateEventModalProps): React.JSX.Element {
-  const [title, setTitle] = useState<string>("");
-  const [date, setDate] = useState<string>("");
-  const [time, setTime] = useState<string>("09:00");
-  const [location, setLocation] = useState<string>("");
-  const [type, setType] = useState<string>("Ședință");
-  const [color, setColor] = useState<string>("bg-pink-500");
-  const [titleError, setTitleError] = useState<string>("");
-  const [dateError, setDateError] = useState<string>("");
+}: CreateEventModalProps) {
+  const [title, setTitle] = useState("");
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
+  const [location, setLocation] = useState("");
+  const [type, setType] = useState("Ședință");
+  const [color, setColor] = useState(COLORS[0]);
 
-  // Reset form when modal opens
-  useEffect(() => {
-    if (open) {
-      const now = new Date();
-      const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
-      setTitle("");
-      setDate(todayStr);
-      setTime("09:00");
-      setLocation("");
-      setType("Ședință");
-      setColor("bg-pink-500");
-      setTitleError("");
-      setDateError("");
-    }
-  }, [open]);
-
-  // ESC to close
-  useEffect(() => {
-    if (!open) return;
-    const handleKeyDown = (e: KeyboardEvent): void => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [open, onClose]);
-
-  const handleSubmit = (e: React.FormEvent): void => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    let valid = true;
-
-    if (!title.trim() || title.trim().length < 2) {
-      setTitleError("Titlul e obligatoriu (minim 2 caractere)");
-      valid = false;
-    } else {
-      setTitleError("");
-    }
-
-    if (!date) {
-      setDateError("Data e obligatorie");
-      valid = false;
-    } else {
-      setDateError("");
-    }
-
-    if (!valid) return;
+    if (!title.trim() || !date) return;
 
     onEventCreate({
       title: title.trim(),
-      date, // ISO date string "YYYY-MM-DD"
-      time,
-      color, // Tailwind class string
-      type,
-      location: location.trim() || undefined,
+      date,
+      time: time || "00:00",
+      type: type || "Eveniment",
+      location: location.trim(),
+      color: color || "bg-pink-500",
     });
 
-    onClose();
+    // Reset form
+    setTitle("");
+    setDate("");
+    setTime("");
+    setLocation("");
+    setType("Ședință");
+    setColor(COLORS[0]);
   };
-
-  const inputStyle = {
-    background: "rgba(255,255,255,0.05)",
-    border: "1px solid rgba(255,255,255,0.08)",
-  } as const;
-
-  const inputClass =
-    "w-full rounded-xl px-3 py-2.5 text-white outline-none placeholder:text-gray-600 transition-all focus:border-accent-500/40";
 
   return (
     <AnimatePresence>
       {open && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[100] flex items-center justify-center"
-          onClick={onClose}
-        >
-          {/* Backdrop */}
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-
-          {/* Modal panel */}
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <motion.div
-            initial={{ opacity: 0, scale: 0.92, y: 10 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 bg-background/80 backdrop-blur-sm"
+            onClick={onClose}
+          />
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.92, y: 10 }}
-            transition={{ type: "spring", stiffness: 400, damping: 30 }}
-            onClick={(e) => e.stopPropagation()}
-            className="relative w-full max-w-md rounded-2xl p-6"
-            style={{
-              background: "var(--surface-raised, #1a1a2e)",
-              border: "1px solid rgba(255,255,255,0.1)",
-              boxShadow: "0 25px 60px rgba(0,0,0,0.5)",
-            }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            transition={{ type: "spring", bounce: 0, duration: 0.3 }}
+            className="relative bg-card border border-border rounded-2xl p-6 max-w-md w-full shadow-2xl"
           >
-            {/* Header */}
-            <div className="mb-5 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <CalendarDays className="text-accent-500 h-4 w-4" />
-                <h3 className="font-semibold text-white" style={{ fontSize: "1rem" }}>
-                  Eveniment Nou
-                </h3>
-              </div>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-semibold">Eveniment Nou</h2>
               <button
-                type="button"
                 onClick={onClose}
-                className="rounded-lg p-1 text-gray-400 transition-colors hover:bg-white/5"
+                className="p-2 -mr-2 text-muted-foreground hover:text-foreground rounded-full hover:bg-white/5 transition-colors"
+                type="button"
               >
-                <X className="h-4 w-4" />
+                <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Form */}
-            <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-              {/* Title */}
-              <div>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+              <div className="space-y-1">
+                <label htmlFor="title" className="text-sm font-medium">
+                  Titlu Eveniment <span className="text-red-400">*</span>
+                </label>
                 <input
+                  id="title"
+                  type="text"
+                  required
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Titlu eveniment *"
-                  className={inputClass}
-                  style={{ ...inputStyle, fontSize: "0.9rem" }}
+                  placeholder="Ex: Ședință Consiliu Local"
+                  className="w-full bg-white/[0.03] border border-white/[0.05] rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-accent-500/50"
                 />
-                {titleError && <p className="mt-1 text-xs text-red-400">{titleError}</p>}
               </div>
 
-              {/* Date + Time */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label htmlFor="date" className="text-sm font-medium">
+                    Dată <span className="text-red-400">*</span>
+                  </label>
                   <input
+                    id="date"
                     type="date"
+                    required
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
-                    className={inputClass}
-                    style={{ ...inputStyle, fontSize: "0.85rem", colorScheme: "dark" }}
+                    style={{ colorScheme: "dark" }}
+                    className="w-full bg-white/[0.03] border border-white/[0.05] rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-accent-500/50"
                   />
-                  {dateError && <p className="mt-1 text-xs text-red-400">{dateError}</p>}
                 </div>
-                <div>
+                <div className="space-y-1">
+                  <label htmlFor="time" className="text-sm font-medium">Ora</label>
                   <input
+                    id="time"
                     type="time"
                     value={time}
                     onChange={(e) => setTime(e.target.value)}
-                    className={inputClass}
-                    style={{ ...inputStyle, fontSize: "0.85rem", colorScheme: "dark" }}
+                    style={{ colorScheme: "dark" }}
+                    className="w-full bg-white/[0.03] border border-white/[0.05] rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-accent-500/50"
                   />
                 </div>
               </div>
 
-              {/* Type */}
-              <div>
+              <div className="space-y-1">
+                <label htmlFor="location" className="text-sm font-medium">Locație (opțional)</label>
                 <input
-                  value={type}
-                  onChange={(e) => setType(e.target.value)}
-                  placeholder="Tip eveniment (ex: Ședință)"
-                  className={inputClass}
-                  style={{ ...inputStyle, fontSize: "0.88rem" }}
-                />
-              </div>
-
-              {/* Location */}
-              <div>
-                <input
+                  id="location"
+                  type="text"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  placeholder="Locație (opțional)"
-                  className={inputClass}
-                  style={{ ...inputStyle, fontSize: "0.9rem" }}
+                  placeholder="Ex: Sala Mare"
+                  className="w-full bg-white/[0.03] border border-white/[0.05] rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-accent-500/50"
                 />
               </div>
 
-              {/* Color picker */}
-              <div>
-                <p className="mb-2 text-gray-500" style={{ fontSize: "0.75rem" }}>
-                  Culoare eveniment
-                </p>
-                <div className="flex items-center gap-2">
-                  {COLOR_OPTIONS.map((opt) => (
+              <div className="space-y-1">
+                <label htmlFor="type" className="text-sm font-medium">Tip Eveniment</label>
+                <input
+                  id="type"
+                  type="text"
+                  value={type}
+                  onChange={(e) => setType(e.target.value)}
+                  placeholder="Ex: Ședință"
+                  className="w-full bg-white/[0.03] border border-white/[0.05] rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-accent-500/50"
+                />
+              </div>
+
+              <div className="space-y-2 mt-2">
+                <label className="text-sm font-medium">Culoare Etichetă</label>
+                <div className="flex gap-3">
+                  {COLORS.map((c) => (
                     <button
-                      key={opt.tailwind}
+                      key={c}
                       type="button"
-                      aria-label={opt.label}
-                      onClick={() => setColor(opt.tailwind)}
-                      className={`h-8 w-8 cursor-pointer rounded-full transition-all ${opt.tailwind} ${
-                        color === opt.tailwind
-                          ? "ring-offset-card scale-110 ring-2 ring-white ring-offset-2"
-                          : "opacity-70 hover:opacity-100"
+                      onClick={() => setColor(c)}
+                      className={`w-8 h-8 rounded-full ${c} cursor-pointer transition-all ${
+                        color === c 
+                          ? "ring-2 ring-white ring-offset-2 ring-offset-card scale-110" 
+                          : "hover:scale-110"
                       }`}
+                      aria-label={`Select color ${c}`}
                     />
                   ))}
                 </div>
               </div>
 
-              {/* Submit */}
-              <motion.button
+              <button
                 type="submit"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl py-2.5 font-medium text-white"
-                style={{
-                  background: "var(--accent-gradient)",
-                  fontSize: "0.88rem",
-                }}
+                className="w-full mt-4 bg-[linear-gradient(110deg,var(--accent-500),var(--accent-600))] hover:bg-[linear-gradient(110deg,var(--accent-400),var(--accent-500))] text-white font-medium py-3 rounded-xl transition-all shadow-lg shadow-accent-500/20 active:scale-[0.98]"
               >
                 Salvează Evenimentul
-              </motion.button>
+              </button>
             </form>
           </motion.div>
-        </motion.div>
+        </div>
       )}
     </AnimatePresence>
   );

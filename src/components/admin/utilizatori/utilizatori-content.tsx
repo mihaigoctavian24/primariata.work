@@ -2,7 +2,19 @@
 
 import { useState, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Users, Search, UserPlus, ChevronRight, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  Users,
+  Search,
+  UserPlus,
+  ChevronRight,
+  ChevronDown,
+  ChevronUp,
+  ArrowUp,
+  ArrowDown,
+  ArrowUpDown,
+  Filter,
+} from "lucide-react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { UserRoleTabs } from "@/components/admin/utilizatori/user-role-tabs";
 import { UserProfileDrawer } from "@/components/admin/utilizatori/user-profile-drawer";
@@ -10,6 +22,9 @@ import { RegistrationGrowthChart } from "@/components/admin/utilizatori/registra
 import { InviteModal } from "@/components/admin/utilizatori/invite-modal";
 import { RoleColorBadge } from "@/components/admin/shared/role-color-badge";
 import type { RoleKey } from "@/components/admin/shared/role-color-badge";
+import { AdvancedFilterModal } from "@/components/admin/utilizatori/advanced-filter-modal";
+import type { AdvancedFilters } from "@/components/admin/utilizatori/advanced-filter-modal";
+import { updateUserStatus } from "@/components/admin/utilizatori/actions";
 
 // ============================================================================
 // Types
@@ -37,11 +52,20 @@ interface UtilizatoriContentProps {
   primarieId: string;
 }
 
+type SortField = "name" | "rol" | "status" | "last_login";
+type SortDir = "asc" | "desc";
+
 // ============================================================================
 // Constants
 // ============================================================================
 
 const PAGE_SIZE = 8;
+
+const DEFAULT_ADVANCED_FILTERS: AdvancedFilters = {
+  rol: "all",
+  status: "all",
+  departament: "all",
+};
 
 // ============================================================================
 // Helpers
@@ -72,12 +96,12 @@ function statusLabel(status: string | null): string {
 
 function statusColor(status: string | null): string {
   const colors: Record<string, string> = {
-    activ: "bg-emerald-500/15 text-emerald-500",
-    suspendat: "bg-red-500/15 text-red-500",
-    pending: "bg-amber-500/15 text-amber-500",
-    inactiv: "bg-white/10 text-white/40",
+    activ: "bg-[var(--color-success-subtle)] text-[var(--color-success)]",
+    suspendat: "bg-[var(--color-error-subtle)] text-[var(--color-error)]",
+    pending: "bg-[var(--color-warning-subtle)] text-[var(--color-warning)]",
+    inactiv: "bg-[var(--color-neutral-subtle)] text-[var(--color-neutral)]",
   };
-  return colors[status ?? ""] ?? "bg-white/10 text-white/40";
+  return colors[status ?? ""] ?? "bg-[var(--color-neutral-subtle)] text-[var(--color-neutral)]";
 }
 
 function matchesRole(user: UtilizatoriUser, role: string): boolean {
@@ -91,6 +115,81 @@ function matchesSearch(user: UtilizatoriUser, query: string): boolean {
   const q = query.toLowerCase();
   const fullName = `${user.prenume} ${user.nume}`.toLowerCase();
   return fullName.includes(q) || user.email.toLowerCase().includes(q);
+}
+
+function matchesAdvancedFilters(user: UtilizatoriUser, filters: AdvancedFilters): boolean {
+  if (filters.rol !== "all") {
+    if (filters.rol === "admin") {
+      if (user.rol !== "admin" && user.rol !== "super_admin") return false;
+    } else if (user.rol !== filters.rol) {
+      return false;
+    }
+  }
+  if (filters.status !== "all" && user.status !== filters.status) return false;
+  if (filters.departament !== "all" && user.departament !== filters.departament) return false;
+  return true;
+}
+
+function sortUsers(users: UtilizatoriUser[], field: SortField, dir: SortDir): UtilizatoriUser[] {
+  const sorted = [...users].sort((a, b) => {
+    let cmp = 0;
+    switch (field) {
+      case "name": {
+        const nameA = `${a.prenume} ${a.nume}`.toLowerCase();
+        const nameB = `${b.prenume} ${b.nume}`.toLowerCase();
+        cmp = nameA.localeCompare(nameB, "ro");
+        break;
+      }
+      case "rol":
+        cmp = a.rol.localeCompare(b.rol, "ro");
+        break;
+      case "status":
+        cmp = (a.status ?? "").localeCompare(b.status ?? "", "ro");
+        break;
+      case "last_login": {
+        const da = a.last_login_at ? new Date(a.last_login_at).getTime() : 0;
+        const db = b.last_login_at ? new Date(b.last_login_at).getTime() : 0;
+        cmp = da - db;
+        break;
+      }
+    }
+    return dir === "asc" ? cmp : -cmp;
+  });
+  return sorted;
+}
+
+// ============================================================================
+// Sub-components
+// ============================================================================
+
+interface SortButtonProps {
+  label: string;
+  field: SortField;
+  sortField: SortField;
+  sortDir: SortDir;
+  onSort: (field: SortField) => void;
+}
+
+function SortButton({ label, field, sortField, sortDir, onSort }: SortButtonProps): React.JSX.Element {
+  const isActive = sortField === field;
+  return (
+    <button
+      type="button"
+      onClick={() => onSort(field)}
+      className="flex items-center gap-1 text-muted-foreground hover:text-foreground text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer"
+    >
+      {label}
+      {isActive ? (
+        sortDir === "asc" ? (
+          <ArrowUp className="w-3 h-3" />
+        ) : (
+          <ArrowDown className="w-3 h-3" />
+        )
+      ) : (
+        <ArrowUpDown className="w-3 h-3 opacity-30" />
+      )}
+    </button>
+  );
 }
 
 // ============================================================================
@@ -111,6 +210,17 @@ export function UtilizatoriContent({
   // Key to force re-render of list after mutations (since data comes from server props)
   const [refreshKey, setRefreshKey] = useState(0);
 
+  // Sort state
+  const [sortField, setSortField] = useState<SortField>("rol");
+  const [sortDir, setSortDir] = useState<SortDir>("desc");
+
+  // Bulk selection
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+  // Advanced filter
+  const [showAdvancedFilter, setShowAdvancedFilter] = useState(false);
+  const [advancedFilters, setAdvancedFilters] = useState<AdvancedFilters>(DEFAULT_ADVANCED_FILTERS);
+
   // Counts per tab
   const counts = useMemo((): Record<string, number> => {
     return {
@@ -122,24 +232,39 @@ export function UtilizatoriContent({
     };
   }, [users]);
 
-  // Filtered list
+  // Unique departamente for filter dropdown
+  const uniqueDepartamente = useMemo((): string[] => {
+    return Array.from(new Set(users.map((u) => u.departament).filter(Boolean))) as string[];
+  }, [users]);
+
+  // Filtered + sorted list
   const filteredUsers = useMemo((): UtilizatoriUser[] => {
-    return users
-      .filter((u) => matchesRole(u, activeRole) && matchesSearch(u, search))
-      .sort((a, b) => {
-        const da = a.created_at ? new Date(a.created_at).getTime() : 0;
-        const db = b.created_at ? new Date(b.created_at).getTime() : 0;
-        return db - da;
-      });
+    const filtered = users.filter(
+      (u) =>
+        matchesRole(u, activeRole) &&
+        matchesSearch(u, search) &&
+        matchesAdvancedFilters(u, advancedFilters)
+    );
+    return sortUsers(filtered, sortField, sortDir);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [users, activeRole, search, refreshKey]);
+  }, [users, activeRole, search, advancedFilters, sortField, sortDir, refreshKey]);
 
   const totalPages = Math.max(1, Math.ceil(filteredUsers.length / PAGE_SIZE));
   const pagedUsers = filteredUsers.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
+  function handleSort(field: SortField): void {
+    if (sortField === field) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortField(field);
+      setSortDir("desc");
+    }
+  }
+
   function handleRoleChange(role: string): void {
     setActiveRole(role);
     setPage(1);
+    setSelectedIds(new Set());
   }
 
   function handleUserClick(user: UtilizatoriUser): void {
@@ -153,6 +278,49 @@ export function UtilizatoriContent({
   const handleMutated = useCallback((): void => {
     setRefreshKey((k) => k + 1);
   }, []);
+
+  // Bulk selection helpers
+  function toggleSelectUser(id: string): void {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }
+
+  function toggleSelectAll(): void {
+    if (selectedIds.size === pagedUsers.length && pagedUsers.length > 0) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(pagedUsers.map((u) => u.id)));
+    }
+  }
+
+  async function handleBulkActivate(): Promise<void> {
+    const ids = Array.from(selectedIds);
+    await Promise.all(ids.map((id) => updateUserStatus(id, "activ", primarieId)));
+    setSelectedIds(new Set());
+    toast.success(`${ids.length} utilizatori activați`);
+    handleMutated();
+  }
+
+  async function handleBulkSuspend(): Promise<void> {
+    const ids = Array.from(selectedIds);
+    await Promise.all(ids.map((id) => updateUserStatus(id, "suspendat", primarieId)));
+    setSelectedIds(new Set());
+    toast.success(`${ids.length} utilizatori suspendați`);
+    handleMutated();
+  }
+
+  // Check if any advanced filter is active
+  const hasActiveAdvancedFilter =
+    advancedFilters.rol !== "all" ||
+    advancedFilters.status !== "all" ||
+    advancedFilters.departament !== "all";
 
   return (
     <motion.div
@@ -186,7 +354,7 @@ export function UtilizatoriContent({
       {/* Role filter tabs */}
       <UserRoleTabs activeRole={activeRole} onRoleChange={handleRoleChange} counts={counts} />
 
-      {/* Search bar + chart toggle */}
+      {/* Search bar + filter + chart toggle */}
       <div className="flex items-center gap-3">
         <div className="relative max-w-sm flex-1">
           <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-white/30" />
@@ -201,6 +369,26 @@ export function UtilizatoriContent({
             className="focus:border-accent-500/50 w-full rounded-lg border border-white/[0.08] bg-white/[0.04] py-2 pr-4 pl-9 text-sm text-white placeholder-white/30 transition-colors outline-none focus:bg-white/[0.06]"
           />
         </div>
+
+        {/* Advanced filter button */}
+        <button
+          type="button"
+          onClick={() => setShowAdvancedFilter(true)}
+          className={cn(
+            "flex items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors",
+            hasActiveAdvancedFilter
+              ? "border-accent-500/50 bg-accent-500/10 text-accent-400"
+              : "border-white/[0.08] bg-white/[0.04] text-white/60 hover:bg-white/[0.07] hover:text-white/80"
+          )}
+        >
+          <Filter className="h-4 w-4" />
+          Filtre Avansate
+          {hasActiveAdvancedFilter && (
+            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-accent-500 text-[10px] font-bold text-white">
+              !
+            </span>
+          )}
+        </button>
 
         <button
           type="button"
@@ -233,6 +421,47 @@ export function UtilizatoriContent({
         )}
       </AnimatePresence>
 
+      {/* Batch action bar */}
+      <AnimatePresence>
+        {selectedIds.size > 0 && (
+          <motion.div
+            key="batch-bar"
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2 }}
+            className="flex items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-2.5"
+          >
+            <span className="text-sm font-medium text-white/70">
+              {selectedIds.size} utilizatori selectați
+            </span>
+            <div className="ml-auto flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleBulkActivate}
+                className="rounded-lg bg-emerald-500/15 px-3 py-1.5 text-xs font-medium text-emerald-400 transition-colors hover:bg-emerald-500/25"
+              >
+                Activează
+              </button>
+              <button
+                type="button"
+                onClick={handleBulkSuspend}
+                className="rounded-lg bg-amber-500/15 px-3 py-1.5 text-xs font-medium text-amber-400 transition-colors hover:bg-amber-500/25"
+              >
+                Suspendă
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedIds(new Set())}
+                className="rounded-lg border border-white/[0.08] px-3 py-1.5 text-xs font-medium text-white/40 transition-colors hover:text-white/70"
+              >
+                Deselectează
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* User table */}
       <AnimatePresence mode="popLayout">
         {filteredUsers.length === 0 ? (
@@ -249,64 +478,142 @@ export function UtilizatoriContent({
             </p>
           </motion.div>
         ) : (
-          <div className="space-y-1.5">
-            {pagedUsers.map((user) => (
-              <motion.div
-                key={user.id}
-                layout
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.2 }}
-                className="flex cursor-pointer items-center gap-4 rounded-xl bg-white/[0.025] p-4 transition-colors hover:bg-white/[0.04]"
-                onClick={() => handleUserClick(user)}
-              >
-                {/* Avatar */}
-                <div className="flex-shrink-0">
-                  {user.avatar_url ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={user.avatar_url}
-                      alt={`${user.prenume} ${user.nume}`}
-                      className="h-10 w-10 rounded-full object-cover"
-                    />
-                  ) : (
-                    <div className="bg-accent-500/20 text-accent-500 flex h-10 w-10 items-center justify-center rounded-full text-xs font-bold">
-                      {getInitials(user.nume, user.prenume)}
-                    </div>
-                  )}
-                </div>
-
-                {/* Name + email */}
+          <div className="overflow-hidden rounded-xl border border-white/[0.06]">
+            {/* Table header */}
+            <div className="border-b border-white/[0.06] bg-white/[0.02] px-4 py-2.5">
+              <div className="flex items-center gap-4">
+                {/* Select-all checkbox */}
+                <input
+                  type="checkbox"
+                  checked={selectedIds.size === pagedUsers.length && pagedUsers.length > 0}
+                  onChange={toggleSelectAll}
+                  className="accent-[var(--color-info)] cursor-pointer flex-shrink-0"
+                  aria-label="Selectează toate"
+                />
+                {/* Spacer for avatar */}
+                <div className="w-10 flex-shrink-0" />
+                {/* Nume column */}
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-white">
-                    {user.prenume} {user.nume}
-                  </p>
-                  <p className="truncate text-xs text-white/40">{user.email}</p>
+                  <SortButton
+                    label="Nume"
+                    field="name"
+                    sortField={sortField}
+                    sortDir={sortDir}
+                    onSort={handleSort}
+                  />
                 </div>
+                {/* Rol column */}
+                <div className="w-28 flex-shrink-0">
+                  <SortButton
+                    label="Rol"
+                    field="rol"
+                    sortField={sortField}
+                    sortDir={sortDir}
+                    onSort={handleSort}
+                  />
+                </div>
+                {/* Status column */}
+                <div className="w-24 flex-shrink-0">
+                  <SortButton
+                    label="Status"
+                    field="status"
+                    sortField={sortField}
+                    sortDir={sortDir}
+                    onSort={handleSort}
+                  />
+                </div>
+                {/* Ultimul Login column */}
+                <div className="hidden w-28 flex-shrink-0 sm:block">
+                  <SortButton
+                    label="Ultimul Login"
+                    field="last_login"
+                    sortField={sortField}
+                    sortDir={sortDir}
+                    onSort={handleSort}
+                  />
+                </div>
+                {/* Chevron spacer */}
+                <div className="w-4 flex-shrink-0" />
+              </div>
+            </div>
 
-                {/* Role badge — use RoleColorBadge for known roles */}
-                <RoleColorBadge role={user.rol as RoleKey} />
-
-                {/* Status pill */}
-                <span
-                  className={cn(
-                    "flex-shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium",
-                    statusColor(user.status)
-                  )}
+            {/* Table rows */}
+            <div className="divide-y divide-white/[0.04]">
+              {pagedUsers.map((user) => (
+                <motion.div
+                  key={user.id}
+                  layout
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex cursor-pointer items-center gap-4 bg-white/[0.025] px-4 py-4 transition-colors hover:bg-white/[0.04]"
+                  onClick={() => handleUserClick(user)}
                 >
-                  {statusLabel(user.status)}
-                </span>
+                  {/* Checkbox */}
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.has(user.id)}
+                    onChange={(e) => {
+                      e.stopPropagation();
+                      toggleSelectUser(user.id);
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                    className="accent-[var(--color-info)] cursor-pointer flex-shrink-0"
+                    aria-label={`Selectează ${user.prenume} ${user.nume}`}
+                  />
 
-                {/* Last active */}
-                <span className="hidden flex-shrink-0 text-xs text-white/30 sm:block">
-                  {formatDateShort(user.last_login_at)}
-                </span>
+                  {/* Avatar */}
+                  <div className="flex-shrink-0">
+                    {user.avatar_url ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={user.avatar_url}
+                        alt={`${user.prenume} ${user.nume}`}
+                        className="h-10 w-10 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="bg-accent-500/20 text-accent-500 flex h-10 w-10 items-center justify-center rounded-full text-xs font-bold">
+                        {getInitials(user.nume, user.prenume)}
+                      </div>
+                    )}
+                  </div>
 
-                {/* Chevron */}
-                <ChevronRight className="h-4 w-4 flex-shrink-0 text-white/20" />
-              </motion.div>
-            ))}
+                  {/* Name + email */}
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium text-white">
+                      {user.prenume} {user.nume}
+                    </p>
+                    <p className="truncate text-xs text-white/40">{user.email}</p>
+                  </div>
+
+                  {/* Role badge */}
+                  <div className="w-28 flex-shrink-0">
+                    <RoleColorBadge role={user.rol as RoleKey} />
+                  </div>
+
+                  {/* Status pill */}
+                  <div className="w-24 flex-shrink-0">
+                    <span
+                      className={cn(
+                        "inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium",
+                        statusColor(user.status)
+                      )}
+                    >
+                      {statusLabel(user.status)}
+                    </span>
+                  </div>
+
+                  {/* Last active */}
+                  <span className="hidden w-28 flex-shrink-0 text-xs text-white/30 sm:block">
+                    {formatDateShort(user.last_login_at)}
+                  </span>
+
+                  {/* Chevron */}
+                  <ChevronRight className="h-4 w-4 flex-shrink-0 text-white/20" />
+                </motion.div>
+              ))}
+            </div>
           </div>
         )}
       </AnimatePresence>
@@ -353,6 +660,19 @@ export function UtilizatoriContent({
 
       {/* Invite modal */}
       <InviteModal open={showInvite} onClose={() => setShowInvite(false)} primarieId={primarieId} />
+
+      {/* Advanced filter modal */}
+      <AdvancedFilterModal
+        open={showAdvancedFilter}
+        onClose={() => setShowAdvancedFilter(false)}
+        filters={advancedFilters}
+        onApply={(f) => {
+          setAdvancedFilters(f);
+          setPage(1);
+          setShowAdvancedFilter(false);
+        }}
+        departamente={uniqueDepartamente}
+      />
     </motion.div>
   );
 }

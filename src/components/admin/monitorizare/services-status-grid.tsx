@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "motion/react";
 import {
   Globe,
@@ -20,20 +20,16 @@ import {
   XCircle,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { ServiceDetailModal } from "./service-detail-modal";
+import type { ServiceInfo } from "./service-detail-modal";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 type ServiceStatus = "operational" | "degraded" | "down" | "maintenance";
 
-interface ServiceHealth {
-  name: string;
-  status: ServiceStatus;
-  latency: number;
-  uptime: string;
-  lastCheck: string;
-  icon: LucideIcon; // NOT string in Phase 20 (no Server Component serialization needed)
-  description: string;
-}
+// ServiceHealth is structurally identical to ServiceInfo from service-detail-modal
+// Using type alias to keep local code readable while staying compatible with modal
+type ServiceHealth = ServiceInfo;
 
 // ─── Status Styles ───────────────────────────────────────────────────────────
 
@@ -177,6 +173,8 @@ const services: ServiceHealth[] = [
 // ─── ServicesStatusGrid ───────────────────────────────────────────────────────
 
 export function ServicesStatusGrid(): React.JSX.Element {
+  const [selectedService, setSelectedService] = useState<ServiceInfo | null>(null);
+
   const operationalCount = services.filter((s) => s.status === "operational").length;
   const degradedCount = services.filter((s) => s.status === "degraded").length;
   const downCount = services.filter((s) => s.status === "down").length;

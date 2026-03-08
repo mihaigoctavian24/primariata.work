@@ -16,6 +16,7 @@ import {
   RotateCcw,
 } from "lucide-react";
 import { toast } from "sonner";
+import { AdminModal } from "@/components/admin/shared/admin-modal";
 
 // ============================================================================
 // Types
@@ -157,6 +158,8 @@ export function TransactionList({
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [refundTarget, setRefundTarget] = useState<PlatiItem | null>(null);
+  const [refundReason, setRefundReason] = useState("");
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase().trim();

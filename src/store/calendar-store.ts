@@ -13,12 +13,14 @@ export interface CalEvent {
   color: string; // Tailwind class string: "bg-pink-500", "bg-red-500" etc.
   type: string; // event type label
   location?: string;
+  recurrence?: "none" | "zilnic" | "saptamanal" | "lunar"; // recurring event rule
 }
 
 interface CalendarStore {
   events: CalEvent[];
   addEvent: (event: Omit<CalEvent, "id">) => void;
   removeEvent: (id: string) => void;
+  updateEvent: (id: string, updates: Partial<Omit<CalEvent, "id">>) => void;
 }
 
 // ============================================================================
@@ -108,6 +110,11 @@ export const useCalendarStore = create<CalendarStore>()(
       removeEvent: (id: string): void => {
         set((state) => ({
           events: state.events.filter((e) => e.id !== id),
+        }));
+      },
+      updateEvent: (id: string, updates: Partial<Omit<CalEvent, "id">>): void => {
+        set((state) => ({
+          events: state.events.map((e) => (e.id === id ? { ...e, ...updates } : e)),
         }));
       },
     }),

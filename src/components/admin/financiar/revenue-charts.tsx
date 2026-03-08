@@ -7,6 +7,9 @@ import {
   Area,
   BarChart,
   Bar,
+  PieChart,
+  Pie,
+  Cell,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -268,6 +271,9 @@ const METODA_CONFIG: Record<
   other: { label: "Altele", icon: Smartphone, colorClass: "bg-slate-500" },
 };
 
+// SVG fill attributes require hex values — CSS vars cannot be used in SVG stroke/fill (Phase 19 decision)
+const METODA_COLORS = ["#3b82f6", "#06b6d4", "#f59e0b", "#6b7280"] as const;
+
 function PaymentMethodsList({ data }: { data: MetodaBreakdown }): React.JSX.Element {
   const entries = Object.entries({
     card: data.card,
@@ -280,6 +286,13 @@ function PaymentMethodsList({ data }: { data: MetodaBreakdown }): React.JSX.Elem
   const total = entries.reduce((sum, [, count]) => sum + count, 0);
   const isEmpty = total === 0;
 
+  // Donut chart data with per-method colors
+  const donutData = entries.map(([metoda, count], i) => ({
+    name: METODA_CONFIG[metoda]?.label ?? metoda,
+    value: count,
+    color: METODA_COLORS[i % METODA_COLORS.length]!,
+  }));
+
   return (
     <div className="rounded-2xl border border-white/[0.05] bg-white/[0.025] p-5">
       <h3 className="mb-4 text-[0.93rem] font-semibold text-white">Metode de Plată</h3>
@@ -289,35 +302,62 @@ function PaymentMethodsList({ data }: { data: MetodaBreakdown }): React.JSX.Elem
           <span className="text-[0.82rem] text-gray-500">Fără date de plată</span>
         </div>
       ) : (
-        <div className="flex flex-col gap-3">
-          {entries.map(([metoda, count], i) => {
-            const cfg = METODA_CONFIG[metoda] ?? METODA_CONFIG.other!;
-            const pct = total > 0 ? Math.round((count / total) * 100) : 0;
-            const Icon = cfg.icon;
+        <div className="flex items-center gap-4">
+          {/* Donut chart — 120x120 */}
+          <div className="shrink-0">
+            <ResponsiveContainer width={120} height={120}>
+              <PieChart>
+                <Pie
+                  data={donutData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={35}
+                  outerRadius={55}
+                  dataKey="value"
+                  strokeWidth={0}
+                >
+                  {donutData.map((entry, i) => (
+                    <Cell key={i} fill={entry.color} />
+                  ))}
+                </Pie>
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
 
-            return (
-              <div key={metoda} className="flex flex-col gap-1">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Icon className="h-3.5 w-3.5 text-gray-400" />
-                    <span className="text-[0.78rem] text-gray-300">{cfg.label}</span>
+          {/* Legend list with progress bars */}
+          <div className="flex-1 flex flex-col gap-2.5">
+            {entries.map(([metoda, count], i) => {
+              const cfg = METODA_CONFIG[metoda] ?? METODA_CONFIG.other!;
+              const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+              const color = METODA_COLORS[i % METODA_COLORS.length]!;
+              const Icon = cfg.icon;
+
+              return (
+                <div key={metoda} className="flex flex-col gap-0.5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="h-2 w-2 rounded-full shrink-0" style={{ background: color }} />
+                      <Icon className="h-3 w-3 text-gray-500" />
+                      <span className="text-[0.75rem] text-gray-300">{cfg.label}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[0.68rem] text-gray-500">{count} tx</span>
+                      <span className="text-[0.72rem] font-medium text-white">{pct}%</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[0.72rem] text-gray-400">{count} tx</span>
-                    <span className="text-[0.72rem] font-medium text-white">{pct}%</span>
+                  <div className="h-1 w-full overflow-hidden rounded-full bg-white/[0.06]">
+                    <motion.div
+                      className="h-full rounded-full"
+                      style={{ background: color }}
+                      initial={{ width: 0 }}
+                      animate={{ width: `${pct}%` }}
+                      transition={{ duration: 0.8, delay: 0.2 + i * 0.08, ease: "easeOut" }}
+                    />
                   </div>
                 </div>
-                <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
-                  <motion.div
-                    className={`h-full rounded-full ${cfg.colorClass}`}
-                    initial={{ width: 0 }}
-                    animate={{ width: `${pct}%` }}
-                    transition={{ duration: 0.8, delay: 0.2 + i * 0.08, ease: "easeOut" }}
-                  />
-                </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       )}
     </div>

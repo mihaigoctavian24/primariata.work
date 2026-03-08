@@ -64,9 +64,29 @@ Citizens can submit cereri and complete plăți digitally for any primărie wher
 - ✓ E2E seed data infrastructure — v1.0
 - ✓ Pending payment count in dashboard (real count) — v1.0
 
+## Current Milestone: v2.0 Design Revamp
+
+**Goal:** Revamp the entire admin primărie experience based on Figma designs, establishing a shared design system (layout, components, animations, theming) that will serve as the foundation for revamping all other roles (cetățean, funcționar, primar) in subsequent milestones.
+
+**Target features:**
+- New role-adaptive sidebar layout (starting with admin, structured for all roles)
+- Redesigned header with command palette (⌘K), notification drawer, weather widget
+- Revamped admin dashboard with user stats, system health, cereri overview, funcționari performance
+- New Monitorizare page (system monitoring with real metrics from Better Stack)
+- Enhanced Utilizatori page (comprehensive user management with role hierarchy)
+- Enhanced Cereri supervizare (overview/table/kanban/alerts tabs, SLA, escalation)
+- Enhanced Documente management (folders, upload, preview, grid/list views)
+- Enhanced Financiar dashboard (revenue analytics, payment methods, transactions)
+- New Calendar page (events, deadlines, ședințe with real data)
+- Enhanced Setări (5 tabs: profil, primărie config, notificări, securitate, aspect with accent color customization)
+- Shared component library (StatsCard, DonutChart, ProgressRing, AnimatedCounter, LiveActivityFeed)
+- Framer Motion micro-animations throughout
+- Design system with both dark and light theme support, accent color customization
+- Reference implementation: `Revamp Primarie Admin/` folder (Figma Make export)
+
 ### Active
 
-(Empty — define in next milestone via `/gsd:new-milestone`)
+(Defined in REQUIREMENTS.md)
 
 ### Out of Scope
 
@@ -84,7 +104,9 @@ Citizens can submit cereri and complete plăți digitally for any primărie wher
 
 **Academic context:** University project for URA - Programarea Aplicațiilor Web (2025-2026). Team: Octavian Mihai (Full-Stack) & Bianca-Maria Abbasi Pazeyazd (Frontend/UI/UX).
 
-**Current state (2026-03-05):** v1.0 MVP shipped. 90,580 LOC TypeScript across 359 files. 11 phases, 36 plans, 124 commits over 3 days. All 67 requirements satisfied. 6/6 E2E flows complete. Tech debt tracked in milestone audit (~50 items, none blocking).
+**Current state (2026-03-05):** v1.0 MVP shipped. 90,580 LOC TypeScript across 359 files. 11 phases, 36 plans, 124 commits over 3 days. All 67 requirements satisfied. 6/6 E2E flows complete. Tech debt tracked in milestone audit (~50 items, none blocking). v2.0 Design Revamp milestone started — admin primărie role revamp based on Figma designs.
+
+**Design reference:** `Revamp Primarie Admin/` — Figma Make export with 8 pages, collapsible sidebar, command palette, notification drawer, micro-animations. This is the visual target for the admin role. Future milestones will apply the same design system to other roles.
 
 **Tech stack:** Next.js 15.5.9, React 19, TypeScript 5 strict, Supabase (PostgreSQL 15 + Auth + Storage + Realtime), Tailwind CSS 4, shadcn/ui, Zustand 5, React Query 5, React Hook Form 7 + Zod 4, Framer Motion 12, Better Stack logging, Vercel (Frankfurt), Cloudflare CDN.
 
@@ -124,6 +146,8 @@ Citizens can submit cereri and complete plăți digitally for any primărie wher
 | Embedded Roboto fonts in jsPDF | Romanian diacritics (ș, ț, ă, â, î) require font embedding; ~300KB per receipt | ✓ Good |
 | pgTAP for RLS testing | Database-level isolation tests catch RLS bugs that E2E tests cannot | ✓ Good |
 
+| Figma-driven design revamp (role-by-role) | Figma Make export as source of truth; each role gets its own revamp milestone; shared components cascade | — Pending |
+
 ---
 
-*Last updated: 2026-03-05 after v1.0 milestone*
+*Last updated: 2026-03-05 after v2.0 milestone start*

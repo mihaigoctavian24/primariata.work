@@ -1,162 +1,112 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "motion/react";
-import { CalendarDays } from "lucide-react";
+import { motion } from "framer-motion";
+import { CalendarDays, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { useCalendarStore } from "@/store/calendar-store";
-import { CalendarGrid } from "@/components/admin/calendar/calendar-grid";
-import { EventDetailPanel } from "@/components/admin/calendar/event-detail-panel";
-import { CreateEventModal } from "@/components/admin/calendar/create-event-modal";
-import type { CalEvent } from "@/store/calendar-store";
+import { CalendarGrid } from "./calendar-grid";
+import { EventDetailPanel } from "./event-detail-panel";
+import { CreateEventModal } from "./create-event-modal";
 
-// ============================================================================
-// CalendarContent — Client Component coordinator
-// Reads from Zustand calendar store; no props needed
-// ============================================================================
-
-export function CalendarContent(): React.JSX.Element {
-  const now = new Date();
-
-  const [year, setYear] = useState<number>(now.getFullYear());
-  const [month, setMonth] = useState<number>(now.getMonth());
-  const [selectedDay, setSelectedDay] = useState<number | null>(now.getDate());
-  const [showCreateModal, setShowCreateModal] = useState<boolean>(false);
-
+export function CalendarContent() {
   const { events, addEvent, removeEvent } = useCalendarStore();
+  
+  const today = new Date();
+  const [currentYear, setCurrentYear] = useState(today.getFullYear());
+  const [currentMonth, setCurrentMonth] = useState(today.getMonth());
+  const [selectedDay, setSelectedDay] = useState<number | null>(today.getDate());
+  
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
-  // ============================================================
-  // Month navigation — handles year rollover
-  // ============================================================
-
-  const prevMonth = (): void => {
-    if (month === 0) {
-      setYear((y) => y - 1);
-      setMonth(11);
-    } else {
-      setMonth((m) => m - 1);
+  const handleMonthChange = (direction: "prev" | "next" | "today") => {
+    if (direction === "today") {
+      setCurrentYear(today.getFullYear());
+      setCurrentMonth(today.getMonth());
+      setSelectedDay(today.getDate());
+      return;
     }
-    setSelectedDay(null);
-  };
 
-  const nextMonth = (): void => {
-    if (month === 11) {
-      setYear((y) => y + 1);
-      setMonth(0);
+    if (direction === "prev") {
+      if (currentMonth === 0) {
+        setCurrentMonth(11);
+        setCurrentYear(currentYear - 1);
+      } else {
+        setCurrentMonth(currentMonth - 1);
+      }
     } else {
-      setMonth((m) => m + 1);
-    }
-    setSelectedDay(null);
-  };
-
-  const goToToday = (): void => {
-    const today = new Date();
-    setYear(today.getFullYear());
-    setMonth(today.getMonth());
-    setSelectedDay(today.getDate());
-  };
-
-  // ============================================================
-  // Event handlers
-  // ============================================================
-
-  const handleMonthChange = (dir: "prev" | "next"): void => {
-    if (dir === "prev") {
-      prevMonth();
-    } else {
-      nextMonth();
+      if (currentMonth === 11) {
+        setCurrentMonth(0);
+        setCurrentYear(currentYear + 1);
+      } else {
+        setCurrentMonth(currentMonth + 1);
+      }
     }
   };
-
-  const handleEventCreate = (event: Omit<CalEvent, "id">): void => {
-    addEvent(event);
-    toast.success("Eveniment adăugat!");
-  };
-
-  // Filter events to only those in the current month/year (for the grid)
-  const monthPrefix = `${year}-${String(month + 1).padStart(2, "0")}`;
-  const currentMonthEvents = events.filter((e) => e.date.startsWith(monthPrefix));
-
-  // ============================================================
-  // Render
-  // ============================================================
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25 }}
-      className="space-y-6"
+      transition={{ duration: 0.3 }}
+      className="flex flex-col gap-6 max-w-7xl mx-auto w-full"
     >
-      {/* Page header */}
-      <div className="flex items-center justify-between">
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <motion.h1
-            initial={{ opacity: 0, x: -16 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="flex items-center gap-2 text-white"
-            style={{ fontSize: "1.6rem", fontWeight: 700 }}
-          >
-            <CalendarDays className="h-6 w-6 text-sky-400" />
+          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
+            <CalendarDays className="w-8 h-8 text-sky-400" />
             Calendar
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.06 }}
-            className="mt-1 text-gray-500"
-            style={{ fontSize: "0.83rem" }}
-          >
-            Evenimente, deadlines și ședințe programate
-          </motion.p>
+          </h1>
+          <p className="text-muted-foreground mt-1 text-sm sm:text-base">
+            Evenimente, deadlines și ședințe programate pentru Primărie.
+          </p>
         </div>
-
-        <motion.button
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.97 }}
+        
+        <button
           onClick={() => setShowCreateModal(true)}
-          className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-white"
-          style={{
-            background: "var(--accent-gradient)",
-            boxShadow: "0 4px 15px rgba(var(--accent-500-rgb, 59 130 246) / 0.25)",
-            fontSize: "0.85rem",
-          }}
+          className="flex items-center gap-2 bg-[linear-gradient(110deg,#38bdf8,#818cf8)] hover:brightness-110 text-white font-medium py-2 px-4 rounded-xl transition-all shadow-lg active:scale-95"
         >
-          + Eveniment Nou
-        </motion.button>
+          <Plus className="w-4 h-4" />
+          <span>Eveniment Nou</span>
+        </button>
       </div>
 
-      {/* Two-column grid layout */}
-      <div className="grid grid-cols-12 gap-5">
-        {/* Calendar grid — col-span-8 */}
+      {/* Main Grid Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 mt-2">
         <CalendarGrid
-          year={year}
-          month={month}
-          events={currentMonthEvents}
+          year={currentYear}
+          month={currentMonth}
+          events={events}
           selectedDay={selectedDay}
           onDaySelect={setSelectedDay}
           onMonthChange={handleMonthChange}
-          onTodayClick={goToToday}
         />
-
-        {/* Event detail panel — col-span-4 */}
+        
         <EventDetailPanel
           selectedDay={selectedDay}
-          year={year}
-          month={month}
+          year={currentYear}
+          month={currentMonth}
           events={events}
           onEventRemove={removeEvent}
-          onDaySelect={setSelectedDay}
+          onDaySelect={(day) => setSelectedDay(day)}
         />
       </div>
 
-      {/* Create event modal */}
       <CreateEventModal
         open={showCreateModal}
         onClose={() => setShowCreateModal(false)}
-        onEventCreate={handleEventCreate}
+        onEventCreate={(e) => {
+          addEvent(e);
+          toast.success("Eveniment adăugat!");
+          setShowCreateModal(false);
+          
+          // Auto-select the day of the new event if it's in the current month view
+          const evtDate = new Date(e.date);
+          if (evtDate.getFullYear() === currentYear && evtDate.getMonth() === currentMonth) {
+            setSelectedDay(evtDate.getDate());
+          }
+        }}
       />
     </motion.div>
   );

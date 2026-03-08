@@ -127,3 +127,72 @@ export async function reassignCerere(
   revalidatePath("/", "layout");
   return {};
 }
+
+/**
+ * Escalate a cerere to Primar — sets escaladata=true and prioritate=urgenta.
+ * Uses note parameter to add an audit entry.
+ */
+export async function escalateCerere(
+  cerereId: string,
+  note: string
+): Promise<{ error?: string }> {
+  const ctx = await getAuthContext();
+  if ("error" in ctx) return { error: ctx.error };
+
+  const supabase = createServiceRoleClient();
+
+  // Append escalation note to note_admin
+  const { data: rawData, error: readError } = await supabase
+    .from("cereri")
+    .select("*")
+    .eq("id", cerereId)
+    .single();
+
+  if (readError || !rawData) return { error: readError?.message ?? "Cerere negăsită" };
+
+  const rowRecord = rawData as unknown as Record<string, unknown>;
+  const existingNotes: NoteAdminEntry[] = Array.isArray(rowRecord["note_admin"])
+    ? (rowRecord["note_admin"] as NoteAdminEntry[])
+    : [];
+
+  const newEntry: NoteAdminEntry = {
+    text: `[ESCALADARE] ${note.trim() || "Escaladată la Primar de admin"}`,
+    timestamp: new Date().toISOString(),
+    actor: "Admin",
+  };
+
+  const { error } = await supabase
+    .from("cereri")
+    .update({
+      escaladata: true,
+      prioritate: "urgenta",
+      note_admin: [...existingNotes, newEntry] as unknown as NoteAdminEntry[],
+      updated_at: new Date().toISOString(),
+    } as Record<string, unknown>)
+    .eq("id", cerereId);
+
+  if (error) return { error: error.message };
+  revalidatePath("/", "layout");
+  return {};
+}
+
+/**
+ * Change cerere prioritate.
+ */
+export async function changePriorityCerere(
+  cerereId: string,
+  prioritate: "urgenta" | "ridicata" | "medie" | "scazuta"
+): Promise<{ error?: string }> {
+  const ctx = await getAuthContext();
+  if ("error" in ctx) return { error: ctx.error };
+
+  const supabase = createServiceRoleClient();
+  const { error } = await supabase
+    .from("cereri")
+    .update({ prioritate, updated_at: new Date().toISOString() } as Record<string, unknown>)
+    .eq("id", cerereId);
+
+  if (error) return { error: error.message };
+  revalidatePath("/", "layout");
+  return {};
+}
