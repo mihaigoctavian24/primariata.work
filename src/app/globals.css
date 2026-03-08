@@ -26,16 +26,18 @@
     --accent-900: oklch(0.32 0.073 var(--accent-hue));
     --accent-950: oklch(0.238 0.054 var(--accent-hue));
 
-    /* Accent Gradient Engine -- accent to complementary (180deg opposite) */
+    /* Accent Gradient Engine -- 3-stop vivid gradient, hue sweep -80deg */
     --accent-gradient: linear-gradient(
       90deg,
-      var(--accent-500),
-      oklch(0.573 0.13 calc(var(--accent-hue) - 60))
+      oklch(0.65 0.24 var(--accent-hue)),
+      oklch(0.58 0.26 calc(var(--accent-hue) - 40)),
+      oklch(0.55 0.22 calc(var(--accent-hue) - 80))
     );
     --accent-gradient-subtle: linear-gradient(
       90deg,
-      oklch(0.648 0.147 var(--accent-hue) / 0.6),
-      oklch(0.573 0.13 calc(var(--accent-hue) - 60) / 0.4)
+      oklch(0.65 0.24 var(--accent-hue) / 0.7),
+      oklch(0.58 0.26 calc(var(--accent-hue) - 40) / 0.5),
+      oklch(0.55 0.22 calc(var(--accent-hue) - 80) / 0.35)
     );
     --accent-shadow: oklch(0.648 0.147 var(--accent-hue) / 0.2);
 
@@ -144,7 +146,7 @@
 
   .dark {
     /* ─── Core Semantic Tokens (oklch) ─── Dark Mode ─── */
-    --background: oklch(0.145 0 0);
+    --background: oklch(0.143 0.013 285); /* #09090f — Figma dark bg (subtle indigo tint) */
     --foreground: oklch(0.975 0.005 90);
 
     --card: oklch(0.185 0.005 265);
@@ -187,7 +189,7 @@
     --surface-raised: oklch(0.2 0.005 260);
     --surface-sunken: oklch(0.1 0 0);
     --surface-overlay: oklch(0.2 0 0 / 0.9);
-    --border-subtle: oklch(0.25 0.005 260);
+    --border-subtle: oklch(0.251 0.015 286); /* #212129 — Figma separator (sidebar/topbar/content) */
     --border-strong: oklch(0.4 0.01 260);
 
     /* Notification Drawer — Dark Mode */

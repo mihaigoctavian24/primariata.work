@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ShieldCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ClickableAvatar } from "@/components/shared/ClickableAvatar";
 
 interface UserInfo {
@@ -73,20 +72,7 @@ export function SidebarUserCard({ collapsed, roleLabel }: SidebarUserCardProps) 
     />
   );
 
-  if (collapsed) {
-    return (
-      <div className="border-sidebar-border border-t p-3">
-        <TooltipProvider delayDuration={0}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="flex justify-center">{avatar}</div>
-            </TooltipTrigger>
-            <TooltipContent side="right">{user.name || user.email}</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      </div>
-    );
-  }
+  if (collapsed) return null;
 
   return (
     <div className="border-sidebar-border border-t p-3">

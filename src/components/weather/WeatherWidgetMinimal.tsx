@@ -121,26 +121,26 @@ export function WeatherWidgetMinimal({
       conditionLower.includes("sunny") ||
       conditionLower.includes("clear")
     ) {
-      return <Sun className="h-4 w-4 text-yellow-500" />;
+      return <Sun className="h-3.5 w-3.5 text-yellow-500" />;
     }
     if (
       conditionLower.includes("înnorat") ||
       conditionLower.includes("cloud") ||
       conditionLower.includes("overcast")
     ) {
-      return <Cloud className="h-4 w-4 text-gray-500" />;
+      return <Cloud className="h-3.5 w-3.5 text-gray-500" />;
     }
     if (conditionLower.includes("ploaie") || conditionLower.includes("rain")) {
-      return <CloudRain className="h-4 w-4 text-blue-500" />;
+      return <CloudRain className="h-3.5 w-3.5 text-blue-500" />;
     }
     if (conditionLower.includes("ninsoare") || conditionLower.includes("snow")) {
-      return <CloudSnow className="h-4 w-4 text-blue-300" />;
+      return <CloudSnow className="h-3.5 w-3.5 text-blue-300" />;
     }
     if (conditionLower.includes("parțial") || conditionLower.includes("partly")) {
-      return <CloudSun className="h-4 w-4 text-yellow-400" />;
+      return <CloudSun className="h-3.5 w-3.5 text-yellow-400" />;
     }
 
-    return <Wind className="h-4 w-4 text-gray-400" />;
+    return <Wind className="h-3.5 w-3.5 text-gray-400" />;
   };
 
   // Don't render if user has disabled the widget in settings
@@ -156,7 +156,7 @@ export function WeatherWidgetMinimal({
   // Loading skeleton
   if (loading) {
     return (
-      <div className={cn("hidden items-center gap-1.5 px-2 py-1.5 md:flex", className)}>
+      <div className={cn("hidden items-center gap-1.5 rounded-xl px-3 py-1.5 md:flex", className)}>
         <div className="bg-muted h-4 w-4 animate-pulse rounded-full" />
         <div className="bg-muted h-4 w-16 animate-pulse rounded" />
       </div>
@@ -175,14 +175,16 @@ export function WeatherWidgetMinimal({
         <TooltipTrigger asChild>
           <div
             className={cn(
-              "hidden cursor-default items-center gap-1.5 rounded-md px-2 py-1.5 text-sm transition-colors md:flex",
-              "text-muted-foreground hover:text-foreground hover:bg-accent/50",
+              "hidden cursor-default items-center gap-1.5 rounded-xl px-3 py-1.5 transition-colors md:flex",
+              "bg-white/[0.06] text-gray-300",
               className
             )}
+            style={{
+              boxShadow: "inset 0 1px 3px rgba(0,0,0,0.35), inset 0 0 0 1px rgba(0,0,0,0.15)",
+            }}
           >
             {getWeatherIcon(weather.condition)}
-            <span className="font-medium tabular-nums">{weather.temperature}°C</span>
-            <span className="text-xs">{weather.location}</span>
+            <span className="text-[0.8rem] font-medium tabular-nums">{weather.temperature}°C</span>
           </div>
         </TooltipTrigger>
         <TooltipContent side="bottom" className="bg-popover text-popover-foreground">

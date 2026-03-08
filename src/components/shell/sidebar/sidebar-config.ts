@@ -56,12 +56,12 @@ export function getAdminSidebarConfig(basePath: string): SidebarConfig {
       {
         title: "Administrare",
         items: [
-          { icon: "Users", label: "Utilizatori", href: `${basePath}/users`, badge: "dynamic" },
+          { icon: "Users", label: "Utilizatori", href: `${basePath}/users`, badge: 7 },
           {
             icon: "FileText",
             label: "Supervizare Cereri",
             href: `${basePath}/cereri`,
-            badge: "dynamic",
+            badge: 36,
           },
         ],
       },

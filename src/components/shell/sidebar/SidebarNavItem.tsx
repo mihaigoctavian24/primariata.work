@@ -51,7 +51,7 @@ export function SidebarNavItem({ item, collapsed }: SidebarNavItemProps) {
       className={cn(
         "group relative inline-flex items-center gap-3 rounded-xl px-3 py-2 font-medium transition-all",
         isActive ? "text-white" : "text-gray-500 hover:text-gray-200",
-        collapsed && "justify-center"
+        collapsed ? "w-full justify-center" : "w-auto"
       )}
     >
       {isActive && (
@@ -72,25 +72,25 @@ export function SidebarNavItem({ item, collapsed }: SidebarNavItemProps) {
             isActive && "text-pink-400"
           )}
         />
-        {collapsed && item.badge !== undefined && (
-          <span className="absolute top-0.5 right-0.5 h-2 w-2 rounded-full bg-pink-500" />
-        )}
       </div>
+      {collapsed && item.badge !== undefined && (
+        <span className="absolute top-0.5 right-0.5 z-20 h-2 w-2 rounded-full bg-pink-500" />
+      )}
       {!collapsed && (
         <>
           <span className="relative z-10 whitespace-nowrap" style={{ fontSize: "0.82rem" }}>
             {item.label}
           </span>
-          {item.badge !== undefined && (
+          {typeof item.badge === "number" && (
             <span
-              className="relative z-10 ml-auto min-w-[20px] rounded-full text-center text-white"
+              className="relative z-10 ml-1.5 min-w-[20px] rounded-full text-center text-white"
               style={{
                 fontSize: "0.63rem",
                 background: "linear-gradient(135deg, #ec4899, #f43f5e)",
                 padding: "1px 7px",
               }}
             >
-              {typeof item.badge === "number" ? item.badge : "•"}
+              {item.badge}
             </span>
           )}
         </>

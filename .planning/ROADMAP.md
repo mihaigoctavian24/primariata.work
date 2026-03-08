@@ -168,6 +168,16 @@ Note: Phase 17 and Phase 18 were removed -- consolidated into Phase 19.
 | 16. Accent Color Propagation & Polish | v2.0 | 1/3 | In progress | - |
 | 19. All Admin Pages from Figma | 7/7 | Complete   | 2026-03-07 | - |
 
+### Phase 20: Pixel-perfect admin pages — Figma alignment for Monitorizare, Utilizatori, Cereri, Documente, Financiar, Calendar
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 19
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 20 to break down)
+
 ---
 *Roadmap created: 2026-03-02*
 *Last updated: 2026-03-07 — Phase 19 plans created (7 plans: Wave 0 + 6 parallel page plans)*

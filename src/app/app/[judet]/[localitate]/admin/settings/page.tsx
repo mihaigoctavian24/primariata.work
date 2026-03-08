@@ -22,7 +22,7 @@ async function SettingsContent(): Promise<React.JSX.Element> {
 
   if (!result.success || !result.data) {
     return (
-      <div className="mx-auto max-w-5xl p-6">
+      <div className="p-6">
         <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-red-700 dark:border-red-800 dark:bg-red-950/30 dark:text-red-300">
           <p className="font-semibold">Eroare la incarcarea setarilor</p>
           <p className="mt-1 text-sm">{result.error ?? "A aparut o eroare neasteptata"}</p>
@@ -32,14 +32,14 @@ async function SettingsContent(): Promise<React.JSX.Element> {
   }
 
   return (
-    <div className="mx-auto max-w-5xl p-6">
+    <div className="p-6">
       <div className="mb-6">
         <h1 className="flex items-center gap-2 text-2xl font-bold">
           <Settings className="text-muted-foreground h-6 w-6" />
           Setari
         </h1>
         <p className="text-muted-foreground mt-1 text-sm">
-          Gestioneaza profilul, configurarea primariei si preferintele
+          Gestionează profilul, notificările și preferințele
         </p>
       </div>
       <AdminSettingsTabs data={result.data} />
@@ -49,7 +49,7 @@ async function SettingsContent(): Promise<React.JSX.Element> {
 
 function SettingsSkeleton(): React.JSX.Element {
   return (
-    <div className="mx-auto max-w-5xl p-6">
+    <div className="p-6">
       <div className="mb-6">
         <div className="bg-muted h-8 w-32 animate-pulse rounded" />
         <div className="bg-muted mt-2 h-4 w-64 animate-pulse rounded" />

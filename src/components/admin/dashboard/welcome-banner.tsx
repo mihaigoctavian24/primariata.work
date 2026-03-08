@@ -22,7 +22,7 @@ function WelcomeBanner({
       animate={{ opacity: 1, y: 0 }}
       className="relative overflow-hidden rounded-2xl p-5"
       style={{
-        background: "var(--accent-gradient-subtle)",
+        background: "var(--accent-gradient)",
         boxShadow: "0 8px 32px var(--accent-shadow)",
       }}
     >
@@ -86,19 +86,6 @@ function WelcomeBanner({
           />
           <ProgressRing value={slaCompliancePercent} label="SLA" size={56} color="#f59e0b" />
         </div>
-      </div>
-
-      {/* Date display */}
-      <div className="relative z-10 mt-2">
-        <p className="text-xs text-white/40" suppressHydrationWarning>
-          {primarieName}, {judetName} ·{" "}
-          {new Date().toLocaleDateString("ro-RO", {
-            weekday: "long",
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          })}
-        </p>
       </div>
     </motion.div>
   );

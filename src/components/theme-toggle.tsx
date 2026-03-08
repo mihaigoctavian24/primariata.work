@@ -7,9 +7,15 @@ import { cn } from "@/lib/utils";
 
 interface ThemeToggleProps {
   isInFeaturesSection?: boolean;
+  className?: string;
+  compact?: boolean;
 }
 
-export function ThemeToggle({ isInFeaturesSection = false }: ThemeToggleProps = {}) {
+export function ThemeToggle({
+  isInFeaturesSection = false,
+  className,
+  compact = false,
+}: ThemeToggleProps = {}) {
   const { theme, setTheme, resolvedTheme } = useTheme();
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [mounted, setMounted] = useState(false);
@@ -88,10 +94,7 @@ export function ThemeToggle({ isInFeaturesSection = false }: ThemeToggleProps = 
 
   // Use resolvedTheme to get actual theme (accounts for system preference)
   const isDark = resolvedTheme === "dark";
-
-  // Icon stays the same based on theme, ONLY color changes in features section for visibility
-  // Hero: dark theme → Sun (default light color on dark bg)
-  // Features (inverted): dark theme → Sun (inverted to dark color on light bg)
+  const iconSize = compact ? "h-4 w-4" : "h-[1.2rem] w-[1.2rem]";
 
   return (
     <button
@@ -99,35 +102,32 @@ export function ThemeToggle({ isInFeaturesSection = false }: ThemeToggleProps = 
       onClick={handleClick}
       aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
       className={cn(
-        "relative inline-flex size-10 items-center justify-center",
-        "rounded-lg transition-all duration-300",
-        "hover:scale-110 active:scale-95",
+        "relative inline-flex items-center justify-center transition-all duration-300",
+        compact ? "size-8 p-2" : "size-10 hover:scale-110 active:scale-95",
+        "rounded-lg",
         "focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",
-        "disabled:pointer-events-none disabled:opacity-50"
+        "disabled:pointer-events-none disabled:opacity-50",
+        className
       )}
     >
-      {/* Sun icon - visible in light mode, COLOR inverts in features section */}
+      {/* Sun icon - visible in dark mode ("shows what you'll activate" convention) */}
       <Sun
         className={cn(
-          "absolute h-[1.2rem] w-[1.2rem] transition-all duration-300",
-          isDark ? "scale-0 rotate-90 opacity-0" : "scale-100 rotate-0 opacity-100",
-          // Color invert: Light mode (Sun visible)
-          // Hero (light theme, white bg) → dark icon
-          // Features (light theme, black bg inverted) → white icon
-          !isDark && isInFeaturesSection ? "text-white" : "",
-          !isDark && !isInFeaturesSection ? "text-black" : ""
+          "absolute transition-all duration-300",
+          iconSize,
+          isDark ? "scale-100 rotate-0 opacity-100" : "scale-0 rotate-90 opacity-0",
+          !compact && !isInFeaturesSection && "text-white",
+          !compact && isInFeaturesSection && "text-black"
         )}
       />
-      {/* Moon icon - visible in dark mode, COLOR inverts in features section */}
+      {/* Moon icon - visible in light mode ("shows what you'll activate" convention) */}
       <Moon
         className={cn(
-          "absolute h-[1.2rem] w-[1.2rem] transition-all duration-300",
-          isDark ? "scale-100 rotate-0 opacity-100" : "scale-0 -rotate-90 opacity-0",
-          // Color invert: Dark mode (Moon visible)
-          // Hero (dark theme, black bg) → white icon
-          // Features (dark theme, white bg inverted) → black icon
-          isDark && isInFeaturesSection ? "text-black" : "",
-          isDark && !isInFeaturesSection ? "text-white" : ""
+          "absolute transition-all duration-300",
+          iconSize,
+          !isDark ? "scale-100 rotate-0 opacity-100" : "scale-0 -rotate-90 opacity-0",
+          !compact && !isInFeaturesSection && "text-black",
+          !compact && isInFeaturesSection && "text-white"
         )}
       />
       <span className="sr-only">Toggle theme</span>

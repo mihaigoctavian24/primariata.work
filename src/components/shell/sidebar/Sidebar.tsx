@@ -2,7 +2,6 @@
 
 import { motion } from "motion/react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { springTransition } from "@/lib/motion";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { SidebarLogo } from "./SidebarLogo";
@@ -53,9 +52,9 @@ export function Sidebar({ config, collapsed, onToggle, onCommandPalette }: Sideb
   // Desktop: animated aside
   return (
     <motion.aside
-      className="border-sidebar-border text-sidebar-foreground bg-sidebar-background fixed inset-y-0 left-0 z-30 flex flex-col border-r dark:[background:linear-gradient(180deg,#0c0c18,#08080f)]"
+      className="text-sidebar-foreground bg-sidebar-background fixed inset-y-0 left-0 z-30 flex flex-col border-r border-white/[0.04] dark:[background:linear-gradient(180deg,#0c0c18,#08080f)]"
       animate={{ width: collapsed ? 72 : 260 }}
-      transition={springTransition}
+      transition={{ duration: 0.3, ease: "easeInOut" }}
     >
       <SidebarLogo collapsed={collapsed} />
       <SidebarQuickSearch collapsed={collapsed} onCommandPalette={onCommandPalette} />

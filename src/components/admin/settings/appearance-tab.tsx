@@ -3,9 +3,6 @@
 import { useState } from "react";
 import { Check } from "lucide-react";
 import { toast } from "sonner";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { useTheme } from "next-themes";
 import { ACCENT_PRESETS, useAccentColorStore } from "@/store/accent-color-store";
 import { updateAppearance } from "@/actions/admin-settings";
 import { GradientSaveButton } from "@/components/admin/settings/settings-ui";
@@ -29,8 +26,8 @@ export function AppearanceTab({
 }: AppearanceTabProps): React.JSX.Element {
   const [selectedPreset, setSelectedPreset] = useState(currentPreset);
   const [isSaving, setIsSaving] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState("ro");
   const { setPreset } = useAccentColorStore();
-  const { resolvedTheme, setTheme } = useTheme();
 
   function handlePresetClick(presetName: string): void {
     setSelectedPreset(presetName);
@@ -52,8 +49,6 @@ export function AppearanceTab({
       setIsSaving(false);
     }
   }
-
-  const isDark = resolvedTheme === "dark";
 
   return (
     <div
@@ -96,33 +91,24 @@ export function AppearanceTab({
           </div>
         </div>
 
-        {/* Theme Toggle */}
-        <div>
-          <h4 className="text-foreground mb-3 text-sm font-semibold">Tema</h4>
-          <div className="flex items-center justify-between">
-            <Label className="text-sm">{isDark ? "Mod Intunecat" : "Mod Luminos"}</Label>
-            <Switch
-              checked={isDark}
-              onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")}
-            />
-          </div>
-        </div>
-
         {/* Language */}
         <div>
-          <h4 className="text-foreground mb-3 text-sm font-semibold">Limba</h4>
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">Romana</span>
-            <span
-              className="rounded-full px-2 py-0.5 text-xs font-medium"
-              style={{
-                background: "rgba(236,72,153,0.12)",
-                color: "rgba(236,72,153,0.8)",
-              }}
-            >
-              Coming soon
-            </span>
-          </div>
+          <label className="mb-2 block text-gray-400" style={{ fontSize: "0.8rem" }}>
+            Limba
+          </label>
+          <select
+            value={selectedLanguage}
+            onChange={(e) => setSelectedLanguage(e.target.value)}
+            className="text-foreground w-full cursor-pointer appearance-none rounded-xl bg-transparent px-3 py-2.5 outline-none"
+            style={{
+              background: "rgba(255,255,255,0.04)",
+              border: "1px solid rgba(255,255,255,0.06)",
+              fontSize: "0.88rem",
+            }}
+          >
+            <option value="ro">Română</option>
+            <option value="en">English</option>
+          </select>
         </div>
 
         <GradientSaveButton

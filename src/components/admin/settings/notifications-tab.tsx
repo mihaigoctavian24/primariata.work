@@ -110,9 +110,6 @@ export function NotificationsTab({ initialData }: NotificationsTabProps): React.
           <h3 className="text-foreground" style={{ fontSize: "1.05rem", fontWeight: 600 }}>
             Canale de Notificare
           </h3>
-          <p className="mt-1 text-gray-600" style={{ fontSize: "0.83rem" }}>
-            Configureaza canalele si categoriile de notificari
-          </p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
@@ -160,7 +157,7 @@ export function NotificationsTab({ initialData }: NotificationsTabProps): React.
             );
           })}
 
-          <GradientSaveButton type="submit" loading={isSaving} label="Salveaza Preferinte" />
+          <GradientSaveButton type="submit" loading={isSaving} label="Salveaza" />
         </form>
       </div>
     </div>

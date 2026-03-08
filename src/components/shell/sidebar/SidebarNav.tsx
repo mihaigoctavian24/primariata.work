@@ -26,7 +26,7 @@ export function SidebarNav({ config, collapsed }: SidebarNavProps) {
               style={{ background: "rgba(255,255,255,0.06)" }}
             />
           )}
-          <div className="space-y-0.5">
+          <div className="flex flex-col items-start gap-0.5">
             {section.items.map((item) => (
               <SidebarNavItem key={item.href} item={item} collapsed={collapsed} />
             ))}

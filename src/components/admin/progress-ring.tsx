@@ -34,7 +34,7 @@ function ProgressRing({
             cy={size / 2}
             r={radius}
             fill="none"
-            stroke="var(--border-subtle, hsl(var(--border)))"
+            stroke="rgba(255,255,255,0.06)"
             strokeWidth={strokeWidth}
           />
           {/* Animated progress circle */}
@@ -55,10 +55,10 @@ function ProgressRing({
           />
         </svg>
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-foreground text-[0.7rem] font-bold">{value}%</span>
+          <span className="text-[0.7rem] font-bold text-white">{value}%</span>
         </div>
       </div>
-      {label && <span className="text-muted-foreground text-[0.6rem]">{label}</span>}
+      {label && <span className="text-[0.6rem] text-white/50">{label}</span>}
     </div>
   );
 }

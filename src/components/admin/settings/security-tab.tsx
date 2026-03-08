@@ -3,14 +3,18 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Shield, Lock, ShieldCheck, ShieldX } from "lucide-react";
+import { Shield, Lock } from "lucide-react";
 import { toast } from "sonner";
 import {
   passwordChangeSchema,
   type PasswordChangeFormValues,
 } from "@/lib/validations/admin-settings";
 import { changePassword } from "@/actions/admin-settings";
-import { InputWithIcon, GradientSaveButton } from "@/components/admin/settings/settings-ui";
+import {
+  InputWithIcon,
+  GradientSaveButton,
+  AnimatedToggle,
+} from "@/components/admin/settings/settings-ui";
 
 // ============================================================================
 // Types
@@ -71,7 +75,7 @@ export function SecurityTab({ has2FA = false }: SecurityTabProps): React.JSX.Ele
           Securitate Cont
         </h3>
 
-        {/* 2FA Status */}
+        {/* 2FA Toggle Row */}
         <div
           className="flex items-center justify-between rounded-xl px-4 py-3"
           style={{
@@ -79,30 +83,20 @@ export function SecurityTab({ has2FA = false }: SecurityTabProps): React.JSX.Ele
             border: "1px solid rgba(255,255,255,0.05)",
           }}
         >
-          <div className="flex items-center gap-3">
-            {has2FA ? (
-              <ShieldCheck className="h-5 w-5 text-emerald-500" />
-            ) : (
-              <ShieldX className="text-muted-foreground h-5 w-5" />
-            )}
-            <div>
-              <div className="text-foreground" style={{ fontSize: "0.9rem" }}>
-                Autentificare in doi pasi (2FA)
-              </div>
-              <div className="text-gray-600" style={{ fontSize: "0.78rem" }}>
-                Configurarea 2FA se face din setarile contului Supabase
-              </div>
+          <div>
+            <div className="text-foreground" style={{ fontSize: "0.9rem" }}>
+              Autentificare in doi pasi (2FA)
+            </div>
+            <div className="text-gray-600" style={{ fontSize: "0.78rem" }}>
+              Adauga un nivel suplimentar de securitate contului tau
             </div>
           </div>
-          <span
-            className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
-              has2FA
-                ? "bg-emerald-500/12 text-emerald-700 dark:text-emerald-300"
-                : "bg-muted text-muted-foreground"
-            }`}
-          >
-            {has2FA ? "Activa" : "Inactiva"}
-          </span>
+          <AnimatedToggle
+            checked={has2FA}
+            onCheckedChange={() => {
+              toast.info("Configurarea 2FA se face din setarile contului Supabase");
+            }}
+          />
         </div>
 
         {/* Password Change Form */}

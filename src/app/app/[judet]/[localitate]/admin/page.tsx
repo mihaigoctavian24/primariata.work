@@ -2,6 +2,7 @@ import { logger } from "@/lib/logger";
 import { createServiceRoleClient, createClient } from "@/lib/supabase/server";
 import { fetchDashboardData } from "@/lib/admin-dashboard-queries";
 import { redirect } from "next/navigation";
+import { ShieldCheck } from "lucide-react";
 
 import { WelcomeBanner } from "@/components/admin/dashboard/welcome-banner";
 import { UserStatsSection } from "@/components/admin/dashboard/user-stats-section";
@@ -98,9 +99,56 @@ export default async function AdminDashboardPage({
     judetName
   );
 
+  const roleLabel = userData.rol === "super_admin" ? "Super Admin" : "Admin Primărie";
+
   // === RENDER ===
   return (
     <div className="space-y-5">
+      {/* Page header — title + role badge + system status */}
+      <div className="flex items-center justify-between">
+        <div>
+          <div className="flex items-center gap-3">
+            <h1 className="text-white" style={{ fontSize: "1.6rem", fontWeight: 700 }}>
+              Panou Administrare
+            </h1>
+            <div
+              className="flex items-center gap-1.5 rounded-lg px-2.5 py-1"
+              style={{
+                background: "linear-gradient(135deg, rgba(236,72,153,0.1), rgba(139,92,246,0.08))",
+                border: "1px solid rgba(236,72,153,0.12)",
+              }}
+            >
+              <ShieldCheck className="h-3 w-3 text-pink-400" />
+              <span className="text-pink-400" style={{ fontSize: "0.68rem", fontWeight: 600 }}>
+                {roleLabel}
+              </span>
+            </div>
+          </div>
+          <p
+            className="mt-1 text-gray-600"
+            style={{ fontSize: "0.83rem" }}
+            suppressHydrationWarning
+          >
+            {primarieName}, {judetName} ·{" "}
+            {new Date().toLocaleDateString("ro-RO", {
+              weekday: "long",
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })}
+          </p>
+        </div>
+        <div
+          className="flex items-center gap-1.5 rounded-xl px-3 py-1.5"
+          style={{ background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.12)" }}
+        >
+          <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
+          <span className="text-emerald-400" style={{ fontSize: "0.72rem" }}>
+            Toate sistemele operaționale
+          </span>
+        </div>
+      </div>
+
       <WelcomeBanner {...dashboardData.welcome} />
 
       <div className="grid gap-5" style={{ gridTemplateColumns: "repeat(12, 1fr)" }}>

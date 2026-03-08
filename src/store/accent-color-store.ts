@@ -14,9 +14,6 @@ export const ACCENT_PRESETS: AccentPreset[] = [
   { name: "violet", hue: 300, label: "Violet" },
   { name: "teal", hue: 195, label: "Turcoaz" },
   { name: "rose", hue: 350, label: "Roz" },
-  { name: "slate", hue: 260, label: "Ardezie" },
-  { name: "orange", hue: 45, label: "Portocaliu" },
-  { name: "indigo", hue: 275, label: "Indigo" },
 ];
 
 interface AccentColorState {

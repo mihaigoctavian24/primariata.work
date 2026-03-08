@@ -25,7 +25,7 @@ export function SidebarLogo({ collapsed }: SidebarLogoProps) {
               primaria<span className="text-pink-400">Ta</span>
             </span>
             <span
-              className="text-gray-600"
+              className="mt-0.5 text-gray-600"
               style={{ fontSize: "0.55rem", letterSpacing: "0.08em", textTransform: "uppercase" }}
             >
               Panou Administrator
