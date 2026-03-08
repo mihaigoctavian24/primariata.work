@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Design Revamp
 status: executing
-stopped_at: Completed 20-00-PLAN.md (Wave 0 Foundation)
-last_updated: "2026-03-08T09:51:03.371Z"
+stopped_at: Completed 20-01-PLAN.md (Utilizatori page rewrite)
+last_updated: "2026-03-08T10:03:35.316Z"
 last_activity: 2026-03-06 -- Completed Phase 16 Plan 01 (accent gradient CSS + hex replacement)
 progress:
   total_phases: 7
   completed_phases: 6
   total_plans: 28
-  completed_plans: 22
+  completed_plans: 23
   percent: 100
 ---
 
@@ -60,6 +60,7 @@ Progress: [██████████] 100%
 | Phase 19 P03 | 35 | 2 tasks | 9 files |
 | Phase 19 P05 | 13min | 2 tasks | 10 files |
 | Phase 20 P00 | 3 | 2 tasks | 8 files |
+| Phase 20 P01 | 9 | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -136,6 +137,9 @@ Recent decisions affecting current work:
 - [Phase 20]: GaugeSVG color prop is hex string (required) — SVG stroke attribute cannot resolve CSS custom properties
 - [Phase 20]: shared/ as single source for admin components; originals in admin/ not deleted until downstream waves clean up
 - [Phase 20]: RoleColorBadge uses Tailwind opacity classes (bg-blue-500/15) not CSS var tokens for JIT compatibility
+- [Phase 20]: user_primarii.rol requires explicit cast to literal union when updating via service role client
+- [Phase 20]: inactiv status maps to rejected in user_primarii — no inactive status in DB enum
+- [Phase 20]: Phase 20: actions.ts co-location pattern — Server Actions in component folder, not global actions/
 
 ### Pending Todos
 
@@ -160,6 +164,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-08T09:51:03.368Z
-Stopped at: Completed 20-00-PLAN.md (Wave 0 Foundation)
+Last session: 2026-03-08T10:03:35.313Z
+Stopped at: Completed 20-01-PLAN.md (Utilizatori page rewrite)
 Resume file: None
