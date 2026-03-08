@@ -91,7 +91,7 @@ function truncateId(id: string | null, chars = 8): string {
 // ExpandedRow
 // ============================================================================
 
-function ExpandedRow({ row }: { row: PlatiItem }): React.JSX.Element {
+function ExpandedRow({ row, onRefund }: { row: PlatiItem; onRefund: (r: PlatiItem) => void }): React.JSX.Element {
   function handleRetry(): void {
     toast.info("Reîncercare în curs...");
   }
@@ -132,12 +132,42 @@ function ExpandedRow({ row }: { row: PlatiItem }): React.JSX.Element {
               Detaliu eroare
             </div>
             <div className="text-red-400">Tranzacție eșuată — contactați furnizorul de plată</div>
+            <div className="mt-3 flex gap-2">
+              <button
+                type="button"
+                onClick={handleRetry}
+                className="flex items-center gap-1.5 rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-1.5 text-[0.75rem] font-medium text-red-400 transition-all hover:bg-red-500/20 flex-1 max-w-fit"
+              >
+                <RotateCcw className="h-3.5 w-3.5" />
+                Reîncearcă tranzacția
+              </button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onRefund(row);
+                }}
+                className="flex items-center gap-1.5 rounded-lg border border-[var(--color-warning)]/30 bg-[var(--color-warning-subtle)] px-3 py-1.5 text-[0.75rem] font-medium text-[var(--color-warning)] transition-all hover:brightness-110 flex-1 max-w-fit"
+              >
+                <RefreshCcw className="h-3.5 w-3.5" />
+                Rambursează
+              </button>
+            </div>
+          </div>
+        )}
+
+        {row.status === "success" && (
+          <div className="col-span-2 sm:col-span-3 mt-1">
             <button
-              onClick={handleRetry}
-              className="mt-2 flex items-center gap-1.5 rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-1.5 text-[0.75rem] font-medium text-red-400 transition-all hover:bg-red-500/20"
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onRefund(row);
+              }}
+              className="flex items-center gap-1.5 rounded-lg border border-[var(--color-warning)]/30 bg-[var(--color-warning-subtle)] px-3 py-1.5 text-[0.75rem] font-medium text-[var(--color-warning)] transition-all hover:brightness-110"
             >
-              <RotateCcw className="h-3.5 w-3.5" />
-              Reîncearcă tranzacția
+              <RefreshCcw className="h-3.5 w-3.5" />
+              Rambursează
             </button>
           </div>
         )}
@@ -339,7 +369,7 @@ export function TransactionList({
 
                 {/* Expandable detail */}
                 <AnimatePresence>
-                  {isExpanded && <ExpandedRow key={`${p.id}-expanded`} row={p} />}
+                  {isExpanded && <ExpandedRow key={`${p.id}-expanded`} row={p} onRefund={setRefundTarget} />}
                 </AnimatePresence>
               </motion.div>
             );
@@ -359,7 +389,7 @@ export function TransactionList({
             <button
               disabled={safePage <= 1}
               onClick={() => setPage((p) => Math.max(1, p - 1))}
-              className="rounded-lg p-1.5 text-gray-400 transition-all hover:text-white disabled:opacity-30"
+              className="rounded-lg p-1.5 text-gray-400 transition-all hover:text-white disabled:opacity-30 flex items-center justify-center cursor-pointer"
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
@@ -367,7 +397,7 @@ export function TransactionList({
               <button
                 key={num}
                 onClick={() => setPage(num)}
-                className={`h-7 w-7 rounded-lg text-[0.78rem] transition-all ${
+                className={`h-7 w-7 flex items-center justify-center rounded-lg text-[0.78rem] transition-all cursor-pointer ${
                   num === safePage
                     ? "bg-blue-500/20 font-semibold text-white"
                     : "text-gray-500 hover:text-gray-200"
@@ -379,13 +409,71 @@ export function TransactionList({
             <button
               disabled={safePage >= totalPages}
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              className="rounded-lg p-1.5 text-gray-400 transition-all hover:text-white disabled:opacity-30"
+              className="rounded-lg p-1.5 text-gray-400 transition-all hover:text-white disabled:opacity-30 flex items-center justify-center cursor-pointer"
             >
               <ChevronRight className="h-4 w-4" />
             </button>
           </div>
         </div>
       )}
+
+      {/* Refund Modal */}
+      <AdminModal
+        open={!!refundTarget}
+        onClose={() => {
+          setRefundTarget(null);
+          setRefundReason("");
+        }}
+        title="Confirmare Rambursare"
+        size="sm"
+        footer={
+          <div className="flex justify-end gap-2 w-full">
+            <button
+              onClick={() => {
+                setRefundTarget(null);
+                setRefundReason("");
+              }}
+              className="px-4 py-2 rounded-xl text-sm font-medium border border-border text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+            >
+              Anulează
+            </button>
+            <button
+              onClick={() => {
+                toast.success("Rambursare inițiată!");
+                setRefundTarget(null);
+                setRefundReason("");
+              }}
+              className="px-4 py-2 rounded-xl text-sm font-medium bg-[var(--color-warning)] text-white hover:brightness-110 transition-colors cursor-pointer"
+            >
+              Confirmă Rambursare
+            </button>
+          </div>
+        }
+      >
+        {refundTarget && (
+          <div className="py-2 space-y-4">
+            <div className="rounded-xl border border-white/[0.05] bg-white/[0.02] p-3 text-sm flex flex-col gap-1.5">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">ID:</span>
+                <span className="font-mono text-foreground font-medium">{refundTarget.id}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Sumă:</span>
+                <span className="text-foreground font-semibold">{refundTarget.suma.toLocaleString("ro-RO")} RON</span>
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground">Motiv rambursare</label>
+              <textarea
+                value={refundReason}
+                onChange={(e) => setRefundReason(e.target.value)}
+                placeholder="Explică motivul rambursării..."
+                className="w-full px-3 py-2 rounded-xl bg-card border border-border text-sm outline-none focus:ring-1 focus:ring-[var(--color-warning)] min-h-[80px] resize-y"
+              />
+            </div>
+          </div>
+        )}
+      </AdminModal>
     </div>
   );
 }

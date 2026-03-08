@@ -66,7 +66,7 @@ export function KpiCards({
   const kpiCards = [
     {
       icon: Wallet,
-      iconColor: "#10b981",
+      iconColor: "var(--color-success)",
       label: "Total colectat",
       value: totalRevenue,
       suffix: " RON",
@@ -77,7 +77,7 @@ export function KpiCards({
           </div>
           <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
             <motion.div
-              className="h-full rounded-full bg-emerald-500"
+              className="h-full rounded-full bg-[var(--color-success)]"
               initial={{ width: 0 }}
               animate={{ width: `${targetProgress}%` }}
               transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}
@@ -88,7 +88,7 @@ export function KpiCards({
     },
     {
       icon: Target,
-      iconColor: "#3b82f6",
+      iconColor: "var(--color-info)",
       label: "Target lunar",
       value: MONTH_TARGET,
       suffix: " RON",
@@ -96,7 +96,7 @@ export function KpiCards({
     },
     {
       icon: Receipt,
-      iconColor: "#8b5cf6",
+      iconColor: "var(--color-violet-500)",
       label: "Nr. tranzacții",
       value: totalTx,
       suffix: "",
@@ -104,7 +104,7 @@ export function KpiCards({
     },
     {
       icon: CheckCircle2,
-      iconColor: "#10b981",
+      iconColor: "var(--color-success)",
       label: "Rată succes",
       value: Math.round(successRate * 10),
       suffix: "%",
@@ -114,7 +114,7 @@ export function KpiCards({
     },
     {
       icon: XCircle,
-      iconColor: "#ef4444",
+      iconColor: "var(--color-error)",
       label: "Rată eșec",
       value: Math.round(failRate * 10),
       suffix: "%",
@@ -123,7 +123,7 @@ export function KpiCards({
     },
     {
       icon: TrendingUp,
-      iconColor: "#f59e0b",
+      iconColor: "var(--color-warning)",
       label: "Valoare medie",
       value: avgTxValue,
       suffix: " RON",
@@ -138,24 +138,24 @@ export function KpiCards({
       icon: CheckCircle,
       label: "Succes",
       count: successTx,
-      colorClass: "text-emerald-400",
-      bgClass: "bg-emerald-500/10 border-emerald-500/20",
+      colorClass: "text-[var(--color-success)]",
+      bgClass: "bg-[var(--color-success-subtle)] border-[var(--color-success)]/20",
     },
     {
       key: "pending",
       icon: Clock,
       label: "Pending",
       count: pendingTx,
-      colorClass: "text-amber-400",
-      bgClass: "bg-amber-500/10 border-amber-500/20",
+      colorClass: "text-[var(--color-warning)]",
+      bgClass: "bg-[var(--color-warning-subtle)] border-[var(--color-warning)]/20",
     },
     {
       key: "failed",
       icon: XCircle,
       label: "Eșuat",
       count: failedTx,
-      colorClass: "text-red-400",
-      bgClass: "bg-red-500/10 border-red-500/20",
+      colorClass: "text-[var(--color-error)]",
+      bgClass: "bg-[var(--color-error-subtle)] border-[var(--color-error)]/20",
     },
     {
       key: "refunded",

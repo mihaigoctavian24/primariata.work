@@ -18,6 +18,7 @@ import type { StorageFile } from "@/components/admin/documente/types";
 import { DocumentGrid } from "@/components/admin/documente/document-grid";
 import { DocumentUploadZone } from "@/components/admin/documente/document-upload-zone";
 import { DocumentPreviewModal } from "@/components/admin/documente/document-preview-modal";
+import { FolderCreateModal } from "@/components/admin/documente/folder-create-modal";
 
 // ============================================================================
 // Constants
@@ -70,6 +71,7 @@ export function DocumenteContent({ primarieId }: DocumenteContentProps): React.J
   const [search, setSearch] = useState("");
   const [currentFolder, setCurrentFolder] = useState<string | null>(null);
   const [previewFile, setPreviewFile] = useState<StorageFile | null>(null);
+  const [showFolderCreate, setShowFolderCreate] = useState(false);
 
   // Ref passed to DocumentUploadZone so "Încarcă" button can trigger it
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -174,7 +176,7 @@ export function DocumenteContent({ primarieId }: DocumenteContentProps): React.J
           <motion.button
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            onClick={() => toast.info("Funcționalitate în curând")}
+            onClick={() => setShowFolderCreate(true)}
             className="flex cursor-pointer items-center gap-2 rounded-xl px-3 py-2 text-gray-300 transition-all hover:text-white"
             style={{
               background: "rgba(255,255,255,0.04)",
@@ -340,6 +342,18 @@ export function DocumenteContent({ primarieId }: DocumenteContentProps): React.J
         primarieId={primarieId}
         currentFolder={currentFolder}
         onClose={() => setPreviewFile(null)}
+      />
+
+      {/* Folder create modal */}
+      <FolderCreateModal
+        open={showFolderCreate}
+        onClose={() => setShowFolderCreate(false)}
+        primarieId={primarieId}
+        onFolderCreated={(folderName) => {
+          // Optimistically trigger a refetch to show the new folder
+          fetchFiles();
+          setShowFolderCreate(false);
+        }}
       />
     </div>
   );
