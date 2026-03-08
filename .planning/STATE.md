@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Design Revamp
 status: executing
-stopped_at: Phase 20 context revised
-last_updated: "2026-03-08T09:11:16.944Z"
+stopped_at: Completed 20-00-PLAN.md (Wave 0 Foundation)
+last_updated: "2026-03-08T09:51:03.371Z"
 last_activity: 2026-03-06 -- Completed Phase 16 Plan 01 (accent gradient CSS + hex replacement)
 progress:
   total_phases: 7
   completed_phases: 6
-  total_plans: 21
-  completed_plans: 21
+  total_plans: 28
+  completed_plans: 22
   percent: 100
 ---
 
@@ -59,6 +59,7 @@ Progress: [██████████] 100%
 | Phase 19 P04 | 22 | 2 tasks | 8 files |
 | Phase 19 P03 | 35 | 2 tasks | 9 files |
 | Phase 19 P05 | 13min | 2 tasks | 10 files |
+| Phase 20 P00 | 3 | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -132,6 +133,9 @@ Recent decisions affecting current work:
 - [Phase 19]: Recharts SVG strokes use semantic hex palette (blue-500/cyan-500/amber-500) — CSS vars can't be used in SVG stroke attributes
 - [Phase 19]: Category progress bars use graceful mock fallback (Stare Civilă/Urbanism/Social) for fresh deployments with no plati data
 - [Phase 19]: DB_TO_UI_STATUS constants extracted to @/lib/cereri-status.ts — non-async exports cannot live in use-server files in Next.js 15
+- [Phase 20]: GaugeSVG color prop is hex string (required) — SVG stroke attribute cannot resolve CSS custom properties
+- [Phase 20]: shared/ as single source for admin components; originals in admin/ not deleted until downstream waves clean up
+- [Phase 20]: RoleColorBadge uses Tailwind opacity classes (bg-blue-500/15) not CSS var tokens for JIT compatibility
 
 ### Pending Todos
 
@@ -156,6 +160,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-08T09:11:16.940Z
-Stopped at: Phase 20 context revised
-Resume file: .planning/phases/20-pixel-perfect-admin-pages-figma-alignment-for-monitorizare-utilizatori-cereri-documente-financiar-calendar/20-CONTEXT.md
+Last session: 2026-03-08T09:51:03.368Z
+Stopped at: Completed 20-00-PLAN.md (Wave 0 Foundation)
+Resume file: None
