@@ -142,42 +142,22 @@ Plans:
 - [ ] 19-05-PLAN.md — Financiar page: monthly revenue chart, daily volume, payment method breakdown, transaction list
 - [ ] 19-06-PLAN.md — Calendar page: month grid (Monday-start), event dots, day detail panel, event creation modal, Zustand persistence
 
-## Progress
-
-**Execution Order:**
-Phases execute in numeric order: 12 > 13 > 14 > 15 > 16 > 19
-Note: Phase 17 and Phase 18 were removed -- consolidated into Phase 19.
-
-| Phase | Milestone | Plans Complete | Status | Completed |
-|-------|-----------|----------------|--------|-----------|
-| 1. Security Foundation | v1.0 | 3/3 | Complete | 2026-03-02 |
-| 2. Infrastructure & Stabilization | v1.0 | 8/8 | Complete | 2026-03-02 |
-| 3. Registration & Approval | v1.0 | 3/3 | Complete | 2026-03-03 |
-| 4. Cereri Processing | v1.0 | 3/3 | Complete | 2026-03-03 |
-| 5. Staff Dashboards | v1.0 | 3/3 | Complete | 2026-03-03 |
-| 6. Citizen Features | v1.0 | 4/4 | Complete | 2026-03-04 |
-| 7. Cross-Primarie Notifications | v1.0 | 2/2 | Complete | 2026-03-04 |
-| 8. Compliance & Testing | v1.0 | 5/5 | Complete | 2026-03-04 |
-| 9. Audit Gap Closure | v1.0 | 1/1 | Complete | 2026-03-04 |
-| 10. Payment & GDPR Fixes | v1.0 | 1/1 | Complete | 2026-03-04 |
-| 11. E2E Seed & Coverage | v1.0 | 3/3 | Complete | 2026-03-04 |
-| 12. Design System Foundation | v2.0 | 2/2 | Complete | 2026-03-05 |
-| 13. Layout Shell | v2.0 | 4/4 | Complete | 2026-03-05 |
-| 14. Admin Dashboard | v2.0 | 2/2 | Complete | 2026-03-05 |
-| 15. Admin Settings | v2.0 | 3/3 | Complete | 2026-03-06 |
-| 16. Accent Color Propagation & Polish | v2.0 | 1/3 | In progress | - |
-| 19. All Admin Pages from Figma | 7/7 | Complete   | 2026-03-07 | - |
-
 ### Phase 20: Pixel-perfect admin pages — Figma alignment for Monitorizare, Utilizatori, Cereri, Documente, Financiar, Calendar
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** Full rewrite of all 6 Phase 19 admin pages as pixel-perfect Figma matches connected to real Supabase data — role color tokens, no hardcoded hex, shared component directory, serial wave execution one page at a time
+**Requirements**: UTL-01, UTL-02, UTL-03, UTL-04, UTL-05, CER-01, CER-02, CER-03, CER-04, CER-05, CER-06, CER-07, FIN-01, FIN-02, FIN-03, FIN-04, FIN-05, DOC-01, DOC-02, DOC-03, DOC-04, DOC-05, DOC-06, CAL-01, CAL-02, CAL-03, CAL-04, MON-01, MON-02, MON-03, MON-04, MON-05
 **Depends on:** Phase 19
-**Plans:** 0 plans
+**Plans:** 7 plans (serial waves 0-6)
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 20 to break down)
+- [ ] 20-00-PLAN.md — Wave 0 prep: role color tokens in globals.css + shared/ directory with 7 migrated/new components
+- [ ] 20-01-PLAN.md — Wave 1 Utilizatori: delete + rewrite, real users data, role tabs, profile drawer, invite modal, growth chart
+- [ ] 20-02-PLAN.md — Wave 2 Cereri: delete + rewrite, 4-tab UI, real cereri data, kanban click-to-move, confetti approve
+- [ ] 20-03-PLAN.md — Wave 3 Financiar: delete + rewrite, real plati data, 6 KPI cards, revenue charts, transaction list
+- [ ] 20-04-PLAN.md — Wave 4 Documente: delete + rewrite, Supabase Storage folder nav, upload zone, signed URL preview
+- [ ] 20-05-PLAN.md — Wave 5 Calendar: delete + rewrite, Zustand events, month grid (Monday-start), event creation modal
+- [ ] 20-06-PLAN.md — Wave 6 Monitorizare: delete + rewrite, mock setInterval CPU/RAM/Disk, 5-tab layout, GaugeSVG
 
 ---
 *Roadmap created: 2026-03-02*
-*Last updated: 2026-03-07 — Phase 19 plans created (7 plans: Wave 0 + 6 parallel page plans)*
+*Last updated: 2026-03-08 — Phase 20 plans created (7 serial plans: Wave 0 prep + 6 page rewrites)*
