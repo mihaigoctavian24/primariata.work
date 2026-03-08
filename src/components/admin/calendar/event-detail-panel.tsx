@@ -3,9 +3,8 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { format, isAfter, isSameDay } from "date-fns";
 import { ro } from "date-fns/locale";
-import { CalendarDays, Clock, MapPin, X } from "lucide-react";
+import { CalendarDays, Clock, MapPin, X, Pencil } from "lucide-react";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
 import type { CalEvent } from "@/store/calendar-store";
 
 interface EventDetailPanelProps {
@@ -14,6 +13,7 @@ interface EventDetailPanelProps {
   month: number;
   events: CalEvent[];
   onEventRemove: (id: string) => void;
+  onEventEdit: (event: CalEvent) => void;
   onDaySelect: (day: number) => void;
 }
 
@@ -21,12 +21,10 @@ const DOT_COLOR_MAP: Record<string, string> = {
   "bg-pink-500": "#ec4899",
   "bg-red-500": "#ef4444",
   "bg-amber-500": "#f59e0b",
-  "bg-sky-500": "#0ea5e9",
   "bg-blue-500": "#3b82f6",
   "bg-violet-500": "#8b5cf6",
   "bg-emerald-500": "#10b981",
   "bg-cyan-500": "#06b6d4",
-  "bg-orange-500": "#f97316",
 };
 
 export function EventDetailPanel({
@@ -35,6 +33,7 @@ export function EventDetailPanel({
   month,
   events,
   onEventRemove,
+  onEventEdit,
   onDaySelect,
 }: EventDetailPanelProps) {
   // Format selected date
@@ -105,20 +104,27 @@ export function EventDetailPanel({
                     className="group relative bg-white/[0.03] border border-white/[0.05] rounded-xl p-4 overflow-hidden"
                     style={{ borderLeft: `3px solid ${hexColor}` }}
                   >
-                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="absolute top-2 right-2 flex items-center opacity-0 group-hover:opacity-100 transition-opacity gap-1">
+                      <button
+                        onClick={() => onEventEdit(evt)}
+                        className="p-1.5 hover:bg-white/10 rounded-md text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                        title="Editează evenimentul"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </button>
                       <button
                         onClick={() => {
                           onEventRemove(evt.id);
                           toast.success("Eveniment șters cu succes");
                         }}
-                        className="p-1.5 hover:bg-white/10 rounded-md text-muted-foreground hover:text-red-400 transition-colors"
+                        className="p-1.5 hover:bg-white/10 rounded-md text-muted-foreground hover:text-red-400 transition-colors cursor-pointer"
                         title="Șterge evenimentul"
                       >
                         <X className="w-4 h-4" />
                       </button>
                     </div>
 
-                    <h4 className="font-medium text-sm pr-6 mb-2">{evt.title}</h4>
+                    <h4 className="font-medium text-sm pr-[72px] mb-2">{evt.title}</h4>
                     
                     <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs text-muted-foreground">
                       <div className="flex items-center gap-1.5">
@@ -166,11 +172,9 @@ export function EventDetailPanel({
                 <button
                   key={evt.id}
                   onClick={() => {
-                    // Update main calendar view to this month/year if needed
-                    // For simply navigating day:
                     onDaySelect(evtDate.getDate());
                   }}
-                  className="w-full text-left flex items-start gap-3 p-3 rounded-lg hover:bg-white/[0.04] transition-colors border border-transparent"
+                  className="w-full text-left flex items-start gap-3 p-3 rounded-lg hover:bg-white/[0.04] transition-colors border border-transparent cursor-pointer"
                 >
                   <div
                     className="w-1 flex-shrink-0 h-full min-h-[40px] rounded-full"

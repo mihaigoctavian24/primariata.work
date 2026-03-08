@@ -5,12 +5,14 @@ import { motion } from "framer-motion";
 import { CalendarDays, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { useCalendarStore } from "@/store/calendar-store";
+import type { CalEvent } from "@/store/calendar-store";
 import { CalendarGrid } from "./calendar-grid";
 import { EventDetailPanel } from "./event-detail-panel";
 import { CreateEventModal } from "./create-event-modal";
+import { EditEventModal } from "./edit-event-modal";
 
 export function CalendarContent() {
-  const { events, addEvent, removeEvent } = useCalendarStore();
+  const { events, addEvent, removeEvent, updateEvent } = useCalendarStore();
   
   const today = new Date();
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
@@ -18,6 +20,7 @@ export function CalendarContent() {
   const [selectedDay, setSelectedDay] = useState<number | null>(today.getDate());
   
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [editingEvent, setEditingEvent] = useState<CalEvent | null>(null);
 
   const handleMonthChange = (direction: "prev" | "next" | "today") => {
     if (direction === "today") {
@@ -41,6 +44,39 @@ export function CalendarContent() {
       } else {
         setCurrentMonth(currentMonth + 1);
       }
+    }
+  };
+
+  const handleEventCreate = (e: Omit<CalEvent, "id">) => {
+    if (!e.recurrence || e.recurrence === "none") {
+      addEvent(e);
+      return;
+    }
+
+    const baseDate = new Date(e.date);
+    let count = 0;
+    
+    if (e.recurrence === "zilnic") count = 30;
+    else if (e.recurrence === "saptamanal") count = 12;
+    else if (e.recurrence === "lunar") count = 6;
+
+    for (let i = 0; i < count; i++) {
+      const d = new Date(baseDate);
+      if (e.recurrence === "zilnic") {
+        d.setDate(d.getDate() + i);
+      } else if (e.recurrence === "saptamanal") {
+        d.setDate(d.getDate() + i * 7);
+      } else if (e.recurrence === "lunar") {
+        d.setMonth(d.getMonth() + i);
+      }
+      
+      const isoDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+      
+      addEvent({
+        ...e,
+        date: isoDate,
+        // Mark as part of a recurring series if needed in UI, but the plan only specified creating N independent instances.
+      });
     }
   };
 
@@ -89,6 +125,7 @@ export function CalendarContent() {
           month={currentMonth}
           events={events}
           onEventRemove={removeEvent}
+          onEventEdit={setEditingEvent}
           onDaySelect={(day) => setSelectedDay(day)}
         />
       </div>
@@ -97,8 +134,12 @@ export function CalendarContent() {
         open={showCreateModal}
         onClose={() => setShowCreateModal(false)}
         onEventCreate={(e) => {
-          addEvent(e);
-          toast.success("Eveniment adăugat!");
+          handleEventCreate(e);
+          toast.success(
+            e.recurrence && e.recurrence !== "none"
+              ? "Evenimente recurente adăugate!"
+              : "Eveniment adăugat!"
+          );
           setShowCreateModal(false);
           
           // Auto-select the day of the new event if it's in the current month view
@@ -106,6 +147,22 @@ export function CalendarContent() {
           if (evtDate.getFullYear() === currentYear && evtDate.getMonth() === currentMonth) {
             setSelectedDay(evtDate.getDate());
           }
+        }}
+      />
+
+      <EditEventModal
+        open={!!editingEvent}
+        event={editingEvent}
+        onClose={() => setEditingEvent(null)}
+        onEventUpdate={(id, updates) => {
+          updateEvent(id, updates);
+          toast.success("Eveniment actualizat cu succes!");
+          setEditingEvent(null);
+        }}
+        onEventDelete={(id) => {
+          removeEvent(id);
+          toast.success("Eveniment șters cu succes!");
+          setEditingEvent(null);
         }}
       />
     </motion.div>

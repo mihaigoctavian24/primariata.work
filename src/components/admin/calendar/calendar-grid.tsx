@@ -140,16 +140,20 @@ export function CalendarGrid({
               <span className="text-sm self-end">{dayNumber}</span>
               
               {/* Event Dots Container */}
-              <div className="mt-auto flex gap-1 pt-1 pb-0.5 max-w-full flex-wrap">
-                {dayEvents.slice(0, maxVisibleDots).map((evt) => (
-                  <div
-                    key={evt.id}
-                    className={cn("w-1.5 h-1.5 rounded-full flex-shrink-0", evt.color)}
-                    title={evt.title}
-                  />
-                ))}
-                {dayEvents.length > maxVisibleDots && (
-                  <div className="w-1.5 h-1.5 rounded-full flex-shrink-0 bg-muted-foreground flex items-center justify-center text-[8px]" title={`+${dayEvents.length - maxVisibleDots} mai multe`} />
+              <div className="mt-auto flex flex-col items-start max-w-full w-full gap-0.5 pt-1 pb-0.5">
+                <div className="flex gap-1 flex-wrap">
+                  {dayEvents.slice(0, 3).map((evt) => (
+                    <div
+                      key={evt.id}
+                      className={cn("w-1.5 h-1.5 rounded-full flex-shrink-0", evt.color)}
+                      title={evt.title}
+                    />
+                  ))}
+                </div>
+                {dayEvents.length > 3 && (
+                  <span className="text-[0.6rem] text-muted-foreground font-medium leading-none whitespace-nowrap">
+                    +{dayEvents.length - 3}
+                  </span>
                 )}
               </div>
             </motion.button>
