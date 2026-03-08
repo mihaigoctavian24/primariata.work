@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Design Revamp
 status: executing
-stopped_at: Completed 20-02-PLAN.md (Cereri Supervizare rewrite)
-last_updated: "2026-03-08T10:16:28.654Z"
+stopped_at: Completed 20-03-PLAN.md (Financiar admin page rewrite)
+last_updated: "2026-03-08T10:41:32.618Z"
 last_activity: 2026-03-06 -- Completed Phase 16 Plan 01 (accent gradient CSS + hex replacement)
 progress:
   total_phases: 7
   completed_phases: 6
   total_plans: 28
-  completed_plans: 24
+  completed_plans: 25
   percent: 100
 ---
 
@@ -62,6 +62,7 @@ Progress: [██████████] 100%
 | Phase 20 P00 | 3 | 2 tasks | 8 files |
 | Phase 20 P01 | 9 | 2 tasks | 8 files |
 | Phase 20 P02 | 8 | 2 tasks | 9 files |
+| Phase 20 P03 | 7 | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -144,6 +145,9 @@ Recent decisions affecting current work:
 - [Phase 20]: Co-located actions.ts in cereri-supervizare/ returning { error?: string } (not ActionResult)
 - [Phase 20]: confetti triggered in cereri-content coordinator (not kanban tab) so it fires for all approve paths
 - [Phase 20]: Click-to-move Kanban dialog uses fixed inset-0 overlay with Framer Motion spring animation
+- [Phase 20]: aggregateByMonthFull returns colectat+esuat shape for AreaChart (not target)
+- [Phase 20]: txFilter state lifted to FinanciarContent coordinator — KpiCards + TransactionList share it
+- [Phase 20]: colectatGrad20/esuatGrad20 unique SVG gradient IDs to prevent Recharts defs conflicts
 
 ### Pending Todos
 
@@ -168,6 +172,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-08T10:16:28.650Z
-Stopped at: Completed 20-02-PLAN.md (Cereri Supervizare rewrite)
+Last session: 2026-03-08T10:41:32.615Z
+Stopped at: Completed 20-03-PLAN.md (Financiar admin page rewrite)
 Resume file: None
