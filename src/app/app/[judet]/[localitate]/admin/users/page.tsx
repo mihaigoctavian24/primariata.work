@@ -6,7 +6,7 @@ import { UtilizatoriContent } from "@/components/admin/utilizatori/utilizatori-c
 import { UtilizatoriSkeleton } from "@/components/admin/utilizatori/utilizatori-skeleton";
 
 /**
- * Utilizatori Admin Page — Phase 19-02
+ * Utilizatori Admin Page — Phase 20-01
  *
  * Protected route: requires admin or super_admin role.
  * Fetches all users for the current primarie and passes to UtilizatoriContent.
