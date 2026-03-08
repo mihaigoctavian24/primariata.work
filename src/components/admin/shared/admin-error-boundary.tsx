@@ -14,10 +14,7 @@ interface AdminErrorBoundaryState {
   errorMessage: string;
 }
 
-export class AdminErrorBoundary extends React.Component<
-  AdminErrorBoundaryProps,
-  AdminErrorBoundaryState
-> {
+export class AdminErrorBoundary extends React.Component<AdminErrorBoundaryProps, AdminErrorBoundaryState> {
   constructor(props: AdminErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false, errorMessage: "" };
@@ -34,17 +31,17 @@ export class AdminErrorBoundary extends React.Component<
   override render(): React.ReactNode {
     if (this.state.hasError) {
       return (
-        <div className="flex min-h-[200px] flex-col items-center justify-center rounded-2xl border border-[var(--color-error)]/20 bg-[var(--color-error-subtle)] p-8 text-center">
-          <AlertTriangle className="mb-3 h-8 w-8" style={{ color: "var(--color-error)" }} />
-          <p className="text-foreground mb-1 text-sm font-semibold">
+        <div className="flex flex-col items-center justify-center min-h-[200px] rounded-2xl border border-[var(--color-error)]/20 bg-[var(--color-error-subtle)] p-8 text-center">
+          <AlertTriangle className="w-8 h-8 mb-3" style={{ color: "var(--color-error)" }} />
+          <p className="text-foreground font-semibold text-sm mb-1">
             {this.props.label ?? "Eroare la încărcarea paginii"}
           </p>
-          <p className="text-muted-foreground mb-4 max-w-xs text-xs">{this.state.errorMessage}</p>
+          <p className="text-muted-foreground text-xs mb-4 max-w-xs">{this.state.errorMessage}</p>
           <button
             onClick={() => this.setState({ hasError: false, errorMessage: "" })}
-            className="text-foreground border-border flex cursor-pointer items-center gap-2 rounded-xl border px-4 py-2 text-sm transition-all hover:bg-white/5"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm text-foreground border border-border hover:bg-white/5 transition-all cursor-pointer"
           >
-            <RefreshCcw className="h-3.5 w-3.5" /> Încearcă din nou
+            <RefreshCcw className="w-3.5 h-3.5" /> Încearcă din nou
           </button>
         </div>
       );

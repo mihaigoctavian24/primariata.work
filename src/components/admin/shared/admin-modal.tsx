@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -23,20 +23,11 @@ const SIZE_MAP: Record<Required<AdminModalProps>["size"], string> = {
   xl: "max-w-3xl",
 };
 
-export function AdminModal({
-  open,
-  onClose,
-  title,
-  size = "md",
-  children,
-  footer,
-}: AdminModalProps): React.JSX.Element {
+export function AdminModal({ open, onClose, title, size = "md", children, footer }: AdminModalProps): React.JSX.Element {
   // ESC to close
   useEffect(() => {
     if (!open) return;
-    const handler = (e: KeyboardEvent): void => {
-      if (e.key === "Escape") onClose();
-    };
+    const handler = (e: KeyboardEvent): void => { if (e.key === "Escape") onClose(); };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [open, onClose]);
@@ -64,28 +55,30 @@ export function AdminModal({
             onClick={(e) => e.stopPropagation()}
             className={cn(
               "relative w-full rounded-2xl",
-              "bg-card border-border border",
+              "bg-card border border-border",
               "shadow-[0_25px_60px_rgba(0,0,0,0.45)]",
-              "flex max-h-[90vh] flex-col",
+              "flex flex-col max-h-[90vh]",
               SIZE_MAP[size]
             )}
           >
             {/* Header */}
-            <div className="border-border flex shrink-0 items-center justify-between border-b px-5 py-4">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-border shrink-0">
               <h3 className="text-foreground text-[0.95rem] font-semibold">{title}</h3>
               <button
                 onClick={onClose}
-                className="text-muted-foreground hover:text-foreground cursor-pointer rounded-lg p-1 transition-all hover:bg-white/5"
+                className="text-muted-foreground hover:text-foreground p-1 rounded-lg hover:bg-white/5 transition-all cursor-pointer"
               >
-                <X className="h-4 w-4" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
             {/* Body — scrollable */}
-            <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">{children}</div>
+            <div className="flex-1 overflow-y-auto px-5 py-4 min-h-0">{children}</div>
 
             {/* Footer */}
-            {footer && <div className="border-border shrink-0 border-t px-5 py-4">{footer}</div>}
+            {footer && (
+              <div className="shrink-0 px-5 py-4 border-t border-border">{footer}</div>
+            )}
           </motion.div>
         </motion.div>
       )}
