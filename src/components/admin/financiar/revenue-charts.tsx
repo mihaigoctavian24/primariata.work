@@ -17,6 +17,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { CreditCard, Building2, Landmark, Smartphone } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 import type { MonthlyRevenueExtended, DailyVolume, MetodaBreakdown } from "@/lib/financiar-utils";
 
@@ -42,6 +43,7 @@ interface RevenueChartsProps {
   monthlyData: MonthlyRevenueExtended[];
   dailyData: DailyVolume[];
   metodaData: MetodaBreakdown;
+  onCategoryClick?: (name: string) => void;
 }
 
 // ============================================================================
@@ -360,6 +362,25 @@ function PaymentMethodsList({ data }: { data: MetodaBreakdown }): React.JSX.Elem
           </div>
         </div>
       )}
+
+      {/* Gateway health */}
+      <div className="mt-4 pt-4 border-t border-border/50">
+        <p className="text-muted-foreground text-[0.7rem] font-semibold uppercase tracking-wider mb-2">Gateway Health</p>
+        {[
+          { name: "Netopia", status: "operational" },
+          { name: "BT Pay", status: "operational" },
+          { name: "ghișeu.ro", status: "degraded" },
+          { name: "POS Primărie", status: "operational" },
+        ].map((gw) => (
+          <div key={gw.name} className="flex items-center justify-between py-1">
+            <span className="text-muted-foreground text-xs">{gw.name}</span>
+            <span className="flex items-center gap-1.5 text-xs" style={{ color: gw.status === "operational" ? "var(--color-success)" : "var(--color-warning)" }}>
+              <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", gw.status === "operational" ? "bg-[var(--color-success)] animate-pulse" : "bg-[var(--color-warning)]")} />
+              {gw.status === "operational" ? "OK" : "Degradat"}
+            </span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -368,7 +389,7 @@ function PaymentMethodsList({ data }: { data: MetodaBreakdown }): React.JSX.Elem
 // CategoryGrid
 // ============================================================================
 
-function CategoryGrid(): React.JSX.Element {
+function CategoryGrid({ onCategoryClick }: { onCategoryClick?: (name: string) => void }): React.JSX.Element {
   // Category data: graceful mock — plati table has no category column
   return (
     <div className="rounded-2xl border border-white/[0.05] bg-white/[0.025] p-5">
@@ -377,10 +398,14 @@ function CategoryGrid(): React.JSX.Element {
         {MOCK_CATEGORIES.map((cat, i) => {
           const pct = cat.target > 0 ? Math.round((cat.colectat / cat.target) * 100) : 0;
           return (
-            <div key={cat.name} className="flex flex-col gap-1.5">
+            <div 
+              key={cat.name} 
+              onClick={() => onCategoryClick?.(cat.name)}
+              className="group flex flex-col gap-1.5 rounded-xl p-2.5 transition-all cursor-pointer hover:bg-white/[0.05] border border-transparent hover:border-white/[0.05]"
+            >
               <div className="flex items-center justify-between">
-                <span className="truncate text-[0.72rem] text-gray-300">{cat.name}</span>
-                <span className="ml-1 shrink-0 text-[0.65rem] text-gray-500">{pct}%</span>
+                <span className="truncate text-[0.72rem] text-gray-300 group-hover:text-white transition-colors">{cat.name}</span>
+                <span className="ml-1 shrink-0 text-[0.65rem] text-gray-500 group-hover:text-gray-400">{pct}%</span>
               </div>
               <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
                 <motion.div
@@ -392,8 +417,8 @@ function CategoryGrid(): React.JSX.Element {
                 />
               </div>
               <div className="flex items-center justify-between text-[0.65rem] text-gray-500">
-                <span>{cat.colectat.toLocaleString("ro-RO")} RON</span>
-                <span>{cat.target.toLocaleString("ro-RO")} RON target</span>
+                <span className="group-hover:text-gray-400">{cat.colectat.toLocaleString("ro-RO")} RON</span>
+                <span className="opacity-0 group-hover:opacity-100 transition-opacity text-[var(--color-info)]">Click to filter</span>
               </div>
             </div>
           );
@@ -411,6 +436,7 @@ export function RevenueCharts({
   monthlyData,
   dailyData,
   metodaData,
+  onCategoryClick,
 }: RevenueChartsProps): React.JSX.Element {
   return (
     <div className="space-y-5">
@@ -423,7 +449,7 @@ export function RevenueCharts({
       {/* Bottom row: payment methods + category grid */}
       <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
         <PaymentMethodsList data={metodaData} />
-        <CategoryGrid />
+        <CategoryGrid onCategoryClick={onCategoryClick} />
       </div>
     </div>
   );

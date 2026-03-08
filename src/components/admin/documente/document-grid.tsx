@@ -30,6 +30,15 @@ interface DocumentGridProps {
   onFolderClick: (name: string) => void;
   onDelete: (file: StorageFile) => void;
   onPreview: (file: StorageFile) => void;
+  // New props for wave 13
+  selectedFileIds?: Set<string>;
+  onToggleSelectFile?: (id: string) => void;
+  renamingId?: string | null;
+  renameValue?: string;
+  onRenameStart?: (id: string, name: string) => void;
+  onRenameChange?: (val: string) => void;
+  onRenameSubmit?: (file: StorageFile) => void;
+  onRenameCancel?: () => void;
 }
 
 type FileType = "pdf" | "doc" | "xls" | "img" | "folder";
@@ -119,6 +128,14 @@ export function DocumentGrid({
   onFolderClick,
   onDelete,
   onPreview,
+  selectedFileIds = new Set(),
+  onToggleSelectFile,
+  renamingId,
+  renameValue,
+  onRenameStart,
+  onRenameChange,
+  onRenameSubmit,
+  onRenameCancel,
 }: DocumentGridProps): React.JSX.Element {
   const { toggleStar, isStarred } = useStarredDocumentsStore();
 
@@ -229,6 +246,19 @@ export function DocumentGrid({
                           <Icon className={`h-5 w-5 ${cfg.colorClass}`} />
                         </div>
 
+                        {/* Multi-select checkbox */}
+                        <input
+                          type="checkbox"
+                          checked={selectedFileIds.has(file.id ?? file.name)}
+                          onChange={(e) => {
+                            e.stopPropagation();
+                            onToggleSelectFile?.(file.id ?? file.name);
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                          className="absolute top-2 left-2 accent-[var(--color-info)] cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
+                          style={{ zIndex: 10 }}
+                        />
+
                         {/* Action buttons — visible on hover */}
                         <div className="flex gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
                           <button
@@ -268,10 +298,33 @@ export function DocumentGrid({
                         <Star className="absolute top-2.5 right-2.5 h-3 w-3 fill-amber-400 text-amber-400 group-hover:hidden" />
                       )}
 
-                      {/* Filename */}
-                      <p className="mb-1 truncate text-white" style={{ fontSize: "0.8rem" }}>
-                        {file.name}
-                      </p>
+                      {/* Filename / Rename input */}
+                      {renamingId === (file.id ?? file.name) ? (
+                        <input
+                          autoFocus
+                          value={renameValue}
+                          onChange={(e) => onRenameChange?.(e.target.value)}
+                          onBlur={() => onRenameSubmit?.(file)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Escape") onRenameCancel?.();
+                            if (e.key === "Enter") onRenameSubmit?.(file);
+                          }}
+                          className="mb-1 w-full bg-transparent border-b border-[var(--color-info)] text-foreground text-[0.8rem] outline-none"
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      ) : (
+                        <p 
+                          onDoubleClick={(e) => {
+                            e.stopPropagation();
+                            onRenameStart?.(file.id ?? file.name, file.name);
+                          }}
+                          className="mb-1 truncate text-white cursor-text" 
+                          style={{ fontSize: "0.8rem" }}
+                          title="Dublu-click pentru a edita"
+                        >
+                          {file.name}
+                        </p>
+                      )}
 
                       {/* Meta: size + date */}
                       <div
@@ -307,18 +360,53 @@ export function DocumentGrid({
                       onClick={() => onPreview(file)}
                       className="group flex cursor-pointer items-center gap-4 rounded-xl p-3 transition-all hover:bg-white/[0.02]"
                     >
-                      {/* Icon */}
-                      <div
-                        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${cfg.bgClass}`}
-                      >
-                        <Icon className={`h-4 w-4 ${cfg.colorClass}`} />
+                      {/* Icon & Multi-select */}
+                      <div className="relative">
+                        <div
+                          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${cfg.bgClass}`}
+                        >
+                          <Icon className={`h-4 w-4 ${cfg.colorClass}`} />
+                        </div>
+                        <input
+                          type="checkbox"
+                          checked={selectedFileIds.has(file.id ?? file.name)}
+                          onChange={(e) => {
+                            e.stopPropagation();
+                            onToggleSelectFile?.(file.id ?? file.name);
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                          className="absolute -top-1 -left-1 accent-[var(--color-info)] cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
+                        />
                       </div>
 
-                      {/* Name */}
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-white" style={{ fontSize: "0.85rem" }}>
-                          {file.name}
-                        </p>
+                      {/* Name / Rename input */}
+                      <div className="min-w-0 flex-1 relative">
+                        {renamingId === (file.id ?? file.name) ? (
+                          <input
+                            autoFocus
+                            value={renameValue}
+                            onChange={(e) => onRenameChange?.(e.target.value)}
+                            onBlur={() => onRenameSubmit?.(file)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Escape") onRenameCancel?.();
+                              if (e.key === "Enter") onRenameSubmit?.(file);
+                            }}
+                            className="w-full bg-transparent border-b border-[var(--color-info)] text-foreground text-[0.85rem] outline-none"
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        ) : (
+                          <p 
+                            onDoubleClick={(e) => {
+                              e.stopPropagation();
+                              onRenameStart?.(file.id ?? file.name, file.name);
+                            }}
+                            className="truncate text-white cursor-text" 
+                            style={{ fontSize: "0.85rem" }}
+                            title="Dublu-click pentru a edita"
+                          >
+                            {file.name}
+                          </p>
+                        )}
                       </div>
 
                       {/* Size */}

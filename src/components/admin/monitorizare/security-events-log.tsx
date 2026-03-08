@@ -18,6 +18,7 @@ import {
   ShieldCheck,
   Play,
   Pause,
+  Download,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -306,6 +307,27 @@ export function AuditLogTable() {
               className="bg-white/[0.03] border border-white/[0.05] rounded-xl pl-9 pr-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-accent-500 w-full sm:w-[200px]"
             />
           </div>
+          <button
+            onClick={() => {
+              const csv = [
+                ["Oră", "Utilizator", "Acțiune", "Tip", "IP"].join(","),
+                ...auditLog.map((e) =>
+                  [e.time, e.user, `"${e.action}"`, e.type, e.ip].join(",")
+                ),
+              ].join("\n");
+              const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = `audit-log-${new Date().toISOString().split("T")[0]}.csv`;
+              a.click();
+              URL.revokeObjectURL(url);
+              toast.success("Audit log exportat ca CSV");
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs border border-border text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all cursor-pointer"
+          >
+            <Download className="w-3.5 h-3.5" /> Exportă Audit
+          </button>
         </div>
       </div>
 

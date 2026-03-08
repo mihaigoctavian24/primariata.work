@@ -89,3 +89,31 @@ export async function updateUserRole(
   revalidatePath("/", "layout");
   return {};
 }
+
+// ============================================================================
+// updateUserDepartment
+// ============================================================================
+
+/**
+ * Update a user's department.
+ * Uses service role to bypass RLS. Caller must be admin.
+ */
+export async function updateUserDepartment(
+  userId: string,
+  departament: string
+): Promise<{ error?: string }> {
+  const ctx = await getAuthContext();
+  if ("error" in ctx) return { error: ctx.error };
+
+  const admin = createServiceRoleClient();
+
+  const { error } = await admin
+    .from("utilizatori")
+    .update({ departament })
+    .eq("id", userId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/", "layout");
+  return {};
+}

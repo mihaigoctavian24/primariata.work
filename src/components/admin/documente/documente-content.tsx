@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import {
   FolderOpen,
@@ -11,7 +11,10 @@ import {
   ChevronRight,
   FolderPlus,
   Upload,
+  Trash2,
+  X,
 } from "lucide-react";
+import { AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import type { StorageFile } from "@/components/admin/documente/types";
@@ -73,6 +76,11 @@ export function DocumenteContent({ primarieId }: DocumenteContentProps): React.J
   const [previewFile, setPreviewFile] = useState<StorageFile | null>(null);
   const [showFolderCreate, setShowFolderCreate] = useState(false);
 
+  // New polish states
+  const [selectedFileIds, setSelectedFileIds] = useState<Set<string>>(new Set());
+  const [renamingId, setRenamingId] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState("");
+
   // Ref passed to DocumentUploadZone so "Încarcă" button can trigger it
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -115,6 +123,18 @@ export function DocumenteContent({ primarieId }: DocumenteContentProps): React.J
 
   const totalBytes = nonFolderFiles.reduce((sum, f) => sum + (f.metadata?.size ?? 0), 0);
   const usagePercent = Math.min((totalBytes / MAX_BYTES) * 100, 100);
+
+  const recentFiles = useMemo(
+    () =>
+      [...nonFolderFiles]
+        .sort(
+          (a, b) =>
+            new Date(b.updated_at ?? b.created_at ?? 0).getTime() -
+            new Date(a.updated_at ?? a.created_at ?? 0).getTime()
+        )
+        .slice(0, 5),
+    [nonFolderFiles]
+  );
 
   // ---- Handlers ------------------------------------------------------------
 
@@ -257,6 +277,74 @@ export function DocumenteContent({ primarieId }: DocumenteContentProps): React.J
         </span>
       </motion.div>
 
+      {/* Bulk Delete Bar */}
+      <AnimatePresence>
+        {selectedFileIds.size > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            className="flex items-center gap-3 mb-3 px-4 py-2.5 rounded-xl bg-[var(--color-error-subtle)] border border-[var(--color-error)]/20"
+          >
+            <span className="text-foreground text-sm">
+              {selectedFileIds.size} fișier(e) selectate
+            </span>
+            <button
+              onClick={async () => {
+                const supabase = createClient();
+                await Promise.all(
+                  [...selectedFileIds].map((id) => {
+                    const file = files.find((f) => (f.id ?? f.name) === id);
+                    if (!file) return Promise.resolve();
+                    return supabase.storage.from("documents").remove([`${primarieId}/${currentFolder ? currentFolder + "/" : ""}${file.name}`]);
+                  })
+                );
+                setFiles((prev) => prev.filter((f) => !selectedFileIds.has(f.id ?? f.name)));
+                setSelectedFileIds(new Set());
+                toast.success("Fișierele selectate au fost șterse");
+              }}
+              className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-[var(--color-error)] border border-[var(--color-error)]/30 hover:bg-[var(--color-error-subtle)] cursor-pointer transition-all"
+            >
+              <Trash2 className="w-3.5 h-3.5" /> Șterge Selecția
+            </button>
+            <button
+              onClick={() => setSelectedFileIds(new Set())}
+              className="text-muted-foreground hover:text-foreground cursor-pointer p-1"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Recent Files */}
+      {!search && !currentFolder && recentFiles.length > 0 && (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-5">
+          <div className="text-muted-foreground text-[0.72rem] font-semibold uppercase tracking-wider mb-2">
+            Fișiere Recente
+          </div>
+          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin scrollbar-thumb-border">
+            {recentFiles.map((file) => {
+              const ext = file.name.split(".").pop()?.toLowerCase() ?? "bin";
+              return (
+                <button
+                  key={file.id ?? file.name}
+                  onClick={() => setPreviewFile(file)}
+                  className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[var(--card)] border border-border hover:bg-white/5 transition-all cursor-pointer shrink-0 text-left"
+                >
+                  <span className="text-[0.7rem] font-mono text-muted-foreground uppercase">
+                    {ext}
+                  </span>
+                  <span className="text-foreground text-xs truncate max-w-[120px]">
+                    {file.name}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </motion.div>
+      )}
+
       {/* Toolbar: search + view toggle */}
       <div className="flex items-center gap-3">
         <div
@@ -332,6 +420,33 @@ export function DocumenteContent({ primarieId }: DocumenteContentProps): React.J
             onFolderClick={handleFolderClick}
             onDelete={handleDelete}
             onPreview={setPreviewFile}
+            selectedFileIds={selectedFileIds}
+            onToggleSelectFile={(id) => {
+              setSelectedFileIds((prev) => {
+                const next = new Set(prev);
+                if (next.has(id)) next.delete(id);
+                else next.add(id);
+                return next;
+              });
+            }}
+            renamingId={renamingId}
+            renameValue={renameValue}
+            onRenameStart={(id, name) => {
+              setRenamingId(id);
+              setRenameValue(name);
+            }}
+            onRenameChange={setRenameValue}
+            onRenameSubmit={async (file) => {
+              if (renameValue.trim() && renameValue.trim() !== file.name) {
+                // local update only per spec
+                setFiles((prev) =>
+                  prev.map((f) => (f.id === file.id ? { ...f, name: renameValue.trim() } : f))
+                );
+                toast.success("Fișier redenumit (local)");
+              }
+              setRenamingId(null);
+            }}
+            onRenameCancel={() => setRenamingId(null)}
           />
         </DocumentUploadZone>
       )}

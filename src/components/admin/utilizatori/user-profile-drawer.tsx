@@ -15,13 +15,29 @@ import {
   Phone,
   Building2,
   Shield,
+  ShieldCheck,
   ChevronDown,
   AlertTriangle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { RoleColorBadge } from "@/components/admin/shared/role-color-badge";
 import type { RoleKey } from "@/components/admin/shared/role-color-badge";
-import { updateUserStatus, updateUserRole } from "@/components/admin/utilizatori/actions";
+import { updateUserStatus, updateUserRole, updateUserDepartment } from "@/components/admin/utilizatori/actions";
+
+// ============================================================================
+// Constants
+// ============================================================================
+
+const DEPARTMENTS = [
+  "Urbanism",
+  "Stare Civilă",
+  "Taxe & Impozite",
+  "Registratură",
+  "Asistență Socială",
+  "Juridic",
+  "IT & Digital",
+  "Resurse Umane",
+];
 
 // ============================================================================
 // Types
@@ -41,6 +57,7 @@ interface UtilizatoriUser {
   created_at: string | null;
   last_login_at: string | null;
   primarie_id: string | null;
+  two_factor_enabled?: boolean;
 }
 
 interface UserProfileDrawerProps {
@@ -300,13 +317,29 @@ export function UserProfileDrawer({
                     label="Telefon"
                     value={user.telefon ?? "N/D"}
                   />
-                  {user.departament && (
-                    <InfoRow
-                      icon={<Building2 className="h-3.5 w-3.5" />}
-                      label="Departament"
-                      value={user.departament}
-                    />
-                  )}
+                  <div className="flex items-center gap-2.5">
+                    <span className="flex-shrink-0 text-white/30"><Building2 className="h-3.5 w-3.5" /></span>
+                    <span className="w-28 flex-shrink-0 text-xs text-white/40">Departament</span>
+                    <select
+                      value={user.departament ?? ""}
+                      onChange={async (e) => {
+                        const val = e.target.value;
+                        const p = updateUserDepartment(user.id, val);
+                        toast.promise(p, {
+                          loading: "Se actualizează departamentul...",
+                          success: "Departament actualizat",
+                          error: "Eroare la actualizare"
+                        });
+                        await p;
+                      }}
+                      className="bg-transparent border-none text-sm text-white/80 outline-none w-full"
+                    >
+                      <option value="" className="bg-card text-muted-foreground">— Fără departament —</option>
+                      {DEPARTMENTS.map((d) => (
+                        <option key={d} value={d} className="bg-card text-foreground">{d}</option>
+                      ))}
+                    </select>
+                  </div>
                   <InfoRow icon={<User className="h-3.5 w-3.5" />} label="Cereri" value="—" />
                 </div>
               </div>
@@ -327,7 +360,19 @@ export function UserProfileDrawer({
                     label="Ultima login"
                     value={formatDate(user.last_login_at)}
                   />
-                  <InfoRow icon={<Shield className="h-3.5 w-3.5" />} label="2FA" value="N/D" />
+                  <div className="flex items-center gap-2.5">
+                    <span className="flex-shrink-0 text-white/30"><Shield className="h-3.5 w-3.5" /></span>
+                    <span className="w-28 flex-shrink-0 text-xs text-white/40">2FA</span>
+                    <span className={cn(
+                      "flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[0.65rem] font-medium tracking-wide",
+                      user.two_factor_enabled
+                        ? "bg-[var(--color-success-subtle)] text-[var(--color-success)]"
+                        : "bg-[var(--color-neutral)]/20 text-[var(--color-neutral)]"
+                    )}>
+                      {user.two_factor_enabled ? <ShieldCheck className="w-3 h-3" /> : <ShieldOff className="w-3 h-3" />}
+                      {user.two_factor_enabled ? "Activat" : "Dezactivat"}
+                    </span>
+                  </div>
                 </div>
               </div>
 
