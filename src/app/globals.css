@@ -142,6 +142,12 @@
     --z-modal: 1050;
     --z-popover: 1060;
     --z-tooltip: 1070;
+
+    /* ─── Role Color Tokens ─── */
+    --role-cetatan: var(--color-blue-500);
+    --role-functionar: var(--color-emerald-500);
+    --role-primar: var(--color-amber-500);
+    --role-admin: var(--color-violet-500);
   }
 
   .dark {
@@ -215,6 +221,12 @@
     --chart-3: oklch(0.42 0.24 295);
     --chart-4: oklch(0.55 0.22 320);
     --chart-5: oklch(0.7 0.17 15);
+
+    /* ─── Role Color Tokens ─── */
+    --role-cetatan: var(--color-blue-500);
+    --role-functionar: var(--color-emerald-500);
+    --role-primar: var(--color-amber-500);
+    --role-admin: var(--color-violet-500);
   }
 
   /* ─── Typography Defaults (Figma-aligned hierarchy) ─── */
