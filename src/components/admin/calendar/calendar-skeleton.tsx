@@ -2,6 +2,7 @@
 
 // ============================================================================
 // CalendarSkeleton — layout-matched loading state for the Calendar page
+// Two-column: 8/12 calendar grid + 4/12 detail panel
 // ============================================================================
 
 export function CalendarSkeleton(): React.JSX.Element {
@@ -12,37 +13,25 @@ export function CalendarSkeleton(): React.JSX.Element {
         <div className="space-y-2">
           <div
             className="animate-pulse rounded-xl"
-            style={{
-              width: 180,
-              height: 28,
-              background: "rgba(255,255,255,0.06)",
-            }}
+            style={{ width: 180, height: 28, background: "rgba(255,255,255,0.06)" }}
           />
           <div
             className="animate-pulse rounded-lg"
-            style={{
-              width: 280,
-              height: 16,
-              background: "rgba(255,255,255,0.03)",
-            }}
+            style={{ width: 300, height: 16, background: "rgba(255,255,255,0.03)" }}
           />
         </div>
-        {/* "Adaugă Eveniment" button skeleton */}
+        {/* "Eveniment Nou" button skeleton */}
         <div
           className="animate-pulse rounded-xl"
-          style={{
-            width: 160,
-            height: 40,
-            background: "rgba(255,255,255,0.06)",
-          }}
+          style={{ width: 160, height: 40, background: "rgba(255,255,255,0.06)" }}
         />
       </div>
 
-      {/* Two-column layout */}
-      <div className="flex gap-5">
-        {/* Left: Calendar grid */}
+      {/* Grid layout */}
+      <div className="grid grid-cols-12 gap-5">
+        {/* Calendar grid — col-span-8 */}
         <div
-          className="flex-1 animate-pulse rounded-2xl p-5"
+          className="col-span-8 animate-pulse rounded-2xl p-5"
           style={{
             background: "rgba(255,255,255,0.025)",
             border: "1px solid rgba(255,255,255,0.05)",
@@ -52,10 +41,10 @@ export function CalendarSkeleton(): React.JSX.Element {
           <div className="mb-5 flex items-center justify-between">
             <div
               className="rounded-xl"
-              style={{ width: 120, height: 24, background: "rgba(255,255,255,0.06)" }}
+              style={{ width: 140, height: 24, background: "rgba(255,255,255,0.06)" }}
             />
             <div className="flex gap-1">
-              {[40, 56, 40].map((w, i) => (
+              {[36, 52, 36].map((w, i) => (
                 <div
                   key={i}
                   className="rounded-xl"
@@ -83,7 +72,7 @@ export function CalendarSkeleton(): React.JSX.Element {
                 key={i}
                 className="rounded-xl"
                 style={{
-                  height: 72,
+                  minHeight: 60,
                   background: i % 5 === 0 ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.015)",
                 }}
               />
@@ -91,30 +80,49 @@ export function CalendarSkeleton(): React.JSX.Element {
           </div>
         </div>
 
-        {/* Right: Day detail panel */}
+        {/* Detail panel — col-span-4 */}
         <div
-          className="flex shrink-0 flex-col gap-3 rounded-2xl p-5"
+          className="col-span-4 flex animate-pulse flex-col gap-4 rounded-2xl p-5"
           style={{
-            width: 340,
             background: "rgba(255,255,255,0.025)",
             border: "1px solid rgba(255,255,255,0.05)",
           }}
         >
           {/* Panel header */}
           <div
-            className="animate-pulse rounded-xl"
+            className="rounded-xl"
             style={{ width: "60%", height: 20, background: "rgba(255,255,255,0.06)" }}
           />
 
           {/* Event cards skeleton */}
-          {[1, 2, 3].map((i) => (
+          {[1, 2].map((i) => (
             <div
               key={i}
-              className="animate-pulse rounded-xl p-3"
+              className="rounded-xl p-3"
               style={{
                 background: "rgba(255,255,255,0.025)",
                 border: "1px solid rgba(255,255,255,0.04)",
                 height: 80,
+              }}
+            />
+          ))}
+
+          {/* Separator */}
+          <div className="rounded" style={{ height: 1, background: "rgba(255,255,255,0.05)" }} />
+
+          {/* Upcoming events skeleton */}
+          <div
+            className="rounded-xl"
+            style={{ width: "50%", height: 16, background: "rgba(255,255,255,0.06)" }}
+          />
+          {[1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="rounded-xl"
+              style={{
+                height: 48,
+                background: "rgba(255,255,255,0.02)",
+                border: "1px solid rgba(255,255,255,0.04)",
               }}
             />
           ))}
