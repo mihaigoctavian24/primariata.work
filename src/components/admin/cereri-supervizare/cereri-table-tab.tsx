@@ -6,28 +6,21 @@ import {
   Search,
   ChevronLeft,
   ChevronRight,
-  MoreVertical,
-  Flag,
+  ChevronDown,
+  ChevronUp,
   StickyNote,
   UserCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { setCererePrioritate, addCerereNota, reassignCerere } from "@/actions/admin-cereri";
+import { addCerereNote, reassignCerere } from "./actions";
 import type { CerereRow, FunctionarRow } from "@/app/app/[judet]/[localitate]/admin/cereri/page";
 
 // ============================================================================
 // Constants
 // ============================================================================
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 10;
 
 const STATUS_LABELS: Record<string, string> = {
   depusa: "Depusă",
@@ -78,7 +71,7 @@ function SlaCountdown({ dataTermen }: { dataTermen?: string | null }): React.Rea
   const colorClass =
     days < 0
       ? "text-red-400"
-      : days <= 2
+      : days <= 3
         ? "text-amber-400"
         : days <= 7
           ? "text-yellow-400"
@@ -92,35 +85,31 @@ function SlaCountdown({ dataTermen }: { dataTermen?: string | null }): React.Rea
 }
 
 // ============================================================================
-// Modal types
+// Types
 // ============================================================================
 
-type ModalType = "priority" | "note" | "reassign" | null;
-
-interface ModalState {
-  type: ModalType;
-  cerereId: string;
-  numar: string;
+interface CereriTableTabProps {
+  cereri: CerereRow[];
+  functionari: FunctionarRow[];
+  onCerereAction?: (cerereId: string, action: "approve" | "reject" | "note" | "reassign") => void;
 }
 
 // ============================================================================
 // Component
 // ============================================================================
 
-interface CereriTableTabProps {
-  cereri: CerereRow[];
-  functionari: FunctionarRow[];
-}
-
-function CereriTableTab({ cereri, functionari }: CereriTableTabProps): React.ReactElement {
+function CereriTableTab({
+  cereri,
+  functionari,
+  onCerereAction,
+}: CereriTableTabProps): React.ReactElement {
   const [statusFilter, setStatusFilter] = useState("all");
   const [prioritateFilter, setPrioritateFilter] = useState("all");
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
-  const [modal, setModal] = useState<ModalState | null>(null);
-  const [prioritateValue, setPrioritateValue] = useState("medie");
+  const [expandedRow, setExpandedRow] = useState<string | null>(null);
   const [noteText, setNoteText] = useState("");
-  const [reassignId, setReassignId] = useState("");
+  const [reassignId, setReassignId] = useState<string>("");
   const [isPending, startTransition] = useTransition();
 
   // === Filtering ===
@@ -137,66 +126,52 @@ function CereriTableTab({ cereri, functionari }: CereriTableTabProps): React.Rea
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
   const paginated = filtered.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE);
 
-  const getFunctionarName = (id: string | null | undefined): string => {
-    if (!id) return "—";
+  function getFunctionarName(id: string | null | undefined): string {
+    if (!id) return "Neasignat";
     const f = functionari.find((fn) => fn.id === id);
     return f ? `${f.prenume} ${f.nume}` : "—";
-  };
-
-  // === Actions ===
-  function openModal(type: NonNullable<ModalType>, cerereId: string, numar: string): void {
-    setModal({ type, cerereId, numar });
-    setNoteText("");
-    setPrioritateValue("medie");
-    setReassignId(functionari[0]?.id ?? "");
   }
 
-  function closeModal(): void {
-    setModal(null);
+  function handleExpand(cerereId: string): void {
+    if (expandedRow === cerereId) {
+      setExpandedRow(null);
+    } else {
+      setExpandedRow(cerereId);
+      setNoteText("");
+      setReassignId(functionari[0]?.id ?? "");
+    }
   }
 
-  function handleSetPriority(): void {
-    if (!modal) return;
+  function handleAddNote(cerereId: string): void {
+    if (!noteText.trim()) return;
     startTransition(async () => {
-      const result = await setCererePrioritate(modal.cerereId, prioritateValue);
-      if (result.success) {
-        toast.success("Prioritate actualizată");
-        closeModal();
+      const result = await addCerereNote(cerereId, noteText);
+      if (result.error) {
+        toast.error(result.error);
       } else {
-        toast.error(result.error ?? "Eroare la actualizare");
+        toast.success("Notă adăugată cu succes");
+        setNoteText("");
+        onCerereAction?.(cerereId, "note");
       }
     });
   }
 
-  function handleAddNote(): void {
-    if (!modal) return;
+  function handleReassign(cerereId: string): void {
+    if (!reassignId) return;
     startTransition(async () => {
-      const result = await addCerereNota(modal.cerereId, noteText, "Admin");
-      if (result.success) {
-        toast.success("Notă adăugată");
-        closeModal();
+      const result = await reassignCerere(cerereId, reassignId);
+      if (result.error) {
+        toast.error(result.error);
       } else {
-        toast.error(result.error ?? "Eroare la adăugare notă");
-      }
-    });
-  }
-
-  function handleReassign(): void {
-    if (!modal || !reassignId) return;
-    startTransition(async () => {
-      const result = await reassignCerere(modal.cerereId, reassignId);
-      if (result.success) {
         toast.success("Cerere reasignată");
-        closeModal();
-      } else {
-        toast.error(result.error ?? "Eroare la reasignare");
+        onCerereAction?.(cerereId, "reassign");
       }
     });
   }
 
   return (
     <div className="space-y-4">
-      {/* Filter bar */}
+      {/* ── Filter bar ── */}
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative">
           <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
@@ -210,6 +185,7 @@ function CereriTableTab({ cereri, functionari }: CereriTableTabProps): React.Rea
             className="border-border bg-background/50 text-foreground placeholder:text-muted-foreground focus:ring-accent-500/50 h-9 rounded-lg border py-2 pr-4 pl-9 text-sm focus:ring-1 focus:outline-none"
           />
         </div>
+
         <select
           value={statusFilter}
           onChange={(e) => {
@@ -225,6 +201,7 @@ function CereriTableTab({ cereri, functionari }: CereriTableTabProps): React.Rea
             </option>
           ))}
         </select>
+
         <select
           value={prioritateFilter}
           onChange={(e) => {
@@ -240,20 +217,21 @@ function CereriTableTab({ cereri, functionari }: CereriTableTabProps): React.Rea
             </option>
           ))}
         </select>
+
         <span className="text-muted-foreground ml-auto text-xs">{filtered.length} cereri</span>
       </div>
 
-      {/* Table */}
+      {/* ── Table ── */}
       <div className="overflow-hidden rounded-2xl border border-white/[0.05] bg-white/[0.024]">
-        {/* Header */}
+        {/* Header row */}
         <div
           className="grid items-center gap-4 border-b border-white/[0.05] px-4 py-2.5"
-          style={{ gridTemplateColumns: "1fr 1.5fr 1.2fr 1fr 0.8fr 0.8fr 40px" }}
+          style={{ gridTemplateColumns: "1fr 1.4fr 1.2fr 1fr 0.8fr 0.9fr 36px" }}
         >
-          {["Număr", "Tip cerere", "Funcționar", "Status", "Prioritate", "SLA", ""].map((h) => (
+          {["Număr", "Funcționar", "Status", "Prioritate", "SLA", "Data", ""].map((h) => (
             <span
               key={h}
-              className="text-muted-foreground text-xs font-medium tracking-wide uppercase"
+              className="text-muted-foreground text-[0.68rem] font-medium tracking-wide uppercase"
             >
               {h}
             </span>
@@ -267,78 +245,169 @@ function CereriTableTab({ cereri, functionari }: CereriTableTabProps): React.Rea
           </div>
         ) : (
           <div className="divide-y divide-white/[0.03]">
-            {paginated.map((cerere) => (
-              <div
-                key={cerere.id}
-                className="grid items-center gap-4 px-4 py-3 transition-colors hover:bg-white/[0.02]"
-                style={{ gridTemplateColumns: "1fr 1.5fr 1.2fr 1fr 0.8fr 0.8fr 40px" }}
-              >
-                <span className="text-foreground font-mono text-xs font-medium">
-                  {cerere.numar_inregistrare}
-                </span>
-                <span className="text-muted-foreground truncate text-xs">
-                  {cerere.tip_cerere_id ?? "—"}
-                </span>
-                <span className="text-muted-foreground truncate text-xs">
-                  {getFunctionarName(cerere.preluat_de_id)}
-                </span>
-                <span
-                  className={cn(
-                    "inline-flex w-fit items-center rounded-full border px-2 py-0.5 text-[0.7rem] font-medium",
-                    STATUS_CLASSES[cerere.status] ??
-                      "bg-muted/50 text-muted-foreground border-border"
+            {paginated.map((cerere) => {
+              const isExpanded = expandedRow === cerere.id;
+              const createdDate = cerere.created_at
+                ? new Date(cerere.created_at).toLocaleDateString("ro-RO", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "2-digit",
+                  })
+                : "—";
+
+              return (
+                <div key={cerere.id}>
+                  {/* Main row */}
+                  <div
+                    className="grid cursor-pointer items-center gap-4 px-4 py-3 transition-colors hover:bg-white/[0.02]"
+                    style={{ gridTemplateColumns: "1fr 1.4fr 1.2fr 1fr 0.8fr 0.9fr 36px" }}
+                    onClick={() => handleExpand(cerere.id)}
+                  >
+                    <span className="text-foreground font-mono text-xs font-semibold">
+                      {cerere.numar_inregistrare}
+                    </span>
+                    <span className="text-muted-foreground truncate text-xs">
+                      {getFunctionarName(cerere.preluat_de_id)}
+                    </span>
+                    <span
+                      className={cn(
+                        "inline-flex w-fit items-center rounded-full border px-2 py-0.5 text-[0.68rem] font-medium",
+                        STATUS_CLASSES[cerere.status] ??
+                          "bg-muted/50 text-muted-foreground border-border"
+                      )}
+                    >
+                      {STATUS_LABELS[cerere.status] ?? cerere.status}
+                    </span>
+                    <span
+                      className={cn(
+                        "inline-flex w-fit items-center rounded-full border px-2 py-0.5 text-[0.68rem] font-medium",
+                        cerere.prioritate
+                          ? (PRIORITATE_CLASSES[cerere.prioritate] ??
+                              "bg-muted/50 text-muted-foreground border-border")
+                          : "bg-muted/30 text-muted-foreground border-border"
+                      )}
+                    >
+                      {cerere.prioritate
+                        ? (PRIORITATE_LABELS[cerere.prioritate] ?? cerere.prioritate)
+                        : "—"}
+                    </span>
+                    <SlaCountdown dataTermen={cerere.data_termen} />
+                    <span className="text-muted-foreground text-xs">{createdDate}</span>
+                    {isExpanded ? (
+                      <ChevronUp className="text-muted-foreground h-4 w-4" />
+                    ) : (
+                      <ChevronDown className="text-muted-foreground h-4 w-4" />
+                    )}
+                  </div>
+
+                  {/* Expandable detail panel */}
+                  {isExpanded && (
+                    <div
+                      className="space-y-4 border-t border-white/[0.04] bg-white/[0.015] px-6 py-4"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                        {/* Add note section */}
+                        <div className="space-y-2">
+                          <label className="text-foreground flex items-center gap-2 text-xs font-semibold">
+                            <StickyNote className="h-3.5 w-3.5" />
+                            Adaugă notă admin
+                          </label>
+                          <textarea
+                            value={noteText}
+                            onChange={(e) => setNoteText(e.target.value)}
+                            placeholder="Nota administratorului..."
+                            rows={3}
+                            className="border-border bg-background/70 text-foreground placeholder:text-muted-foreground focus:ring-accent-500/50 w-full resize-none rounded-lg border px-3 py-2 text-sm focus:ring-1 focus:outline-none"
+                          />
+                          <Button
+                            size="sm"
+                            disabled={isPending || !noteText.trim()}
+                            onClick={() => handleAddNote(cerere.id)}
+                            className="h-8 text-xs"
+                          >
+                            Adaugă notă
+                          </Button>
+                        </div>
+
+                        {/* Reassign section */}
+                        <div className="space-y-2">
+                          <label className="text-foreground flex items-center gap-2 text-xs font-semibold">
+                            <UserCheck className="h-3.5 w-3.5" />
+                            Reasignează funcționar
+                          </label>
+                          {functionari.length === 0 ? (
+                            <p className="text-muted-foreground text-xs">
+                              Niciun funcționar disponibil
+                            </p>
+                          ) : (
+                            <>
+                              <select
+                                value={reassignId}
+                                onChange={(e) => setReassignId(e.target.value)}
+                                className="border-border bg-background/70 text-foreground h-9 w-full rounded-lg border px-3 text-sm focus:outline-none"
+                              >
+                                {functionari.map((f) => (
+                                  <option key={f.id} value={f.id}>
+                                    {f.prenume} {f.nume}
+                                  </option>
+                                ))}
+                              </select>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                disabled={isPending || !reassignId}
+                                onClick={() => handleReassign(cerere.id)}
+                                className="h-8 text-xs"
+                              >
+                                Confirmă reasignare
+                              </Button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Existing notes display */}
+                      {Array.isArray(cerere.note_admin) &&
+                        (cerere.note_admin as unknown[]).length > 0 && (
+                          <div>
+                            <p className="text-muted-foreground mb-2 text-xs font-medium">
+                              Note anterioare ({(cerere.note_admin as unknown[]).length})
+                            </p>
+                            <div className="space-y-1.5">
+                              {(
+                                cerere.note_admin as Array<{
+                                  text?: string;
+                                  timestamp?: string;
+                                  actor?: string;
+                                }>
+                              ).map((n, idx) => (
+                                <div
+                                  key={idx}
+                                  className="rounded-lg border border-white/[0.04] bg-white/[0.02] px-3 py-2 text-xs"
+                                >
+                                  <p className="text-foreground">{n.text}</p>
+                                  {n.timestamp && (
+                                    <p className="text-muted-foreground mt-1 text-[0.65rem]">
+                                      {n.actor ?? "Admin"} ·{" "}
+                                      {new Date(n.timestamp).toLocaleString("ro-RO")}
+                                    </p>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                    </div>
                   )}
-                >
-                  {STATUS_LABELS[cerere.status] ?? cerere.status}
-                </span>
-                <span
-                  className={cn(
-                    "inline-flex w-fit items-center rounded-full border px-2 py-0.5 text-[0.7rem] font-medium",
-                    cerere.prioritate
-                      ? (PRIORITATE_CLASSES[cerere.prioritate] ??
-                          "bg-muted/50 text-muted-foreground border-border")
-                      : "bg-muted/30 text-muted-foreground border-border"
-                  )}
-                >
-                  {cerere.prioritate
-                    ? (PRIORITATE_LABELS[cerere.prioritate] ?? cerere.prioritate)
-                    : "—"}
-                </span>
-                <SlaCountdown dataTermen={cerere.data_termen} />
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button className="text-muted-foreground hover:text-foreground flex items-center justify-center rounded-lg p-1 transition-colors">
-                      <MoreVertical className="h-4 w-4" />
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-44">
-                    <DropdownMenuItem
-                      onClick={() => openModal("priority", cerere.id, cerere.numar_inregistrare)}
-                    >
-                      <Flag className="mr-2 h-4 w-4" />
-                      Setează prioritatea
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => openModal("note", cerere.id, cerere.numar_inregistrare)}
-                    >
-                      <StickyNote className="mr-2 h-4 w-4" />
-                      Adaugă notă
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => openModal("reassign", cerere.id, cerere.numar_inregistrare)}
-                    >
-                      <UserCheck className="mr-2 h-4 w-4" />
-                      Reasignează
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            ))}
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
 
-      {/* Pagination */}
+      {/* ── Pagination ── */}
       {totalPages > 1 && (
         <div className="flex items-center justify-between">
           <span className="text-muted-foreground text-xs">
@@ -364,92 +433,6 @@ function CereriTableTab({ cereri, functionari }: CereriTableTabProps): React.Rea
           </div>
         </div>
       )}
-
-      {/* Priority modal */}
-      <Dialog open={modal?.type === "priority"} onOpenChange={(o) => !o && closeModal()}>
-        <DialogContent className="max-w-sm">
-          <DialogHeader>
-            <DialogTitle>Setează prioritatea — {modal?.numar}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <select
-              value={prioritateValue}
-              onChange={(e) => setPrioritateValue(e.target.value)}
-              className="border-border bg-background text-foreground w-full rounded-lg border px-3 py-2 text-sm"
-            >
-              {Object.entries(PRIORITATE_LABELS).map(([val, label]) => (
-                <option key={val} value={val}>
-                  {label}
-                </option>
-              ))}
-            </select>
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" size="sm" onClick={closeModal}>
-                Anulează
-              </Button>
-              <Button size="sm" onClick={handleSetPriority} disabled={isPending}>
-                Salvează
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Add note modal */}
-      <Dialog open={modal?.type === "note"} onOpenChange={(o) => !o && closeModal()}>
-        <DialogContent className="max-w-sm">
-          <DialogHeader>
-            <DialogTitle>Adaugă notă — {modal?.numar}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <textarea
-              value={noteText}
-              onChange={(e) => setNoteText(e.target.value)}
-              placeholder="Nota administratorului..."
-              rows={4}
-              className="border-border bg-background text-foreground placeholder:text-muted-foreground focus:ring-accent-500/50 w-full rounded-lg border px-3 py-2 text-sm focus:ring-1 focus:outline-none"
-            />
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" size="sm" onClick={closeModal}>
-                Anulează
-              </Button>
-              <Button size="sm" onClick={handleAddNote} disabled={isPending || !noteText.trim()}>
-                Adaugă
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Reassign modal */}
-      <Dialog open={modal?.type === "reassign"} onOpenChange={(o) => !o && closeModal()}>
-        <DialogContent className="max-w-sm">
-          <DialogHeader>
-            <DialogTitle>Reasignează — {modal?.numar}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <select
-              value={reassignId}
-              onChange={(e) => setReassignId(e.target.value)}
-              className="border-border bg-background text-foreground w-full rounded-lg border px-3 py-2 text-sm"
-            >
-              {functionari.map((f) => (
-                <option key={f.id} value={f.id}>
-                  {f.prenume} {f.nume}
-                </option>
-              ))}
-            </select>
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" size="sm" onClick={closeModal}>
-                Anulează
-              </Button>
-              <Button size="sm" onClick={handleReassign} disabled={isPending || !reassignId}>
-                Reasignează
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

@@ -1,25 +1,24 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { toast } from "sonner";
+import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { ChevronRight, X } from "lucide-react";
+import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DB_TO_UI_STATUS, UI_TO_DB_STATUS } from "@/lib/cereri-status";
-import { updateCerereStatus } from "@/actions/admin-cereri";
 import type { CerereRow, FunctionarRow } from "@/app/app/[judet]/[localitate]/admin/cereri/page";
 
 // ============================================================================
 // Constants
 // ============================================================================
 
-/** UI status columns — ordering matches process flow */
-const KANBAN_COLUMNS: Array<{
+interface KanbanColumn {
   ui: string;
   label: string;
   colorClass: string;
   headerClass: string;
-}> = [
+}
+
+const KANBAN_COLUMNS: KanbanColumn[] = [
   {
     ui: "depusa",
     label: "Depusă",
@@ -34,7 +33,7 @@ const KANBAN_COLUMNS: Array<{
   },
   {
     ui: "info_supl",
-    label: "Info suplimenare",
+    label: "Info supl.",
     colorClass: "border-orange-400/30 bg-orange-400/5",
     headerClass: "text-orange-400",
   },
@@ -85,214 +84,238 @@ function computeSlaRemaining(dataTermen: string | null | undefined): number | nu
 function slaClass(days: number | null): string {
   if (days === null) return "text-muted-foreground";
   if (days < 0) return "text-red-400";
-  if (days <= 2) return "text-amber-400";
+  if (days <= 3) return "text-amber-400";
   if (days <= 7) return "text-yellow-400";
   return "text-muted-foreground";
+}
+
+// ============================================================================
+// Move dialog state
+// ============================================================================
+
+interface MoveDialogState {
+  cerereId: string;
+  currentUiStatus: string;
+}
+
+// ============================================================================
+// Types
+// ============================================================================
+
+interface CereriKanbanTabProps {
+  cereri: CerereRow[];
+  functionari?: FunctionarRow[];
+  onStatusChange: (cerereId: string, newDbStatus: string) => void;
 }
 
 // ============================================================================
 // Component
 // ============================================================================
 
-interface CereriKanbanTabProps {
-  cereri: CerereRow[];
-  functionari: FunctionarRow[];
-  onStatusChange: (id: string, newDbStatus: string) => void;
-}
-
 function CereriKanbanTab({
   cereri,
-  functionari,
+  functionari = [],
   onStatusChange,
 }: CereriKanbanTabProps): React.ReactElement {
-  const [cereriState, setCereriState] = useState<CerereRow[]>(cereri);
-  const [selectedCard, setSelectedCard] = useState<string | null>(null);
-  const [, startTransition] = useTransition();
-
-  const getFunctionarName = (id: string | null | undefined): string => {
-    if (!id) return "—";
-    const f = functionari.find((fn) => fn.id === id);
-    return f ? `${f.prenume} ${f.nume}` : "—";
-  };
+  const [moveDialog, setMoveDialog] = useState<MoveDialogState | null>(null);
 
   function getUiStatus(dbStatus: string): string {
     return DB_TO_UI_STATUS[dbStatus] ?? dbStatus;
   }
 
-  function handleMove(cerereId: string, targetUiStatus: string): void {
+  function getFunctionarName(id: string | null | undefined): string {
+    if (!id) return "—";
+    const f = functionari.find((fn) => fn.id === id);
+    return f ? `${f.prenume} ${f.nume}` : "—";
+  }
+
+  function openMoveDialog(cerereId: string, currentDbStatus: string): void {
+    setMoveDialog({ cerereId, currentUiStatus: getUiStatus(currentDbStatus) });
+  }
+
+  function handleMove(targetUiStatus: string): void {
+    if (!moveDialog) return;
     const newDbStatus = UI_TO_DB_STATUS[targetUiStatus];
     if (!newDbStatus) return;
 
-    // Optimistic update
-    setCereriState((prev) =>
-      prev.map((c) => (c.id === cerereId ? { ...c, status: newDbStatus } : c))
-    );
-    setSelectedCard(null);
-
-    // Call server action
-    startTransition(async () => {
-      const result = await updateCerereStatus(cerereId, newDbStatus);
-      if (!result.success) {
-        // Revert optimistic update
-        setCereriState(cereri);
-        toast.error(result.error ?? "Eroare la actualizare status");
-      } else {
-        onStatusChange(cerereId, newDbStatus);
-      }
-    });
+    setMoveDialog(null);
+    onStatusChange(moveDialog.cerereId, newDbStatus);
   }
 
   return (
-    <div className="overflow-x-auto pb-4">
-      <div className="flex min-w-max gap-3">
-        {KANBAN_COLUMNS.map((col) => {
-          const colCereri = cereriState.filter((c) => getUiStatus(c.status) === col.ui);
+    <>
+      {/* ── Kanban board ── */}
+      <div className="overflow-x-auto pb-4">
+        <div className="flex min-w-max gap-3">
+          {KANBAN_COLUMNS.map((col) => {
+            const colCereri = cereri.filter((c) => getUiStatus(c.status) === col.ui);
 
-          return (
-            <div
-              key={col.ui}
-              className={cn(
-                "flex w-56 flex-shrink-0 flex-col rounded-2xl border p-3",
-                col.colorClass
-              )}
-            >
-              {/* Column header */}
-              <div className="mb-3 flex items-center justify-between">
-                <span
-                  className={cn("text-xs font-semibold tracking-wide uppercase", col.headerClass)}
-                >
-                  {col.label}
-                </span>
-                <span
-                  className={cn(
-                    "flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[0.65rem] font-bold",
-                    col.headerClass,
-                    col.colorClass
-                  )}
-                >
-                  {colCereri.length}
-                </span>
-              </div>
-
-              {/* Cards */}
-              <div className="flex flex-col gap-2">
-                {colCereri.length === 0 && (
-                  <div className="rounded-xl border border-dashed border-white/10 py-6 text-center">
-                    <span className="text-muted-foreground text-xs">Gol</span>
-                  </div>
+            return (
+              <div
+                key={col.ui}
+                className={cn(
+                  "flex w-56 flex-shrink-0 flex-col rounded-2xl border p-3",
+                  col.colorClass
                 )}
-                {colCereri.map((cerere) => {
-                  const sla = computeSlaRemaining(cerere.data_termen);
-                  const isSelected = selectedCard === cerere.id;
+              >
+                {/* Column header */}
+                <div className="mb-3 flex items-center justify-between">
+                  <span
+                    className={cn("text-xs font-semibold tracking-wide uppercase", col.headerClass)}
+                  >
+                    {col.label}
+                  </span>
+                  <span
+                    className={cn(
+                      "flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[0.65rem] font-bold",
+                      col.headerClass
+                    )}
+                    style={{ background: "rgba(255,255,255,0.08)" }}
+                  >
+                    {colCereri.length}
+                  </span>
+                </div>
 
-                  return (
-                    <motion.div
-                      key={cerere.id}
-                      layout
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
-                      className={cn(
-                        "relative cursor-pointer rounded-xl border bg-white/[0.04] p-3 transition-all",
-                        "border-white/[0.06] hover:border-white/[0.12] hover:bg-white/[0.06]",
-                        isSelected && "border-white/20 bg-white/[0.08] ring-1 ring-white/10"
-                      )}
-                      onClick={() => setSelectedCard(isSelected ? null : cerere.id)}
-                    >
-                      {/* Card header */}
-                      <div className="mb-2 flex items-start justify-between gap-1">
-                        <span className="text-foreground font-mono text-xs leading-tight font-semibold">
-                          {cerere.numar_inregistrare}
-                        </span>
-                        {isSelected && (
-                          <X
-                            className="text-muted-foreground h-3.5 w-3.5 flex-shrink-0"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedCard(null);
-                            }}
-                          />
-                        )}
+                {/* Cards list with AnimatePresence */}
+                <div className="max-h-[600px] overflow-y-auto">
+                  <AnimatePresence mode="popLayout">
+                    {colCereri.length === 0 ? (
+                      <div className="rounded-xl border border-dashed border-white/10 py-6 text-center">
+                        <span className="text-muted-foreground text-xs">Gol</span>
                       </div>
+                    ) : (
+                      colCereri.map((cerere) => {
+                        const sla = computeSlaRemaining(cerere.data_termen);
 
-                      {/* Priority badge */}
-                      {cerere.prioritate && (
-                        <span
-                          className={cn(
-                            "mb-2 inline-flex rounded-md px-1.5 py-0.5 text-[0.6rem] font-semibold",
-                            PRIORITATE_CLASSES[cerere.prioritate] ??
-                              "bg-muted/50 text-muted-foreground"
-                          )}
-                        >
-                          {PRIORITATE_LABELS[cerere.prioritate] ?? cerere.prioritate}
-                        </span>
-                      )}
-
-                      {/* Functionar */}
-                      <p className="text-muted-foreground mb-1 truncate text-[0.65rem]">
-                        {getFunctionarName(cerere.preluat_de_id)}
-                      </p>
-
-                      {/* SLA remaining */}
-                      {sla !== null && (
-                        <p className={cn("text-[0.65rem] font-medium", slaClass(sla))}>
-                          {sla < 0 ? `+${Math.abs(sla)}z depășit` : `${sla}z SLA`}
-                        </p>
-                      )}
-
-                      {/* Note indicator */}
-                      {Array.isArray(cerere.note_admin) &&
-                        (cerere.note_admin as unknown[]).length > 0 && (
-                          <div className="mt-1.5 flex items-center gap-1">
-                            <span className="bg-accent-500/20 text-accent-400 rounded-md px-1.5 py-0.5 text-[0.6rem]">
-                              {(cerere.note_admin as unknown[]).length} note
-                            </span>
-                          </div>
-                        )}
-
-                      {/* Move overlay */}
-                      <AnimatePresence>
-                        {isSelected && (
+                        return (
                           <motion.div
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: "auto" }}
-                            exit={{ opacity: 0, height: 0 }}
-                            className="mt-3 overflow-hidden"
+                            key={cerere.id}
+                            layout
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            className={cn(
+                              "mb-2 cursor-pointer rounded-xl border bg-white/[0.04] p-3 transition-all",
+                              "border-white/[0.06] hover:border-white/[0.14] hover:bg-white/[0.06]"
+                            )}
+                            onClick={() => openMoveDialog(cerere.id, cerere.status)}
                           >
-                            <p className="text-muted-foreground mb-1.5 text-[0.62rem] font-medium tracking-wide uppercase">
-                              Mută în:
+                            {/* Registration number */}
+                            <p className="text-foreground font-mono text-xs leading-tight font-semibold">
+                              {cerere.numar_inregistrare}
                             </p>
-                            <div className="flex flex-col gap-1">
-                              {KANBAN_COLUMNS.filter((c) => c.ui !== col.ui).map((dest) => (
-                                <button
-                                  key={dest.ui}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleMove(cerere.id, dest.ui);
-                                  }}
-                                  className={cn(
-                                    "flex items-center gap-1.5 rounded-lg px-2 py-1 text-left text-[0.65rem] font-medium transition-colors",
-                                    "hover:bg-white/10",
-                                    dest.headerClass
-                                  )}
-                                >
-                                  <ChevronRight className="h-3 w-3 flex-shrink-0" />
-                                  {dest.label}
-                                </button>
-                              ))}
-                            </div>
+
+                            {/* Priority badge */}
+                            {cerere.prioritate && (
+                              <span
+                                className={cn(
+                                  "mt-1.5 inline-flex rounded-md px-1.5 py-0.5 text-[0.6rem] font-semibold",
+                                  PRIORITATE_CLASSES[cerere.prioritate] ??
+                                    "bg-muted/50 text-muted-foreground"
+                                )}
+                              >
+                                {PRIORITATE_LABELS[cerere.prioritate] ?? cerere.prioritate}
+                              </span>
+                            )}
+
+                            {/* Functionar */}
+                            <p className="text-muted-foreground mt-1.5 truncate text-[0.65rem]">
+                              {getFunctionarName(cerere.preluat_de_id)}
+                            </p>
+
+                            {/* SLA */}
+                            {sla !== null && (
+                              <p className={cn("mt-1 text-[0.65rem] font-medium", slaClass(sla))}>
+                                {sla < 0 ? `+${Math.abs(sla)}z depășit` : `${sla}z SLA`}
+                              </p>
+                            )}
+
+                            {/* Note indicator */}
+                            {Array.isArray(cerere.note_admin) &&
+                              (cerere.note_admin as unknown[]).length > 0 && (
+                                <div className="mt-1.5">
+                                  <span className="bg-accent-500/20 text-accent-400 rounded-md px-1.5 py-0.5 text-[0.6rem]">
+                                    {(cerere.note_admin as unknown[]).length} note
+                                  </span>
+                                </div>
+                              )}
                           </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </motion.div>
-                  );
-                })}
+                        );
+                      })
+                    )}
+                  </AnimatePresence>
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
-    </div>
+
+      {/* ── Status-change dialog (click-to-move, no dnd-kit) ── */}
+      <AnimatePresence>
+        {moveDialog && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[80] flex items-center justify-center bg-black/40 backdrop-blur-sm"
+            onClick={() => setMoveDialog(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 8 }}
+              transition={{ type: "spring", stiffness: 400, damping: 30 }}
+              className="w-72 overflow-hidden rounded-2xl border border-white/[0.08] bg-[var(--popover)] shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Dialog header */}
+              <div className="flex items-center justify-between border-b border-white/[0.06] px-4 py-3">
+                <p className="text-foreground text-sm font-semibold">Mută cererea în:</p>
+                <button
+                  onClick={() => setMoveDialog(null)}
+                  className="text-muted-foreground hover:text-foreground rounded-lg p-1 transition-colors"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              {/* Status buttons */}
+              <div className="p-3">
+                <div className="grid grid-cols-2 gap-2">
+                  {KANBAN_COLUMNS.map((dest) => {
+                    const isCurrent = dest.ui === moveDialog.currentUiStatus;
+                    return (
+                      <button
+                        key={dest.ui}
+                        disabled={isCurrent}
+                        onClick={() => handleMove(dest.ui)}
+                        className={cn(
+                          "flex items-center justify-center rounded-xl px-3 py-2.5 text-xs font-medium transition-all",
+                          isCurrent
+                            ? "cursor-default opacity-40"
+                            : "cursor-pointer hover:bg-white/10",
+                          dest.headerClass
+                        )}
+                        style={{
+                          background: isCurrent ? "rgba(255,255,255,0.06)" : undefined,
+                          border: `1px solid ${isCurrent ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.06)"}`,
+                        }}
+                      >
+                        {dest.label}
+                        {isCurrent && (
+                          <span className="ml-1.5 text-[0.6rem] opacity-70">curent</span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }
 
