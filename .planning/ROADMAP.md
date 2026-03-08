@@ -158,7 +158,7 @@ Plans:
 - [x] 20-05-PLAN.md — Wave 5 Calendar: delete + rewrite, Zustand events, month grid (Monday-start), event creation modal
 - [x] 20-06-PLAN.md — Wave 6 Monitorizare: delete + rewrite, mock setInterval CPU/RAM/Disk, 5-tab layout, GaugeSVG
 - [x] 20-07-PLAN.md — GAP Wave 7: AdminModal shared component + AdminErrorBoundary + semantic CSS color tokens
-- [ ] 20-08-PLAN.md — GAP Wave 8: Cereri — detail drawer + bulk select + escalation + priority change + CSS tokens
+- [x] 20-08-PLAN.md — GAP Wave 8: Cereri — detail drawer + bulk select + escalation + priority change + CSS tokens
 - [ ] 20-09-PLAN.md — GAP Wave 8: Calendar — edit modal + color picker + type selector + recurring + overflow dots
 - [ ] 20-10-PLAN.md — GAP Wave 8: Utilizatori — column sort + bulk actions + advanced filter + role confirmation + CSS tokens
 - [ ] 20-11-PLAN.md — GAP Wave 8: Financiar donut chart + transaction expand + Refund modal + Documente folder creation

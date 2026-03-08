@@ -2,18 +2,19 @@
 
 import { useState, useMemo, useTransition } from "react";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
   ChevronLeft,
   ChevronRight,
-  ChevronDown,
-  ChevronUp,
-  StickyNote,
+  X,
   UserCheck,
+  ShieldCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { addCerereNote, reassignCerere } from "./actions";
+import { updateCerereStatus, reassignCerere } from "./actions";
 import type { CerereRow, FunctionarRow } from "@/app/app/[judet]/[localitate]/admin/cereri/page";
 
 // ============================================================================
@@ -31,20 +32,30 @@ const STATUS_LABELS: Record<string, string> = {
   respinsa: "Respinsă",
 };
 
+const DB_STATUSES = [
+  "depusa",
+  "in_verificare",
+  "info_suplimentara",
+  "in_procesare",
+  "aprobata",
+  "respinsa",
+] as const;
+
+// Token-based CSS classes
 const STATUS_CLASSES: Record<string, string> = {
-  depusa: "bg-sky-500/10 text-sky-400 border-sky-500/20",
+  depusa: "bg-[var(--color-info-subtle)] text-[var(--color-info)] border-[var(--color-info)]/20",
   in_verificare: "bg-violet-500/10 text-violet-400 border-violet-500/20",
-  info_suplimentara: "bg-orange-400/10 text-orange-400 border-orange-400/20",
+  info_suplimentara: "bg-[var(--color-warning-subtle)] text-[var(--color-warning)] border-[var(--color-warning)]/20",
   in_procesare: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20",
-  aprobata: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-  respinsa: "bg-red-500/10 text-red-400 border-red-500/20",
+  aprobata: "bg-[var(--color-success-subtle)] text-[var(--color-success)] border-[var(--color-success)]/20",
+  respinsa: "bg-[var(--color-error-subtle)] text-[var(--color-error)] border-[var(--color-error)]/20",
 };
 
 const PRIORITATE_CLASSES: Record<string, string> = {
-  urgenta: "bg-red-500/10 text-red-400 border-red-500/20",
-  ridicata: "bg-orange-400/10 text-orange-400 border-orange-400/20",
-  medie: "bg-amber-400/10 text-amber-400 border-amber-400/20",
-  scazuta: "bg-muted/50 text-muted-foreground border-border",
+  urgenta: "bg-[var(--color-error-subtle)] text-[var(--color-error)] border-[var(--color-error)]/20",
+  ridicata: "bg-orange-400/15 text-orange-400 border-orange-400/20",
+  medie: "bg-[var(--color-warning-subtle)] text-[var(--color-warning)] border-[var(--color-warning)]/20",
+  scazuta: "bg-[var(--color-neutral-subtle)] text-[var(--color-neutral)] border-border",
 };
 
 const PRIORITATE_LABELS: Record<string, string> = {
@@ -72,7 +83,7 @@ function SlaCountdown({ dataTermen }: { dataTermen?: string | null }): React.Rea
     days < 0
       ? "text-red-400"
       : days <= 3
-        ? "text-amber-400"
+        ? "text-[var(--color-warning)]"
         : days <= 7
           ? "text-yellow-400"
           : "text-muted-foreground";
@@ -91,7 +102,7 @@ function SlaCountdown({ dataTermen }: { dataTermen?: string | null }): React.Rea
 interface CereriTableTabProps {
   cereri: CerereRow[];
   functionari: FunctionarRow[];
-  onCerereAction?: (cerereId: string, action: "approve" | "reject" | "note" | "reassign") => void;
+  onDetailOpen: (cerereId: string) => void;
 }
 
 // ============================================================================
@@ -101,16 +112,20 @@ interface CereriTableTabProps {
 function CereriTableTab({
   cereri,
   functionari,
-  onCerereAction,
+  onDetailOpen,
 }: CereriTableTabProps): React.ReactElement {
+  const router = useRouter();
   const [statusFilter, setStatusFilter] = useState("all");
   const [prioritateFilter, setPrioritateFilter] = useState("all");
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
-  const [expandedRow, setExpandedRow] = useState<string | null>(null);
-  const [noteText, setNoteText] = useState("");
-  const [reassignId, setReassignId] = useState<string>("");
+
+  // Bulk selection state
+  const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
   const [isPending, startTransition] = useTransition();
+
+  const [batchStatus, setBatchStatus] = useState("");
+  const [batchFunctionar, setBatchFunctionar] = useState("");
 
   // === Filtering ===
   const filtered = useMemo(() => {
@@ -132,40 +147,50 @@ function CereriTableTab({
     return f ? `${f.prenume} ${f.nume}` : "—";
   }
 
-  function handleExpand(cerereId: string): void {
-    if (expandedRow === cerereId) {
-      setExpandedRow(null);
+  // === Checkbox logic ===
+  function handleSelectAll(e: React.ChangeEvent<HTMLInputElement>): void {
+    if (e.target.checked) {
+      setSelectedRows(new Set(paginated.map((c) => c.id)));
     } else {
-      setExpandedRow(cerereId);
-      setNoteText("");
-      setReassignId(functionari[0]?.id ?? "");
+      setSelectedRows(new Set());
     }
   }
 
-  function handleAddNote(cerereId: string): void {
-    if (!noteText.trim()) return;
+  function handleSelectRow(e: React.ChangeEvent<HTMLInputElement>, id: string): void {
+    e.stopPropagation();
+    const next = new Set(selectedRows);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setSelectedRows(next);
+  }
+
+  const allVisibleSelected =
+    paginated.length > 0 && paginated.every((c) => selectedRows.has(c.id));
+  const someVisibleSelected =
+    !allVisibleSelected && paginated.some((c) => selectedRows.has(c.id));
+
+  // === Batch Actions ===
+  function handleBatchStatus(): void {
+    if (!batchStatus || selectedRows.size === 0) return;
+    const items = Array.from(selectedRows);
     startTransition(async () => {
-      const result = await addCerereNote(cerereId, noteText);
-      if (result.error) {
-        toast.error(result.error);
-      } else {
-        toast.success("Notă adăugată cu succes");
-        setNoteText("");
-        onCerereAction?.(cerereId, "note");
-      }
+      await Promise.all(items.map((id) => updateCerereStatus(id, batchStatus)));
+      toast.success(`${items.length} cereri actualizate la statusul: ${STATUS_LABELS[batchStatus]}`);
+      setBatchStatus("");
+      setSelectedRows(new Set());
+      router.refresh();
     });
   }
 
-  function handleReassign(cerereId: string): void {
-    if (!reassignId) return;
+  function handleBatchReassign(): void {
+    if (!batchFunctionar || selectedRows.size === 0) return;
+    const items = Array.from(selectedRows);
     startTransition(async () => {
-      const result = await reassignCerere(cerereId, reassignId);
-      if (result.error) {
-        toast.error(result.error);
-      } else {
-        toast.success("Cerere reasignată");
-        onCerereAction?.(cerereId, "reassign");
-      }
+      await Promise.all(items.map((id) => reassignCerere(id, batchFunctionar)));
+      toast.success(`${items.length} cereri reasignate`);
+      setBatchFunctionar("");
+      setSelectedRows(new Set());
+      router.refresh();
     });
   }
 
@@ -221,17 +246,114 @@ function CereriTableTab({
         <span className="text-muted-foreground ml-auto text-xs">{filtered.length} cereri</span>
       </div>
 
+      {/* ── Batch Action Bar ── */}
+      <AnimatePresence>
+        {selectedRows.size > 0 && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="flex flex-wrap items-center gap-3 rounded-xl border border-white/[0.05] bg-white/[0.03] px-4 py-3">
+              <span className="text-foreground text-sm font-semibold">
+                {selectedRows.size} selectate
+              </span>
+              <div className="h-4 w-px bg-white/10" />
+
+              {/* Batch Status */}
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="text-muted-foreground h-4 w-4" />
+                <select
+                  value={batchStatus}
+                  onChange={(e) => setBatchStatus(e.target.value)}
+                  className="border-border bg-background/60 text-foreground h-8 min-w-[140px] rounded-lg border px-2 text-xs focus:outline-none"
+                >
+                  <option value="">Schimbă Status...</option>
+                  {DB_STATUSES.map((s) => (
+                    <option key={s} value={s}>
+                      {STATUS_LABELS[s]}
+                    </option>
+                  ))}
+                </select>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={isPending || !batchStatus}
+                  onClick={handleBatchStatus}
+                  className="h-8 text-xs"
+                >
+                  Aplică
+                </Button>
+              </div>
+
+              <div className="h-4 w-px bg-white/10" />
+
+              {/* Batch Reassign */}
+              <div className="flex items-center gap-2">
+                <UserCheck className="text-muted-foreground h-4 w-4" />
+                <select
+                  value={batchFunctionar}
+                  onChange={(e) => setBatchFunctionar(e.target.value)}
+                  className="border-border bg-background/60 text-foreground h-8 min-w-[140px] rounded-lg border px-2 text-xs focus:outline-none"
+                >
+                  <option value="">Reasignează...</option>
+                  {functionari.map((f) => (
+                    <option key={f.id} value={f.id}>
+                      {f.prenume} {f.nume}
+                    </option>
+                  ))}
+                </select>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={isPending || !batchFunctionar}
+                  onClick={handleBatchReassign}
+                  className="h-8 text-xs"
+                >
+                  Aplică
+                </Button>
+              </div>
+
+              <div className="ml-auto">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setSelectedRows(new Set())}
+                  className="text-muted-foreground hover:text-foreground h-8 gap-1.5 px-2 text-xs"
+                >
+                  <X className="h-3.5 w-3.5" />
+                  Resetează
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* ── Table ── */}
       <div className="overflow-hidden rounded-2xl border border-white/[0.05] bg-white/[0.024]">
         {/* Header row */}
         <div
           className="grid items-center gap-4 border-b border-white/[0.05] px-4 py-2.5"
-          style={{ gridTemplateColumns: "1fr 1.4fr 1.2fr 1fr 0.8fr 0.9fr 36px" }}
+          style={{ gridTemplateColumns: "32px 1fr 1.4fr 1.2fr 1fr 0.8fr 0.9fr" }}
         >
-          {["Număr", "Funcționar", "Status", "Prioritate", "SLA", "Data", ""].map((h) => (
+          <div className="flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
+             <input
+                type="checkbox"
+                checked={allVisibleSelected}
+                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                ref={(input: any) => {
+                  if (input) input.indeterminate = someVisibleSelected;
+                }}
+                onChange={handleSelectAll}
+                className="accent-[var(--color-info)] cursor-pointer h-4 w-4 rounded border-white/20"
+              />
+          </div>
+          {["Număr", "Funcționar", "Status", "Prioritate", "SLA", "Data"].map((h) => (
             <span
               key={h}
-              className="text-muted-foreground text-[0.68rem] font-medium tracking-wide uppercase"
+              className="text-muted-foreground text-[0.68rem] font-medium tracking-wide border-l border-transparent uppercase"
             >
               {h}
             </span>
@@ -246,7 +368,7 @@ function CereriTableTab({
         ) : (
           <div className="divide-y divide-white/[0.03]">
             {paginated.map((cerere) => {
-              const isExpanded = expandedRow === cerere.id;
+              const isSelected = selectedRows.has(cerere.id);
               const createdDate = cerere.created_at
                 ? new Date(cerere.created_at).toLocaleDateString("ro-RO", {
                     day: "2-digit",
@@ -256,150 +378,60 @@ function CereriTableTab({
                 : "—";
 
               return (
-                <div key={cerere.id}>
-                  {/* Main row */}
-                  <div
-                    className="grid cursor-pointer items-center gap-4 px-4 py-3 transition-colors hover:bg-white/[0.02]"
-                    style={{ gridTemplateColumns: "1fr 1.4fr 1.2fr 1fr 0.8fr 0.9fr 36px" }}
-                    onClick={() => handleExpand(cerere.id)}
-                  >
-                    <span className="text-foreground font-mono text-xs font-semibold">
-                      {cerere.numar_inregistrare}
-                    </span>
-                    <span className="text-muted-foreground truncate text-xs">
-                      {getFunctionarName(cerere.preluat_de_id)}
-                    </span>
-                    <span
-                      className={cn(
-                        "inline-flex w-fit items-center rounded-full border px-2 py-0.5 text-[0.68rem] font-medium",
-                        STATUS_CLASSES[cerere.status] ??
-                          "bg-muted/50 text-muted-foreground border-border"
-                      )}
-                    >
-                      {STATUS_LABELS[cerere.status] ?? cerere.status}
-                    </span>
-                    <span
-                      className={cn(
-                        "inline-flex w-fit items-center rounded-full border px-2 py-0.5 text-[0.68rem] font-medium",
-                        cerere.prioritate
-                          ? (PRIORITATE_CLASSES[cerere.prioritate] ??
-                              "bg-muted/50 text-muted-foreground border-border")
-                          : "bg-muted/30 text-muted-foreground border-border"
-                      )}
-                    >
-                      {cerere.prioritate
-                        ? (PRIORITATE_LABELS[cerere.prioritate] ?? cerere.prioritate)
-                        : "—"}
-                    </span>
-                    <SlaCountdown dataTermen={cerere.data_termen} />
-                    <span className="text-muted-foreground text-xs">{createdDate}</span>
-                    {isExpanded ? (
-                      <ChevronUp className="text-muted-foreground h-4 w-4" />
-                    ) : (
-                      <ChevronDown className="text-muted-foreground h-4 w-4" />
-                    )}
+                <div
+                  key={cerere.id}
+                  className={cn(
+                    "grid cursor-pointer items-center gap-4 px-4 py-3 transition-colors hover:bg-white/[0.04]",
+                    isSelected && "bg-[var(--color-info)]/5"
+                  )}
+                  style={{ gridTemplateColumns: "32px 1fr 1.4fr 1.2fr 1fr 0.8fr 0.9fr" }}
+                  onClick={() => onDetailOpen(cerere.id)}
+                >
+                  {/* Checkbox */}
+                  <div className="flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={(e) => handleSelectRow(e, cerere.id)}
+                      className="accent-[var(--color-info)] cursor-pointer h-4 w-4 rounded border-white/20"
+                    />
                   </div>
 
-                  {/* Expandable detail panel */}
-                  {isExpanded && (
-                    <div
-                      className="space-y-4 border-t border-white/[0.04] bg-white/[0.015] px-6 py-4"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        {/* Add note section */}
-                        <div className="space-y-2">
-                          <label className="text-foreground flex items-center gap-2 text-xs font-semibold">
-                            <StickyNote className="h-3.5 w-3.5" />
-                            Adaugă notă admin
-                          </label>
-                          <textarea
-                            value={noteText}
-                            onChange={(e) => setNoteText(e.target.value)}
-                            placeholder="Nota administratorului..."
-                            rows={3}
-                            className="border-border bg-background/70 text-foreground placeholder:text-muted-foreground focus:ring-accent-500/50 w-full resize-none rounded-lg border px-3 py-2 text-sm focus:ring-1 focus:outline-none"
-                          />
-                          <Button
-                            size="sm"
-                            disabled={isPending || !noteText.trim()}
-                            onClick={() => handleAddNote(cerere.id)}
-                            className="h-8 text-xs"
-                          >
-                            Adaugă notă
-                          </Button>
-                        </div>
-
-                        {/* Reassign section */}
-                        <div className="space-y-2">
-                          <label className="text-foreground flex items-center gap-2 text-xs font-semibold">
-                            <UserCheck className="h-3.5 w-3.5" />
-                            Reasignează funcționar
-                          </label>
-                          {functionari.length === 0 ? (
-                            <p className="text-muted-foreground text-xs">
-                              Niciun funcționar disponibil
-                            </p>
-                          ) : (
-                            <>
-                              <select
-                                value={reassignId}
-                                onChange={(e) => setReassignId(e.target.value)}
-                                className="border-border bg-background/70 text-foreground h-9 w-full rounded-lg border px-3 text-sm focus:outline-none"
-                              >
-                                {functionari.map((f) => (
-                                  <option key={f.id} value={f.id}>
-                                    {f.prenume} {f.nume}
-                                  </option>
-                                ))}
-                              </select>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                disabled={isPending || !reassignId}
-                                onClick={() => handleReassign(cerere.id)}
-                                className="h-8 text-xs"
-                              >
-                                Confirmă reasignare
-                              </Button>
-                            </>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Existing notes display */}
-                      {Array.isArray(cerere.note_admin) &&
-                        (cerere.note_admin as unknown[]).length > 0 && (
-                          <div>
-                            <p className="text-muted-foreground mb-2 text-xs font-medium">
-                              Note anterioare ({(cerere.note_admin as unknown[]).length})
-                            </p>
-                            <div className="space-y-1.5">
-                              {(
-                                cerere.note_admin as Array<{
-                                  text?: string;
-                                  timestamp?: string;
-                                  actor?: string;
-                                }>
-                              ).map((n, idx) => (
-                                <div
-                                  key={idx}
-                                  className="rounded-lg border border-white/[0.04] bg-white/[0.02] px-3 py-2 text-xs"
-                                >
-                                  <p className="text-foreground">{n.text}</p>
-                                  {n.timestamp && (
-                                    <p className="text-muted-foreground mt-1 text-[0.65rem]">
-                                      {n.actor ?? "Admin"} ·{" "}
-                                      {new Date(n.timestamp).toLocaleString("ro-RO")}
-                                    </p>
-                                  )}
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                    </div>
-                  )}
+                  <span className="text-foreground font-mono text-xs font-semibold">
+                    {cerere.numar_inregistrare}
+                  </span>
+                  
+                  <span className="text-muted-foreground truncate text-xs">
+                    {getFunctionarName(cerere.preluat_de_id)}
+                  </span>
+                  
+                  <span
+                    className={cn(
+                      "inline-flex w-fit items-center rounded-full border px-2 py-0.5 text-[0.68rem] font-medium",
+                      STATUS_CLASSES[cerere.status] ??
+                        "bg-muted/50 text-muted-foreground border-border"
+                    )}
+                  >
+                    {STATUS_LABELS[cerere.status] ?? cerere.status}
+                  </span>
+                  
+                  <span
+                    className={cn(
+                      "inline-flex w-fit items-center rounded-full border px-2 py-0.5 text-[0.68rem] font-medium",
+                      cerere.prioritate
+                        ? (PRIORITATE_CLASSES[cerere.prioritate] ??
+                            "bg-muted/50 text-muted-foreground border-border")
+                        : "bg-muted/30 text-muted-foreground border-border"
+                    )}
+                  >
+                    {cerere.prioritate
+                      ? (PRIORITATE_LABELS[cerere.prioritate] ?? cerere.prioritate)
+                      : "—"}
+                  </span>
+                  
+                  <SlaCountdown dataTermen={cerere.data_termen} />
+                  
+                  <span className="text-muted-foreground text-xs">{createdDate}</span>
                 </div>
               );
             })}
