@@ -1,36 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { X, Plus } from "lucide-react";
-import type { CalEvent } from "@/store/calendar-events-store";
-import { EVENT_TYPE_COLORS } from "@/store/calendar-events-store";
-
-// ============================================================================
-// Schema
-// ============================================================================
-
-const eventSchema = z.object({
-  title: z.string().min(2, "Titlul e obligatoriu"),
-  date: z.number().min(1, "Ziua e obligatorie").max(31, "Ziua maximă este 31"),
-  time: z.string().regex(/^\d{2}:\d{2}$/, "Format HH:MM"),
-  type: z.enum([
-    "Ședință",
-    "Deadline",
-    "Audit",
-    "Întâlnire",
-    "Review",
-    "Training",
-    "Vizită",
-    "Evaluare",
-  ]),
-  location: z.string().optional(),
-});
-
-type EventFormValues = z.infer<typeof eventSchema>;
+import { CalendarDays, X } from "lucide-react";
+import type { CalEvent } from "@/store/calendar-store";
 
 // ============================================================================
 // Types
@@ -39,22 +12,22 @@ type EventFormValues = z.infer<typeof eventSchema>;
 interface CreateEventModalProps {
   open: boolean;
   onClose: () => void;
-  onSave: (event: Omit<CalEvent, "id">) => void;
-  defaultDay: number | null;
-  year: number;
-  month: number;
+  onEventCreate: (event: Omit<CalEvent, "id">) => void;
 }
 
-const EVENT_TYPES = [
-  "Ședință",
-  "Deadline",
-  "Audit",
-  "Întâlnire",
-  "Review",
-  "Training",
-  "Vizită",
-  "Evaluare",
-] as const;
+// ============================================================================
+// Color picker options — stores Tailwind class strings (not hex)
+// ============================================================================
+
+const COLOR_OPTIONS: { label: string; tailwind: string }[] = [
+  { label: "Roz", tailwind: "bg-pink-500" },
+  { label: "Roșu", tailwind: "bg-red-500" },
+  { label: "Portocaliu", tailwind: "bg-amber-500" },
+  { label: "Albastru", tailwind: "bg-blue-500" },
+  { label: "Violet", tailwind: "bg-violet-500" },
+  { label: "Verde", tailwind: "bg-emerald-500" },
+  { label: "Cyan", tailwind: "bg-cyan-500" },
+];
 
 // ============================================================================
 // CreateEventModal
@@ -63,41 +36,34 @@ const EVENT_TYPES = [
 export function CreateEventModal({
   open,
   onClose,
-  onSave,
-  defaultDay,
-  year,
-  month,
+  onEventCreate,
 }: CreateEventModalProps): React.JSX.Element {
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors, isSubmitting },
-  } = useForm<EventFormValues>({
-    resolver: zodResolver(eventSchema),
-    defaultValues: {
-      title: "",
-      date: defaultDay ?? 1,
-      time: "09:00",
-      type: "Ședință",
-      location: "",
-    },
-  });
+  const [title, setTitle] = useState<string>("");
+  const [date, setDate] = useState<string>("");
+  const [time, setTime] = useState<string>("09:00");
+  const [location, setLocation] = useState<string>("");
+  const [type, setType] = useState<string>("Ședință");
+  const [color, setColor] = useState<string>("bg-pink-500");
+  const [titleError, setTitleError] = useState<string>("");
+  const [dateError, setDateError] = useState<string>("");
 
-  // Reset form when modal opens/closes or defaultDay changes
+  // Reset form when modal opens
   useEffect(() => {
     if (open) {
-      reset({
-        title: "",
-        date: defaultDay ?? 1,
-        time: "09:00",
-        type: "Ședință",
-        location: "",
-      });
+      const now = new Date();
+      const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+      setTitle("");
+      setDate(todayStr);
+      setTime("09:00");
+      setLocation("");
+      setType("Ședință");
+      setColor("bg-pink-500");
+      setTitleError("");
+      setDateError("");
     }
-  }, [open, defaultDay, reset]);
+  }, [open]);
 
-  // Close on ESC
+  // ESC to close
   useEffect(() => {
     if (!open) return;
     const handleKeyDown = (e: KeyboardEvent): void => {
@@ -107,18 +73,35 @@ export function CreateEventModal({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [open, onClose]);
 
-  const onSubmit = (values: EventFormValues): void => {
-    const color = EVENT_TYPE_COLORS[values.type] ?? "bg-gray-500 text-white";
-    onSave({
-      title: values.title,
-      date: values.date,
-      month,
-      year,
-      time: values.time,
-      type: values.type,
-      location: values.location || undefined,
-      color,
+  const handleSubmit = (e: React.FormEvent): void => {
+    e.preventDefault();
+    let valid = true;
+
+    if (!title.trim() || title.trim().length < 2) {
+      setTitleError("Titlul e obligatoriu (minim 2 caractere)");
+      valid = false;
+    } else {
+      setTitleError("");
+    }
+
+    if (!date) {
+      setDateError("Data e obligatorie");
+      valid = false;
+    } else {
+      setDateError("");
+    }
+
+    if (!valid) return;
+
+    onEventCreate({
+      title: title.trim(),
+      date, // ISO date string "YYYY-MM-DD"
+      time,
+      color, // Tailwind class string
+      type,
+      location: location.trim() || undefined,
     });
+
     onClose();
   };
 
@@ -145,12 +128,12 @@ export function CreateEventModal({
 
           {/* Modal panel */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
+            initial={{ opacity: 0, scale: 0.92, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.92, y: 10 }}
             transition={{ type: "spring", stiffness: 400, damping: 30 }}
             onClick={(e) => e.stopPropagation()}
-            className="relative w-full max-w-md rounded-2xl p-5"
+            className="relative w-full max-w-md rounded-2xl p-6"
             style={{
               background: "var(--surface-raised, #1a1a2e)",
               border: "1px solid rgba(255,255,255,0.1)",
@@ -160,7 +143,7 @@ export function CreateEventModal({
             {/* Header */}
             <div className="mb-5 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Plus className="text-accent-500 h-4 w-4" />
+                <CalendarDays className="text-accent-500 h-4 w-4" />
                 <h3 className="font-semibold text-white" style={{ fontSize: "1rem" }}>
                   Eveniment Nou
                 </h3>
@@ -175,93 +158,97 @@ export function CreateEventModal({
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-3">
               {/* Title */}
               <div>
                 <input
-                  {...register("title")}
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
                   placeholder="Titlu eveniment *"
                   className={inputClass}
                   style={{ ...inputStyle, fontSize: "0.9rem" }}
                 />
-                {errors.title && (
-                  <p className="mt-1 text-xs text-red-400">{errors.title.message}</p>
-                )}
+                {titleError && <p className="mt-1 text-xs text-red-400">{titleError}</p>}
               </div>
 
               {/* Date + Time */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <input
-                    {...register("date", { valueAsNumber: true })}
-                    type="number"
-                    min={1}
-                    max={31}
-                    placeholder="Zi *"
-                    className={inputClass}
-                    style={{ ...inputStyle, fontSize: "0.85rem" }}
-                  />
-                  {errors.date && (
-                    <p className="mt-1 text-xs text-red-400">{errors.date.message}</p>
-                  )}
-                </div>
-                <div>
-                  <input
-                    {...register("time")}
-                    type="time"
-                    placeholder="HH:MM *"
+                    type="date"
+                    value={date}
+                    onChange={(e) => setDate(e.target.value)}
                     className={inputClass}
                     style={{ ...inputStyle, fontSize: "0.85rem", colorScheme: "dark" }}
                   />
-                  {errors.time && (
-                    <p className="mt-1 text-xs text-red-400">{errors.time.message}</p>
-                  )}
+                  {dateError && <p className="mt-1 text-xs text-red-400">{dateError}</p>}
+                </div>
+                <div>
+                  <input
+                    type="time"
+                    value={time}
+                    onChange={(e) => setTime(e.target.value)}
+                    className={inputClass}
+                    style={{ ...inputStyle, fontSize: "0.85rem", colorScheme: "dark" }}
+                  />
                 </div>
               </div>
 
               {/* Type */}
               <div>
-                <select
-                  {...register("type")}
+                <input
+                  value={type}
+                  onChange={(e) => setType(e.target.value)}
+                  placeholder="Tip eveniment (ex: Ședință)"
                   className={inputClass}
-                  style={{
-                    ...inputStyle,
-                    fontSize: "0.88rem",
-                    colorScheme: "dark",
-                    cursor: "pointer",
-                  }}
-                >
-                  {EVENT_TYPES.map((t) => (
-                    <option key={t} value={t}>
-                      {t}
-                    </option>
-                  ))}
-                </select>
+                  style={{ ...inputStyle, fontSize: "0.88rem" }}
+                />
               </div>
 
               {/* Location */}
               <div>
                 <input
-                  {...register("location")}
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
                   placeholder="Locație (opțional)"
                   className={inputClass}
                   style={{ ...inputStyle, fontSize: "0.9rem" }}
                 />
               </div>
 
+              {/* Color picker */}
+              <div>
+                <p className="mb-2 text-gray-500" style={{ fontSize: "0.75rem" }}>
+                  Culoare eveniment
+                </p>
+                <div className="flex items-center gap-2">
+                  {COLOR_OPTIONS.map((opt) => (
+                    <button
+                      key={opt.tailwind}
+                      type="button"
+                      aria-label={opt.label}
+                      onClick={() => setColor(opt.tailwind)}
+                      className={`h-8 w-8 cursor-pointer rounded-full transition-all ${opt.tailwind} ${
+                        color === opt.tailwind
+                          ? "ring-offset-card scale-110 ring-2 ring-white ring-offset-2"
+                          : "opacity-70 hover:opacity-100"
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
+
               {/* Submit */}
               <motion.button
                 type="submit"
-                disabled={isSubmitting}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="mt-1 flex w-full items-center justify-center gap-2 rounded-xl py-2.5 font-medium text-white disabled:opacity-60"
+                className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl py-2.5 font-medium text-white"
                 style={{
                   background: "var(--accent-gradient)",
                   fontSize: "0.88rem",
                 }}
               >
-                <Plus className="h-4 w-4" />
                 Salvează Evenimentul
               </motion.button>
             </form>
