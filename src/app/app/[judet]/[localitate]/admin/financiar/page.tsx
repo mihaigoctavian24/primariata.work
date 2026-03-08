@@ -2,7 +2,7 @@ import React, { Suspense } from "react";
 import { redirect } from "next/navigation";
 
 import { createClient, createServiceRoleClient } from "@/lib/supabase/server";
-import { aggregateByMonth, groupByDayOfWeek, groupByMetoda } from "@/lib/financiar-utils";
+import { aggregateByMonthFull, groupByDayOfWeek, groupByMetoda } from "@/lib/financiar-utils";
 import type { PlatiRow } from "@/lib/financiar-utils";
 import { FinanciarContent } from "@/components/admin/financiar/financiar-content";
 import { FinanciarSkeleton } from "@/components/admin/financiar/financiar-skeleton";
@@ -89,7 +89,7 @@ export default async function FinanciarPage(): Promise<React.JSX.Element> {
   }));
 
   // === SERVER-SIDE AGGREGATIONS ===
-  const monthlyData = aggregateByMonth(plati);
+  const monthlyData = aggregateByMonthFull(plati);
   const dailyData = groupByDayOfWeek(plati);
   const metodaData = groupByMetoda(plati);
 

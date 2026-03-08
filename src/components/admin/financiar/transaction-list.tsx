@@ -9,20 +9,31 @@ import {
   RefreshCcw,
   ChevronLeft,
   ChevronRight,
-  Activity,
+  Receipt,
+  Search,
+  ChevronDown,
+  ChevronUp,
+  RotateCcw,
 } from "lucide-react";
+import { toast } from "sonner";
 
 // ============================================================================
 // Types
 // ============================================================================
 
-interface PlatiRow {
+export interface PlatiItem {
   id: string;
   suma: number;
   status: string;
   metoda_plata: string | null;
   created_at: string;
   cerere_id: string | null;
+}
+
+interface TransactionListProps {
+  plati: PlatiItem[];
+  txFilter: string;
+  onFilterChange: (filter: string) => void;
 }
 
 // ============================================================================
@@ -40,7 +51,7 @@ const STATUS_CLASSES: Record<string, string> = {
   success: "text-emerald-400 bg-emerald-500/10 border border-emerald-500/20",
   pending: "text-amber-400 bg-amber-500/10 border border-amber-500/20",
   failed: "text-red-400 bg-red-500/10 border border-red-500/20",
-  refunded: "text-sky-400 bg-sky-500/10 border border-sky-500/20",
+  refunded: "text-violet-400 bg-violet-500/10 border border-violet-500/20",
 };
 
 const STATUS_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -51,12 +62,12 @@ const STATUS_ICONS: Record<string, React.ComponentType<{ className?: string }>> 
 };
 
 const METODA_LABELS: Record<string, string> = {
-  card: "Card",
+  card: "Card Online",
   transfer: "Transfer",
   numerar: "Numerar",
 };
 
-const PER_PAGE = 20;
+const PER_PAGE = 6;
 
 // ============================================================================
 // Helpers
@@ -70,85 +81,161 @@ function formatDate(isoString: string): string {
   return `${dd}/${mm}/${yyyy}`;
 }
 
-function truncateId(id: string | null): string {
-  if (!id) return "N/A";
-  return id.length > 12 ? `${id.substring(0, 8)}...` : id;
+function truncateId(id: string | null, chars = 8): string {
+  if (!id) return "—";
+  return id.length > chars ? `${id.substring(0, chars)}…` : id;
+}
+
+// ============================================================================
+// ExpandedRow
+// ============================================================================
+
+function ExpandedRow({ row }: { row: PlatiItem }): React.JSX.Element {
+  function handleRetry(): void {
+    toast.info("Reîncercare în curs...");
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, height: 0 }}
+      animate={{ opacity: 1, height: "auto" }}
+      exit={{ opacity: 0, height: 0 }}
+      transition={{ duration: 0.2 }}
+      className="overflow-hidden border-t border-white/[0.04] bg-white/[0.015] px-5 py-4"
+    >
+      <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-[0.78rem] sm:grid-cols-3">
+        <div>
+          <div className="mb-0.5 text-[0.68rem] tracking-wide text-gray-500 uppercase">
+            ID Tranzacție
+          </div>
+          <div className="font-mono text-gray-200">{row.id}</div>
+        </div>
+        <div>
+          <div className="mb-0.5 text-[0.68rem] tracking-wide text-gray-500 uppercase">
+            Cerere asociată
+          </div>
+          <div className="font-mono text-gray-200">{row.cerere_id ?? "—"}</div>
+        </div>
+        <div>
+          <div className="mb-0.5 text-[0.68rem] tracking-wide text-gray-500 uppercase">
+            Metodă de plată
+          </div>
+          <div className="text-gray-200">
+            {row.metoda_plata ? (METODA_LABELS[row.metoda_plata] ?? row.metoda_plata) : "—"}
+          </div>
+        </div>
+
+        {row.status === "failed" && (
+          <div className="col-span-2 sm:col-span-3">
+            <div className="mb-0.5 text-[0.68rem] tracking-wide text-gray-500 uppercase">
+              Detaliu eroare
+            </div>
+            <div className="text-red-400">Tranzacție eșuată — contactați furnizorul de plată</div>
+            <button
+              onClick={handleRetry}
+              className="mt-2 flex items-center gap-1.5 rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-1.5 text-[0.75rem] font-medium text-red-400 transition-all hover:bg-red-500/20"
+            >
+              <RotateCcw className="h-3.5 w-3.5" />
+              Reîncearcă tranzacția
+            </button>
+          </div>
+        )}
+      </div>
+    </motion.div>
+  );
 }
 
 // ============================================================================
 // TransactionList
 // ============================================================================
 
-interface TransactionListProps {
-  plati: PlatiRow[];
-}
-
-function TransactionList({ plati }: TransactionListProps): React.JSX.Element {
-  const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [metodaFilter, setMetodaFilter] = useState<string>("all");
+export function TransactionList({
+  plati,
+  txFilter,
+  onFilterChange,
+}: TransactionListProps): React.JSX.Element {
+  const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
+    const q = search.toLowerCase().trim();
     return plati.filter((p) => {
-      if (statusFilter !== "all" && p.status !== statusFilter) return false;
-      if (metodaFilter !== "all" && p.metoda_plata !== metodaFilter) return false;
+      if (txFilter !== "all" && p.status !== txFilter) return false;
+      if (q) {
+        const idMatch = p.id.toLowerCase().includes(q);
+        const cerereMatch = p.cerere_id?.toLowerCase().includes(q) ?? false;
+        if (!idMatch && !cerereMatch) return false;
+      }
       return true;
     });
-  }, [plati, statusFilter, metodaFilter]);
+  }, [plati, txFilter, search]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
-  const paginated = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+  const safePage = Math.min(page, totalPages);
+  const paginated = filtered.slice((safePage - 1) * PER_PAGE, safePage * PER_PAGE);
 
-  function handleStatusChange(status: string): void {
-    setStatusFilter(status);
+  function handleSearch(value: string): void {
+    setSearch(value);
     setPage(1);
+    setExpandedId(null);
   }
 
-  function handleMetodaChange(metoda: string): void {
-    setMetodaFilter(metoda);
+  function handleFilterChange(value: string): void {
+    onFilterChange(value);
     setPage(1);
+    setExpandedId(null);
+  }
+
+  function toggleExpand(id: string): void {
+    setExpandedId((prev) => (prev === id ? null : id));
+  }
+
+  // Page navigation helper for showing up to 5 page buttons
+  function getPageNumbers(): number[] {
+    const pages: number[] = [];
+    if (totalPages <= 5) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else if (safePage <= 3) {
+      pages.push(1, 2, 3, 4, 5);
+    } else if (safePage >= totalPages - 2) {
+      for (let i = totalPages - 4; i <= totalPages; i++) pages.push(i);
+    } else {
+      for (let i = safePage - 2; i <= safePage + 2; i++) pages.push(i);
+    }
+    return pages;
   }
 
   return (
-    <div
-      className="overflow-hidden rounded-2xl"
-      style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)" }}
-    >
-      {/* Header + filters */}
-      <div
-        className="flex flex-col gap-3 border-b px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
-        style={{ borderColor: "rgba(255,255,255,0.04)" }}
-      >
+    <div className="overflow-hidden rounded-2xl border border-white/[0.05] bg-white/[0.02]">
+      {/* Header + search + filter */}
+      <div className="flex flex-col gap-3 border-b border-white/[0.04] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2">
-          <Activity className="h-4 w-4 text-emerald-400" />
-          <h3 className="text-white" style={{ fontSize: "0.95rem", fontWeight: 600 }}>
-            Tranzacții
-          </h3>
-          <span
-            className="rounded-md px-2 py-0.5"
-            style={{
-              background: "rgba(255,255,255,0.04)",
-              color: "#9ca3af",
-              fontSize: "0.72rem",
-            }}
-          >
+          <Receipt className="h-4 w-4 text-blue-400" />
+          <h3 className="text-[0.95rem] font-semibold text-white">Tranzacții Recente</h3>
+          <span className="rounded-md bg-white/[0.04] px-2 py-0.5 text-[0.72rem] text-gray-400">
             {filtered.length}
           </span>
         </div>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Search */}
+          <div className="relative flex items-center">
+            <Search className="absolute left-2.5 h-3.5 w-3.5 text-gray-500" />
+            <input
+              type="text"
+              placeholder="Caută după ID..."
+              value={search}
+              onChange={(e) => handleSearch(e.target.value)}
+              className="rounded-xl border border-white/[0.06] bg-white/[0.04] py-1.5 pr-3 pl-8 text-[0.78rem] text-gray-200 outline-none placeholder:text-gray-500 focus:border-white/[0.1]"
+            />
+          </div>
+
           {/* Status filter */}
           <select
-            value={statusFilter}
-            onChange={(e) => handleStatusChange(e.target.value)}
-            className="rounded-xl px-3 py-1.5 outline-none"
-            style={{
-              background: "rgba(255,255,255,0.04)",
-              border: "1px solid rgba(255,255,255,0.06)",
-              color: "#e5e7eb",
-              fontSize: "0.78rem",
-              cursor: "pointer",
-            }}
+            value={txFilter}
+            onChange={(e) => handleFilterChange(e.target.value)}
+            className="cursor-pointer rounded-xl border border-white/[0.06] bg-white/[0.04] px-3 py-1.5 text-[0.78rem] text-gray-200 outline-none"
           >
             <option value="all">Toate statusurile</option>
             <option value="success">Finalizate</option>
@@ -156,50 +243,24 @@ function TransactionList({ plati }: TransactionListProps): React.JSX.Element {
             <option value="failed">Eșuate</option>
             <option value="refunded">Rambursate</option>
           </select>
-
-          {/* Metoda filter */}
-          <select
-            value={metodaFilter}
-            onChange={(e) => handleMetodaChange(e.target.value)}
-            className="rounded-xl px-3 py-1.5 outline-none"
-            style={{
-              background: "rgba(255,255,255,0.04)",
-              border: "1px solid rgba(255,255,255,0.06)",
-              color: "#e5e7eb",
-              fontSize: "0.78rem",
-              cursor: "pointer",
-            }}
-          >
-            <option value="all">Toate metodele</option>
-            <option value="card">Card</option>
-            <option value="transfer">Transfer</option>
-            <option value="numerar">Numerar</option>
-          </select>
         </div>
       </div>
 
       {/* Table header */}
       <div
-        className="grid px-5 py-2.5"
-        style={{
-          gridTemplateColumns: "1fr 2fr 1fr 1fr 1fr",
-          borderBottom: "1px solid rgba(255,255,255,0.04)",
-          fontSize: "0.67rem",
-          color: "#6b7280",
-          fontWeight: 600,
-          textTransform: "uppercase",
-          letterSpacing: "0.05em",
-        }}
+        className="grid px-5 py-2.5 text-[0.67rem] font-semibold tracking-wider text-gray-500 uppercase"
+        style={{ gridTemplateColumns: "1fr 1.5fr 1fr 1fr 1.2fr auto" }}
       >
         <div>Data</div>
-        <div>Cerere ID</div>
+        <div>ID Tranzacție</div>
         <div>Sumă</div>
         <div>Metodă</div>
         <div>Status</div>
+        <div />
       </div>
 
       {/* Rows */}
-      <AnimatePresence mode="sync">
+      <AnimatePresence mode="popLayout">
         {paginated.length === 0 ? (
           <motion.div
             key="empty"
@@ -208,73 +269,75 @@ function TransactionList({ plati }: TransactionListProps): React.JSX.Element {
             exit={{ opacity: 0 }}
             className="flex flex-col items-center justify-center gap-2 py-12"
           >
-            <Activity className="h-8 w-8" style={{ color: "#374151" }} />
-            <span style={{ color: "#6b7280", fontSize: "0.85rem" }}>
-              Nicio tranzacție pentru filtrele selectate
-            </span>
+            <Receipt className="h-8 w-8 text-gray-700" />
+            <span className="text-[0.85rem] text-gray-500">Nicio tranzacție</span>
           </motion.div>
         ) : (
           paginated.map((p, i) => {
-            const StatusIcon = STATUS_ICONS[p.status] ?? Activity;
-            const statusClass = STATUS_CLASSES[p.status] ?? STATUS_CLASSES.pending;
+            const StatusIcon = STATUS_ICONS[p.status] ?? Receipt;
+            const statusClass = STATUS_CLASSES[p.status] ?? STATUS_CLASSES.pending!;
+            const isExpanded = expandedId === p.id;
 
             return (
               <motion.div
                 key={p.id}
+                layout
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.15, delay: i * 0.02 }}
-                className="grid items-center px-5 py-3"
-                style={{
-                  gridTemplateColumns: "1fr 2fr 1fr 1fr 1fr",
-                  borderBottom: "1px solid rgba(255,255,255,0.03)",
-                }}
+                className="border-b border-white/[0.03] last:border-0"
               >
-                {/* Data */}
-                <div style={{ color: "#9ca3af", fontSize: "0.8rem" }}>
-                  {formatDate(p.created_at)}
-                </div>
-
-                {/* Cerere ID */}
+                {/* Main row */}
                 <div
-                  className="truncate font-mono"
-                  style={{ color: "#e5e7eb", fontSize: "0.78rem" }}
-                  title={p.cerere_id ?? undefined}
+                  className="grid cursor-pointer items-center px-5 py-3 transition-colors hover:bg-white/[0.02]"
+                  style={{ gridTemplateColumns: "1fr 1.5fr 1fr 1fr 1.2fr auto" }}
+                  onClick={() => toggleExpand(p.id)}
                 >
-                  {truncateId(p.cerere_id)}
+                  {/* Data */}
+                  <div className="text-[0.8rem] text-gray-400">{formatDate(p.created_at)}</div>
+
+                  {/* ID (truncated) */}
+                  <div className="truncate font-mono text-[0.78rem] text-gray-200" title={p.id}>
+                    {truncateId(p.id)}
+                  </div>
+
+                  {/* Suma */}
+                  <div className="text-[0.85rem] font-semibold text-white">
+                    {p.suma.toLocaleString("ro-RO")} RON
+                  </div>
+
+                  {/* Metoda */}
+                  <div>
+                    <span className="rounded-md border border-white/[0.06] bg-white/[0.04] px-2 py-0.5 text-[0.72rem] text-gray-300">
+                      {p.metoda_plata ? (METODA_LABELS[p.metoda_plata] ?? p.metoda_plata) : "—"}
+                    </span>
+                  </div>
+
+                  {/* Status badge */}
+                  <div>
+                    <span
+                      className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[0.72rem] ${statusClass}`}
+                    >
+                      <StatusIcon className="h-3 w-3" />
+                      {STATUS_LABELS[p.status] ?? p.status}
+                    </span>
+                  </div>
+
+                  {/* Expand toggle */}
+                  <div className="flex justify-end">
+                    {isExpanded ? (
+                      <ChevronUp className="h-4 w-4 text-gray-500" />
+                    ) : (
+                      <ChevronDown className="h-4 w-4 text-gray-500" />
+                    )}
+                  </div>
                 </div>
 
-                {/* Suma */}
-                <div style={{ color: "#f9fafb", fontWeight: 600, fontSize: "0.85rem" }}>
-                  {p.suma.toLocaleString("ro-RO")} RON
-                </div>
-
-                {/* Metoda */}
-                <div>
-                  <span
-                    className="rounded-md px-2 py-0.5"
-                    style={{
-                      background: "rgba(255,255,255,0.04)",
-                      color: "#d1d5db",
-                      fontSize: "0.72rem",
-                      border: "1px solid rgba(255,255,255,0.06)",
-                    }}
-                  >
-                    {p.metoda_plata ? (METODA_LABELS[p.metoda_plata] ?? p.metoda_plata) : "N/A"}
-                  </span>
-                </div>
-
-                {/* Status */}
-                <div>
-                  <span
-                    className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 ${statusClass}`}
-                    style={{ fontSize: "0.72rem" }}
-                  >
-                    <StatusIcon className="h-3 w-3" />
-                    {STATUS_LABELS[p.status] ?? p.status}
-                  </span>
-                </div>
+                {/* Expandable detail */}
+                <AnimatePresence>
+                  {isExpanded && <ExpandedRow key={`${p.id}-expanded`} row={p} />}
+                </AnimatePresence>
               </motion.div>
             );
           })
@@ -283,60 +346,37 @@ function TransactionList({ plati }: TransactionListProps): React.JSX.Element {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div
-          className="flex items-center justify-between px-5 py-3"
-          style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}
-        >
-          <span style={{ color: "#6b7280", fontSize: "0.78rem" }}>
+        <div className="flex items-center justify-between border-t border-white/[0.04] px-5 py-3">
+          <span className="text-[0.78rem] text-gray-500">
             {filtered.length > 0
-              ? `${(page - 1) * PER_PAGE + 1}–${Math.min(page * PER_PAGE, filtered.length)} din ${filtered.length}`
+              ? `${(safePage - 1) * PER_PAGE + 1}–${Math.min(safePage * PER_PAGE, filtered.length)} din ${filtered.length}`
               : "0 rezultate"}
           </span>
           <div className="flex items-center gap-1">
             <button
-              disabled={page <= 1}
+              disabled={safePage <= 1}
               onClick={() => setPage((p) => Math.max(1, p - 1))}
-              className="rounded-lg p-1.5 transition-all disabled:opacity-30"
-              style={{ color: "#9ca3af" }}
+              className="rounded-lg p-1.5 text-gray-400 transition-all hover:text-white disabled:opacity-30"
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
-            {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-              // Show pages around current page
-              let pageNum: number;
-              if (totalPages <= 5) {
-                pageNum = i + 1;
-              } else if (page <= 3) {
-                pageNum = i + 1;
-              } else if (page >= totalPages - 2) {
-                pageNum = totalPages - 4 + i;
-              } else {
-                pageNum = page - 2 + i;
-              }
-              return (
-                <button
-                  key={pageNum}
-                  onClick={() => setPage(pageNum)}
-                  className="h-7 w-7 rounded-lg transition-all"
-                  style={
-                    pageNum === page
-                      ? {
-                          background: "rgba(59,130,246,0.2)",
-                          color: "#f9fafb",
-                          fontSize: "0.78rem",
-                        }
-                      : { color: "#6b7280", fontSize: "0.78rem" }
-                  }
-                >
-                  {pageNum}
-                </button>
-              );
-            })}
+            {getPageNumbers().map((num) => (
+              <button
+                key={num}
+                onClick={() => setPage(num)}
+                className={`h-7 w-7 rounded-lg text-[0.78rem] transition-all ${
+                  num === safePage
+                    ? "bg-blue-500/20 font-semibold text-white"
+                    : "text-gray-500 hover:text-gray-200"
+                }`}
+              >
+                {num}
+              </button>
+            ))}
             <button
-              disabled={page >= totalPages}
+              disabled={safePage >= totalPages}
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              className="rounded-lg p-1.5 transition-all disabled:opacity-30"
-              style={{ color: "#9ca3af" }}
+              className="rounded-lg p-1.5 text-gray-400 transition-all hover:text-white disabled:opacity-30"
             >
               <ChevronRight className="h-4 w-4" />
             </button>
@@ -347,5 +387,4 @@ function TransactionList({ plati }: TransactionListProps): React.JSX.Element {
   );
 }
 
-export { TransactionList };
-export type { TransactionListProps, PlatiRow };
+export type { TransactionListProps };
