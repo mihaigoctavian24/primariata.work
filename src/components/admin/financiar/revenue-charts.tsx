@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+import { motion } from "motion/react";
 import {
   AreaChart,
   Area,
@@ -10,45 +12,52 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Legend,
 } from "recharts";
+import { CreditCard, Building2, Landmark, Smartphone } from "lucide-react";
 
-import type { MonthlyRevenue, DailyVolume, MetodaBreakdown } from "@/lib/financiar-utils";
-import { DonutChart } from "@/components/admin/donut-chart";
-
-// ============================================================================
-// Chart color constants — CSS custom properties (no hardcoded hex)
-// ============================================================================
-
-const COLORS = {
-  primary: "var(--accent-500)",
-  secondary: "var(--accent-300)",
-  tertiary: "var(--accent-200)",
-  // Recharts SVG strokes can't use CSS vars directly — we use semantic Tailwind palette
-  // that matches the app accent (blue by default, changes with theme)
-  stroke: {
-    colectat: "#3b82f6",
-    target: "#64748b",
-    bar: "#3b82f6",
-  },
-  chart: {
-    grid: "rgba(255,255,255,0.04)",
-    tick: "#6b7280",
-    tooltipBg: "rgba(15,15,25,0.95)",
-    tooltipBorder: "rgba(255,255,255,0.08)",
-  },
-  donut: {
-    card: "#3b82f6",
-    transfer: "#06b6d4",
-    numerar: "#f59e0b",
-  },
-};
+import type { MonthlyRevenueExtended, DailyVolume, MetodaBreakdown } from "@/lib/financiar-utils";
 
 // ============================================================================
-// Shared Tooltip
+// Mock categories — graceful fallback (plati table has no category column)
 // ============================================================================
 
-function ChartTooltip({
+// Category data: graceful mock — plati table has no category column
+const MOCK_CATEGORIES = [
+  { name: "Taxe Locale", colectat: 0, target: 50_000, color: "#3b82f6" },
+  { name: "Autorizații", colectat: 0, target: 20_000, color: "#8b5cf6" },
+  { name: "Amenzi", colectat: 0, target: 15_000, color: "#ef4444" },
+  { name: "Certificări", colectat: 0, target: 8_000, color: "#10b981" },
+  { name: "Impozite Proprietăți", colectat: 0, target: 12_000, color: "#f59e0b" },
+  { name: "Altele", colectat: 0, target: 5_000, color: "#6b7280" },
+];
+
+// ============================================================================
+// Types
+// ============================================================================
+
+interface RevenueChartsProps {
+  monthlyData: MonthlyRevenueExtended[];
+  dailyData: DailyVolume[];
+  metodaData: MetodaBreakdown;
+}
+
+// ============================================================================
+// Shared chart color constants (hex — SVG stroke attributes require hex)
+// ============================================================================
+
+const CHART = {
+  grid: "rgba(255,255,255,0.04)",
+  tick: "#6b7280",
+  colectat: "#10b981",
+  esuat: "#ef4444",
+  bar: "#3b82f6",
+} as const;
+
+// ============================================================================
+// CustomTooltip — uses CSS tokens (bg-popover border-border)
+// ============================================================================
+
+function CustomTooltip({
   active,
   payload,
   label,
@@ -58,26 +67,16 @@ function ChartTooltip({
   label?: string;
 }): React.JSX.Element | null {
   if (!active || !payload?.length) return null;
+
   return (
-    <div
-      className="rounded-xl px-3 py-2"
-      style={{
-        background: COLORS.chart.tooltipBg,
-        border: `1px solid ${COLORS.chart.tooltipBorder}`,
-        fontSize: "0.78rem",
-      }}
-    >
-      {label && (
-        <div className="mb-1" style={{ color: COLORS.chart.tick, fontSize: "0.72rem" }}>
-          {label}
-        </div>
-      )}
+    <div className="border-border bg-popover rounded-xl border px-3 py-2 shadow-lg">
+      {label && <div className="text-muted-foreground mb-1.5 text-[0.7rem]">{label}</div>}
       {payload.map((p) => (
-        <div key={p.name} className="flex items-center gap-2">
+        <div key={p.name} className="flex items-center gap-2 text-[0.75rem]">
           <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: p.color }} />
-          <span style={{ color: "#9ca3af" }}>{p.name}:</span>
-          <span style={{ color: "#f9fafb", fontWeight: 600 }}>
-            {p.value.toLocaleString("ro-RO")} RON
+          <span className="text-muted-foreground">{p.name}:</span>
+          <span className="text-foreground font-semibold">
+            {typeof p.value === "number" ? p.value.toLocaleString("ro-RO") : p.value} RON
           </span>
         </div>
       ))}
@@ -85,199 +84,127 @@ function ChartTooltip({
   );
 }
 
-// ============================================================================
-// MonthlyRevenueChart
-// ============================================================================
-
-interface MonthlyRevenueChartProps {
-  data: MonthlyRevenue[];
+function DailyTooltip({
+  active,
+  payload,
+  label,
+}: {
+  active?: boolean;
+  payload?: Array<{ value: number }>;
+  label?: string;
+}): React.JSX.Element | null {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="border-border bg-popover rounded-xl border px-3 py-2 shadow-lg">
+      <div className="text-muted-foreground mb-1 text-[0.7rem]">{label}</div>
+      <div className="text-foreground text-sm font-semibold">
+        {payload[0]?.value ?? 0} tranzacții
+      </div>
+    </div>
+  );
 }
 
-function MonthlyRevenueChart({ data }: MonthlyRevenueChartProps): React.JSX.Element {
-  // Empty state: generate 7 zero-months as placeholder
+// ============================================================================
+// RevenueAreaChart
+// ============================================================================
+
+function RevenueAreaChart({ data }: { data: MonthlyRevenueExtended[] }): React.JSX.Element {
+  const [period, setPeriod] = useState<"6m" | "1y">("6m");
+
+  const sliceCount = period === "6m" ? 6 : 12;
   const isEmpty = data.length === 0;
+
   const chartData = isEmpty
-    ? ["Ian", "Feb", "Mar", "Apr", "Mai", "Iun", "Iul"].map((month) => ({
+    ? (["Ian", "Feb", "Mar", "Apr", "Mai", "Iun"] as const).map((month) => ({
         month,
         colectat: 0,
-        target: 0,
+        esuat: 0,
       }))
-    : data;
+    : data.slice(-sliceCount);
 
   return (
-    <div className="relative h-[220px] w-full">
-      <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-          <defs>
-            <linearGradient id="colectatGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor={COLORS.stroke.colectat} stopOpacity={0.22} />
-              <stop offset="95%" stopColor={COLORS.stroke.colectat} stopOpacity={0} />
-            </linearGradient>
-          </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke={COLORS.chart.grid} />
-          <XAxis
-            dataKey="month"
-            tick={{ fill: COLORS.chart.tick, fontSize: 11 }}
-            axisLine={false}
-            tickLine={false}
-          />
-          <YAxis
-            tick={{ fill: COLORS.chart.tick, fontSize: 10 }}
-            axisLine={false}
-            tickLine={false}
-            tickFormatter={(v: number) => (v === 0 ? "0" : `${(v / 1000).toFixed(0)}k`)}
-          />
-          <Tooltip content={<ChartTooltip />} />
-          <Legend
-            wrapperStyle={{ fontSize: "0.72rem", color: COLORS.chart.tick }}
-            iconType="circle"
-            iconSize={8}
-          />
-          <Area
-            type="monotone"
-            dataKey="colectat"
-            name="Colectat"
-            stroke={COLORS.stroke.colectat}
-            strokeWidth={2}
-            fill="url(#colectatGrad)"
-          />
-          <Area
-            type="monotone"
-            dataKey="target"
-            name="Target"
-            stroke={COLORS.stroke.target}
-            strokeWidth={1.5}
-            strokeDasharray="5 5"
-            fill="none"
-          />
-        </AreaChart>
-      </ResponsiveContainer>
-
-      {isEmpty && (
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <span
-            className="rounded-lg px-3 py-1.5"
-            style={{
-              background: "rgba(0,0,0,0.5)",
-              color: "#9ca3af",
-              fontSize: "0.82rem",
-            }}
-          >
-            Nu există date de plată
-          </span>
+    <div className="rounded-2xl border border-white/[0.05] bg-white/[0.025] p-5">
+      <div className="mb-4 flex items-center justify-between">
+        <h3 className="text-[0.93rem] font-semibold text-white">Venituri lunare</h3>
+        <div className="flex items-center gap-1 rounded-lg border border-white/[0.06] bg-white/[0.03] p-0.5">
+          {(["6m", "1y"] as const).map((p) => (
+            <button
+              key={p}
+              onClick={() => setPeriod(p)}
+              className={`rounded-md px-3 py-1 text-[0.72rem] font-medium transition-all ${
+                period === p ? "bg-white/[0.1] text-white" : "text-gray-400 hover:text-gray-200"
+              }`}
+            >
+              {p === "6m" ? "6 luni" : "1 an"}
+            </button>
+          ))}
         </div>
-      )}
-    </div>
-  );
-}
-
-// ============================================================================
-// DailyVolumeChart
-// ============================================================================
-
-interface DailyVolumeChartProps {
-  data: DailyVolume[];
-}
-
-function DailyVolumeChart({ data }: DailyVolumeChartProps): React.JSX.Element {
-  return (
-    <div className="h-[180px] w-full">
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke={COLORS.chart.grid} />
-          <XAxis
-            dataKey="day"
-            tick={{ fill: COLORS.chart.tick, fontSize: 11 }}
-            axisLine={false}
-            tickLine={false}
-          />
-          <YAxis
-            tick={{ fill: COLORS.chart.tick, fontSize: 10 }}
-            axisLine={false}
-            tickLine={false}
-            allowDecimals={false}
-          />
-          <Tooltip
-            content={({ active, payload, label }) => {
-              if (!active || !payload?.length) return null;
-              return (
-                <div
-                  className="rounded-xl px-3 py-2"
-                  style={{
-                    background: COLORS.chart.tooltipBg,
-                    border: `1px solid ${COLORS.chart.tooltipBorder}`,
-                    fontSize: "0.78rem",
-                  }}
-                >
-                  <div className="mb-1" style={{ color: COLORS.chart.tick, fontSize: "0.72rem" }}>
-                    {label}
-                  </div>
-                  <div style={{ color: "#f9fafb", fontWeight: 600 }}>
-                    {payload[0]?.value ?? 0} tranzacții
-                  </div>
-                </div>
-              );
-            }}
-          />
-          <Bar
-            dataKey="volume"
-            name="Tranzacții"
-            fill={COLORS.stroke.bar}
-            radius={[4, 4, 0, 0]}
-            barSize={28}
-            opacity={0.85}
-          />
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
-  );
-}
-
-// ============================================================================
-// MetodaChart (DonutChart wrapper)
-// ============================================================================
-
-interface MetodaChartProps {
-  data: MetodaBreakdown;
-}
-
-function MetodaChart({ data }: MetodaChartProps): React.JSX.Element {
-  const isEmpty = data.card === 0 && data.transfer === 0 && data.numerar === 0;
-
-  if (isEmpty) {
-    return (
-      <div className="flex h-[160px] flex-col items-center justify-center gap-2">
-        <div
-          className="h-16 w-16 rounded-full"
-          style={{ border: "2px dashed rgba(255,255,255,0.06)" }}
-        />
-        <span style={{ color: "#6b7280", fontSize: "0.78rem" }}>Fără date de plată</span>
       </div>
-    );
-  }
 
-  const donutData = [
-    { name: "Card", value: data.card, color: COLORS.donut.card },
-    { name: "Transfer", value: data.transfer, color: COLORS.donut.transfer },
-    { name: "Numerar", value: data.numerar, color: COLORS.donut.numerar },
-  ].filter((d) => d.value > 0);
+      <div className="relative h-[200px]">
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={chartData} margin={{ top: 5, right: 5, left: 0, bottom: 0 }}>
+            <defs>
+              <linearGradient id="colectatGrad20" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor={CHART.colectat} stopOpacity={0.25} />
+                <stop offset="95%" stopColor={CHART.colectat} stopOpacity={0.02} />
+              </linearGradient>
+              <linearGradient id="esuatGrad20" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor={CHART.esuat} stopOpacity={0.2} />
+                <stop offset="95%" stopColor={CHART.esuat} stopOpacity={0.02} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke={CHART.grid} />
+            <XAxis
+              dataKey="month"
+              tick={{ fill: CHART.tick, fontSize: 11 }}
+              axisLine={false}
+              tickLine={false}
+            />
+            <YAxis
+              tick={{ fill: CHART.tick, fontSize: 10 }}
+              axisLine={false}
+              tickLine={false}
+              tickFormatter={(v: number) => (v === 0 ? "0" : `${(v / 1000).toFixed(0)}k`)}
+            />
+            <Tooltip content={<CustomTooltip />} />
+            <Area
+              type="monotone"
+              dataKey="colectat"
+              name="Colectat"
+              stroke={CHART.colectat}
+              strokeWidth={2}
+              fill="url(#colectatGrad20)"
+            />
+            <Area
+              type="monotone"
+              dataKey="esuat"
+              name="Eșuat"
+              stroke={CHART.esuat}
+              strokeWidth={2}
+              fill="url(#esuatGrad20)"
+            />
+          </AreaChart>
+        </ResponsiveContainer>
 
-  const total = data.card + data.transfer + data.numerar;
-
-  return (
-    <div className="flex flex-col items-center gap-3">
-      <DonutChart data={donutData} centerLabel="total" centerValue={total} size={120} />
-      {/* Legend */}
-      <div className="flex flex-wrap justify-center gap-x-4 gap-y-1">
-        {donutData.map((d) => (
-          <div key={d.name} className="flex items-center gap-1.5">
-            <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: d.color }} />
-            <span style={{ color: "#9ca3af", fontSize: "0.72rem" }}>
-              {d.name}{" "}
-              <span style={{ color: "#f9fafb", fontWeight: 600 }}>
-                {Math.round((d.value / total) * 100)}%
-              </span>
+        {isEmpty && (
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+            <span className="rounded-lg bg-black/50 px-3 py-1.5 text-[0.82rem] text-gray-400">
+              Nu există date de plată
             </span>
+          </div>
+        )}
+      </div>
+
+      {/* Legend */}
+      <div className="mt-3 flex gap-4">
+        {[
+          { color: CHART.colectat, label: "Colectat" },
+          { color: CHART.esuat, label: "Eșuat" },
+        ].map((l) => (
+          <div key={l.label} className="flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-full" style={{ background: l.color }} />
+            <span className="text-[0.7rem] text-gray-400">{l.label}</span>
           </div>
         ))}
       </div>
@@ -286,8 +213,178 @@ function MetodaChart({ data }: MetodaChartProps): React.JSX.Element {
 }
 
 // ============================================================================
-// Exports
+// DailyVolumeBarChart
 // ============================================================================
 
-export { MonthlyRevenueChart, DailyVolumeChart, MetodaChart };
-export type { MonthlyRevenueChartProps, DailyVolumeChartProps, MetodaChartProps };
+function DailyVolumeBarChart({ data }: { data: DailyVolume[] }): React.JSX.Element {
+  return (
+    <div className="rounded-2xl border border-white/[0.05] bg-white/[0.025] p-5">
+      <h3 className="mb-4 text-[0.93rem] font-semibold text-white">
+        Volum zilnic — tranzacții pe zile
+      </h3>
+      <div className="h-[200px]">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={data} margin={{ top: 5, right: 5, left: 0, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke={CHART.grid} />
+            <XAxis
+              dataKey="day"
+              tick={{ fill: CHART.tick, fontSize: 11 }}
+              axisLine={false}
+              tickLine={false}
+            />
+            <YAxis
+              tick={{ fill: CHART.tick, fontSize: 10 }}
+              axisLine={false}
+              tickLine={false}
+              allowDecimals={false}
+            />
+            <Tooltip content={<DailyTooltip />} />
+            <Bar
+              dataKey="volume"
+              name="Tranzacții"
+              fill="#3b82f6"
+              radius={[4, 4, 0, 0]}
+              barSize={28}
+              opacity={0.85}
+            />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// PaymentMethodsList
+// ============================================================================
+
+const METODA_CONFIG: Record<
+  string,
+  { label: string; icon: React.ComponentType<{ className?: string }>; colorClass: string }
+> = {
+  card: { label: "Card Online", icon: CreditCard, colorClass: "bg-blue-500" },
+  transfer: { label: "Transfer Bancar", icon: Building2, colorClass: "bg-cyan-500" },
+  numerar: { label: "Ghișeu / Numerar", icon: Landmark, colorClass: "bg-amber-500" },
+  other: { label: "Altele", icon: Smartphone, colorClass: "bg-slate-500" },
+};
+
+function PaymentMethodsList({ data }: { data: MetodaBreakdown }): React.JSX.Element {
+  const entries = Object.entries({
+    card: data.card,
+    transfer: data.transfer,
+    numerar: data.numerar,
+  })
+    .filter(([, count]) => count > 0)
+    .sort(([, a], [, b]) => b - a);
+
+  const total = entries.reduce((sum, [, count]) => sum + count, 0);
+  const isEmpty = total === 0;
+
+  return (
+    <div className="rounded-2xl border border-white/[0.05] bg-white/[0.025] p-5">
+      <h3 className="mb-4 text-[0.93rem] font-semibold text-white">Metode de Plată</h3>
+
+      {isEmpty ? (
+        <div className="flex h-24 items-center justify-center">
+          <span className="text-[0.82rem] text-gray-500">Fără date de plată</span>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-3">
+          {entries.map(([metoda, count], i) => {
+            const cfg = METODA_CONFIG[metoda] ?? METODA_CONFIG.other!;
+            const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+            const Icon = cfg.icon;
+
+            return (
+              <div key={metoda} className="flex flex-col gap-1">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Icon className="h-3.5 w-3.5 text-gray-400" />
+                    <span className="text-[0.78rem] text-gray-300">{cfg.label}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[0.72rem] text-gray-400">{count} tx</span>
+                    <span className="text-[0.72rem] font-medium text-white">{pct}%</span>
+                  </div>
+                </div>
+                <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
+                  <motion.div
+                    className={`h-full rounded-full ${cfg.colorClass}`}
+                    initial={{ width: 0 }}
+                    animate={{ width: `${pct}%` }}
+                    transition={{ duration: 0.8, delay: 0.2 + i * 0.08, ease: "easeOut" }}
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ============================================================================
+// CategoryGrid
+// ============================================================================
+
+function CategoryGrid(): React.JSX.Element {
+  // Category data: graceful mock — plati table has no category column
+  return (
+    <div className="rounded-2xl border border-white/[0.05] bg-white/[0.025] p-5">
+      <h3 className="mb-4 text-[0.93rem] font-semibold text-white">Pe Categorii</h3>
+      <div className="grid grid-cols-2 gap-3">
+        {MOCK_CATEGORIES.map((cat, i) => {
+          const pct = cat.target > 0 ? Math.round((cat.colectat / cat.target) * 100) : 0;
+          return (
+            <div key={cat.name} className="flex flex-col gap-1.5">
+              <div className="flex items-center justify-between">
+                <span className="truncate text-[0.72rem] text-gray-300">{cat.name}</span>
+                <span className="ml-1 shrink-0 text-[0.65rem] text-gray-500">{pct}%</span>
+              </div>
+              <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
+                <motion.div
+                  className="h-full rounded-full"
+                  style={{ background: cat.color }}
+                  initial={{ width: 0 }}
+                  animate={{ width: `${pct}%` }}
+                  transition={{ duration: 0.8, delay: 0.4 + i * 0.06, ease: "easeOut" }}
+                />
+              </div>
+              <div className="flex items-center justify-between text-[0.65rem] text-gray-500">
+                <span>{cat.colectat.toLocaleString("ro-RO")} RON</span>
+                <span>{cat.target.toLocaleString("ro-RO")} RON target</span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// RevenueCharts — main export (composes all 4 chart sections)
+// ============================================================================
+
+export function RevenueCharts({
+  monthlyData,
+  dailyData,
+  metodaData,
+}: RevenueChartsProps): React.JSX.Element {
+  return (
+    <div className="space-y-5">
+      {/* Top row: AreaChart + BarChart */}
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
+        <RevenueAreaChart data={monthlyData} />
+        <DailyVolumeBarChart data={dailyData} />
+      </div>
+
+      {/* Bottom row: payment methods + category grid */}
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
+        <PaymentMethodsList data={metodaData} />
+        <CategoryGrid />
+      </div>
+    </div>
+  );
+}

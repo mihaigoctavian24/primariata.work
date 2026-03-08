@@ -20,6 +20,13 @@ export interface MonthlyRevenue {
   target: number;
 }
 
+/** Extended monthly revenue with failed payment breakdown for AreaChart */
+export interface MonthlyRevenueExtended {
+  month: string;
+  colectat: number;
+  esuat: number;
+}
+
 export interface DailyVolume {
   day: string;
   volume: number;
@@ -101,6 +108,46 @@ export function aggregateByMonth(plati: PlatiRow[]): MonthlyRevenue[] {
         month: ROMANIAN_MONTHS[monthIndex] ?? key,
         colectat,
         target: colectat * TARGET_MULTIPLIER,
+      };
+    });
+}
+
+/**
+ * Aggregates payments by calendar month with colectat (success) and esuat (failed) breakdowns.
+ * Used by the Financiar AreaChart that shows colectat vs esuat over time.
+ *
+ * @param plati - Array of payment rows
+ * @returns Array of monthly entries ordered by calendar month ascending.
+ *          Months with any payment activity (success or failed) are included.
+ */
+export function aggregateByMonthFull(plati: PlatiRow[]): MonthlyRevenueExtended[] {
+  const relevantPayments = plati.filter((p) => p.status === "success" || p.status === "failed");
+  if (relevantPayments.length === 0) return [];
+
+  // Key: "YYYY-MM"
+  const byMonth = new Map<string, { colectat: number; esuat: number }>();
+
+  for (const p of relevantPayments) {
+    const date = new Date(p.created_at);
+    const key = `${date.getFullYear()}-${String(date.getMonth()).padStart(2, "0")}`;
+    const existing = byMonth.get(key) ?? { colectat: 0, esuat: 0 };
+    if (p.status === "success") {
+      existing.colectat += p.suma;
+    } else {
+      existing.esuat += p.suma;
+    }
+    byMonth.set(key, existing);
+  }
+
+  return Array.from(byMonth.entries())
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([key, { colectat, esuat }]) => {
+      const parts = key.split("-");
+      const monthIndex = parts[1] !== undefined ? parseInt(parts[1], 10) : 0;
+      return {
+        month: ROMANIAN_MONTHS[monthIndex] ?? key,
+        colectat,
+        esuat,
       };
     });
 }
