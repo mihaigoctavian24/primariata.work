@@ -155,8 +155,8 @@ Plans:
 - [x] 20-02-PLAN.md — Wave 2 Cereri: delete + rewrite, 4-tab UI, real cereri data, kanban click-to-move, confetti approve
 - [x] 20-03-PLAN.md — Wave 3 Financiar: delete + rewrite, real plati data, 6 KPI cards, revenue charts, transaction list
 - [x] 20-04-PLAN.md — Wave 4 Documente: delete + rewrite, Supabase Storage folder nav, upload zone, signed URL preview
-- [ ] 20-05-PLAN.md — Wave 5 Calendar: delete + rewrite, Zustand events, month grid (Monday-start), event creation modal
-- [ ] 20-06-PLAN.md — Wave 6 Monitorizare: delete + rewrite, mock setInterval CPU/RAM/Disk, 5-tab layout, GaugeSVG
+- [x] 20-05-PLAN.md — Wave 5 Calendar: delete + rewrite, Zustand events, month grid (Monday-start), event creation modal
+- [x] 20-06-PLAN.md — Wave 6 Monitorizare: delete + rewrite, mock setInterval CPU/RAM/Disk, 5-tab layout, GaugeSVG
 - [ ] 20-07-PLAN.md — GAP Wave 7: AdminModal shared component + AdminErrorBoundary + semantic CSS color tokens
 - [ ] 20-08-PLAN.md — GAP Wave 8: Cereri — detail drawer + bulk select + escalation + priority change + CSS tokens
 - [ ] 20-09-PLAN.md — GAP Wave 8: Calendar — edit modal + color picker + type selector + recurring + overflow dots

@@ -1,69 +1,60 @@
-import React from "react";
+"use client";
 
-export function MonitorizareSkeleton(): React.JSX.Element {
+import { motion } from "framer-motion";
+
+export function MonitorizareSkeleton() {
   return (
-    <div className="animate-pulse space-y-5">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="space-y-2">
-          <div className="h-7 w-48 rounded-xl bg-white/[0.06]" />
-          <div className="h-4 w-72 rounded-lg bg-white/[0.04]" />
+    <div className="flex flex-col gap-6 w-full max-w-[1400px] mx-auto min-h-screen">
+      {/* Page Header Skeleton */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <div className="h-8 w-48 bg-white/[0.06] animate-pulse rounded-lg mb-2" />
+          <div className="h-4 w-72 bg-white/[0.06] animate-pulse rounded-md" />
         </div>
-        <div className="h-8 w-28 rounded-xl bg-white/[0.06]" />
+        <div className="h-8 w-32 bg-white/[0.06] animate-pulse rounded-full" />
       </div>
 
-      {/* Tab pills */}
-      <div className="flex gap-1 rounded-xl border border-white/[0.04] bg-white/[0.025] p-1">
-        {[140, 100, 120, 130, 110].map((w, i) => (
-          <div key={i} className="h-9 rounded-lg bg-white/[0.06]" style={{ width: w }} />
+      {/* Tabs Skeleton */}
+      <div className="flex flex-wrap gap-2 border-b border-white/[0.05] pb-px">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <div key={i} className="h-10 w-24 bg-white/[0.06] animate-pulse rounded-t-lg" />
         ))}
       </div>
 
-      {/* Gauges row */}
-      <div className="grid grid-cols-12 gap-5">
-        <div className="col-span-3 flex flex-col items-center gap-4 rounded-2xl border border-white/[0.05] bg-white/[0.025] p-5">
-          <div className="h-5 w-32 rounded-lg bg-white/[0.06]" />
-          <div className="grid w-full grid-cols-3 justify-items-center gap-4">
-            {[0, 1, 2].map((i) => (
-              <div key={i} className="flex flex-col items-center gap-2">
-                <div className="h-[72px] w-[72px] rounded-full bg-white/[0.06]" />
-                <div className="h-3 w-8 rounded bg-white/[0.04]" />
+      {/* Overview Content Skeleton */}
+      <div className="flex flex-col gap-6 animate-in fade-in duration-500">
+        
+        {/* Row 1: Gauges */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="bg-white/[0.025] border border-white/[0.05] rounded-2xl p-6 flex flex-col items-center justify-center min-h-[220px]">
+              <div className="relative w-32 h-32">
+                <div className="absolute inset-0 rounded-full border-8 border-white/[0.05] animate-pulse" />
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-1">
+                  <div className="h-6 w-12 bg-white/[0.06] animate-pulse rounded" />
+                  <div className="h-3 w-8 bg-white/[0.06] animate-pulse rounded" />
+                </div>
               </div>
-            ))}
-          </div>
-          <div className="w-full space-y-2">
-            {[0, 1, 2].map((i) => (
-              <div key={i} className="h-7 rounded-lg bg-white/[0.04]" />
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
 
-        <div className="col-span-5 space-y-3 rounded-2xl border border-white/[0.05] bg-white/[0.025] p-5">
-          <div className="h-5 w-48 rounded-lg bg-white/[0.06]" />
-          <div className="h-[180px] rounded-xl bg-white/[0.04]" />
+        {/* Row 2: Charts */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="bg-white/[0.025] border border-white/[0.05] rounded-2xl p-5 flex flex-col h-[280px]">
+              {/* Chart Header */}
+              <div className="flex justify-between items-center mb-6">
+                <div className="h-5 w-32 bg-white/[0.06] animate-pulse rounded-md" />
+                <div className="h-5 w-5 bg-white/[0.06] animate-pulse rounded-md" />
+              </div>
+              
+              {/* Chart Area Area */}
+              <div className="flex-1 w-full bg-white/[0.03] animate-pulse rounded-lg" />
+            </div>
+          ))}
         </div>
 
-        <div className="col-span-4 space-y-3 rounded-2xl border border-white/[0.05] bg-white/[0.025] p-5">
-          <div className="h-5 w-36 rounded-lg bg-white/[0.06]" />
-          <div className="space-y-2">
-            {[0, 1, 2].map((i) => (
-              <div key={i} className="h-12 rounded-xl bg-white/[0.04]" />
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Chart row */}
-      <div className="grid grid-cols-12 gap-5">
-        {[4, 4, 4].map((cols, i) => (
-          <div
-            key={i}
-            className={`col-span-${cols} space-y-3 rounded-2xl border border-white/[0.05] bg-white/[0.025] p-5`}
-          >
-            <div className="h-5 w-32 rounded-lg bg-white/[0.06]" />
-            <div className="h-[160px] rounded-xl bg-white/[0.04]" />
-          </div>
-        ))}
       </div>
     </div>
   );

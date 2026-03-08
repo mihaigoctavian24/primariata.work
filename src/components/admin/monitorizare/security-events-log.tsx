@@ -1,862 +1,263 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
-import { motion, AnimatePresence } from "motion/react";
-import {
-  UserX,
-  CheckCircle,
-  ShieldAlert,
-  Lock,
-  Shield,
-  WifiOff,
-  ShieldCheck,
-  Timer,
-  CheckCircle2,
-  XCircle,
-  RotateCcw,
-  Play,
-  Eye,
-  Search,
-  ChevronLeft,
-  ChevronRight,
+import { motion } from "framer-motion";
+import { 
+  ShieldAlert, 
+  UserX, 
+  CheckCircle, 
+  Lock, 
+  Shield, 
+  WifiOff, 
+  Search, 
+  FileText, 
+  Clock, 
+  Eye, 
+  Settings 
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
-// ─── Security Events ──────────────────────────────────────────────────────────
+// ============================================================================
+// Security Events Log
+// ============================================================================
 
-type SecurityEventType =
-  | "login_fail"
-  | "login_success"
-  | "permission_denied"
-  | "password_change"
-  | "role_change"
-  | "ip_block"
-  | "2fa_enable";
-
-interface SecurityEvent {
-  id: string;
-  type: SecurityEventType;
-  user: string;
-  ip: string;
-  time: string;
-  details: string;
-}
-
-const secEventConfig: Record<
-  SecurityEventType,
-  { color: string; icon: LucideIcon; label: string }
-> = {
-  login_fail: { color: "#ef4444", icon: UserX, label: "Login eșuat" },
-  login_success: { color: "#10b981", icon: CheckCircle, label: "Login OK" },
-  permission_denied: { color: "#f59e0b", icon: ShieldAlert, label: "Acces interzis" },
-  password_change: { color: "#3b82f6", icon: Lock, label: "Schimbare parolă" },
-  role_change: { color: "#8b5cf6", icon: Shield, label: "Schimbare rol" },
-  ip_block: { color: "#ef4444", icon: WifiOff, label: "IP blocat" },
-  "2fa_enable": { color: "#10b981", icon: ShieldCheck, label: "2FA activat" },
+const secEventConfig: Record<string, { color: string; icon: LucideIcon; label: string }> = {
+  login_fail: { color: "text-red-400 bg-red-500/10", icon: UserX, label: "Autentificare Eșuată" },
+  login_success: { color: "text-emerald-400 bg-emerald-500/10", icon: CheckCircle, label: "Autentificare Reușită" },
+  permission_denied: { color: "text-amber-400 bg-amber-500/10", icon: Lock, label: "Eroare Permisiune" },
+  brute_force: { color: "text-red-500 bg-red-500/20", icon: ShieldAlert, label: "Atac Brute Force" },
+  rule_change: { color: "text-blue-400 bg-blue-500/10", icon: Shield, label: "Modificare Securitate" },
+  timeout: { color: "text-gray-400 bg-gray-500/10", icon: WifiOff, label: "Sesiune Expirată" },
 };
 
-const securityEvents: SecurityEvent[] = [
-  {
-    id: "s1",
-    type: "login_fail",
-    user: "admin@primaria.ro",
-    ip: "185.45.12.87",
-    time: "16:48",
-    details: "Parolă incorectă — încercare 3/5",
-  },
-  {
-    id: "s2",
-    type: "login_fail",
-    user: "admin@primaria.ro",
-    ip: "185.45.12.87",
-    time: "16:47",
-    details: "Parolă incorectă — încercare 2/5",
-  },
-  {
-    id: "s3",
-    type: "login_success",
-    user: "elena.d@primaria.ro",
-    ip: "86.120.45.23",
-    time: "16:42",
-    details: "Autentificare reușită cu 2FA",
-  },
-  {
-    id: "s4",
-    type: "role_change",
-    user: "elena.d@primaria.ro",
-    ip: "86.120.45.23",
-    time: "16:40",
-    details: "A modificat rolul: George R. → Funcționar",
-  },
-  {
-    id: "s5",
-    type: "permission_denied",
-    user: "ion.p@primaria.ro",
-    ip: "86.120.45.24",
-    time: "16:30",
-    details: "Acces interzis la /admin/settings — lipsă permisiuni",
-  },
-  {
-    id: "s6",
-    type: "login_success",
-    user: "maria.i@primaria.ro",
-    ip: "79.112.33.41",
-    time: "16:20",
-    details: "Autentificare reușită — sesiune nouă",
-  },
-  {
-    id: "s7",
-    type: "password_change",
-    user: "dan.p@primaria.ro",
-    ip: "86.120.45.25",
-    time: "15:50",
-    details: "Schimbare parolă — inițiată de utilizator",
-  },
-  {
-    id: "s8",
-    type: "2fa_enable",
-    user: "ana.m@primaria.ro",
-    ip: "79.112.33.42",
-    time: "15:30",
-    details: "2FA activat — authenticator app",
-  },
-  {
-    id: "s9",
-    type: "ip_block",
-    user: "—",
-    ip: "203.0.113.42",
-    time: "15:15",
-    details: "IP blocat automat — 10 încercări eșuate în 5 min",
-  },
-  {
-    id: "s10",
-    type: "login_fail",
-    user: "unknown@test.com",
-    ip: "203.0.113.42",
-    time: "15:14",
-    details: "Cont inexistent — tentativă de acces",
-  },
+const securityEvents = [
+  { id: "1", type: "login_fail", user: "admin@primariata.work", ip: "89.123.*.*", time: "Acum 2 min", details: "Parolă incorectă" },
+  { id: "2", type: "login_success", user: "o.mihai@primariata.work", ip: "86.12.*.*", time: "Acum 15 min", details: "MFA Validat" },
+  { id: "3", type: "permission_denied", user: "j.doe@example.com", ip: "92.14.*.*", time: "Acum 1h 20m", details: "Acces /admin blocat" },
+  { id: "4", type: "rule_change", user: "system", ip: "localhost", time: "Acum 3h", details: "Actualizare RLS Policy" },
+  { id: "5", type: "brute_force", user: "necunoscut", ip: "194.2.*.*", time: "Acum 5h", details: "15 failed logins / 5min" },
+  { id: "6", type: "timeout", user: "a.popa@primariata.work", ip: "82.76.*.*", time: "Ieri", details: "Inactivitate >30m" },
 ];
 
-// ─── SecurityEventsLog ────────────────────────────────────────────────────────
-
-export function SecurityEventsLog(): React.JSX.Element {
-  const failCount = securityEvents.filter((e) => e.type === "login_fail").length;
-  const blockedCount = securityEvents.filter((e) => e.type === "ip_block").length;
-
+export function SecurityEventsLog() {
   return (
-    <div className="space-y-5">
-      {/* KPI row */}
-      <div className="grid grid-cols-4 gap-3">
-        {[
-          { label: "Login-uri Eșuate (24h)", value: failCount, color: "#ef4444", Icon: UserX },
-          { label: "IP-uri Blocate", value: blockedCount, color: "#f59e0b", Icon: WifiOff },
-          { label: "Sesiuni Active", value: 24, color: "#3b82f6", Icon: Shield },
-          { label: "2FA Activat", value: "78%", color: "#10b981", Icon: Lock },
-        ].map(({ label, value, color, Icon }, i) => (
-          <motion.div
-            key={label}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.05 * i }}
-            className="flex items-center gap-3 rounded-xl px-4 py-3"
-            style={{
-              background: `${color}06`,
-              border: `1px solid ${color}12`,
-            }}
-          >
-            <div
-              className="flex h-9 w-9 items-center justify-center rounded-xl"
-              style={{ background: `${color}15` }}
-            >
-              <Icon className="h-4 w-4" style={{ color }} />
-            </div>
-            <div>
-              <div className="text-[1.2rem] leading-none font-bold text-white">{value}</div>
-              <div className="text-[0.7rem] text-gray-500">{label}</div>
-            </div>
-          </motion.div>
-        ))}
+    <div className="bg-white/[0.025] hover:bg-white/[0.04] border border-white/[0.05] hover:border-white/10 rounded-2xl p-5 transition-all">
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h3 className="text-base font-semibold">Evenimente Securitate</h3>
+          <p className="text-xs text-muted-foreground mt-1">Ultimele alerte și logări în sistem</p>
+        </div>
+        <div className="relative">
+          <Search className="w-4 h-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
+          <input 
+            type="text" 
+            placeholder="Caută IP sau user..." 
+            className="bg-white/[0.03] border border-white/[0.05] rounded-xl pl-9 pr-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-accent-500 w-[200px]"
+          />
+        </div>
       </div>
 
-      {/* Events table */}
-      <motion.div
-        initial={{ opacity: 0, y: 15 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.15 }}
-        className="overflow-hidden rounded-2xl border border-white/[0.05] bg-white/[0.025]"
-      >
-        <div className="flex items-center justify-between border-b border-white/[0.04] px-5 py-3">
-          <div className="flex items-center gap-2">
-            <ShieldAlert className="h-4 w-4 text-violet-400" />
-            <h3 className="text-[0.95rem] font-semibold text-white">Evenimente Securitate</h3>
-          </div>
-          <span className="text-[0.72rem] text-gray-600">Ultimele 24h</span>
-        </div>
-
-        {/* Table header */}
-        <div
-          className="grid grid-cols-12 gap-2 border-b border-white/[0.04] px-5 py-2.5"
-          style={{
-            fontSize: "0.65rem",
-            color: "#6b7280",
-            fontWeight: 600,
-            textTransform: "uppercase",
-            letterSpacing: "0.05em",
-          }}
-        >
-          <div className="col-span-1">Ora</div>
-          <div className="col-span-2">Tip</div>
-          <div className="col-span-3">Utilizator</div>
-          <div className="col-span-2">IP</div>
-          <div className="col-span-4">Detalii</div>
-        </div>
-
-        {securityEvents.map((evt, i) => {
-          const cfg = secEventConfig[evt.type];
-          const Icon = cfg.icon;
+      <div className="flex flex-col gap-3">
+        {securityEvents.map((evt, idx) => {
+          const config = secEventConfig[evt.type];
+          const Icon = config?.icon || Shield;
+          
           return (
             <motion.div
               key={evt.id}
-              initial={{ opacity: 0, x: -5 }}
+              initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.02 * i }}
-              className="grid grid-cols-12 items-center gap-2 px-5 py-2.5 transition-all hover:bg-white/[0.015]"
-              style={{ borderBottom: "1px solid rgba(255,255,255,0.03)" }}
+              transition={{ delay: idx * 0.1 }}
+              className="flex items-start gap-4 p-3 rounded-lg hover:bg-white/[0.02] border border-transparent hover:border-white/[0.05] transition-colors"
             >
-              <div className="col-span-1">
-                <span className="font-mono text-[0.72rem] text-gray-600">{evt.time}</span>
+              <div className={cn("p-2 rounded-lg mt-0.5", config?.color || "text-gray-400 bg-gray-500/10")}>
+                <Icon className="w-4 h-4" />
               </div>
-              <div className="col-span-2">
-                <span
-                  className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[0.65rem] font-semibold"
-                  style={{ color: cfg.color, background: `${cfg.color}10` }}
-                >
-                  <Icon className="h-3 w-3" /> {cfg.label}
-                </span>
+              
+              <div className="flex-1 min-w-0">
+                <div className="flex justify-between items-start mb-1">
+                  <span className="text-sm font-medium">{config?.label || evt.type}</span>
+                  <span className="text-xs text-muted-foreground whitespace-nowrap">{evt.time}</span>
+                </div>
+                
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                  <span className="text-foreground/80">{evt.user}</span>
+                  <span>IP: {evt.ip}</span>
+                  <span className="text-accent-400">{evt.details}</span>
+                </div>
               </div>
-              <div className="col-span-3 truncate text-[0.78rem] text-gray-300">{evt.user}</div>
-              <div className="col-span-2">
-                <span className="font-mono text-[0.72rem] text-gray-500">{evt.ip}</span>
-              </div>
-              <div className="col-span-4 truncate text-[0.75rem] text-gray-500">{evt.details}</div>
             </motion.div>
           );
         })}
-      </motion.div>
+      </div>
+      
+      <button className="w-full mt-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors border-t border-white/[0.05]">
+        Vezi toate evenimentele (142)
+      </button>
     </div>
   );
 }
 
-// ─── Scheduled Jobs ───────────────────────────────────────────────────────────
-
-type JobStatus = "success" | "running" | "failed" | "scheduled";
-
-interface ScheduledJob {
-  id: string;
-  name: string;
-  schedule: string;
-  lastRun: string;
-  nextRun: string;
-  duration: string;
-  status: JobStatus;
-}
+// ============================================================================
+// Scheduled Jobs Table
+// ============================================================================
 
 // Scheduled jobs: static mock data — real pg_cron integration deferred
-const scheduledJobs: ScheduledJob[] = [
-  {
-    id: "j1",
-    name: "Backup Database",
-    schedule: "Zilnic 03:00",
-    lastRun: "4 Mar, 03:00",
-    nextRun: "5 Mar, 03:00",
-    duration: "3m 42s",
-    status: "success",
-  },
-  {
-    id: "j2",
-    name: "Cleanup Temp Files",
-    schedule: "Zilnic 04:00",
-    lastRun: "4 Mar, 04:00",
-    nextRun: "5 Mar, 04:00",
-    duration: "28s",
-    status: "success",
-  },
-  {
-    id: "j3",
-    name: "Sync Registre Externe",
-    schedule: "La 6 ore",
-    lastRun: "4 Mar, 12:00",
-    nextRun: "4 Mar, 18:00",
-    duration: "1m 15s",
-    status: "running",
-  },
-  {
-    id: "j4",
-    name: "Generare Rapoarte Zilnice",
-    schedule: "Zilnic 06:00",
-    lastRun: "4 Mar, 06:00",
-    nextRun: "5 Mar, 06:00",
-    duration: "2m 08s",
-    status: "success",
-  },
-  {
-    id: "j5",
-    name: "Email Digest Funcționari",
-    schedule: "Zilnic 07:30",
-    lastRun: "4 Mar, 07:30",
-    nextRun: "5 Mar, 07:30",
-    duration: "45s",
-    status: "success",
-  },
-  {
-    id: "j6",
-    name: "Verificare Certificat SSL",
-    schedule: "Zilnic 00:00",
-    lastRun: "4 Mar, 00:00",
-    nextRun: "5 Mar, 00:00",
-    duration: "2s",
-    status: "success",
-  },
-  {
-    id: "j7",
-    name: "Notificări Deadline Cereri",
-    schedule: "La 2 ore",
-    lastRun: "4 Mar, 14:00",
-    nextRun: "4 Mar, 16:00",
-    duration: "12s",
-    status: "failed",
-  },
-  {
-    id: "j8",
-    name: "Index Search Update",
-    schedule: "La 30 min",
-    lastRun: "4 Mar, 15:30",
-    nextRun: "4 Mar, 16:00",
-    duration: "8s",
-    status: "success",
-  },
+const scheduledJobs = [
+  { id: "j1", name: "Sincronizare Ghișeul", schedule: "0 0 * * *", lastRun: "00:00:00", nextRun: "Mâine 00:00", duration: "1.2s", status: "success" },
+  { id: "j2", name: "Curățare tokeni expirați", schedule: "0 * * * *", lastRun: "15:00:00", nextRun: "16:00:00", duration: "0.4s", status: "success" },
+  { id: "j3", name: "Backup Bază Date", schedule: "0 2 * * 0", lastRun: "Duminică", nextRun: "Duminică", duration: "45.2s", status: "success" },
+  { id: "j4", name: "Indexare Documente", schedule: "*/15 * * * *", lastRun: "15:15:00", nextRun: "15:30:00", duration: "2.1s", status: "running" },
+  { id: "j5", name: "Generare Rapoarte Lunare", schedule: "0 1 1 * *", lastRun: "1 Mar", nextRun: "1 Apr", duration: "128s", status: "failed" },
 ];
 
-const jobStatusConfig: Record<JobStatus, { color: string; icon: LucideIcon; label: string }> = {
-  success: { color: "#10b981", icon: CheckCircle2, label: "Succes" },
-  running: { color: "#3b82f6", icon: RotateCcw, label: "Rulează" },
-  failed: { color: "#ef4444", icon: XCircle, label: "Eșuat" },
-  scheduled: { color: "#6b7280", icon: Timer, label: "Programat" },
-};
-
-export function ScheduledJobsTable(): React.JSX.Element {
-  const totalCount = scheduledJobs.length;
-  const successCount = scheduledJobs.filter((j) => j.status === "success").length;
-  const runningCount = scheduledJobs.filter((j) => j.status === "running").length;
-  const failedCount = scheduledJobs.filter((j) => j.status === "failed").length;
-
+export function ScheduledJobsTable() {
   return (
-    <div className="space-y-5">
-      {/* KPIs */}
-      <div className="grid grid-cols-4 gap-3">
-        {[
-          { label: "Total Jobs", value: totalCount, color: "#3b82f6", Icon: Timer },
-          { label: "Succes", value: successCount, color: "#10b981", Icon: CheckCircle2 },
-          { label: "Rulează", value: runningCount, color: "#3b82f6", Icon: RotateCcw },
-          { label: "Eșuate", value: failedCount, color: "#ef4444", Icon: XCircle },
-        ].map(({ label, value, color, Icon }, i) => (
-          <motion.div
-            key={label}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.05 * i }}
-            className="flex items-center gap-3 rounded-xl px-4 py-3"
-            style={{ background: `${color}06`, border: `1px solid ${color}12` }}
-          >
-            <Icon className="h-5 w-5" style={{ color }} />
-            <div>
-              <div className="text-[1.3rem] leading-none font-bold text-white">{value}</div>
-              <div className="text-[0.72rem] text-gray-500">{label}</div>
-            </div>
-          </motion.div>
-        ))}
+    <div className="bg-white/[0.025] hover:bg-white/[0.04] border border-white/[0.05] hover:border-white/10 rounded-2xl p-5 transition-all w-full overflow-hidden">
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h3 className="text-base font-semibold">Scheduled Jobs (pg_cron)</h3>
+          <p className="text-xs text-muted-foreground mt-1">Sarcini automate background</p>
+        </div>
+        <button className="bg-white/[0.05] hover:bg-white/10 text-xs px-3 py-1.5 rounded-lg transition-colors">
+          Rulează Acum
+        </button>
       </div>
 
-      {/* Jobs table */}
-      <motion.div
-        initial={{ opacity: 0, y: 15 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.15 }}
-        className="overflow-hidden rounded-2xl border border-white/[0.05] bg-white/[0.025]"
-      >
-        <div className="flex items-center justify-between border-b border-white/[0.04] px-5 py-3">
-          <div className="flex items-center gap-2">
-            <Timer className="h-4 w-4 text-blue-400" />
-            <h3 className="text-[0.95rem] font-semibold text-white">Jobs Programate</h3>
-          </div>
-        </div>
-
-        {/* Table header */}
-        <div
-          className="grid grid-cols-12 gap-2 border-b border-white/[0.04] px-5 py-2.5"
-          style={{
-            fontSize: "0.65rem",
-            color: "#6b7280",
-            fontWeight: 600,
-            textTransform: "uppercase",
-            letterSpacing: "0.05em",
-          }}
-        >
-          <div className="col-span-3">Nume</div>
-          <div className="col-span-2">Program</div>
-          <div className="col-span-2">Ultima Rulare</div>
-          <div className="col-span-2">Următoarea</div>
-          <div className="col-span-1">Durată</div>
-          <div className="col-span-1">Status</div>
-          <div className="col-span-1 text-right">Acțiuni</div>
-        </div>
-
-        {scheduledJobs.map((job, i) => {
-          const jc = jobStatusConfig[job.status];
-          const StatusIcon = jc.icon;
-          return (
-            <motion.div
-              key={job.id}
-              initial={{ opacity: 0, x: -5 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.03 * i }}
-              className="grid grid-cols-12 items-center gap-2 px-5 py-3 transition-all hover:bg-white/[0.015]"
-              style={{ borderBottom: "1px solid rgba(255,255,255,0.03)" }}
-            >
-              <div className="col-span-3 truncate text-[0.85rem] text-white">{job.name}</div>
-              <div className="col-span-2 text-[0.78rem] text-gray-400">{job.schedule}</div>
-              <div className="col-span-2 text-[0.75rem] text-gray-500">{job.lastRun}</div>
-              <div className="col-span-2 text-[0.75rem] text-gray-500">{job.nextRun}</div>
-              <div className="col-span-1 text-[0.78rem] text-gray-400">{job.duration}</div>
-              <div className="col-span-1">
-                <span
-                  className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[0.65rem] font-semibold"
-                  style={{ color: jc.color, background: `${jc.color}12` }}
-                >
-                  <StatusIcon
-                    className={`h-3 w-3 ${job.status === "running" ? "animate-spin" : ""}`}
-                  />
-                  {jc.label}
-                </span>
-              </div>
-              <div className="col-span-1 flex justify-end gap-1">
-                <button
-                  onClick={() => toast.success(`Job "${job.name}" — rulare manuală inițiată`)}
-                  className="cursor-pointer rounded-lg p-1.5 text-gray-600 transition-all hover:bg-white/5 hover:text-emerald-400"
-                  title="Rulează manual"
-                >
-                  <Play className="h-3.5 w-3.5" />
-                </button>
-                <button
-                  onClick={() => toast(`Log-uri job: ${job.name}`)}
-                  className="cursor-pointer rounded-lg p-1.5 text-gray-600 transition-all hover:bg-white/5 hover:text-white"
-                  title="Vezi log-uri"
-                >
-                  <Eye className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            </motion.div>
-          );
-        })}
-      </motion.div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm text-left">
+          <thead className="text-xs text-muted-foreground bg-white/[0.02] border-y border-white/[0.05]">
+            <tr>
+              <th className="px-4 py-3 font-medium">Nume Job</th>
+              <th className="px-4 py-3 font-medium">Program (Cron)</th>
+              <th className="px-4 py-3 font-medium hidden sm:table-cell">Ultima Rulare</th>
+              <th className="px-4 py-3 font-medium hidden md:table-cell">Următoarea</th>
+              <th className="px-4 py-3 font-medium hidden lg:table-cell">Durată</th>
+              <th className="px-4 py-3 font-medium text-right">Status</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-white/[0.05]">
+            {scheduledJobs.map((job) => (
+              <tr key={job.id} className="hover:bg-white/[0.02] transition-colors">
+                <td className="px-4 py-3 font-medium">{job.name}</td>
+                <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{job.schedule}</td>
+                <td className="px-4 py-3 text-muted-foreground hidden sm:table-cell">{job.lastRun}</td>
+                <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{job.nextRun}</td>
+                <td className="px-4 py-3 font-mono text-xs text-muted-foreground hidden lg:table-cell">{job.duration}</td>
+                <td className="px-4 py-3 text-right">
+                  <span className={cn(
+                    "px-2 py-1 rounded-full text-[10px] font-medium uppercase tracking-wider inline-block",
+                    job.status === "success" && "bg-emerald-500/10 text-emerald-400",
+                    job.status === "running" && "bg-blue-500/10 text-blue-400 animate-pulse",
+                    job.status === "failed" && "bg-red-500/10 text-red-400"
+                  )}>
+                    {job.status}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
 
-// ─── Audit Log ────────────────────────────────────────────────────────────────
-
-type AuditType =
-  | "role"
-  | "cerere"
-  | "doc"
-  | "system"
-  | "user"
-  | "view"
-  | "config"
-  | "security"
-  | "payment";
-
-interface AuditEntry {
-  id: string;
-  time: string;
-  user: string;
-  action: string;
-  type: AuditType;
-  color: string;
-  ip: string;
-  details?: string;
-}
+// ============================================================================
+// Audit Log Table
+// ============================================================================
 
 // Audit log: static mock data — real DB table connection deferred
-const auditLog: AuditEntry[] = [
-  {
-    id: "al1",
-    time: "16:42",
-    user: "Elena D.",
-    action: "A modificat rolul lui George R. → Funcționar",
-    type: "role",
-    color: "#8b5cf6",
-    ip: "86.120.45.23",
-    details: "Rol anterior: Cetățean",
-  },
-  {
-    id: "al2",
-    time: "16:38",
-    user: "Ion P.",
-    action: "A aprobat cererea #1852",
-    type: "cerere",
-    color: "#10b981",
-    ip: "86.120.45.24",
-    details: "Tip: Certificat Fiscal",
-  },
-  {
-    id: "al3",
-    time: "16:20",
-    user: "Maria I.",
-    action: "A încărcat document — Aviz_Mediu.pdf (2.4MB)",
-    type: "doc",
-    color: "#3b82f6",
-    ip: "79.112.33.41",
-  },
-  {
-    id: "al4",
-    time: "15:55",
-    user: "System",
-    action: "Backup automat completat cu succes (24.7GB)",
-    type: "system",
-    color: "#6b7280",
-    ip: "127.0.0.1",
-  },
-  {
-    id: "al5",
-    time: "15:30",
-    user: "Elena D.",
-    action: "A suspendat contul Vasile R. — motiv: inactivitate",
-    type: "user",
-    color: "#ef4444",
-    ip: "86.120.45.23",
-    details: "Cont suspendat pe perioadă nedeterminată",
-  },
-  {
-    id: "al6",
-    time: "14:45",
-    user: "Ana M.",
-    action: "A respins cererea #1848 — documente incomplete",
-    type: "cerere",
-    color: "#f59e0b",
-    ip: "79.112.33.42",
-    details: "Motiv: lipsă copie CI",
-  },
-  {
-    id: "al7",
-    time: "14:20",
-    user: "System",
-    action: "Certificat SSL verificat — valid până la 15 Sep 2026",
-    type: "system",
-    color: "#6b7280",
-    ip: "127.0.0.1",
-  },
-  {
-    id: "al8",
-    time: "13:10",
-    user: "Dan P.",
-    action: "Primar — a vizualizat raport buget Q1 2026",
-    type: "view",
-    color: "#f59e0b",
-    ip: "86.120.45.25",
-  },
-  {
-    id: "al9",
-    time: "12:45",
-    user: "Elena D.",
-    action: "A modificat configurare primărie — program lucru",
-    type: "config",
-    color: "#06b6d4",
-    ip: "86.120.45.23",
-    details: "Program actualizat: L-V 08:00-16:00",
-  },
-  {
-    id: "al10",
-    time: "12:30",
-    user: "System",
-    action: "Plată primită — 1250 RON, Taxă locală, ref. TXN-2026-8452",
-    type: "payment",
-    color: "#10b981",
-    ip: "—",
-  },
-  {
-    id: "al11",
-    time: "11:50",
-    user: "Ion P.",
-    action: "A reasignat cererea #1845 către Maria I.",
-    type: "cerere",
-    color: "#3b82f6",
-    ip: "86.120.45.24",
-  },
-  {
-    id: "al12",
-    time: "11:20",
-    user: "System",
-    action: "Sync registre externe completat — 3 actualizări",
-    type: "system",
-    color: "#6b7280",
-    ip: "127.0.0.1",
-  },
-  {
-    id: "al13",
-    time: "10:40",
-    user: "Ana M.",
-    action: "A generat certificat fiscal pentru contribuabil #4521",
-    type: "doc",
-    color: "#3b82f6",
-    ip: "79.112.33.42",
-  },
-  {
-    id: "al14",
-    time: "10:15",
-    user: "Elena D.",
-    action: "A invitat utilizator nou — george.r@primaria.ro",
-    type: "user",
-    color: "#8b5cf6",
-    ip: "86.120.45.23",
-  },
-  {
-    id: "al15",
-    time: "09:50",
-    user: "System",
-    action: "Alertă: IP 203.0.113.42 blocat — brute force",
-    type: "security",
-    color: "#ef4444",
-    ip: "127.0.0.1",
-  },
-  {
-    id: "al16",
-    time: "09:30",
-    user: "Dan P.",
-    action: "A aprobat buget extindere digitalizare — 15,000 RON",
-    type: "payment",
-    color: "#10b981",
-    ip: "86.120.45.25",
-  },
+const auditLog = [
+  { id: "a1", time: "2026-03-08 14:32:15", user: "o.mihai@primariata.work", action: "UPDATE_CERERE_STATUS", type: "cereri", details: "Status cerere #4892 schimbat în 'Aprobată'", ip: "89.123.*.*" },
+  { id: "a2", time: "2026-03-08 12:15:00", user: "b.abbasi@primariata.work", action: "DELETE_USER", type: "utilizatori", details: "Eliminat cont ion.popescu@...", ip: "82.44.*.*" },
+  { id: "a3", time: "2026-03-08 10:05:22", user: "system", action: "AUTO_ARCHIVE_DOCS", type: "documente", details: "Arhivat 142 documente vechi", ip: "localhost" },
+  { id: "a4", time: "2026-03-07 18:45:10", user: "admin@primariata.work", action: "UPDATE_SETTINGS", type: "configurari", details: "Modificat culoare accent sistem la Indigo", ip: "89.123.*.*" },
+  { id: "a5", time: "2026-03-07 16:30:00", user: "c.dinescu@primariata.work", action: "VIEW_PAYMENT", type: "financiar", details: "Vizualizat plată #99321", ip: "81.18.*.*" },
+  { id: "a6", time: "2026-03-07 14:22:45", user: "system", action: "MIGRATE_DB", type: "securitate", details: "Aplicat migrarea 0015_add_indexes", ip: "localhost" },
+  { id: "a7", time: "2026-03-07 09:15:10", user: "o.mihai@primariata.work", action: "CREATE_USER", type: "utilizatori", details: "Creat cont funcționar maria.v@", ip: "89.123.*.*" },
 ];
 
-const auditTypeLabels: Record<AuditType, string> = {
-  role: "Roluri",
-  cerere: "Cereri",
-  doc: "Documente",
-  system: "Sistem",
-  user: "Utilizatori",
-  view: "Vizualizări",
-  config: "Configurare",
-  security: "Securitate",
-  payment: "Plăți",
+const typeColorConfig: Record<string, string> = {
+  cereri: "bg-blue-500/10 text-blue-400",
+  utilizatori: "bg-emerald-500/10 text-emerald-400",
+  documente: "bg-amber-500/10 text-amber-400",
+  configurari: "bg-indigo-500/10 text-indigo-400",
+  financiar: "bg-emerald-500/10 text-emerald-400",
+  securitate: "bg-red-500/10 text-red-400",
 };
 
-const AUDIT_PER_PAGE = 10;
-
-export function AuditLogTable(): React.JSX.Element {
-  const [auditFilter, setAuditFilter] = useState<AuditType | "all">("all");
-  const [auditSearch, setAuditSearch] = useState("");
-  const [auditPage, setAuditPage] = useState(1);
-
-  const filteredAudit = useMemo(() => {
-    let result = [...auditLog];
-    if (auditFilter !== "all") result = result.filter((a) => a.type === auditFilter);
-    if (auditSearch) {
-      const q = auditSearch.toLowerCase();
-      result = result.filter(
-        (a) => a.action.toLowerCase().includes(q) || a.user.toLowerCase().includes(q)
-      );
-    }
-    return result;
-  }, [auditFilter, auditSearch]);
-
-  const auditTotalPages = Math.ceil(filteredAudit.length / AUDIT_PER_PAGE);
-  const paginatedAudit = filteredAudit.slice(
-    (auditPage - 1) * AUDIT_PER_PAGE,
-    auditPage * AUDIT_PER_PAGE
-  );
-
-  function handleFilterChange(filter: AuditType | "all"): void {
-    setAuditFilter(filter);
-    setAuditPage(1);
-  }
-
-  function handleSearchChange(value: string): void {
-    setAuditSearch(value);
-    setAuditPage(1);
-  }
-
+export function AuditLogTable() {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 15 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="overflow-hidden rounded-2xl border border-white/[0.05] bg-white/[0.025]"
-    >
-      {/* Header with search + filter */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.04] px-5 py-4">
-        <div className="flex items-center gap-2">
-          <Shield className="h-4 w-4 text-violet-400" />
-          <h3 className="text-[0.95rem] font-semibold text-white">Audit Log — Acțiuni Recente</h3>
+    <div className="bg-white/[0.025] hover:bg-white/[0.04] border border-white/[0.05] hover:border-white/10 rounded-2xl p-5 transition-all w-full overflow-hidden flex flex-col min-h-[500px]">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <div>
+          <h3 className="text-base font-semibold">Audit Log Global</h3>
+          <p className="text-xs text-muted-foreground mt-1">
+            Jurnal imutabil al tuturor acțiunilor sensibile.
+          </p>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          {/* Search */}
-          <div
-            className="flex items-center gap-2 rounded-lg px-3 py-1.5"
-            style={{
-              background: "rgba(255,255,255,0.04)",
-              border: "1px solid rgba(255,255,255,0.06)",
-            }}
-          >
-            <Search className="h-3.5 w-3.5 text-gray-500" />
-            <input
-              value={auditSearch}
-              onChange={(e) => handleSearchChange(e.target.value)}
-              placeholder="Caută acțiune..."
-              className="w-44 bg-transparent text-white outline-none placeholder:text-gray-600"
-              style={{ fontSize: "0.8rem" }}
+        <div className="flex items-center gap-2">
+          <select className="bg-white/[0.03] border border-white/[0.05] rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-accent-500 text-muted-foreground sm:w-[150px]">
+            <option value="toate">Toate Tipurile</option>
+            <option value="cereri">Cereri</option>
+            <option value="utilizatori">Utilizatori</option>
+            <option value="documente">Documente</option>
+            <option value="securitate">Securitate</option>
+          </select>
+          <div className="relative">
+            <Search className="w-4 h-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
+            <input 
+              type="text" 
+              placeholder="Caută în log..." 
+              className="bg-white/[0.03] border border-white/[0.05] rounded-xl pl-9 pr-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-accent-500 w-full sm:w-[200px]"
             />
           </div>
-          {/* Type filters */}
-          <div
-            className="flex flex-wrap gap-0.5 rounded-lg p-0.5"
-            style={{ background: "rgba(255,255,255,0.04)" }}
-          >
-            <button
-              onClick={() => handleFilterChange("all")}
-              className={`cursor-pointer rounded-md px-2 py-1 text-[0.68rem] transition-all ${auditFilter === "all" ? "bg-violet-500/15 text-white" : "text-gray-600 hover:text-gray-300"}`}
-            >
-              Toate
-            </button>
-            {(Object.keys(auditTypeLabels) as AuditType[]).map((t) => (
-              <button
-                key={t}
-                onClick={() => handleFilterChange(t)}
-                className={`cursor-pointer rounded-md px-2 py-1 text-[0.68rem] transition-all ${auditFilter === t ? "bg-violet-500/15 text-white" : "text-gray-600 hover:text-gray-300"}`}
-              >
-                {auditTypeLabels[t]}
-              </button>
+        </div>
+      </div>
+
+      <div className="overflow-x-auto flex-1">
+        <table className="w-full text-sm text-left whitespace-nowrap">
+          <thead className="text-xs text-muted-foreground bg-white/[0.02] border-y border-white/[0.05]">
+            <tr>
+              <th className="px-4 py-3 font-medium">Dată / Oră</th>
+              <th className="px-4 py-3 font-medium">Utilizator</th>
+              <th className="px-4 py-3 font-medium">Tip</th>
+              <th className="px-4 py-3 font-medium">Acțiune / Detalii</th>
+              <th className="px-4 py-3 font-medium text-right hidden sm:table-cell">IP Adresă</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-white/[0.05]">
+            {auditLog.map((log) => (
+              <tr key={log.id} className="hover:bg-white/[0.02] transition-colors">
+                <td className="px-4 py-3 text-muted-foreground text-xs">{log.time}</td>
+                <td className="px-4 py-3 font-medium text-xs">{log.user}</td>
+                <td className="px-4 py-3">
+                  <span className={cn(
+                    "px-2 py-0.5 rounded-full text-[10px] uppercase font-semibold tracking-wider",
+                    typeColorConfig[log.type] || "bg-gray-500/10 text-gray-400"
+                  )}>
+                    {log.type}
+                  </span>
+                </td>
+                <td className="px-4 py-3 max-w-[300px] truncate">
+                  <span className="font-mono text-xs opacity-70 block mb-0.5">{log.action}</span>
+                  <span className="text-muted-foreground">{log.details}</span>
+                </td>
+                <td className="px-4 py-3 font-mono text-xs text-muted-foreground text-right hidden sm:table-cell">{log.ip}</td>
+              </tr>
             ))}
-          </div>
-        </div>
+          </tbody>
+        </table>
       </div>
 
-      {/* Table header */}
-      <div
-        className="grid grid-cols-12 gap-2 border-b border-white/[0.04] px-5 py-2.5"
-        style={{
-          fontSize: "0.65rem",
-          color: "#6b7280",
-          fontWeight: 600,
-          textTransform: "uppercase",
-          letterSpacing: "0.05em",
-        }}
-      >
-        <div className="col-span-1">Ora</div>
-        <div className="col-span-2">Utilizator</div>
-        <div className="col-span-5">Acțiune</div>
-        <div className="col-span-1">Tip</div>
-        <div className="col-span-2">IP</div>
-        <div className="col-span-1">Detalii</div>
-      </div>
-
-      {/* Rows */}
-      <AnimatePresence mode="popLayout">
-        {paginatedAudit.map((entry, i) => (
-          <motion.div
-            key={entry.id}
-            layout
-            initial={{ opacity: 0, x: -5 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0 }}
-            transition={{ delay: 0.02 * i }}
-            className="grid grid-cols-12 items-center gap-2 px-5 py-2.5 transition-all hover:bg-white/[0.02]"
-            style={{ borderBottom: "1px solid rgba(255,255,255,0.03)" }}
-          >
-            <div className="col-span-1">
-              <span className="font-mono text-[0.75rem] text-gray-600">{entry.time}</span>
-            </div>
-            <div className="col-span-2">
-              <div className="flex items-center gap-1.5">
-                <div className="h-1.5 w-1.5 rounded-full" style={{ background: entry.color }} />
-                <span className="text-[0.82rem] font-medium text-gray-300">{entry.user}</span>
-              </div>
-            </div>
-            <div className="col-span-5 truncate text-[0.82rem] text-gray-500">{entry.action}</div>
-            <div className="col-span-1">
-              <span
-                className="rounded px-1.5 py-0.5 text-[0.62rem] text-gray-400"
-                style={{ background: "rgba(255,255,255,0.04)" }}
-              >
-                {entry.type}
-              </span>
-            </div>
-            <div className="col-span-2">
-              <span className="font-mono text-[0.68rem] text-gray-600">{entry.ip}</span>
-            </div>
-            <div className="col-span-1">
-              {entry.details ? (
-                <button
-                  onClick={() =>
-                    toast(entry.details!, { description: `${entry.user} · ${entry.time}` })
-                  }
-                  className="cursor-pointer rounded-lg p-1 text-gray-600 transition-all hover:bg-white/5 hover:text-white"
-                >
-                  <Eye className="h-3.5 w-3.5" />
-                </button>
-              ) : (
-                <span className="text-[0.68rem] text-gray-800">—</span>
-              )}
-            </div>
-          </motion.div>
-        ))}
-      </AnimatePresence>
-
-      {filteredAudit.length === 0 && (
-        <div className="flex items-center justify-center py-10 text-[0.85rem] text-gray-600">
-          Nicio înregistrare găsită
-        </div>
-      )}
-
-      {/* Pagination */}
-      <div className="flex items-center justify-between border-t border-white/[0.04] px-5 py-3">
-        <span className="text-[0.78rem] text-gray-600">
-          {filteredAudit.length > 0
-            ? `${(auditPage - 1) * AUDIT_PER_PAGE + 1}–${Math.min(auditPage * AUDIT_PER_PAGE, filteredAudit.length)} din ${filteredAudit.length}`
-            : "0 rezultate"}
-        </span>
-        <div className="flex items-center gap-1">
-          <button
-            disabled={auditPage <= 1}
-            onClick={() => setAuditPage(auditPage - 1)}
-            className="cursor-pointer rounded-lg p-1.5 text-gray-500 transition-all hover:bg-white/5 hover:text-white disabled:opacity-30"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </button>
-          {Array.from({ length: auditTotalPages }, (_, i) => i + 1).map((p) => (
-            <button
-              key={p}
-              onClick={() => setAuditPage(p)}
-              className={`h-7 w-7 cursor-pointer rounded-lg text-[0.78rem] transition-all ${
-                p === auditPage
-                  ? "bg-violet-500/20 text-white"
-                  : "text-gray-600 hover:bg-white/5 hover:text-white"
-              }`}
-            >
-              {p}
-            </button>
-          ))}
-          <button
-            disabled={auditPage >= auditTotalPages}
-            onClick={() => setAuditPage(auditPage + 1)}
-            className="cursor-pointer rounded-lg p-1.5 text-gray-500 transition-all hover:bg-white/5 hover:text-white disabled:opacity-30"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
+      <div className="flex justify-between items-center mt-4 pt-4 border-t border-white/[0.05] text-xs text-muted-foreground">
+        <span>Afișare 1-7 din 1,245 rezultate</span>
+        <div className="flex gap-1">
+          <button className="px-3 py-1.5 rounded-lg border border-white/[0.05] hover:bg-white/[0.05] disabled:opacity-50" disabled>Anterior</button>
+          <button className="px-3 py-1.5 rounded-lg border border-white/[0.05] hover:bg-white/[0.05]">Următor</button>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
