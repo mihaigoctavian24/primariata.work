@@ -3,28 +3,27 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { DocumenteContent } from "@/components/admin/documente/documente-content";
 import { DocumenteSkeleton } from "@/components/admin/documente/documente-skeleton";
-import type { StorageFile } from "@/components/admin/documente/types";
 
 /**
- * Documente Admin Page
- *
- * Server Component — lists files from the cereri-documente Storage bucket
- * under the ${primarieId}/admin/ prefix.
+ * DocumentePage — Server Component (auth check only).
  *
  * Protected route — requires authentication and admin/super_admin role.
+ *
+ * All Supabase Storage operations are performed client-side inside
+ * DocumenteContent, so this page only needs to extract primarieId.
  */
 export default async function DocumentePage(): Promise<React.JSX.Element> {
   // === AUTH CHECK ===
-  const authClient = await createClient();
+  const supabase = await createClient();
   const {
     data: { user },
-  } = await authClient.auth.getUser();
+  } = await supabase.auth.getUser();
 
   if (!user) {
     redirect("/auth/login");
   }
 
-  const { data: userData } = await authClient
+  const { data: userData } = await supabase
     .from("utilizatori")
     .select("rol, primarie_id")
     .eq("id", user.id)
@@ -39,26 +38,10 @@ export default async function DocumentePage(): Promise<React.JSX.Element> {
     redirect("/auth/login");
   }
 
-  // === STORAGE LISTING ===
-  const { data: files, error: storageError } = await authClient.storage
-    .from("cereri-documente")
-    .list(`${primarieId}/admin/`, {
-      limit: 100,
-      sortBy: { column: "updated_at", order: "desc" },
-    });
-
-  if (storageError) {
-    // Non-fatal: render with empty state
-    console.error("Storage list error:", storageError);
-  }
-
-  const safeFiles = (files ?? []) as unknown as StorageFile[];
-  const totalBytes = safeFiles.reduce((sum, f) => sum + (f.metadata?.size ?? 0), 0);
-
   // === RENDER ===
   return (
     <Suspense fallback={<DocumenteSkeleton />}>
-      <DocumenteContent files={safeFiles} primarieId={primarieId} totalBytes={totalBytes} />
+      <DocumenteContent primarieId={primarieId} />
     </Suspense>
   );
 }

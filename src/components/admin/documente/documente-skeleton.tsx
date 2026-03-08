@@ -1,13 +1,15 @@
 import React from "react";
 
 /**
- * DocumenteSkeleton — layout-matched skeleton for the Documente admin page.
- * Rendered via Suspense fallback while the server component fetches storage data.
+ * DocumenteSkeleton — animated pulse skeleton for the Documente admin page.
+ *
+ * Layout-matched to DocumenteContent: header, storage bar, toolbar,
+ * breadcrumb, folder cards, file cards.
  */
 export function DocumenteSkeleton(): React.JSX.Element {
   return (
     <div className="animate-pulse space-y-5">
-      {/* Header row */}
+      {/* Header row: title + action buttons */}
       <div className="flex items-center justify-between">
         <div className="space-y-2">
           <div className="h-7 w-44 rounded-xl bg-white/[0.06]" />
@@ -20,46 +22,37 @@ export function DocumenteSkeleton(): React.JSX.Element {
       </div>
 
       {/* Storage usage bar */}
-      <div
-        className="flex items-center gap-4 rounded-xl px-4 py-3"
-        style={{
-          background: "rgba(255,255,255,0.02)",
-          border: "1px solid rgba(255,255,255,0.04)",
-        }}
-      >
+      <div className="flex items-center gap-4 rounded-xl border border-white/[0.04] bg-white/[0.02] px-4 py-3">
         <div className="h-4 w-4 rounded bg-white/[0.06]" />
-        <div className="h-3 flex-1 rounded-full bg-white/[0.06]" />
+        <div className="h-2.5 flex-1 rounded-full bg-white/[0.06]" />
         <div className="h-3 w-28 rounded-lg bg-white/[0.04]" />
       </div>
 
-      {/* Toolbar row */}
+      {/* Toolbar: search + view toggle */}
       <div className="flex items-center gap-3">
         <div className="h-9 flex-1 rounded-xl bg-white/[0.04]" />
         <div className="h-9 w-20 rounded-lg bg-white/[0.04]" />
       </div>
 
-      {/* Breadcrumb */}
+      {/* Breadcrumb row */}
       <div className="h-4 w-32 rounded-lg bg-white/[0.04]" />
 
-      {/* Upload zone skeleton */}
-      <div
-        className="h-24 w-full rounded-2xl"
-        style={{
-          background: "rgba(255,255,255,0.015)",
-          border: "2px dashed rgba(255,255,255,0.06)",
-        }}
-      />
-
-      {/* File grid — 9 cards */}
+      {/* Folder section label + 3 folder cards */}
       <div>
-        <div className="mb-3 h-3.5 w-16 rounded-lg bg-white/[0.04]" />
+        <div className="mb-2 h-3 w-16 rounded-lg bg-white/[0.04]" />
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="h-14 rounded-xl bg-white/[0.04]" />
+          ))}
+        </div>
+      </div>
+
+      {/* File section label + 6 file cards in grid */}
+      <div>
+        <div className="mb-2 h-3 w-12 rounded-lg bg-white/[0.04]" />
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
-          {Array.from({ length: 9 }).map((_, i) => (
-            <div
-              key={i}
-              className="h-32 rounded-2xl"
-              style={{ background: "rgba(255,255,255,0.025)" }}
-            />
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="h-32 rounded-2xl bg-white/[0.04]" />
           ))}
         </div>
       </div>

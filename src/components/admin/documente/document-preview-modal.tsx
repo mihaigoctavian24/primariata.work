@@ -1,15 +1,15 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Download, FileText, File } from "lucide-react";
+import { X, Download, FileText, File, FileImage, FileSpreadsheet } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { StorageFile } from "@/components/admin/documente/types";
 
 interface DocumentPreviewModalProps {
   file: StorageFile | null;
   primarieId: string;
-  open: boolean;
+  currentFolder: string | null;
   onClose: () => void;
 }
 
@@ -30,58 +30,68 @@ function formatDate(dateStr: string | null): string {
   });
 }
 
+function getPreviewIcon(mimetype: string | undefined): React.JSX.Element {
+  if (!mimetype) return <File className="h-5 w-5 text-violet-400" />;
+  if (mimetype.startsWith("image/")) return <FileImage className="h-5 w-5 text-amber-400" />;
+  if (mimetype === "application/pdf") return <FileText className="h-5 w-5 text-red-400" />;
+  if (mimetype.includes("spreadsheet") || mimetype.includes("excel"))
+    return <FileSpreadsheet className="h-5 w-5 text-emerald-400" />;
+  if (mimetype.includes("word") || mimetype.includes("document"))
+    return <File className="h-5 w-5 text-blue-400" />;
+  return <File className="h-5 w-5 text-violet-400" />;
+}
+
 /**
- * DocumentPreviewModal — modal with signed URL preview for Storage files.
+ * DocumentPreviewModal — modal with signed URL preview for Supabase Storage files.
  *
- * Generates a 1-hour signed URL on open. Supports image inline preview,
- * PDF iframe, and download link for all other types.
+ * Generates a 1-hour signed URL on mount (when file is set).
+ * Supports image inline preview, PDF iframe, and download for other types.
+ *
+ * Uses AnimatePresence for smooth enter/exit animations.
  */
 export function DocumentPreviewModal({
   file,
   primarieId,
-  open,
+  currentFolder,
   onClose,
 }: DocumentPreviewModalProps): React.JSX.Element {
   const [signedUrl, setSignedUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const generateSignedUrl = useCallback(async (): Promise<void> => {
-    if (!file) return;
+  useEffect(() => {
+    if (!file) {
+      setSignedUrl(null);
+      return;
+    }
+
     setLoading(true);
     setSignedUrl(null);
 
     const supabase = createClient();
-    const path = `${primarieId}/admin/${file.name}`;
-    const { data, error } = await supabase.storage
-      .from("cereri-documente")
-      .createSignedUrl(path, 3600);
+    const path = `${primarieId}/${currentFolder ? currentFolder + "/" : ""}${file.name}`;
 
-    if (error || !data?.signedUrl) {
-      console.error("Failed to generate signed URL:", error);
-    } else {
-      setSignedUrl(data.signedUrl);
-    }
-    setLoading(false);
-  }, [file, primarieId]);
-
-  useEffect(() => {
-    if (open && file) {
-      void generateSignedUrl();
-    } else {
-      setSignedUrl(null);
-    }
-  }, [open, file, generateSignedUrl]);
+    supabase.storage
+      .from("documents")
+      .createSignedUrl(path, 3600)
+      .then(({ data }) => {
+        setSignedUrl(data?.signedUrl ?? null);
+        setLoading(false);
+      })
+      .catch(() => {
+        setLoading(false);
+      });
+  }, [file, primarieId, currentFolder]);
 
   // ESC key handler
   useEffect(() => {
     const handler = (e: KeyboardEvent): void => {
       if (e.key === "Escape") onClose();
     };
-    if (open) {
+    if (file) {
       document.addEventListener("keydown", handler);
     }
     return () => document.removeEventListener("keydown", handler);
-  }, [open, onClose]);
+  }, [file, onClose]);
 
   const mimetype = file?.metadata?.mimetype ?? "";
   const isImage = mimetype.startsWith("image/");
@@ -89,14 +99,14 @@ export function DocumentPreviewModal({
 
   return (
     <AnimatePresence>
-      {open && file && (
+      {file && (
         <motion.div
           key="overlay"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ background: "rgba(0,0,0,0.75)" }}
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 backdrop-blur-sm"
+          style={{ background: "rgba(0,0,0,0.6)" }}
           onClick={onClose}
         >
           <motion.div
@@ -105,14 +115,13 @@ export function DocumentPreviewModal({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 12 }}
             transition={{ type: "spring", damping: 24, stiffness: 320 }}
-            className="relative w-full max-w-3xl rounded-2xl p-6"
-            style={{ background: "var(--surface-raised, #1a1a2e)" }}
+            className="border-border bg-card relative w-full max-w-2xl rounded-2xl border p-6"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close button */}
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 cursor-pointer rounded-xl p-2 transition-all"
+              className="absolute top-4 right-4 cursor-pointer rounded-xl p-2 transition-all hover:bg-white/[0.08]"
               style={{ background: "rgba(255,255,255,0.06)" }}
             >
               <X className="h-4 w-4 text-gray-400" />
@@ -124,11 +133,7 @@ export function DocumentPreviewModal({
                 className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
                 style={{ background: "rgba(255,255,255,0.06)" }}
               >
-                {isPdf ? (
-                  <FileText className="h-5 w-5 text-[var(--accent-500,#8b5cf6)]" />
-                ) : (
-                  <File className="h-5 w-5 text-[var(--accent-500,#8b5cf6)]" />
-                )}
+                {getPreviewIcon(mimetype)}
               </div>
               <div className="min-w-0">
                 <h2 className="truncate font-semibold text-white" style={{ fontSize: "0.95rem" }}>
@@ -143,9 +148,8 @@ export function DocumentPreviewModal({
 
             {/* Preview area */}
             <div
-              className="mb-5 flex items-center justify-center overflow-hidden rounded-xl"
+              className="mb-5 flex min-h-[300px] items-center justify-center overflow-hidden rounded-xl"
               style={{
-                minHeight: 300,
                 background: "rgba(0,0,0,0.3)",
                 border: "1px solid rgba(255,255,255,0.06)",
               }}
@@ -155,7 +159,11 @@ export function DocumentPreviewModal({
                   <motion.div
                     animate={{ rotate: 360 }}
                     transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-                    className="h-8 w-8 rounded-full border-2 border-[var(--accent-500,#8b5cf6)] border-t-transparent"
+                    className="h-8 w-8 rounded-full border-2 border-t-transparent"
+                    style={{
+                      borderColor: "var(--accent-500, #8b5cf6)",
+                      borderTopColor: "transparent",
+                    }}
                   />
                   <p style={{ fontSize: "0.82rem" }}>Se generează previzualizarea...</p>
                 </div>
@@ -166,24 +174,19 @@ export function DocumentPreviewModal({
                 <img
                   src={signedUrl}
                   alt={file.name}
-                  className="max-h-[500px] max-w-full rounded-lg object-contain"
+                  className="max-h-96 max-w-full rounded-lg object-contain"
                 />
               )}
 
               {!loading && signedUrl && isPdf && (
-                <iframe
-                  src={signedUrl}
-                  title={file.name}
-                  className="w-full rounded-lg"
-                  style={{ height: 500 }}
-                />
+                <iframe src={signedUrl} title={file.name} className="h-[500px] w-full rounded-lg" />
               )}
 
               {!loading && signedUrl && !isImage && !isPdf && (
                 <div className="flex flex-col items-center gap-4 py-12">
                   <FileText className="h-12 w-12 text-gray-600" />
                   <p className="text-sm text-gray-500">
-                    Previzualizare indisponibilă pentru acest tip de fișier.
+                    Previzualizare nedisponibilă pentru acest format.
                   </p>
                   <a
                     href={signedUrl}
@@ -192,9 +195,10 @@ export function DocumentPreviewModal({
                     download={file.name}
                     className="flex cursor-pointer items-center gap-2 rounded-xl px-4 py-2 text-sm text-white transition-all"
                     style={{ background: "var(--accent-500, #8b5cf6)" }}
+                    onClick={(e) => e.stopPropagation()}
                   >
                     <Download className="h-4 w-4" />
-                    Descarcă fișierul
+                    Deschide în tab nou
                   </a>
                 </div>
               )}
@@ -207,14 +211,21 @@ export function DocumentPreviewModal({
               )}
             </div>
 
-            {/* Download action */}
-            {signedUrl && (
-              <div className="flex justify-end">
+            {/* Footer: metadata + download */}
+            <div className="flex items-center justify-between">
+              <div className="text-gray-600" style={{ fontSize: "0.75rem" }}>
+                <span>Modificat: {formatDate(file.updated_at)}</span>
+                {file.metadata?.size && (
+                  <span className="ml-3">Mărime: {formatBytes(file.metadata.size)}</span>
+                )}
+              </div>
+              {signedUrl && (
                 <a
                   href={signedUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   download={file.name}
+                  onClick={(e) => e.stopPropagation()}
                   className="flex cursor-pointer items-center gap-2 rounded-xl px-4 py-2 text-sm transition-all"
                   style={{
                     background: "rgba(255,255,255,0.04)",
@@ -225,8 +236,8 @@ export function DocumentPreviewModal({
                   <Download className="h-4 w-4" />
                   Descarcă
                 </a>
-              </div>
-            )}
+              )}
+            </div>
           </motion.div>
         </motion.div>
       )}

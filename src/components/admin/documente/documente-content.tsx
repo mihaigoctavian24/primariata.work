@@ -1,20 +1,33 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { FolderOpen, Grid2X2, List, Search, HardDrive, ChevronRight } from "lucide-react";
+import {
+  FolderOpen,
+  Grid2X2,
+  List,
+  Search,
+  HardDrive,
+  ChevronRight,
+  FolderPlus,
+  Upload,
+} from "lucide-react";
+import { toast } from "sonner";
+import { createClient } from "@/lib/supabase/client";
 import type { StorageFile } from "@/components/admin/documente/types";
 import { DocumentGrid } from "@/components/admin/documente/document-grid";
 import { DocumentUploadZone } from "@/components/admin/documente/document-upload-zone";
 import { DocumentPreviewModal } from "@/components/admin/documente/document-preview-modal";
 
-const MAX_BYTES = 5 * 1024 * 1024 * 1024; // 5 GB estimate
+// ============================================================================
+// Constants
+// ============================================================================
 
-interface DocumenteContentProps {
-  files: StorageFile[];
-  primarieId: string;
-  totalBytes: number;
-}
+const MAX_BYTES = 100 * 1024 * 1024; // 100 MB quota (Figma spec)
+
+// ============================================================================
+// Helpers
+// ============================================================================
 
 function formatBytes(bytes: number): string {
   if (bytes === 0) return "0 B";
@@ -25,49 +38,115 @@ function formatBytes(bytes: number): string {
 }
 
 /**
- * DocumenteContent — root Client Component for the Documente admin page.
- *
- * Manages: folder navigation state, view toggle, search, upload zone,
- * file grid, and preview modal.
+ * A StorageFile item from supabase.storage.list() is considered a "folder"
+ * when its metadata is null (Supabase represents folders as virtual prefixes
+ * with no metadata). Items that look like folders have id === null too.
  */
-export function DocumenteContent({
-  files: initialFiles,
-  primarieId,
-  totalBytes: initialTotalBytes,
-}: DocumenteContentProps): React.JSX.Element {
+function isFolder(file: StorageFile): boolean {
+  return file.metadata === null && !file.name.includes(".");
+}
+
+// ============================================================================
+// Component
+// ============================================================================
+
+interface DocumenteContentProps {
+  primarieId: string;
+}
+
+/**
+ * DocumenteContent — Client Component coordinator for the Documente admin page.
+ *
+ * Manages: folder navigation state, view toggle, search, upload trigger,
+ * file listing from Supabase Storage, file delete, and preview modal.
+ *
+ * All Storage operations use the client-side supabase client.
+ * Storage bucket: "documents", path prefix: `${primarieId}/`.
+ */
+export function DocumenteContent({ primarieId }: DocumenteContentProps): React.JSX.Element {
+  const [files, setFiles] = useState<StorageFile[]>([]);
+  const [loading, setLoading] = useState(true);
   const [view, setView] = useState<"grid" | "list">("grid");
   const [search, setSearch] = useState("");
-  const [currentFolder, setCurrentFolder] = useState("");
-  const [filesState, setFilesState] = useState<StorageFile[]>(initialFiles);
-  const [totalBytes, setTotalBytes] = useState(initialTotalBytes);
+  const [currentFolder, setCurrentFolder] = useState<string | null>(null);
   const [previewFile, setPreviewFile] = useState<StorageFile | null>(null);
-  const [previewOpen, setPreviewOpen] = useState(false);
 
-  const handleUploadComplete = (newFile: StorageFile): void => {
-    setFilesState((prev) => [newFile, ...prev]);
-    setTotalBytes((prev) => prev + (newFile.metadata?.size ?? 0));
+  // Ref passed to DocumentUploadZone so "Încarcă" button can trigger it
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // ---- Storage fetch -------------------------------------------------------
+
+  const fetchFiles = (): void => {
+    setLoading(true);
+    const supabase = createClient();
+    const path = currentFolder ? `${primarieId}/${currentFolder}` : primarieId;
+
+    supabase.storage
+      .from("documents")
+      .list(path, { limit: 100, sortBy: { column: "name", order: "asc" } })
+      .then(({ data }) => {
+        setFiles((data ?? []) as unknown as StorageFile[]);
+        setLoading(false);
+      })
+      .catch(() => {
+        setLoading(false);
+      });
   };
 
-  const handleFileClick = (file: StorageFile): void => {
-    setPreviewFile(file);
-    setPreviewOpen(true);
-  };
+  useEffect(() => {
+    fetchFiles();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [primarieId, currentFolder]);
 
-  const handleClosePreview = (): void => {
-    setPreviewOpen(false);
-    // Delay clearing file so exit animation plays
-    setTimeout(() => setPreviewFile(null), 300);
-  };
+  // ---- Derived state -------------------------------------------------------
 
-  // Filter by search
+  const folders = files.filter(isFolder);
+  const nonFolderFiles = files.filter((f) => !isFolder(f));
+
   const filteredFiles = search
-    ? filesState.filter((f) => f.name.toLowerCase().includes(search.toLowerCase()))
-    : filesState;
+    ? nonFolderFiles.filter((f) => f.name.toLowerCase().includes(search.toLowerCase()))
+    : nonFolderFiles;
 
-  // Breadcrumb segments
-  const breadcrumbSegments = currentFolder ? currentFolder.split("/").filter(Boolean) : [];
+  const filteredFolders = search
+    ? folders.filter((f) => f.name.toLowerCase().includes(search.toLowerCase()))
+    : folders;
 
+  const totalBytes = nonFolderFiles.reduce((sum, f) => sum + (f.metadata?.size ?? 0), 0);
   const usagePercent = Math.min((totalBytes / MAX_BYTES) * 100, 100);
+
+  // ---- Handlers ------------------------------------------------------------
+
+  const handleDelete = (file: StorageFile): void => {
+    const path = `${primarieId}/${currentFolder ? currentFolder + "/" : ""}${file.name}`;
+    const supabase = createClient();
+
+    supabase.storage
+      .from("documents")
+      .remove([path])
+      .then(({ error }) => {
+        if (error) {
+          toast.error(`Eroare la ștergere: ${error.message}`);
+        } else {
+          setFiles((prev) => prev.filter((f) => f.name !== file.name));
+          toast.success("Fișier șters");
+        }
+      })
+      .catch(() => {
+        toast.error("Eroare la ștergere");
+      });
+  };
+
+  const handleFolderClick = (name: string): void => {
+    setCurrentFolder(name);
+    setSearch("");
+  };
+
+  const handleBreadcrumbRoot = (): void => {
+    setCurrentFolder(null);
+    setSearch("");
+  };
+
+  // ---- Render --------------------------------------------------------------
 
   return (
     <div className="space-y-5">
@@ -82,7 +161,7 @@ export function DocumenteContent({
             className="flex items-center gap-2.5 text-white"
             style={{ fontSize: "1.6rem", fontWeight: 700 }}
           >
-            <FolderOpen className="h-6 w-6 text-[var(--accent-500,#8b5cf6)]" />
+            <FolderOpen className="h-6 w-6 text-violet-400" />
             Documente
           </h1>
           <p className="mt-1 text-gray-600" style={{ fontSize: "0.83rem" }}>
@@ -90,36 +169,58 @@ export function DocumenteContent({
           </p>
         </div>
 
-        {/* View toggle + search */}
+        {/* Action buttons */}
         <div className="flex items-center gap-2">
-          {/* Grid/List toggle */}
-          <div
-            className="flex gap-1 rounded-lg p-0.5"
-            style={{ background: "rgba(255,255,255,0.04)" }}
+          <motion.button
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            onClick={() => toast.info("Funcționalitate în curând")}
+            className="flex cursor-pointer items-center gap-2 rounded-xl px-3 py-2 text-gray-300 transition-all hover:text-white"
+            style={{
+              background: "rgba(255,255,255,0.04)",
+              border: "1px solid rgba(255,255,255,0.06)",
+              fontSize: "0.82rem",
+            }}
           >
-            <button
-              onClick={() => setView("grid")}
-              className="cursor-pointer rounded-md p-2 transition-all"
-              style={{
-                background: view === "grid" ? "rgba(255,255,255,0.1)" : "transparent",
-                color: view === "grid" ? "white" : "#6b7280",
-              }}
-            >
-              <Grid2X2 className="h-4 w-4" />
-            </button>
-            <button
-              onClick={() => setView("list")}
-              className="cursor-pointer rounded-md p-2 transition-all"
-              style={{
-                background: view === "list" ? "rgba(255,255,255,0.1)" : "transparent",
-                color: view === "list" ? "white" : "#6b7280",
-              }}
-            >
-              <List className="h-4 w-4" />
-            </button>
-          </div>
+            <FolderPlus className="h-4 w-4" />
+            Folder Nou
+          </motion.button>
+
+          <motion.button
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            onClick={() => fileInputRef.current?.click()}
+            className="flex cursor-pointer items-center gap-2 rounded-xl px-4 py-2 text-white transition-all"
+            style={{
+              background: "linear-gradient(135deg, #8b5cf6, #6366f1)",
+              boxShadow: "0 4px 15px rgba(139,92,246,0.25)",
+              fontSize: "0.82rem",
+            }}
+          >
+            <Upload className="h-4 w-4" />
+            Încarcă
+          </motion.button>
         </div>
       </motion.div>
+
+      {/* Breadcrumb */}
+      {currentFolder && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="flex items-center gap-1.5 text-gray-500"
+          style={{ fontSize: "0.82rem" }}
+        >
+          <button
+            onClick={handleBreadcrumbRoot}
+            className="cursor-pointer transition-colors hover:text-white"
+          >
+            Documente
+          </button>
+          <ChevronRight className="h-3 w-3" />
+          <span className="text-white">{currentFolder}</span>
+        </motion.div>
+      )}
 
       {/* Storage usage bar */}
       <motion.div
@@ -135,7 +236,7 @@ export function DocumenteContent({
         <HardDrive className="h-4 w-4 shrink-0 text-gray-500" />
         <div className="flex-1">
           <div
-            className="h-2.5 w-full overflow-hidden rounded-full"
+            className="h-1.5 w-full overflow-hidden rounded-full"
             style={{ background: "rgba(255,255,255,0.06)" }}
           >
             <motion.div
@@ -143,93 +244,102 @@ export function DocumenteContent({
               animate={{ width: `${usagePercent}%` }}
               transition={{ duration: 1, ease: "easeOut" }}
               className="h-full rounded-full"
-              style={{ background: "var(--accent-500, #8b5cf6)" }}
+              style={{
+                background: "linear-gradient(90deg, #8b5cf6, #ec4899)",
+              }}
             />
           </div>
         </div>
         <span className="shrink-0 text-gray-500" style={{ fontSize: "0.75rem" }}>
-          {formatBytes(totalBytes)} / 5 GB
+          {formatBytes(totalBytes)} / 100 MB
         </span>
       </motion.div>
 
-      {/* Search bar */}
-      <div
-        className="flex items-center gap-2 rounded-xl px-3 py-2"
-        style={{
-          background: "rgba(255,255,255,0.04)",
-          border: "1px solid rgba(255,255,255,0.06)",
-        }}
-      >
-        <Search className="h-4 w-4 shrink-0 text-gray-500" />
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Caută documente..."
-          className="flex-1 bg-transparent text-white outline-none placeholder:text-gray-600"
-          style={{ fontSize: "0.85rem" }}
-        />
-      </div>
-
-      {/* Breadcrumb */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.05 }}
-        className="flex items-center gap-1.5"
-        style={{ fontSize: "0.82rem" }}
-      >
-        <button
-          onClick={() => setCurrentFolder("")}
-          className="transition-colors"
-          style={{ color: currentFolder ? "#6b7280" : "white" }}
-        >
-          Toate documentele
-        </button>
-        {breadcrumbSegments.map((seg, i) => (
-          <span key={i} className="flex items-center gap-1.5">
-            <ChevronRight className="h-3 w-3 text-gray-700" />
-            <span style={{ color: i === breadcrumbSegments.length - 1 ? "white" : "#6b7280" }}>
-              {seg}
-            </span>
-          </span>
-        ))}
-      </motion.div>
-
-      {/* Upload zone */}
-      <DocumentUploadZone
-        primarieId={primarieId}
-        folderPath={currentFolder ? `${currentFolder}/` : ""}
-        onUploadComplete={handleUploadComplete}
-      />
-
-      {/* File grid/list */}
-      <div>
-        <p
-          className="mb-3 text-gray-600"
+      {/* Toolbar: search + view toggle */}
+      <div className="flex items-center gap-3">
+        <div
+          className="flex flex-1 items-center gap-2 rounded-xl px-3 py-2"
           style={{
-            fontSize: "0.72rem",
-            fontWeight: 600,
-            textTransform: "uppercase",
-            letterSpacing: "0.05em",
+            background: "rgba(255,255,255,0.04)",
+            border: "1px solid rgba(255,255,255,0.06)",
           }}
         >
-          Fișiere
-        </p>
-        <DocumentGrid
-          files={filteredFiles}
-          view={view}
-          primarieId={primarieId}
-          folderPath={currentFolder}
-          onFileClick={handleFileClick}
-        />
+          <Search className="h-4 w-4 shrink-0 text-gray-500" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Caută documente..."
+            className="flex-1 bg-transparent text-white outline-none placeholder:text-gray-600"
+            style={{ fontSize: "0.85rem" }}
+          />
+        </div>
+
+        {/* Grid / List toggle */}
+        <div
+          className="flex gap-1 rounded-lg p-0.5"
+          style={{ background: "rgba(255,255,255,0.04)" }}
+        >
+          <button
+            onClick={() => setView("grid")}
+            className={`cursor-pointer rounded-md p-2 transition-all ${
+              view === "grid" ? "bg-white/10 text-white" : "text-gray-500"
+            }`}
+          >
+            <Grid2X2 className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => setView("list")}
+            className={`cursor-pointer rounded-md p-2 transition-all ${
+              view === "list" ? "bg-white/10 text-white" : "text-gray-500"
+            }`}
+          >
+            <List className="h-4 w-4" />
+          </button>
+        </div>
       </div>
+
+      {/* Loading state */}
+      {loading && (
+        <div className="flex items-center justify-center py-16">
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+            className="h-8 w-8 rounded-full border-2 border-t-transparent"
+            style={{
+              borderColor: "var(--accent-500, #8b5cf6)",
+              borderTopColor: "transparent",
+            }}
+          />
+        </div>
+      )}
+
+      {/* Upload zone wrapping the file grid */}
+      {!loading && (
+        <DocumentUploadZone
+          primarieId={primarieId}
+          currentFolder={currentFolder}
+          onUploadComplete={fetchFiles}
+          fileInputRef={fileInputRef}
+        >
+          <DocumentGrid
+            files={filteredFiles}
+            folders={filteredFolders}
+            view={view}
+            currentFolder={currentFolder}
+            primarieId={primarieId}
+            onFolderClick={handleFolderClick}
+            onDelete={handleDelete}
+            onPreview={setPreviewFile}
+          />
+        </DocumentUploadZone>
+      )}
 
       {/* Preview modal */}
       <DocumentPreviewModal
         file={previewFile}
         primarieId={primarieId}
-        open={previewOpen}
-        onClose={handleClosePreview}
+        currentFolder={currentFolder}
+        onClose={() => setPreviewFile(null)}
       />
     </div>
   );
