@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Design Revamp
 status: executing
-stopped_at: Completed 20-03-PLAN.md (Financiar admin page rewrite)
-last_updated: "2026-03-08T10:41:32.618Z"
+stopped_at: Completed 20-04-PLAN.md (Documente admin page rewrite)
+last_updated: "2026-03-08T10:50:30.386Z"
 last_activity: 2026-03-06 -- Completed Phase 16 Plan 01 (accent gradient CSS + hex replacement)
 progress:
   total_phases: 7
   completed_phases: 6
   total_plans: 28
-  completed_plans: 25
+  completed_plans: 26
   percent: 100
 ---
 
@@ -63,6 +63,7 @@ Progress: [██████████] 100%
 | Phase 20 P01 | 9 | 2 tasks | 8 files |
 | Phase 20 P02 | 8 | 2 tasks | 9 files |
 | Phase 20 P03 | 7 | 2 tasks | 7 files |
+| Phase 20 P04 | 8 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -148,6 +149,9 @@ Recent decisions affecting current work:
 - [Phase 20]: aggregateByMonthFull returns colectat+esuat shape for AreaChart (not target)
 - [Phase 20]: txFilter state lifted to FinanciarContent coordinator — KpiCards + TransactionList share it
 - [Phase 20]: colectatGrad20/esuatGrad20 unique SVG gradient IDs to prevent Recharts defs conflicts
+- [Phase 20]: Supabase storage.list() returns FileObject[] — cast via as unknown as StorageFile[] to bridge type mismatch
+- [Phase 20]: DocumentUploadZone is transparent wrapper (no visual chrome); fileInputRef passed from parent for Incarca button trigger
+- [Phase 20]: Documente page.tsx simplified to auth-only Server Component; all Storage ops client-side in DocumenteContent
 
 ### Pending Todos
 
@@ -172,6 +176,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-08T10:41:32.615Z
-Stopped at: Completed 20-03-PLAN.md (Financiar admin page rewrite)
+Last session: 2026-03-08T10:50:30.383Z
+Stopped at: Completed 20-04-PLAN.md (Documente admin page rewrite)
 Resume file: None
