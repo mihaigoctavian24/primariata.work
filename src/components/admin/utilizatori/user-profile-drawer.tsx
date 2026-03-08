@@ -16,6 +16,7 @@ import {
   Building2,
   Shield,
   ChevronDown,
+  AlertTriangle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { RoleColorBadge } from "@/components/admin/shared/role-color-badge";
@@ -169,6 +170,7 @@ export function UserProfileDrawer({
   const [pendingAction, setPendingAction] = useState<string | null>(null);
   const [showRoleSelect, setShowRoleSelect] = useState(false);
   const [selectedRole, setSelectedRole] = useState<string>("");
+  const [pendingRoleChange, setPendingRoleChange] = useState<{ newRol: string; label: string } | null>(null);
 
   const open = user !== null;
 
@@ -194,11 +196,12 @@ export function UserProfileDrawer({
   }
 
   async function handleRoleChange(): Promise<void> {
-    if (!user || !selectedRole) return;
+    if (!user || !pendingRoleChange) return;
     setPendingAction("role");
-    const result = await updateUserRole(user.id, selectedRole, primarieId);
+    const result = await updateUserRole(user.id, pendingRoleChange.newRol, primarieId);
     setPendingAction(null);
     setShowRoleSelect(false);
+    setPendingRoleChange(null);
     if (result.error) {
       toast.error("Eroare la schimbarea rolului", { description: result.error });
     } else {
@@ -375,7 +378,51 @@ export function UserProfileDrawer({
                   )}
 
                   {/* Schimbă rol */}
-                  {!showRoleSelect ? (
+                  {pendingRoleChange !== null ? (
+                    <motion.div
+                      initial={{ opacity: 0, y: -8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="rounded-xl border border-[var(--color-warning)]/30 bg-[var(--color-warning-subtle)] p-4 mb-4"
+                    >
+                      <div className="flex items-start gap-3">
+                        <AlertTriangle className="w-4 h-4 text-[var(--color-warning)] shrink-0 mt-0.5" />
+                        <div className="flex-1">
+                          <p className="text-foreground text-sm font-semibold mb-1">Confirmare schimbare rol</p>
+                          <p className="text-muted-foreground text-xs mb-3">
+                            Vrei să schimbi rolul utilizatorului în <strong className="text-foreground">{pendingRoleChange.label}</strong>?
+                            {user.rol === "admin" && (
+                              <span className="block mt-1 text-[var(--color-error)] text-xs font-medium">
+                                Atenție: Retrogradarea unui admin îi va revoca toate permisiunile administrative.
+                              </span>
+                            )}
+                          </p>
+                          <div className="flex gap-2">
+                            <button
+                              type="button"
+                              disabled={pendingAction === "role"}
+                              onClick={handleRoleChange}
+                              className="px-3 py-1.5 rounded-lg text-xs font-medium text-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[70px]"
+                              style={{ background: "var(--color-warning)" }}
+                            >
+                              {pendingAction === "role" ? (
+                                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                              ) : (
+                                "Confirmă"
+                              )}
+                            </button>
+                            <button
+                              type="button"
+                              disabled={pendingAction === "role"}
+                              onClick={() => setPendingRoleChange(null)}
+                              className="px-3 py-1.5 rounded-lg text-xs font-medium border border-border text-muted-foreground hover:text-foreground cursor-pointer transition-colors disabled:opacity-50"
+                            >
+                              Anulează
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ) : !showRoleSelect ? (
                     <button
                       type="button"
                       onClick={() => {
@@ -392,30 +439,31 @@ export function UserProfileDrawer({
                       <select
                         value={selectedRole}
                         onChange={(e) => setSelectedRole(e.target.value)}
-                        className="focus:border-accent-500/50 flex-1 rounded-lg border border-white/[0.08] bg-white/[0.04] px-3 py-2 text-sm text-white outline-none"
+                        className="focus:border-[var(--color-info)]/50 flex-1 rounded-lg border border-white/[0.08] bg-white/[0.04] px-3 py-2 text-sm text-foreground outline-none"
                       >
                         {ROLE_OPTIONS.map((r) => (
-                          <option key={r.value} value={r.value} className="bg-gray-900">
+                          <option key={r.value} value={r.value} className="bg-card">
                             {r.label}
                           </option>
                         ))}
                       </select>
                       <button
                         type="button"
-                        onClick={handleRoleChange}
-                        disabled={pendingAction === "role" || selectedRole === user.rol}
-                        className="bg-accent-500 flex items-center justify-center gap-1 rounded-lg px-3 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+                        onClick={() => {
+                          const option = ROLE_OPTIONS.find(r => r.value === selectedRole);
+                          if (option) {
+                            setPendingRoleChange({ newRol: selectedRole, label: option.label });
+                          }
+                        }}
+                        disabled={selectedRole === user.rol}
+                        className="bg-[var(--color-info)] flex items-center justify-center gap-1 rounded-lg px-3 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
                       >
-                        {pendingAction === "role" ? (
-                          <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                        ) : (
-                          "OK"
-                        )}
+                        OK
                       </button>
                       <button
                         type="button"
                         onClick={() => setShowRoleSelect(false)}
-                        className="rounded-lg border border-white/[0.08] px-3 py-2 text-sm text-white/40 hover:text-white/70"
+                        className="rounded-lg border border-white/[0.08] px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
                       >
                         <X className="h-4 w-4" />
                       </button>

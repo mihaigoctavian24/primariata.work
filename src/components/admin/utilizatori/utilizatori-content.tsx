@@ -563,22 +563,6 @@ export function UtilizatoriContent({
                     aria-label={`Selectează ${user.prenume} ${user.nume}`}
                   />
 
-                  {/* Avatar */}
-                  <div className="flex-shrink-0">
-                    {user.avatar_url ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={user.avatar_url}
-                        alt={`${user.prenume} ${user.nume}`}
-                        className="h-10 w-10 rounded-full object-cover"
-                      />
-                    ) : (
-                      <div className="bg-accent-500/20 text-accent-500 flex h-10 w-10 items-center justify-center rounded-full text-xs font-bold">
-                        {getInitials(user.nume, user.prenume)}
-                      </div>
-                    )}
-                  </div>
-
                   {/* Name + email */}
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium text-white">

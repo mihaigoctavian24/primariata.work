@@ -160,7 +160,7 @@ Plans:
 - [x] 20-07-PLAN.md — GAP Wave 7: AdminModal shared component + AdminErrorBoundary + semantic CSS color tokens
 - [x] 20-08-PLAN.md — GAP Wave 8: Cereri — detail drawer + bulk select + escalation + priority change + CSS tokens
 - [x] 20-09-PLAN.md — GAP Wave 8: Calendar — edit modal + color picker + type selector + recurring + overflow dots
-- [ ] 20-10-PLAN.md — GAP Wave 8: Utilizatori — column sort + bulk actions + advanced filter + role confirmation + CSS tokens
+- [x] 20-10-PLAN.md — GAP Wave 8: Utilizatori — column sort + bulk actions + advanced filter + role confirmation + CSS tokens
 - [ ] 20-11-PLAN.md — GAP Wave 8: Financiar donut chart + transaction expand + Refund modal + Documente folder creation
 - [ ] 20-12-PLAN.md — GAP Wave 8: Monitorizare — service detail modal + security filters + jobs expand + 3-series chart
 - [ ] 20-13-PLAN.md — GAP Wave 9: Minor polish — recent files, multi-select, rename, 2FA display, category filter, audit export
