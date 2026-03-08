@@ -17,20 +17,18 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
+import { ServiceDetailModal, type ServiceInfo } from "@/components/admin/monitorizare/service-detail-modal";
+
+// Define a local interface that extends ServiceInfo to include local grid-only properties
+// if needed, but since it's just mock data, we can cast or add lastCheck to our mock data array and omit it from ServiceInfo.
+// Actually, earlier we saw ServiceInfo has: id, name, status, latency, uptime, icon, description
+// Let's create an intersection type for the static data
+type GridServiceData = ServiceInfo & { lastCheck: string };
 
 // ============================================================================
 // Types & Styles
 // ============================================================================
-
-interface ServiceHealth {
-  name: string;
-  status: "operational" | "degraded" | "down" | "maintenance";
-  latency: number;
-  uptime: string;
-  lastCheck: string;
-  icon: LucideIcon;
-  description: string;
-}
 
 const statusStyles = {
   operational: { colorClass: "text-emerald-400", bgClass: "bg-emerald-500/10", label: "Operațional" },
@@ -43,8 +41,9 @@ const statusStyles = {
 // Mock Data (Static from Phase 19/20 Figma Reference)
 // ============================================================================
 
-const services: ServiceHealth[] = [
+const services: GridServiceData[] = [
   {
+    id: "api-gateway",
     name: "API Gateway",
     status: "operational",
     latency: 45,
@@ -54,6 +53,7 @@ const services: ServiceHealth[] = [
     description: "Intrarea principală pentru toate cererile HTTP",
   },
   {
+    id: "supabase-auth",
     name: "Supabase Auth",
     status: "operational",
     latency: 120,
@@ -63,6 +63,7 @@ const services: ServiceHealth[] = [
     description: "Autentificare JWT și management sesiuni",
   },
   {
+    id: "database",
     name: "Bază de Date",
     status: "operational",
     latency: 24,
@@ -72,6 +73,7 @@ const services: ServiceHealth[] = [
     description: "PostgreSQL primar + RLS activ",
   },
   {
+    id: "storage",
     name: "Storage",
     status: "operational",
     latency: 185,
@@ -81,6 +83,7 @@ const services: ServiceHealth[] = [
     description: "Găzduire documente pdf, imagini, arhive",
   },
   {
+    id: "sendgrid",
     name: "SendGrid E-mail",
     status: "operational",
     latency: 450,
@@ -90,6 +93,7 @@ const services: ServiceHealth[] = [
     description: "Procesare trimiteri e-mail tranzacționale",
   },
   {
+    id: "ghiseul",
     name: "Ghișeul.ro API",
     status: "maintenance",
     latency: 0,
@@ -99,6 +103,7 @@ const services: ServiceHealth[] = [
     description: "Procesare plăți conturi trezorerie",
   },
   {
+    id: "redis",
     name: "Redis Cache",
     status: "operational",
     latency: 8,
@@ -108,6 +113,7 @@ const services: ServiceHealth[] = [
     description: "Caching pentru cataloage și configurări",
   },
   {
+    id: "pdf-gen",
     name: "Generator PDF",
     status: "degraded",
     latency: 1250,
@@ -117,6 +123,7 @@ const services: ServiceHealth[] = [
     description: "Generare certificate și acte cu diacritice",
   },
   {
+    id: "realtime",
     name: "Realtime Socket",
     status: "operational",
     latency: 15,
@@ -126,6 +133,7 @@ const services: ServiceHealth[] = [
     description: "Notificări WebSocket și live updates",
   },
   {
+    id: "meili",
     name: "Meilisearch",
     status: "operational",
     latency: 42,
@@ -135,6 +143,7 @@ const services: ServiceHealth[] = [
     description: "Motor căutare indexată documente",
   },
   {
+    id: "workers",
     name: "Worker Jobs",
     status: "operational",
     latency: 65,
@@ -144,6 +153,7 @@ const services: ServiceHealth[] = [
     description: "Cozi procesare async, cron, curățare",
   },
   {
+    id: "logger",
     name: "Audit Logger",
     status: "operational",
     latency: 12,
@@ -159,21 +169,27 @@ const services: ServiceHealth[] = [
 // ============================================================================
 
 export function ServicesStatusGrid() {
+  const [selectedService, setSelectedService] = useState<ServiceInfo | null>(null);
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 w-full">
-      {services.map((service, idx) => {
+    <>
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 w-full">
+        {services.map((service, idx) => {
         const Icon = service.icon;
         const styleInfo = statusStyles[service.status];
 
         return (
           <motion.div
-            key={service.name}
+            key={service.id}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: idx * 0.05, duration: 0.3 }}
-            className="group bg-white/[0.025] hover:bg-white/[0.04] border border-white/[0.05] hover:border-white/10 rounded-xl p-4 transition-all"
           >
-            <div className="flex justify-between items-start mb-3">
+            <button
+              onClick={() => setSelectedService(service)}
+              className="w-full text-left group bg-white/[0.025] hover:bg-white/[0.04] border border-white/[0.05] hover:border-[var(--color-info)]/30 rounded-xl p-4 transition-all cursor-pointer"
+            >
+              <div className="flex justify-between items-start mb-3">
               <div className="flex items-center gap-3">
                 <div className={cn("p-2 rounded-lg flex items-center justify-center", styleInfo.bgClass, styleInfo.colorClass)}>
                   <Icon className="w-5 h-5" />
@@ -223,9 +239,17 @@ export function ServicesStatusGrid() {
                 <span className="text-foreground">{service.lastCheck}</span>
               </div>
             </div>
-          </motion.div>
-        );
-      })}
-    </div>
+          </button>
+        </motion.div>
+      );
+    })}
+  </div>
+
+      <ServiceDetailModal 
+        open={!!selectedService} 
+        service={selectedService} 
+        onClose={() => setSelectedService(null)} 
+      />
+    </>
   );
 }

@@ -176,7 +176,7 @@ export function MonitorizareCharts() {
                 type="monotone"
                 dataKey="value"
                 name="Uptime"
-                stroke="#10b981"
+                stroke="var(--color-success)"
                 strokeWidth={2}
                 fillOpacity={1}
                 fill="url(#mon20_uptimeGradient)"
@@ -206,9 +206,9 @@ export function MonitorizareCharts() {
               <XAxis dataKey="time" {...axisProps} dy={10} />
               <YAxis {...axisProps} tickFormatter={(val) => `${val}ms`} />
               <Tooltip content={<CustomTooltip valueSuffix="ms" />} />
-              <Line type="monotone" dataKey="api" name="API Gateway" stroke="#3b82f6" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="db" name="Bază de date" stroke="#10b981" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="cache" name="Cache (Redis)" stroke="#f59e0b" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="api" name="API Gateway" stroke="var(--color-info)" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="db" name="Bază de date" stroke="var(--color-success)" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="cache" name="Cache (Redis)" stroke="var(--color-warning)" strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -237,8 +237,8 @@ export function MonitorizareCharts() {
               <XAxis dataKey="time" {...axisProps} dy={10} />
               <YAxis {...axisProps} />
               <Tooltip content={<CustomTooltip />} />
-              <Bar dataKey="4xx" name="Client (4xx)" fill="#ef4444" radius={[2, 2, 0, 0]} />
-              <Bar dataKey="5xx" name="Server (5xx)" fill="#f59e0b" radius={[2, 2, 0, 0]} />
+              <Bar dataKey="4xx" name="Client (4xx)" fill="var(--color-error)" radius={[2, 2, 0, 0]} />
+              <Bar dataKey="5xx" name="Server (5xx)" fill="var(--color-warning)" radius={[2, 2, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -264,7 +264,7 @@ export function MonitorizareCharts() {
               <XAxis dataKey="hour" {...axisProps} dy={10} />
               <YAxis {...axisProps} tickFormatter={(val) => `${val >= 1000 ? (val/1000).toFixed(1) + 'k' : val}`} />
               <Tooltip content={<CustomTooltip />} />
-              <Bar dataKey="count" name="Cereri" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="count" name="Cereri" fill="var(--color-primary)" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>

@@ -1,18 +1,23 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { 
-  ShieldAlert, 
-  UserX, 
-  CheckCircle, 
-  Lock, 
-  Shield, 
-  WifiOff, 
-  Search, 
-  FileText, 
-  Clock, 
-  Eye, 
-  Settings 
+import React, { useState, useMemo } from "react";
+import { toast } from "sonner";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+  ShieldAlert,
+  UserX,
+  CheckCircle,
+  Lock,
+  Shield,
+  WifiOff,
+  Search,
+  FileText,
+  Clock,
+  Eye,
+  Settings,
+  ShieldCheck,
+  Play,
+  Pause,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -21,13 +26,19 @@ import { cn } from "@/lib/utils";
 // Security Events Log
 // ============================================================================
 
-const secEventConfig: Record<string, { color: string; icon: LucideIcon; label: string }> = {
-  login_fail: { color: "text-red-400 bg-red-500/10", icon: UserX, label: "Autentificare Eșuată" },
-  login_success: { color: "text-emerald-400 bg-emerald-500/10", icon: CheckCircle, label: "Autentificare Reușită" },
-  permission_denied: { color: "text-amber-400 bg-amber-500/10", icon: Lock, label: "Eroare Permisiune" },
-  brute_force: { color: "text-red-500 bg-red-500/20", icon: ShieldAlert, label: "Atac Brute Force" },
-  rule_change: { color: "text-blue-400 bg-blue-500/10", icon: Shield, label: "Modificare Securitate" },
-  timeout: { color: "text-gray-400 bg-gray-500/10", icon: WifiOff, label: "Sesiune Expirată" },
+type SecurityEventType = "login_fail" | "login_success" | "permission_denied" | "password_change" | "role_change" | "ip_block" | "2fa_enable" | "brute_force" | "rule_change" | "timeout";
+
+const secEventConfig: Record<SecurityEventType, { colorVar: string; icon: LucideIcon; label: string }> = {
+  login_fail: { colorVar: "var(--color-error)", icon: UserX, label: "Login eșuat" },
+  login_success: { colorVar: "var(--color-success)", icon: CheckCircle, label: "Login OK" },
+  permission_denied: { colorVar: "var(--color-warning)", icon: ShieldAlert, label: "Acces interzis" },
+  password_change: { colorVar: "var(--color-info)", icon: Lock, label: "Schimbare parolă" },
+  role_change: { colorVar: "var(--color-neutral)", icon: Shield, label: "Schimbare rol" },
+  ip_block: { colorVar: "var(--color-error)", icon: WifiOff, label: "IP blocat" },
+  "2fa_enable": { colorVar: "var(--color-success)", icon: ShieldCheck, label: "2FA activat" },
+  brute_force: { colorVar: "var(--color-error)", icon: ShieldAlert, label: "Atac Brute Force" },
+  rule_change: { colorVar: "var(--color-info)", icon: Shield, label: "Modificare Securitate" },
+  timeout: { colorVar: "var(--color-neutral)", icon: WifiOff, label: "Sesiune Expirată" },
 };
 
 const securityEvents = [
@@ -40,6 +51,22 @@ const securityEvents = [
 ];
 
 export function SecurityEventsLog() {
+  const [securityFilter, setSecurityFilter] = useState<"all" | "login_fail" | "suspicious" | "ip_block" | "login_success">("all");
+
+  const SECURITY_FILTERS: Array<{ key: typeof securityFilter; label: string }> = [
+    { key: "all", label: "Toate" },
+    { key: "login_fail", label: "Login Eșuat" },
+    { key: "suspicious", label: "Suspicious" },
+    { key: "ip_block", label: "IP Blocat" },
+    { key: "login_success", label: "Succes" },
+  ];
+
+  const filteredEvents = useMemo(() => {
+    if (securityFilter === "all") return securityEvents;
+    if (securityFilter === "suspicious") return securityEvents.filter((e) => e.type === "permission_denied" || e.type === "brute_force");
+    return securityEvents.filter((e) => e.type === securityFilter);
+  }, [securityFilter]);
+
   return (
     <div className="bg-white/[0.025] hover:bg-white/[0.04] border border-white/[0.05] hover:border-white/10 rounded-2xl p-5 transition-all">
       <div className="flex justify-between items-center mb-6">
@@ -57,9 +84,27 @@ export function SecurityEventsLog() {
         </div>
       </div>
 
+      <div className="flex flex-wrap gap-1.5 mb-4">
+        {SECURITY_FILTERS.map((f) => (
+          <button
+            key={f.key}
+            onClick={() => setSecurityFilter(f.key)}
+            className={cn(
+              "px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer",
+              securityFilter === f.key
+                ? "text-foreground border-[var(--color-info)]/40 bg-[var(--color-info-subtle)]"
+                : "text-muted-foreground border-border hover:text-foreground",
+              "border"
+            )}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
+
       <div className="flex flex-col gap-3">
-        {securityEvents.map((evt, idx) => {
-          const config = secEventConfig[evt.type];
+        {filteredEvents.map((evt, idx) => {
+          const config = secEventConfig[evt.type as SecurityEventType];
           const Icon = config?.icon || Shield;
           
           return (
@@ -70,7 +115,13 @@ export function SecurityEventsLog() {
               transition={{ delay: idx * 0.1 }}
               className="flex items-start gap-4 p-3 rounded-lg hover:bg-white/[0.02] border border-transparent hover:border-white/[0.05] transition-colors"
             >
-              <div className={cn("p-2 rounded-lg mt-0.5", config?.color || "text-gray-400 bg-gray-500/10")}>
+              <div 
+                className={cn("p-2 rounded-lg mt-0.5", !config && "text-gray-400 bg-gray-500/10")}
+                style={config ? { 
+                  color: config.colorVar, 
+                  backgroundColor: `color-mix(in srgb, ${config.colorVar} 15%, transparent)` 
+                } : undefined}
+              >
                 <Icon className="w-4 h-4" />
               </div>
               
@@ -112,6 +163,8 @@ const scheduledJobs = [
 ];
 
 export function ScheduledJobsTable() {
+  const [expandedJobId, setExpandedJobId] = useState<string | null>(null);
+
   return (
     <div className="bg-white/[0.025] hover:bg-white/[0.04] border border-white/[0.05] hover:border-white/10 rounded-2xl p-5 transition-all w-full overflow-hidden">
       <div className="flex justify-between items-center mb-6">
@@ -137,8 +190,13 @@ export function ScheduledJobsTable() {
             </tr>
           </thead>
           <tbody className="divide-y divide-white/[0.05]">
+            <AnimatePresence initial={false}>
             {scheduledJobs.map((job) => (
-              <tr key={job.id} className="hover:bg-white/[0.02] transition-colors">
+              <React.Fragment key={job.id}>
+              <tr 
+                className="hover:bg-white/[0.02] transition-colors cursor-pointer"
+                onClick={() => setExpandedJobId(expandedJobId === job.id ? null : job.id)}
+              >
                 <td className="px-4 py-3 font-medium">{job.name}</td>
                 <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{job.schedule}</td>
                 <td className="px-4 py-3 text-muted-foreground hidden sm:table-cell">{job.lastRun}</td>
@@ -155,7 +213,42 @@ export function ScheduledJobsTable() {
                   </span>
                 </td>
               </tr>
+              {expandedJobId === job.id && (
+                <motion.tr initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
+                  <td colSpan={6} className="pb-3 px-4">
+                    <div className="rounded-xl bg-card/50 border border-border p-3">
+                      <div className="text-muted-foreground text-xs mb-2 font-medium">Ultimele rulări</div>
+                      {[
+                        { time: job.lastRun, status: job.status, duration: job.duration },
+                        { time: "ieri, " + job.schedule.split(" ")[1], status: "success", duration: job.duration },
+                        { time: "alaltăieri, " + job.schedule.split(" ")[1], status: "success", duration: job.duration },
+                      ].map((run, i) => (
+                        <div key={i} className="flex items-center gap-3 py-1 text-xs">
+                          <span className="text-muted-foreground w-32">{run.time}</span>
+                          <span className={run.status === "success" ? "text-[var(--color-success)]" : run.status === "failed" ? "text-[var(--color-error)]" : "text-[var(--color-info)]"}>
+                            {run.status}
+                          </span>
+                          <span className="text-muted-foreground">{run.duration}</span>
+                        </div>
+                      ))}
+                      <div className="flex gap-2 mt-3 pt-3 border-t border-border">
+                        <button onClick={(e) => { e.stopPropagation(); toast.success(`Job "${job.name}" pornit manual`); }} className="px-3 py-1.5 rounded-lg text-xs border border-border text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all cursor-pointer flex items-center gap-1.5">
+                          <Play className="w-3 h-3" /> Rulează Acum
+                        </button>
+                        <button onClick={(e) => { e.stopPropagation(); toast(`Job "${job.name}" pausat`, { icon: "⏸️" }); }} className="px-3 py-1.5 rounded-lg text-xs border border-border text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all cursor-pointer flex items-center gap-1.5">
+                          <Pause className="w-3 h-3" /> Pauză
+                        </button>
+                        <button onClick={(e) => { e.stopPropagation(); toast.info("Istoric disponibil în Audit Log"); }} className="px-3 py-1.5 rounded-lg text-xs border border-border text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all cursor-pointer flex items-center gap-1.5">
+                          <FileText className="w-3 h-3" /> Istoric
+                        </button>
+                      </div>
+                    </div>
+                  </td>
+                </motion.tr>
+              )}
+              </React.Fragment>
             ))}
+            </AnimatePresence>
           </tbody>
         </table>
       </div>
