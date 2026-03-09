@@ -186,18 +186,13 @@ Plans:
 ---
 
 ### Phase 22: Super Admin Module (Global Admin)
-**Status**: ✅ Complete
+**Status**: In Progress (gap closure — backend connectivity)
 **Objective**: Build the super admin module to oversee all primării, view platform-wide stats, and create primărie admins, based on the Figma template.
 **Depends on**: Phase 21
+**Plans**: 4 plans (22-01, 22-02 complete; 22-03, 22-04 pending)
 
-**Tasks**:
-- [x] Integrate Super Admin Shell and Navigation
-- [x] Build Dashboard Insights
-- [x] Build Primării Management
-- [x] Build Admins Management
-- [x] Build Analytics and Audit Logs
-- [x] Build Platform Settings
-
-**Verification**:
-- Verified Next.js dynamic routing and Super Admin layout isolation
-- Verified UI rendering without runtime errors across all 6 pages
+Plans:
+- [x] 22-01-PLAN.md — Fix dashboard data flow and sidebar routing
+- [x] 22-02-PLAN.md — Admin drawer gap (Suspendare/Activare button) + legacy route redirects
+- [ ] 22-03-PLAN.md — Server actions: getDashboardStats, getPrimariiList, getAdminsList, getAuditLog
+- [ ] 22-04-PLAN.md — Wire pages to real data: page.tsx async + initialData prop pattern for 4 content components
