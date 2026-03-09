@@ -21,7 +21,7 @@ function firstDayOfPastYear(): string {
 // Types
 // ============================================================================
 
-interface DashboardStats {
+export interface DashboardStats {
   totalPrimarii: number;
   activePrimarii: number;
   totalUsers: number;
@@ -30,7 +30,7 @@ interface DashboardStats {
   mrr: number;
 }
 
-interface PrimarieRow {
+export interface PrimarieRow {
   id: string;
   name: string; // nume_oficial
   judet: string; // judete.cod
@@ -49,7 +49,7 @@ interface PrimarieRow {
   createdAt: string;
 }
 
-interface AdminRow {
+export interface AdminRow {
   id: string;
   name: string; // prenume + " " + nume
   email: string;
@@ -63,7 +63,7 @@ interface AdminRow {
   role: string; // utilizatori.rol
 }
 
-interface AuditEntry {
+export interface AuditEntry {
   id: string;
   actiune: string;
   detalii: Record<string, unknown> | null;

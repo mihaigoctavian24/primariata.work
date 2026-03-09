@@ -17,6 +17,7 @@ import { DashboardKPIs } from "./dashboard-kpis";
 import { PlatformStatsCharts, UserGrowthChart } from "./platform-stats-charts";
 import { PrimariiStatusList, PrimarieStatus } from "./primarii-status-list";
 import { RecentActivityList, ActivityItem } from "./recent-activity-list";
+import type { DashboardStats } from "@/actions/super-admin-stats";
 
 // ─── Inline Mock Data ────────────────────────────────
 
@@ -130,7 +131,11 @@ const primariiStatusData: PrimarieStatus[] = [
 
 // ─── Component ───────────────────────────────────────
 
-export function SaDashboardContent(): React.ReactElement {
+interface SaDashboardContentProps {
+  initialData: { success: boolean; data?: DashboardStats; error?: string };
+}
+
+export function SaDashboardContent({ initialData }: SaDashboardContentProps): React.ReactElement {
   const [liveRequests, setLiveRequests] = useState(847);
 
   useEffect(() => {
@@ -142,12 +147,20 @@ export function SaDashboardContent(): React.ReactElement {
     return () => clearInterval(interval);
   }, []);
 
+  const stats = initialData.data;
+  const activePrimarii = stats?.activePrimarii ?? platformStats.activePrimarii;
+  const totalPrimarii = stats?.totalPrimarii ?? platformStats.totalPrimarii;
+  const totalUsers = stats?.totalUsers ?? platformStats.totalUsers;
+  const totalCereri = stats?.totalCereri ?? platformStats.totalCereri;
+  const cereriThisMonth = stats?.cereriThisMonth ?? platformStats.cereriThisMonth;
+  const mrr = stats?.mrr ?? platformStats.mrr;
+
   const kpis = [
     {
       label: "Primării Active",
-      value: platformStats.activePrimarii,
-      total: platformStats.totalPrimarii,
-      suffix: `/${platformStats.totalPrimarii}`,
+      value: activePrimarii,
+      total: totalPrimarii,
+      suffix: `/${totalPrimarii}`,
       trend: "+2",
       trendUp: true,
       icon: Building2,
@@ -156,7 +169,7 @@ export function SaDashboardContent(): React.ReactElement {
     },
     {
       label: "Utilizatori Totali",
-      value: platformStats.totalUsers,
+      value: totalUsers,
       trend: "+340",
       trendUp: true,
       icon: Users,
@@ -165,8 +178,8 @@ export function SaDashboardContent(): React.ReactElement {
     },
     {
       label: "Cereri Totale",
-      value: platformStats.totalCereri,
-      subtitle: `${platformStats.cereriThisMonth} luna aceasta`,
+      value: totalCereri,
+      subtitle: `${cereriThisMonth} luna aceasta`,
       trend: "+12%",
       trendUp: true,
       icon: FileText,
@@ -175,7 +188,7 @@ export function SaDashboardContent(): React.ReactElement {
     },
     {
       label: "MRR",
-      value: platformStats.mrr,
+      value: mrr,
       prefix: "",
       suffix: " RON",
       trend: "+8.2%",
@@ -247,7 +260,7 @@ export function SaDashboardContent(): React.ReactElement {
       />
 
       {/* Bottom Row */}
-      <div className="grid grid-cols-1 gap-5 md:grid-cols-12">
+      <div className="grid grid-cols-12 gap-5">
         <UserGrowthChart userGrowth={userGrowth} />
         <PrimariiStatusList primarii={primariiStatusData} />
         <RecentActivityList activities={recentActivity} />
