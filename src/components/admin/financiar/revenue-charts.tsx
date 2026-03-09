@@ -2,455 +2,250 @@
 
 import { useState } from "react";
 import { motion } from "motion/react";
+import { CheckCircle2, Clock, XCircle, RefreshCcw } from "lucide-react";
 import {
   AreaChart,
   Area,
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  Line,
 } from "recharts";
-import { CreditCard, Building2, Landmark, Smartphone } from "lucide-react";
-import { cn } from "@/lib/utils";
 
-import type { MonthlyRevenueExtended, DailyVolume, MetodaBreakdown } from "@/lib/financiar-utils";
+import type { TxStatus } from "./financiar-data";
+import { allTransactions, monthlyRevenue, paymentMethods, CustomTooltip } from "./financiar-data";
 
-// ============================================================================
-// Mock categories — graceful fallback (plati table has no category column)
-// ============================================================================
-
-// Category data: graceful mock — plati table has no category column
-const MOCK_CATEGORIES = [
-  { name: "Taxe Locale", colectat: 0, target: 50_000, color: "#3b82f6" },
-  { name: "Autorizații", colectat: 0, target: 20_000, color: "#8b5cf6" },
-  { name: "Amenzi", colectat: 0, target: 15_000, color: "#ef4444" },
-  { name: "Certificări", colectat: 0, target: 8_000, color: "#10b981" },
-  { name: "Impozite Proprietăți", colectat: 0, target: 12_000, color: "#f59e0b" },
-  { name: "Altele", colectat: 0, target: 5_000, color: "#6b7280" },
-];
-
-// ============================================================================
-// Types
-// ============================================================================
+// ─── Props ────────────────────────────────────────────
 
 interface RevenueChartsProps {
-  monthlyData: MonthlyRevenueExtended[];
-  dailyData: DailyVolume[];
-  metodaData: MetodaBreakdown;
-  onCategoryClick?: (name: string) => void;
+  txFilter: TxStatus | "all";
+  onFilterChange: (filter: TxStatus | "all") => void;
+  onPageReset: () => void;
 }
 
-// ============================================================================
-// Shared chart color constants (hex — SVG stroke attributes require hex)
-// ============================================================================
+// ─── Component ────────────────────────────────────────
 
-const CHART = {
-  grid: "rgba(255,255,255,0.04)",
-  tick: "#6b7280",
-  colectat: "#10b981",
-  esuat: "#ef4444",
-  bar: "#3b82f6",
-} as const;
+export function RevenueCharts({ txFilter, onFilterChange, onPageReset }: RevenueChartsProps) {
+  const [chartPeriod, setChartPeriod] = useState<"6m" | "1y">("6m");
 
-// ============================================================================
-// CustomTooltip — uses CSS tokens (bg-popover border-border)
-// ============================================================================
+  const totalTx = allTransactions.length;
+  const successTx = allTransactions.filter((t) => t.status === "success").length;
+  const failedTx = allTransactions.filter((t) => t.status === "failed").length;
+  const pendingTx = allTransactions.filter((t) => t.status === "pending").length;
+  const refundedTx = allTransactions.filter((t) => t.status === "refunded").length;
 
-function CustomTooltip({
-  active,
-  payload,
-  label,
-}: {
-  active?: boolean;
-  payload?: Array<{ name: string; value: number; color: string }>;
-  label?: string;
-}): React.JSX.Element | null {
-  if (!active || !payload?.length) return null;
+  const statusToKey = (label: string): TxStatus =>
+    label === "Succes"
+      ? "success"
+      : label === "Pending"
+        ? "pending"
+        : label === "Eșuate"
+          ? "failed"
+          : "refunded";
 
-  return (
-    <div className="border-border bg-popover rounded-xl border px-3 py-2 shadow-lg">
-      {label && <div className="text-muted-foreground mb-1.5 text-[0.7rem]">{label}</div>}
-      {payload.map((p) => (
-        <div key={p.name} className="flex items-center gap-2 text-[0.75rem]">
-          <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: p.color }} />
-          <span className="text-muted-foreground">{p.name}:</span>
-          <span className="text-foreground font-semibold">
-            {typeof p.value === "number" ? p.value.toLocaleString("ro-RO") : p.value} RON
-          </span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function DailyTooltip({
-  active,
-  payload,
-  label,
-}: {
-  active?: boolean;
-  payload?: Array<{ value: number }>;
-  label?: string;
-}): React.JSX.Element | null {
-  if (!active || !payload?.length) return null;
-  return (
-    <div className="border-border bg-popover rounded-xl border px-3 py-2 shadow-lg">
-      <div className="text-muted-foreground mb-1 text-[0.7rem]">{label}</div>
-      <div className="text-foreground text-sm font-semibold">
-        {payload[0]?.value ?? 0} tranzacții
-      </div>
-    </div>
-  );
-}
-
-// ============================================================================
-// RevenueAreaChart
-// ============================================================================
-
-function RevenueAreaChart({ data }: { data: MonthlyRevenueExtended[] }): React.JSX.Element {
-  const [period, setPeriod] = useState<"6m" | "1y">("6m");
-
-  const sliceCount = period === "6m" ? 6 : 12;
-  const isEmpty = data.length === 0;
-
-  const chartData = isEmpty
-    ? (["Ian", "Feb", "Mar", "Apr", "Mai", "Iun"] as const).map((month) => ({
-        month,
-        colectat: 0,
-        esuat: 0,
-      }))
-    : data.slice(-sliceCount);
+  const statusCards = [
+    { label: "Succes", count: successTx, color: "#10b981", icon: CheckCircle2 },
+    { label: "Pending", count: pendingTx, color: "#f59e0b", icon: Clock },
+    { label: "Eșuate", count: failedTx, color: "#ef4444", icon: XCircle },
+    { label: "Rambursate", count: refundedTx, color: "#8b5cf6", icon: RefreshCcw },
+  ];
 
   return (
-    <div className="rounded-2xl border border-white/[0.05] bg-white/[0.025] p-5">
-      <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-[0.93rem] font-semibold text-white">Venituri lunare</h3>
-        <div className="flex items-center gap-1 rounded-lg border border-white/[0.06] bg-white/[0.03] p-0.5">
-          {(["6m", "1y"] as const).map((p) => (
-            <button
-              key={p}
-              onClick={() => setPeriod(p)}
-              className={`rounded-md px-3 py-1 text-[0.72rem] font-medium transition-all ${
-                period === p ? "bg-white/[0.1] text-white" : "text-gray-400 hover:text-gray-200"
-              }`}
+    <div className="mb-5 grid grid-cols-12 gap-5">
+      {/* Tx Status Mini Cards */}
+      <div className="col-span-3 flex flex-col gap-3">
+        {statusCards.map((s, i) => (
+          <motion.button
+            key={s.label}
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.15 + i * 0.04 }}
+            whileHover={{ x: 3 }}
+            onClick={() => {
+              onFilterChange(txFilter === statusToKey(s.label) ? "all" : statusToKey(s.label));
+              onPageReset();
+            }}
+            className="flex cursor-pointer items-center gap-3 rounded-xl px-4 py-3.5 text-left transition-all"
+            style={{ background: `${s.color}06`, border: `1px solid ${s.color}12` }}
+          >
+            <div
+              className="flex h-9 w-9 items-center justify-center rounded-xl"
+              style={{ background: `${s.color}15` }}
             >
-              {p === "6m" ? "6 luni" : "1 an"}
-            </button>
-          ))}
-        </div>
+              <s.icon className="h-4 w-4" style={{ color: s.color }} />
+            </div>
+            <div className="flex-1">
+              <div className="text-gray-400" style={{ fontSize: "0.72rem" }}>
+                {s.label}
+              </div>
+              <div
+                className="text-white"
+                style={{ fontSize: "1.2rem", fontWeight: 700, lineHeight: 1.1 }}
+              >
+                {s.count}
+              </div>
+            </div>
+            <div className="text-right">
+              <span style={{ fontSize: "0.82rem", fontWeight: 600, color: s.color }}>
+                {Math.round((s.count / totalTx) * 100)}%
+              </span>
+            </div>
+          </motion.button>
+        ))}
       </div>
 
-      <div className="relative h-[200px]">
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={chartData} margin={{ top: 5, right: 5, left: 0, bottom: 0 }}>
+      {/* Revenue Chart */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.25 }}
+        className="col-span-5 rounded-2xl p-5"
+        style={{
+          background: "rgba(255,255,255,0.025)",
+          border: "1px solid rgba(255,255,255,0.05)",
+        }}
+      >
+        <div className="mb-4 flex items-center justify-between">
+          <h3 className="text-white" style={{ fontSize: "0.95rem", fontWeight: 600 }}>
+            Colectare vs Target
+          </h3>
+          <div
+            className="flex gap-1 rounded-lg p-0.5"
+            style={{ background: "rgba(255,255,255,0.04)" }}
+          >
+            {(["6m", "1y"] as const).map((p) => (
+              <button
+                key={p}
+                onClick={() => setChartPeriod(p)}
+                className={`cursor-pointer rounded-md px-3 py-1 transition-all ${chartPeriod === p ? "text-white" : "text-gray-500"}`}
+                style={
+                  chartPeriod === p
+                    ? { background: "rgba(16,185,129,0.2)", fontSize: "0.75rem" }
+                    : { fontSize: "0.75rem" }
+                }
+              >
+                {p}
+              </button>
+            ))}
+          </div>
+        </div>
+        <ResponsiveContainer width="100%" height={220}>
+          <AreaChart data={monthlyRevenue}>
             <defs>
-              <linearGradient id="colectatGrad20" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={CHART.colectat} stopOpacity={0.25} />
-                <stop offset="95%" stopColor={CHART.colectat} stopOpacity={0.02} />
-              </linearGradient>
-              <linearGradient id="esuatGrad20" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={CHART.esuat} stopOpacity={0.2} />
-                <stop offset="95%" stopColor={CHART.esuat} stopOpacity={0.02} />
+              <linearGradient id="finGreenGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#10b981" stopOpacity={0.25} />
+                <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke={CHART.grid} />
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
             <XAxis
               dataKey="month"
-              tick={{ fill: CHART.tick, fontSize: 11 }}
+              tick={{ fill: "#6b7280", fontSize: 11 }}
               axisLine={false}
               tickLine={false}
             />
             <YAxis
-              tick={{ fill: CHART.tick, fontSize: 10 }}
+              tick={{ fill: "#6b7280", fontSize: 10 }}
               axisLine={false}
               tickLine={false}
-              tickFormatter={(v: number) => (v === 0 ? "0" : `${(v / 1000).toFixed(0)}k`)}
+              tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`}
             />
             <Tooltip content={<CustomTooltip />} />
             <Area
               type="monotone"
               dataKey="colectat"
               name="Colectat"
-              stroke={CHART.colectat}
+              stroke="#10b981"
               strokeWidth={2}
-              fill="url(#colectatGrad20)"
+              fill="url(#finGreenGrad)"
+            />
+            <Line
+              type="monotone"
+              dataKey="target"
+              name="Target"
+              stroke="#3b82f680"
+              strokeWidth={1.5}
+              strokeDasharray="5 5"
+              dot={false}
             />
             <Area
               type="monotone"
               dataKey="esuat"
               name="Eșuat"
-              stroke={CHART.esuat}
-              strokeWidth={2}
-              fill="url(#esuatGrad20)"
+              stroke="#ef4444"
+              strokeWidth={1.5}
+              fill="rgba(239,68,68,0.05)"
             />
           </AreaChart>
         </ResponsiveContainer>
+      </motion.div>
 
-        {isEmpty && (
-          <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-            <span className="rounded-lg bg-black/50 px-3 py-1.5 text-[0.82rem] text-gray-400">
-              Nu există date de plată
-            </span>
-          </div>
-        )}
-      </div>
-
-      {/* Legend */}
-      <div className="mt-3 flex gap-4">
-        {[
-          { color: CHART.colectat, label: "Colectat" },
-          { color: CHART.esuat, label: "Eșuat" },
-        ].map((l) => (
-          <div key={l.label} className="flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full" style={{ background: l.color }} />
-            <span className="text-[0.7rem] text-gray-400">{l.label}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ============================================================================
-// DailyVolumeBarChart
-// ============================================================================
-
-function DailyVolumeBarChart({ data }: { data: DailyVolume[] }): React.JSX.Element {
-  return (
-    <div className="rounded-2xl border border-white/[0.05] bg-white/[0.025] p-5">
-      <h3 className="mb-4 text-[0.93rem] font-semibold text-white">
-        Volum zilnic — tranzacții pe zile
-      </h3>
-      <div className="h-[200px]">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data} margin={{ top: 5, right: 5, left: 0, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke={CHART.grid} />
-            <XAxis
-              dataKey="day"
-              tick={{ fill: CHART.tick, fontSize: 11 }}
-              axisLine={false}
-              tickLine={false}
-            />
-            <YAxis
-              tick={{ fill: CHART.tick, fontSize: 10 }}
-              axisLine={false}
-              tickLine={false}
-              allowDecimals={false}
-            />
-            <Tooltip content={<DailyTooltip />} />
-            <Bar
-              dataKey="volume"
-              name="Tranzacții"
-              fill="#3b82f6"
-              radius={[4, 4, 0, 0]}
-              barSize={28}
-              opacity={0.85}
-            />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-    </div>
-  );
-}
-
-// ============================================================================
-// PaymentMethodsList
-// ============================================================================
-
-const METODA_CONFIG: Record<
-  string,
-  { label: string; icon: React.ComponentType<{ className?: string }>; colorClass: string }
-> = {
-  card: { label: "Card Online", icon: CreditCard, colorClass: "bg-blue-500" },
-  transfer: { label: "Transfer Bancar", icon: Building2, colorClass: "bg-cyan-500" },
-  numerar: { label: "Ghișeu / Numerar", icon: Landmark, colorClass: "bg-amber-500" },
-  other: { label: "Altele", icon: Smartphone, colorClass: "bg-slate-500" },
-};
-
-// SVG fill attributes require hex values — CSS vars cannot be used in SVG stroke/fill (Phase 19 decision)
-const METODA_COLORS = ["#3b82f6", "#06b6d4", "#f59e0b", "#6b7280"] as const;
-
-function PaymentMethodsList({ data }: { data: MetodaBreakdown }): React.JSX.Element {
-  const entries = Object.entries({
-    card: data.card,
-    transfer: data.transfer,
-    numerar: data.numerar,
-  })
-    .filter(([, count]) => count > 0)
-    .sort(([, a], [, b]) => b - a);
-
-  const total = entries.reduce((sum, [, count]) => sum + count, 0);
-  const isEmpty = total === 0;
-
-  // Donut chart data with per-method colors
-  const donutData = entries.map(([metoda, count], i) => ({
-    name: METODA_CONFIG[metoda]?.label ?? metoda,
-    value: count,
-    color: METODA_COLORS[i % METODA_COLORS.length]!,
-  }));
-
-  return (
-    <div className="rounded-2xl border border-white/[0.05] bg-white/[0.025] p-5">
-      <h3 className="mb-4 text-[0.93rem] font-semibold text-white">Metode de Plată</h3>
-
-      {isEmpty ? (
-        <div className="flex h-24 items-center justify-center">
-          <span className="text-[0.82rem] text-gray-500">Fără date de plată</span>
-        </div>
-      ) : (
-        <div className="flex items-center gap-4">
-          {/* Donut chart — 120x120 */}
-          <div className="shrink-0">
-            <ResponsiveContainer width={120} height={120}>
-              <PieChart>
-                <Pie
-                  data={donutData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={35}
-                  outerRadius={55}
-                  dataKey="value"
-                  strokeWidth={0}
+      {/* Payment Methods */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="col-span-4 rounded-2xl p-5"
+        style={{
+          background: "rgba(255,255,255,0.025)",
+          border: "1px solid rgba(255,255,255,0.05)",
+        }}
+      >
+        <h3 className="mb-4 text-white" style={{ fontSize: "0.95rem", fontWeight: 600 }}>
+          Metode de Plată
+        </h3>
+        <div className="flex flex-col gap-2.5">
+          {paymentMethods.map((m, i) => {
+            const Icon = m.icon;
+            return (
+              <motion.div
+                key={m.name}
+                initial={{ opacity: 0, x: 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 + i * 0.04 }}
+                className="flex items-center gap-3"
+              >
+                <div
+                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg"
+                  style={{ background: `${m.color}12` }}
                 >
-                  {donutData.map((entry, i) => (
-                    <Cell key={i} fill={entry.color} />
-                  ))}
-                </Pie>
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-
-          {/* Legend list with progress bars */}
-          <div className="flex-1 flex flex-col gap-2.5">
-            {entries.map(([metoda, count], i) => {
-              const cfg = METODA_CONFIG[metoda] ?? METODA_CONFIG.other!;
-              const pct = total > 0 ? Math.round((count / total) * 100) : 0;
-              const color = METODA_COLORS[i % METODA_COLORS.length]!;
-              const Icon = cfg.icon;
-
-              return (
-                <div key={metoda} className="flex flex-col gap-0.5">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="h-2 w-2 rounded-full shrink-0" style={{ background: color }} />
-                      <Icon className="h-3 w-3 text-gray-500" />
-                      <span className="text-[0.75rem] text-gray-300">{cfg.label}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-[0.68rem] text-gray-500">{count} tx</span>
-                      <span className="text-[0.72rem] font-medium text-white">{pct}%</span>
-                    </div>
+                  <Icon className="h-3.5 w-3.5" style={{ color: m.color }} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="mb-1 flex items-center justify-between">
+                    <span className="truncate text-gray-300" style={{ fontSize: "0.78rem" }}>
+                      {m.name}
+                    </span>
+                    <span
+                      className="shrink-0 text-white"
+                      style={{ fontSize: "0.78rem", fontWeight: 600 }}
+                    >
+                      {m.value}%
+                    </span>
                   </div>
-                  <div className="h-1 w-full overflow-hidden rounded-full bg-white/[0.06]">
+                  <div
+                    className="h-1.5 w-full overflow-hidden rounded-full"
+                    style={{ background: "rgba(255,255,255,0.06)" }}
+                  >
                     <motion.div
-                      className="h-full rounded-full"
-                      style={{ background: color }}
                       initial={{ width: 0 }}
-                      animate={{ width: `${pct}%` }}
-                      transition={{ duration: 0.8, delay: 0.2 + i * 0.08, ease: "easeOut" }}
+                      animate={{ width: `${m.value}%` }}
+                      transition={{ duration: 0.8, delay: 0.3 + i * 0.08 }}
+                      className="h-full rounded-full"
+                      style={{ background: m.color }}
                     />
                   </div>
+                  <span className="text-gray-600" style={{ fontSize: "0.65rem" }}>
+                    {m.count} tranzacții
+                  </span>
                 </div>
-              );
-            })}
-          </div>
+              </motion.div>
+            );
+          })}
         </div>
-      )}
-
-      {/* Gateway health */}
-      <div className="mt-4 pt-4 border-t border-border/50">
-        <p className="text-muted-foreground text-[0.7rem] font-semibold uppercase tracking-wider mb-2">Gateway Health</p>
-        {[
-          { name: "Netopia", status: "operational" },
-          { name: "BT Pay", status: "operational" },
-          { name: "ghișeu.ro", status: "degraded" },
-          { name: "POS Primărie", status: "operational" },
-        ].map((gw) => (
-          <div key={gw.name} className="flex items-center justify-between py-1">
-            <span className="text-muted-foreground text-xs">{gw.name}</span>
-            <span className="flex items-center gap-1.5 text-xs" style={{ color: gw.status === "operational" ? "var(--color-success)" : "var(--color-warning)" }}>
-              <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", gw.status === "operational" ? "bg-[var(--color-success)] animate-pulse" : "bg-[var(--color-warning)]")} />
-              {gw.status === "operational" ? "OK" : "Degradat"}
-            </span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ============================================================================
-// CategoryGrid
-// ============================================================================
-
-function CategoryGrid({ onCategoryClick }: { onCategoryClick?: (name: string) => void }): React.JSX.Element {
-  // Category data: graceful mock — plati table has no category column
-  return (
-    <div className="rounded-2xl border border-white/[0.05] bg-white/[0.025] p-5">
-      <h3 className="mb-4 text-[0.93rem] font-semibold text-white">Pe Categorii</h3>
-      <div className="grid grid-cols-2 gap-3">
-        {MOCK_CATEGORIES.map((cat, i) => {
-          const pct = cat.target > 0 ? Math.round((cat.colectat / cat.target) * 100) : 0;
-          return (
-            <div 
-              key={cat.name} 
-              onClick={() => onCategoryClick?.(cat.name)}
-              className="group flex flex-col gap-1.5 rounded-xl p-2.5 transition-all cursor-pointer hover:bg-white/[0.05] border border-transparent hover:border-white/[0.05]"
-            >
-              <div className="flex items-center justify-between">
-                <span className="truncate text-[0.72rem] text-gray-300 group-hover:text-white transition-colors">{cat.name}</span>
-                <span className="ml-1 shrink-0 text-[0.65rem] text-gray-500 group-hover:text-gray-400">{pct}%</span>
-              </div>
-              <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
-                <motion.div
-                  className="h-full rounded-full"
-                  style={{ background: cat.color }}
-                  initial={{ width: 0 }}
-                  animate={{ width: `${pct}%` }}
-                  transition={{ duration: 0.8, delay: 0.4 + i * 0.06, ease: "easeOut" }}
-                />
-              </div>
-              <div className="flex items-center justify-between text-[0.65rem] text-gray-500">
-                <span className="group-hover:text-gray-400">{cat.colectat.toLocaleString("ro-RO")} RON</span>
-                <span className="opacity-0 group-hover:opacity-100 transition-opacity text-[var(--color-info)]">Click to filter</span>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-// ============================================================================
-// RevenueCharts — main export (composes all 4 chart sections)
-// ============================================================================
-
-export function RevenueCharts({
-  monthlyData,
-  dailyData,
-  metodaData,
-  onCategoryClick,
-}: RevenueChartsProps): React.JSX.Element {
-  return (
-    <div className="space-y-5">
-      {/* Top row: AreaChart + BarChart */}
-      <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
-        <RevenueAreaChart data={monthlyData} />
-        <DailyVolumeBarChart data={dailyData} />
-      </div>
-
-      {/* Bottom row: payment methods + category grid */}
-      <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
-        <PaymentMethodsList data={metodaData} />
-        <CategoryGrid onCategoryClick={onCategoryClick} />
-      </div>
+      </motion.div>
     </div>
   );
 }

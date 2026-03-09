@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState, useMemo } from "react";
+import React, { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import { motion } from "framer-motion";
 import {
   FolderOpen,
@@ -22,6 +22,7 @@ import { DocumentGrid } from "@/components/admin/documente/document-grid";
 import { DocumentUploadZone } from "@/components/admin/documente/document-upload-zone";
 import { DocumentPreviewModal } from "@/components/admin/documente/document-preview-modal";
 import { FolderCreateModal } from "@/components/admin/documente/folder-create-modal";
+import { DocumenteSkeleton } from "@/components/admin/documente/documente-skeleton";
 
 // ============================================================================
 // Constants
@@ -80,13 +81,14 @@ export function DocumenteContent({ primarieId }: DocumenteContentProps): React.J
   const [selectedFileIds, setSelectedFileIds] = useState<Set<string>>(new Set());
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState("");
+  const [folderFileCounts, setFolderFileCounts] = useState<Record<string, number>>({});
 
   // Ref passed to DocumentUploadZone so "Încarcă" button can trigger it
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // ---- Storage fetch -------------------------------------------------------
 
-  const fetchFiles = (): void => {
+  const fetchFiles = useCallback((): void => {
     setLoading(true);
     const supabase = createClient();
     const path = currentFolder ? `${primarieId}/${currentFolder}` : primarieId;
@@ -95,18 +97,42 @@ export function DocumenteContent({ primarieId }: DocumenteContentProps): React.J
       .from("documents")
       .list(path, { limit: 100, sortBy: { column: "name", order: "asc" } })
       .then(({ data }) => {
-        setFiles((data ?? []) as unknown as StorageFile[]);
+        const items = (data ?? []) as unknown as StorageFile[];
+        setFiles(items);
         setLoading(false);
+
+        // Fetch file counts for folders at root level
+        if (!currentFolder) {
+          const folderItems = items.filter((f) => f.metadata === null && !f.name.includes("."));
+          if (folderItems.length > 0) {
+            const countPromises = folderItems.map(async (folder) => {
+              const { data: folderData } = await supabase.storage
+                .from("documents")
+                .list(`${primarieId}/${folder.name}`, { limit: 1000 });
+              const fileCount = (folderData ?? []).filter(
+                (f: { metadata: Record<string, unknown> | null; name: string }) =>
+                  f.metadata !== null || (f.name ?? "").includes(".")
+              ).length;
+              return { name: folder.name, count: fileCount };
+            });
+            Promise.all(countPromises).then((results) => {
+              const counts: Record<string, number> = {};
+              results.forEach((r) => {
+                counts[r.name] = r.count;
+              });
+              setFolderFileCounts(counts);
+            });
+          }
+        }
       })
       .catch(() => {
         setLoading(false);
       });
-  };
+  }, [primarieId, currentFolder]);
 
   useEffect(() => {
     fetchFiles();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [primarieId, currentFolder]);
+  }, [fetchFiles]);
 
   // ---- Derived state -------------------------------------------------------
 
@@ -284,7 +310,7 @@ export function DocumenteContent({ primarieId }: DocumenteContentProps): React.J
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            className="flex items-center gap-3 mb-3 px-4 py-2.5 rounded-xl bg-[var(--color-error-subtle)] border border-[var(--color-error)]/20"
+            className="mb-3 flex items-center gap-3 rounded-xl border border-[var(--color-error)]/20 bg-[var(--color-error-subtle)] px-4 py-2.5"
           >
             <span className="text-foreground text-sm">
               {selectedFileIds.size} fișier(e) selectate
@@ -296,22 +322,26 @@ export function DocumenteContent({ primarieId }: DocumenteContentProps): React.J
                   [...selectedFileIds].map((id) => {
                     const file = files.find((f) => (f.id ?? f.name) === id);
                     if (!file) return Promise.resolve();
-                    return supabase.storage.from("documents").remove([`${primarieId}/${currentFolder ? currentFolder + "/" : ""}${file.name}`]);
+                    return supabase.storage
+                      .from("documents")
+                      .remove([
+                        `${primarieId}/${currentFolder ? currentFolder + "/" : ""}${file.name}`,
+                      ]);
                   })
                 );
                 setFiles((prev) => prev.filter((f) => !selectedFileIds.has(f.id ?? f.name)));
                 setSelectedFileIds(new Set());
                 toast.success("Fișierele selectate au fost șterse");
               }}
-              className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-[var(--color-error)] border border-[var(--color-error)]/30 hover:bg-[var(--color-error-subtle)] cursor-pointer transition-all"
+              className="ml-auto flex cursor-pointer items-center gap-1.5 rounded-lg border border-[var(--color-error)]/30 px-3 py-1.5 text-xs text-[var(--color-error)] transition-all hover:bg-[var(--color-error-subtle)]"
             >
-              <Trash2 className="w-3.5 h-3.5" /> Șterge Selecția
+              <Trash2 className="h-3.5 w-3.5" /> Șterge Selecția
             </button>
             <button
               onClick={() => setSelectedFileIds(new Set())}
               className="text-muted-foreground hover:text-foreground cursor-pointer p-1"
             >
-              <X className="w-3.5 h-3.5" />
+              <X className="h-3.5 w-3.5" />
             </button>
           </motion.div>
         )}
@@ -320,22 +350,22 @@ export function DocumenteContent({ primarieId }: DocumenteContentProps): React.J
       {/* Recent Files */}
       {!search && !currentFolder && recentFiles.length > 0 && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-5">
-          <div className="text-muted-foreground text-[0.72rem] font-semibold uppercase tracking-wider mb-2">
+          <div className="text-muted-foreground mb-2 text-[0.72rem] font-semibold tracking-wider uppercase">
             Fișiere Recente
           </div>
-          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin scrollbar-thumb-border">
+          <div className="scrollbar-thin scrollbar-thumb-border flex gap-2 overflow-x-auto pb-1">
             {recentFiles.map((file) => {
               const ext = file.name.split(".").pop()?.toLowerCase() ?? "bin";
               return (
                 <button
                   key={file.id ?? file.name}
                   onClick={() => setPreviewFile(file)}
-                  className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[var(--card)] border border-border hover:bg-white/5 transition-all cursor-pointer shrink-0 text-left"
+                  className="border-border flex shrink-0 cursor-pointer items-center gap-2 rounded-xl border bg-[var(--card)] px-3 py-2 text-left transition-all hover:bg-white/5"
                 >
-                  <span className="text-[0.7rem] font-mono text-muted-foreground uppercase">
+                  <span className="text-muted-foreground font-mono text-[0.7rem] uppercase">
                     {ext}
                   </span>
-                  <span className="text-foreground text-xs truncate max-w-[120px]">
+                  <span className="text-foreground max-w-[120px] truncate text-xs">
                     {file.name}
                   </span>
                 </button>
@@ -389,19 +419,7 @@ export function DocumenteContent({ primarieId }: DocumenteContentProps): React.J
       </div>
 
       {/* Loading state */}
-      {loading && (
-        <div className="flex items-center justify-center py-16">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-            className="h-8 w-8 rounded-full border-2 border-t-transparent"
-            style={{
-              borderColor: "var(--accent-500, #8b5cf6)",
-              borderTopColor: "transparent",
-            }}
-          />
-        </div>
-      )}
+      {loading && <DocumenteSkeleton />}
 
       {/* Upload zone wrapping the file grid */}
       {!loading && (
@@ -420,6 +438,7 @@ export function DocumenteContent({ primarieId }: DocumenteContentProps): React.J
             onFolderClick={handleFolderClick}
             onDelete={handleDelete}
             onPreview={setPreviewFile}
+            folderFileCounts={folderFileCounts}
             selectedFileIds={selectedFileIds}
             onToggleSelectFile={(id) => {
               setSelectedFileIds((prev) => {
@@ -464,7 +483,7 @@ export function DocumenteContent({ primarieId }: DocumenteContentProps): React.J
         open={showFolderCreate}
         onClose={() => setShowFolderCreate(false)}
         primarieId={primarieId}
-        onFolderCreated={(folderName) => {
+        onFolderCreated={() => {
           // Optimistically trigger a refetch to show the new folder
           fetchFiles();
           setShowFolderCreate(false);

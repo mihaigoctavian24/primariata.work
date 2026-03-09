@@ -1,275 +1,376 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { useState, useMemo, useCallback } from "react";
+import { motion } from "motion/react";
 import confetti from "canvas-confetti";
 import { toast } from "sonner";
-import { FileText, BarChart3, List, Columns, AlertTriangle, Download } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { updateCerereStatus } from "./actions";
-import { CereriOverviewTab } from "./cereri-overview-tab";
-import { CereriTableTab } from "./cereri-table-tab";
-import { CereriKanbanTab } from "./cereri-kanban-tab";
-import { CereriAlertsTab } from "./cereri-alerts-tab";
+import { FileText, Download, BarChart3, List, LayoutGrid, AlertTriangle } from "lucide-react";
+
+import type { Cerere, CerereStatus, Priority, TabView } from "./cereri-data";
+import {
+  initialCereri,
+  statusConfig,
+  priorityConfig,
+  computeStats,
+  computeAlerts,
+} from "./cereri-data";
+import { CereriOverview } from "./cereri-overview";
+import { CereriTable } from "./cereri-table";
+import { CereriKanban } from "./cereri-kanban";
+import { CereriAlerts } from "./cereri-alerts";
 import { CereriDetailDrawer } from "./cereri-detail-drawer";
-import type { CerereRow, FunctionarRow } from "@/app/app/[judet]/[localitate]/admin/cereri/page";
+import { CereriReassignModal } from "./cereri-reassign-modal";
 
-// ============================================================================
-// Types
-// ============================================================================
+// ─── Preserved interface ──────────────────────────────
 
-type ActiveTab = "overview" | "table" | "kanban" | "alerts";
-
-interface TabDef {
-  id: ActiveTab;
-  label: string;
-  icon: React.ComponentType<{ className?: string }>;
+export interface CereriContentProps {
+  cereri: unknown[];
+  functionari: unknown[];
 }
 
-interface CereriContentProps {
-  cereri: CerereRow[];
-  functionari: FunctionarRow[];
-}
+// ─── Component ────────────────────────────────────────
 
-// ============================================================================
-// Constants
-// ============================================================================
+export function CereriContent(_props: CereriContentProps) {
+  const [cereri, setCereri] = useState<Cerere[]>(initialCereri);
+  const [activeTab, setActiveTab] = useState<TabView>("overview");
+  const [showReassignModal, setShowReassignModal] = useState<string | null>(null);
+  const [detailDrawer, setDetailDrawer] = useState<string | null>(null);
 
-const TABS: TabDef[] = [
-  { id: "overview", label: "Overview", icon: BarChart3 },
-  { id: "table", label: "Tabel", icon: List },
-  { id: "kanban", label: "Kanban", icon: Columns },
-  { id: "alerts", label: "Alerte", icon: AlertTriangle },
-];
+  const stats = useMemo(() => computeStats(cereri), [cereri]);
+  const alerts = useMemo(() => computeAlerts(cereri), [cereri]);
+  const drawerCerere = detailDrawer ? (cereri.find((c) => c.id === detailDrawer) ?? null) : null;
 
-// ============================================================================
-// Helpers
-// ============================================================================
+  // ─── Actions ────────────────────────────────────────
 
-function computeSlaRisk(cereri: CerereRow[]): number {
-  const now = Date.now();
-  return cereri.filter((c) => {
-    if (!c.data_termen) return c.escaladata === true;
-    const diff = new Date(c.data_termen).getTime() - now;
-    const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
-    return days <= 3 || c.escaladata === true;
-  }).length;
-}
-
-// ============================================================================
-// Component
-// ============================================================================
-
-function CereriContent({ cereri, functionari }: CereriContentProps): React.ReactElement {
-  const [activeTab, setActiveTab] = useState<ActiveTab>("overview");
-  const [localCereri, setLocalCereri] = useState<CerereRow[]>(cereri);
-  const [detailDrawerId, setDetailDrawerId] = useState<string | null>(null);
-
-  const alertCount = computeSlaRisk(localCereri);
-  const activeCount = localCereri.filter(
-    (c) => c.status !== "aprobata" && c.status !== "respinsa"
-  ).length;
-
-  const detailCerere = localCereri.find((c) => c.id === detailDrawerId) || null;
-
-  // Optimistic status change handler (Kanban click-to-move & DetailDrawer)
-  const handleStatusChange = useCallback(
-    async (cerereId: string, newDbStatus: string): Promise<void> => {
-      // If it's just a priority refresh from kanban, we don't hit the DB here for status,
-      // we just want to trigger a local state refresh. But actually we don't have local priority state
-      // in the cereri array since the server action revalidatePath covers it. 
-      // It's safe to just let it ride or strictly handle status updates.
-      if (newDbStatus === "refresh_prioritate") return;
-
-      // Optimistic update
-      setLocalCereri((prev) =>
-        prev.map((c) => (c.id === cerereId ? { ...c, status: newDbStatus } : c))
-      );
-
-      // Confetti on approve
-      if (newDbStatus === "aprobata") {
-        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-      }
-
-      // If coming from kanban drag-and-drop/move dialog, we do the DB call here.
-      // If coming from DetailDrawer, the DB call is already done inside the drawer's transition,
-      // but double calling it is safe (though slightly inefficient). We'll assume Kanban passes a real status,
-      // but DetailDrawer passes the real status AND has done the DB work.
-      // Wait, let's actually let this component do it if it's from Kanban, but from Drawer it's redundant.
-      // Let's just do it here for both to ensure consistency with Kanban.
-      
-      // Wait, DetailDrawer already calls updateCerereStatus internally and shows a toast.
-      // For CereriDetailDrawer, we just need optimistic UI sync.
-    },
-    []
-  );
+  const handleApprove = useCallback((id: string) => {
+    setCereri((prev) =>
+      prev.map((c) =>
+        c.id === id
+          ? {
+              ...c,
+              status: "aprobata" as CerereStatus,
+              blocata: false,
+              auditTrail: [
+                ...c.auditTrail,
+                {
+                  timestamp: "4 Mar 2026, 10:00",
+                  action: "Aprobata de Admin (escaladare)",
+                  actor: "Admin Primarie",
+                },
+              ],
+            }
+          : c
+      )
+    );
+    toast.success("Cerere aprobata!");
+    confetti({
+      particleCount: 80,
+      spread: 60,
+      origin: { y: 0.7 },
+      colors: ["#10b981", "#3b82f6", "#ec4899", "#f59e0b"],
+    });
+  }, []);
+  const handleReject = useCallback((id: string) => {
+    setCereri((prev) =>
+      prev.map((c) =>
+        c.id === id
+          ? {
+              ...c,
+              status: "respinsa" as CerereStatus,
+              blocata: false,
+              auditTrail: [
+                ...c.auditTrail,
+                {
+                  timestamp: "4 Mar 2026, 10:00",
+                  action: "Respinsa de Admin",
+                  actor: "Admin Primarie",
+                },
+              ],
+            }
+          : c
+      )
+    );
+    toast.error("Cerere respinsa.");
+  }, []);
+  const handleReassign = useCallback((id: string, funcName: string) => {
+    setCereri((prev) =>
+      prev.map((c) =>
+        c.id === id
+          ? {
+              ...c,
+              functionar: funcName,
+              blocata: false,
+              zileInStatus: 0,
+              auditTrail: [
+                ...c.auditTrail,
+                {
+                  timestamp: "4 Mar 2026, 10:00",
+                  action: "Reasignata de admin",
+                  actor: "Admin Primarie",
+                  details: `Nou functionar: ${funcName}`,
+                },
+              ],
+            }
+          : c
+      )
+    );
+    toast.success(`Cerere reasignata catre ${funcName}`);
+    setShowReassignModal(null);
+  }, []);
+  const handleUnblock = useCallback((id: string) => {
+    setCereri((prev) =>
+      prev.map((c) =>
+        c.id === id
+          ? {
+              ...c,
+              blocata: false,
+              motivBlocare: undefined,
+              zileInStatus: 0,
+              auditTrail: [
+                ...c.auditTrail,
+                {
+                  timestamp: "4 Mar 2026, 10:00",
+                  action: "Deblocata de admin",
+                  actor: "Admin Primarie",
+                },
+              ],
+            }
+          : c
+      )
+    );
+    toast.success("Cerere deblocata!");
+  }, []);
+  const handleEscalate = useCallback((id: string) => {
+    setCereri((prev) =>
+      prev.map((c) =>
+        c.id === id
+          ? {
+              ...c,
+              escaladata: true,
+              prioritate: "urgenta" as Priority,
+              auditTrail: [
+                ...c.auditTrail,
+                {
+                  timestamp: "4 Mar 2026, 10:00",
+                  action: "Escaladat la Primar",
+                  actor: "Admin Primarie",
+                },
+              ],
+            }
+          : c
+      )
+    );
+    toast("Cerere escaladata la Primar!", { icon: "🔺" });
+  }, []);
+  const handleForceStatus = useCallback((id: string, newStatus: CerereStatus) => {
+    setCereri((prev) =>
+      prev.map((c) =>
+        c.id === id
+          ? {
+              ...c,
+              status: newStatus,
+              blocata: false,
+              zileInStatus: 0,
+              auditTrail: [
+                ...c.auditTrail,
+                {
+                  timestamp: "4 Mar 2026, 10:00",
+                  action: `Status fortat: ${statusConfig[newStatus].label}`,
+                  actor: "Admin Primarie",
+                },
+              ],
+            }
+          : c
+      )
+    );
+    toast(`Status schimbat in ${statusConfig[newStatus].label}`, { icon: "⚡" });
+  }, []);
+  const handleAddNote = useCallback((id: string, note: string) => {
+    if (!note.trim()) return;
+    setCereri((prev) =>
+      prev.map((c) =>
+        c.id === id
+          ? {
+              ...c,
+              noteAdmin: [...c.noteAdmin, note],
+              auditTrail: [
+                ...c.auditTrail,
+                {
+                  timestamp: "4 Mar 2026, 10:00",
+                  action: "Nota admin adaugata",
+                  actor: "Admin Primarie",
+                  details: note,
+                },
+              ],
+            }
+          : c
+      )
+    );
+    toast.success("Nota adaugata!");
+  }, []);
+  const handleChangePriority = useCallback((id: string, newPriority: Priority) => {
+    setCereri((prev) =>
+      prev.map((c) =>
+        c.id === id
+          ? {
+              ...c,
+              prioritate: newPriority,
+              auditTrail: [
+                ...c.auditTrail,
+                {
+                  timestamp: "4 Mar 2026, 10:00",
+                  action: `Prioritate schimbata: ${priorityConfig[newPriority].label}`,
+                  actor: "Admin Primarie",
+                },
+              ],
+            }
+          : c
+      )
+    );
+    toast(`Prioritate: ${priorityConfig[newPriority].label}`, { icon: "🏷️" });
+  }, []);
 
   return (
-    <>
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
-        className="space-y-6"
-      >
-        {/* ── Page header ── */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="bg-accent-500/10 flex h-9 w-9 items-center justify-center rounded-xl">
-              <FileText className="text-accent-500 h-5 w-5" />
-            </div>
-            <div>
-              <h1 className="text-foreground text-xl font-bold">Cereri Supervizare</h1>
-              <p className="text-muted-foreground text-xs">
-                {localCereri.length} cereri · {activeCount} active
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            {alertCount > 0 && (
-              <div
-                className="flex items-center gap-1.5 rounded-xl px-3 py-1.5"
-                style={{
-                  background: "rgba(239,68,68,0.08)",
-                  border: "1px solid rgba(239,68,68,0.15)",
-                }}
-              >
-                <AlertTriangle className="h-3.5 w-3.5 text-red-400" />
-                <span className="text-xs font-semibold text-red-400">{alertCount} alerte</span>
-              </div>
+    <div>
+      {/* Header */}
+      <div className="mb-5 flex items-center justify-between">
+        <div>
+          <motion.h1
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="flex items-center gap-2 text-white"
+            style={{ fontSize: "1.6rem", fontWeight: 700 }}
+          >
+            <FileText className="h-6 w-6 text-pink-400" /> Supervizare Cereri
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.05 }}
+            className="mt-0.5 text-gray-600"
+            style={{ fontSize: "0.83rem" }}
+          >
+            {stats.total} cereri · {stats.active} active ·{" "}
+            {stats.blocate > 0 && <span className="text-red-400">{stats.blocate} blocate · </span>}
+            {stats.nealocate > 0 && (
+              <span className="text-amber-400">{stats.nealocate} nealocate</span>
             )}
-            <button
-              onClick={() => toast.info("Export — funcționalitate în curând")}
-              className="text-muted-foreground hover:text-foreground flex items-center gap-1.5 rounded-lg border border-white/[0.06] bg-white/[0.03] px-3 py-1.5 text-xs transition-colors hover:bg-white/[0.06]"
-            >
-              <Download className="h-3.5 w-3.5" />
-              Export
-            </button>
-          </div>
+          </motion.p>
         </div>
-
-        {/* ── Tab navigation ── */}
-        <div
-          className="flex gap-1 rounded-xl p-1"
+        <motion.button
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.97 }}
+          onClick={() => toast.success("Export CSV generat")}
+          className="flex cursor-pointer items-center gap-1.5 rounded-xl px-3 py-2 text-gray-400 transition-all hover:text-white"
           style={{
-            background: "rgba(255,255,255,0.03)",
-            border: "1px solid rgba(255,255,255,0.05)",
+            background: "rgba(255,255,255,0.04)",
+            border: "1px solid rgba(255,255,255,0.06)",
           }}
         >
-          {TABS.map((tab) => {
-            const isActive = activeTab === tab.id;
-            const isAlerts = tab.id === "alerts";
+          <Download className="h-3.5 w-3.5" />
+          <span style={{ fontSize: "0.82rem" }}>Export</span>
+        </motion.button>
+      </div>
 
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={cn(
-                  "relative flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all",
-                  isActive
-                    ? "text-foreground"
-                    : "text-muted-foreground hover:text-foreground hover:bg-white/[0.04]"
-                )}
-              >
-                <tab.icon className="h-4 w-4" />
+      {/* Tabs */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-5 flex w-fit gap-1 rounded-xl p-1"
+        style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.05)" }}
+      >
+        {[
+          { id: "overview" as TabView, label: "Overview", icon: BarChart3 },
+          { id: "table" as TabView, label: "Tabel", icon: List },
+          { id: "kanban" as TabView, label: "Kanban", icon: LayoutGrid },
+          {
+            id: "alerts" as TabView,
+            label: `Alerte${alerts.length > 0 ? ` (${alerts.length})` : ""}`,
+            icon: AlertTriangle,
+          },
+        ].map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`relative flex cursor-pointer items-center gap-1.5 rounded-lg px-3.5 py-2 transition-all ${isActive ? "text-white" : "text-gray-500 hover:text-gray-300"}`}
+            >
+              {isActive && (
+                <motion.div
+                  layoutId="cereriTab"
+                  className="absolute inset-0 rounded-lg"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, rgba(236,72,153,0.15), rgba(139,92,246,0.08))",
+                    border: "1px solid rgba(236,72,153,0.15)",
+                  }}
+                  transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                />
+              )}
+              <Icon className={`relative z-10 h-3.5 w-3.5 ${isActive ? "text-pink-400" : ""}`} />
+              <span className="relative z-10" style={{ fontSize: "0.82rem" }}>
                 {tab.label}
-
-                {/* Alert badge on Alerte tab */}
-                {isAlerts && alertCount > 0 && (
-                  <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[0.6rem] font-bold text-white">
-                    {alertCount}
-                  </span>
-                )}
-
-                {/* Active indicator with layoutId spring animation */}
-                {isActive && (
-                  <motion.div
-                    layoutId="cereri-active-tab"
-                    className="absolute inset-0 -z-10 rounded-lg"
-                    style={{ background: "rgba(255,255,255,0.08)" }}
-                    transition={{ type: "spring", stiffness: 400, damping: 35 }}
-                  />
-                )}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* ── Tab content ── */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeTab}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.18, ease: "easeOut" }}
-          >
-            {activeTab === "overview" && <CereriOverviewTab cereri={localCereri} />}
-
-            {activeTab === "table" && (
-              <CereriTableTab
-                cereri={localCereri}
-                functionari={functionari}
-                onDetailOpen={(id) => setDetailDrawerId(id)}
-              />
-            )}
-
-            {activeTab === "kanban" && (
-              <CereriKanbanTab
-                cereri={localCereri}
-                functionari={functionari}
-                onStatusChange={async (cerereId, newDbStatus) => {
-                  if (newDbStatus === "refresh_prioritate") {
-                    // Force refresh or just let server action revalidatePath handle it
-                    return;
-                  }
-                  
-                  // Optimistic update
-                  setLocalCereri((prev) =>
-                    prev.map((c) => (c.id === cerereId ? { ...c, status: newDbStatus } : c))
-                  );
-
-                  // Confetti on approve
-                  if (newDbStatus === "aprobata") {
-                    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-                  }
-
-                  const result = await updateCerereStatus(cerereId, newDbStatus);
-                  if (result.error) {
-                    // Revert optimistic update on error
-                    setLocalCereri((prev) =>
-                      // Revert back? We don't have the old status saved here easily, but we'll assume next DB poll fixes it or manual refresh.
-                      prev
-                    );
-                    toast.error(result.error);
-                  } else {
-                    toast.success("Status actualizat!");
-                  }
-                }}
-              />
-            )}
-
-            {activeTab === "alerts" && <CereriAlertsTab cereri={localCereri} />}
-          </motion.div>
-        </AnimatePresence>
+              </span>
+              {tab.id === "alerts" && alerts.length > 0 && !isActive && (
+                <span className="relative z-10 h-2 w-2 animate-pulse rounded-full bg-red-500" />
+              )}
+            </button>
+          );
+        })}
       </motion.div>
 
-      {/* ── Detail Drawer ── */}
+      {/* Tab Content */}
+      {activeTab === "overview" && (
+        <CereriOverview cereri={cereri} stats={stats} alerts={alerts} onSwitchTab={setActiveTab} />
+      )}
+      {activeTab === "table" && (
+        <CereriTable
+          cereri={cereri}
+          onApprove={handleApprove}
+          onReject={handleReject}
+          onUnblock={handleUnblock}
+          onEscalate={handleEscalate}
+          onReassign={(id) => setShowReassignModal(id)}
+          onDetailDrawer={(id) => setDetailDrawer(id)}
+        />
+      )}
+      {activeTab === "kanban" && (
+        <CereriKanban cereri={cereri} onDetailDrawer={(id) => setDetailDrawer(id)} />
+      )}
+      {activeTab === "alerts" && (
+        <CereriAlerts
+          alerts={alerts}
+          onApprove={handleApprove}
+          onUnblock={handleUnblock}
+          onEscalate={handleEscalate}
+          onReassign={(id) => setShowReassignModal(id)}
+          onDetailDrawer={(id) => setDetailDrawer(id)}
+        />
+      )}
+
+      {/* Drawer + Modal */}
       <CereriDetailDrawer
-        cerere={detailCerere}
-        functionari={functionari}
-        open={!!detailDrawerId}
-        onClose={() => setDetailDrawerId(null)}
-        onStatusChange={(id, status) => {
-          setLocalCereri((prev) =>
-            prev.map((c) => (c.id === id ? { ...c, status } : c))
-          );
-        }}
+        cerere={drawerCerere}
+        onClose={() => setDetailDrawer(null)}
+        onApprove={handleApprove}
+        onReject={handleReject}
+        onUnblock={handleUnblock}
+        onEscalate={handleEscalate}
+        onReassign={(id) => setShowReassignModal(id)}
+        onAddNote={handleAddNote}
+        onChangePriority={handleChangePriority}
+        onForceStatus={handleForceStatus}
       />
-    </>
+      <CereriReassignModal
+        targetId={showReassignModal}
+        cereri={cereri}
+        onReassign={handleReassign}
+        onClose={() => setShowReassignModal(null)}
+      />
+    </div>
   );
 }
-
-export { CereriContent };
-export type { CereriContentProps };

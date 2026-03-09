@@ -1,267 +1,107 @@
 "use client";
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { X, ChevronDown, ChevronRight, RefreshCw } from "lucide-react";
-import { cn } from "@/lib/utils";
-import type { CalEvent } from "@/store/calendar-store";
+import { motion, AnimatePresence } from "motion/react";
+import { toast } from "sonner";
+import { X } from "lucide-react";
+
+// ─── Props ────────────────────────────────────────────
 
 interface CreateEventModalProps {
   open: boolean;
   onClose: () => void;
-  onEventCreate: (event: Omit<CalEvent, "id">) => void;
 }
 
-const COLORS = [
-  "bg-pink-500",
-  "bg-red-500",
-  "bg-amber-500",
-  "bg-blue-500",
-  "bg-violet-500",
-  "bg-emerald-500",
-  "bg-cyan-500",
-];
+// ─── Component ────────────────────────────────────────
 
-const EVENT_TYPES = ["Ședință", "Audit", "Training", "Termen", "Eveniment", "Personal"];
-
-type RecurrenceType = "none" | "zilnic" | "saptamanal" | "lunar";
-
-export function CreateEventModal({
-  open,
-  onClose,
-  onEventCreate,
-}: CreateEventModalProps) {
-  const [title, setTitle] = useState("");
-  const [date, setDate] = useState("");
-  const [time, setTime] = useState("");
-  const [location, setLocation] = useState("");
-  const [type, setType] = useState("Ședință");
-  const [color, setColor] = useState(COLORS[0] as string);
-  const [recurrence, setRecurrence] = useState<RecurrenceType>("none");
-  const [showRecurrence, setShowRecurrence] = useState(false);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!title.trim() || !date) return;
-
-    onEventCreate({
-      title: title.trim(),
-      date,
-      time: time || "00:00",
-      type: type || "Eveniment",
-      location: location.trim(),
-      color: color || "bg-pink-500",
-      recurrence,
-    });
-
-    // Reset form
-    setTitle("");
-    setDate("");
-    setTime("");
-    setLocation("");
-    setType("Ședință");
-    setColor(COLORS[0] as string);
-    setRecurrence("none");
-    setShowRecurrence(false);
-  };
-
+export function CreateEventModal({ open, onClose }: CreateEventModalProps) {
   return (
     <AnimatePresence>
       {open && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[100] flex items-center justify-center"
+          onClick={onClose}
+        >
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-background/80 backdrop-blur-sm"
-            onClick={onClose}
-          />
-
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            transition={{ type: "spring", bounce: 0, duration: 0.3 }}
-            className="relative bg-card border border-border rounded-2xl p-6 max-w-md w-full shadow-2xl flex flex-col max-h-[90vh]"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            onClick={(e) => e.stopPropagation()}
+            className="relative w-full max-w-md rounded-2xl p-5"
+            style={{
+              background: "linear-gradient(180deg, #1a1a2e, #141424)",
+              border: "1px solid rgba(255,255,255,0.1)",
+              boxShadow: "0 25px 60px rgba(0,0,0,0.5)",
+            }}
           >
-            <div className="flex justify-between items-center mb-6 shrink-0">
-              <h2 className="text-xl font-semibold">Eveniment Nou</h2>
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-white" style={{ fontSize: "1rem", fontWeight: 600 }}>
+                Eveniment Nou
+              </h3>
               <button
                 onClick={onClose}
-                className="p-2 -mr-2 text-muted-foreground hover:text-foreground rounded-full hover:bg-white/5 transition-colors"
-                type="button"
+                className="cursor-pointer rounded-lg p-1 text-gray-400 hover:bg-white/5"
               >
-                <X className="w-5 h-5" />
+                <X className="h-4 w-4" />
               </button>
             </div>
-
-            <div className="flex-1 overflow-y-auto px-1 min-h-0 hide-scrollbar pb-2">
-              <form id="create-event-form" onSubmit={handleSubmit} className="flex flex-col gap-5">
-                <div className="space-y-1.5">
-                  <label htmlFor="title" className="text-sm font-medium">
-                    Titlu Eveniment <span className="text-red-400">*</span>
-                  </label>
-                  <input
-                    id="title"
-                    type="text"
-                    required
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    placeholder="Ex: Ședință Consiliu Local"
-                    className="w-full bg-white/[0.03] border border-white/[0.05] rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-accent-500/50 text-sm"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <label htmlFor="date" className="text-sm font-medium">
-                      Dată <span className="text-red-400">*</span>
-                    </label>
-                    <input
-                      id="date"
-                      type="date"
-                      required
-                      value={date}
-                      onChange={(e) => setDate(e.target.value)}
-                      style={{ colorScheme: "dark" }}
-                      className="w-full bg-white/[0.03] border border-white/[0.05] rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-accent-500/50 text-sm"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label htmlFor="time" className="text-sm font-medium">Ora</label>
-                    <input
-                      id="time"
-                      type="time"
-                      value={time}
-                      onChange={(e) => setTime(e.target.value)}
-                      style={{ colorScheme: "dark" }}
-                      className="w-full bg-white/[0.03] border border-white/[0.05] rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-accent-500/50 text-sm"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label htmlFor="location" className="text-sm font-medium">Locație (opțional)</label>
-                  <input
-                    id="location"
-                    type="text"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                    placeholder="Ex: Sala Mare"
-                    className="w-full bg-white/[0.03] border border-white/[0.05] rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-accent-500/50 text-sm"
-                  />
-                </div>
-
-                {/* Type selector */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Tip Eveniment</label>
-                  <div className="flex flex-wrap gap-2">
-                    {EVENT_TYPES.map((t) => (
-                      <button
-                        key={t}
-                        type="button"
-                        onClick={() => setType(t)}
-                        className={cn(
-                          "px-3 py-1.5 rounded-full text-xs font-medium transition-all border",
-                          type === t
-                            ? `${color.replace("bg-", "text-")} border-transparent shadow-sm bg-white/[0.1]`
-                            : "text-muted-foreground border-border hover:bg-white/[0.05]"
-                        )}
-                        style={type === t ? { backgroundColor: "rgba(255,255,255,0.1)" } : {}}
-                      >
-                        {t}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Color swatches */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Culoare</label>
-                  <div className="flex flex-wrap gap-3">
-                    {COLORS.map((c) => (
-                      <button
-                        key={c}
-                        type="button"
-                        onClick={() => setColor(c)}
-                        className={cn(
-                          "w-7 h-7 rounded-full cursor-pointer transition-all",
-                          c,
-                          color === c
-                            ? "ring-2 ring-white/60 ring-offset-2 ring-offset-card scale-110"
-                            : "hover:scale-110 opacity-80 hover:opacity-100"
-                        )}
-                        aria-label={`Select color ${c}`}
-                      />
-                    ))}
-                  </div>
-                </div>
-
-                {/* Recurring toggle */}
-                <div className="space-y-2 border border-white/[0.05] bg-white/[0.02] rounded-xl p-3">
-                  <button
-                    type="button"
-                    onClick={() => setShowRecurrence(!showRecurrence)}
-                    className="flex items-center justify-between w-full text-sm font-medium text-foreground hover:text-white transition-colors"
-                  >
-                    <div className="flex items-center gap-2">
-                      <RefreshCw className="w-4 h-4 text-muted-foreground" />
-                      Eveniment Recurent
-                    </div>
-                    {showRecurrence ? <ChevronDown className="w-4 h-4 text-muted-foreground" /> : <ChevronRight className="w-4 h-4 text-muted-foreground" />}
-                  </button>
-
-                  <AnimatePresence>
-                    {showRecurrence && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        className="overflow-hidden"
-                      >
-                        <div className="pt-3 pb-1 border-t border-white/[0.05] mt-2 space-y-3">
-                          <div className="flex flex-wrap gap-2">
-                            {(["none", "zilnic", "saptamanal", "lunar"] as const).map((r) => (
-                              <button
-                                key={r}
-                                type="button"
-                                onClick={() => setRecurrence(r)}
-                                className={cn(
-                                  "px-3 py-1.5 rounded-lg text-xs font-medium transition-all border",
-                                  recurrence === r
-                                    ? "bg-accent text-accent-foreground border-transparent shadow-sm"
-                                    : "text-muted-foreground border-border hover:bg-white/[0.05]"
-                                )}
-                              >
-                                {r === "none" ? "Niciuna" : r === "zilnic" ? "Zilnic" : r === "saptamanal" ? "Săptămânal" : "Lunar"}
-                              </button>
-                            ))}
-                          </div>
-                          
-                          {recurrence !== "none" && (
-                            <p className="text-xs text-muted-foreground">
-                              Vor fi create până la {recurrence === "zilnic" ? 30 : recurrence === "saptamanal" ? 12 : 6} instanțe în calendar.
-                            </p>
-                          )}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              </form>
-            </div>
-            
-            <div className="pt-4 mt-2 border-t border-border shrink-0">
+            <div className="flex flex-col gap-3">
+              <input
+                placeholder="Titlu eveniment"
+                className="rounded-xl bg-transparent px-3 py-2.5 text-white outline-none placeholder:text-gray-600"
+                style={{
+                  fontSize: "0.9rem",
+                  background: "rgba(255,255,255,0.05)",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                }}
+              />
+              <div className="grid grid-cols-2 gap-3">
+                <input
+                  type="date"
+                  className="rounded-xl px-3 py-2.5 text-white outline-none"
+                  style={{
+                    fontSize: "0.85rem",
+                    background: "rgba(255,255,255,0.05)",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    colorScheme: "dark",
+                  }}
+                />
+                <input
+                  type="time"
+                  className="rounded-xl px-3 py-2.5 text-white outline-none"
+                  style={{
+                    fontSize: "0.85rem",
+                    background: "rgba(255,255,255,0.05)",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    colorScheme: "dark",
+                  }}
+                />
+              </div>
+              <input
+                placeholder="Locație (opțional)"
+                className="rounded-xl bg-transparent px-3 py-2.5 text-white outline-none placeholder:text-gray-600"
+                style={{
+                  fontSize: "0.9rem",
+                  background: "rgba(255,255,255,0.05)",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                }}
+              />
               <button
-                type="submit"
-                form="create-event-form"
-                className="w-full bg-[linear-gradient(110deg,var(--accent-500),var(--accent-600))] hover:bg-[linear-gradient(110deg,var(--accent-400),var(--accent-500))] text-white font-medium py-3 rounded-xl transition-all shadow-lg shadow-accent-500/20 active:scale-[0.98]"
+                onClick={() => {
+                  onClose();
+                  toast.success("Eveniment adăugat!");
+                }}
+                className="cursor-pointer rounded-xl px-4 py-2.5 text-white"
+                style={{ background: "linear-gradient(135deg, #3b82f6, #6366f1)" }}
               >
-                Salvează Evenimentul
+                Salvează
               </button>
             </div>
           </motion.div>
-        </div>
+        </motion.div>
       )}
     </AnimatePresence>
   );

@@ -5,230 +5,186 @@ import {
   Wallet,
   Target,
   Receipt,
-  CheckCircle2,
-  XCircle,
+  Percent,
+  AlertTriangle,
+  BanknoteIcon,
   TrendingUp,
-  CheckCircle,
-  Clock,
-  RefreshCcw,
+  TrendingDown,
 } from "lucide-react";
-import { AnimatedCounter } from "@/components/admin/shared/animated-counter";
 
-// ============================================================================
-// Types
-// ============================================================================
+import { allTransactions, MONTH_TARGET, CURRENT_MONTH_COLLECTED } from "./financiar-data";
 
-interface PlatiItem {
-  id: string;
-  suma: number;
-  status: string;
-  metoda_plata: string | null;
-  created_at: string;
-  cerere_id: string | null;
-}
+// ─── Component ────────────────────────────────────────
 
-interface KpiCardsProps {
-  plati: PlatiItem[];
-  totalRevenue: number;
-  txFilter: string;
-  onFilterChange: (filter: string) => void;
-}
+export function KpiCards() {
+  const totalTx = allTransactions.length;
+  const successTx = allTransactions.filter((t) => t.status === "success").length;
+  const failedTx = allTransactions.filter((t) => t.status === "failed").length;
+  const successRate = Math.round((successTx / totalTx) * 100 * 10) / 10;
+  const failRate = Math.round((failedTx / totalTx) * 100 * 10) / 10;
+  const totalCollected = allTransactions
+    .filter((t) => t.status === "success")
+    .reduce((s, t) => s + t.amount, 0);
+  const avgTxValue = Math.round(totalCollected / successTx);
+  const targetProgress = Math.round((CURRENT_MONTH_COLLECTED / MONTH_TARGET) * 100);
 
-// ============================================================================
-// Constants
-// ============================================================================
-
-/** Monthly target (mock — real target data not in plati table schema) */
-const MONTH_TARGET = 210_000;
-
-// ============================================================================
-// KpiCards
-// ============================================================================
-
-export function KpiCards({
-  plati,
-  totalRevenue,
-  txFilter,
-  onFilterChange,
-}: KpiCardsProps): React.JSX.Element {
-  const totalTx = plati.length;
-  const successTx = plati.filter((p) => p.status === "success").length;
-  const failedTx = plati.filter((p) => p.status === "failed").length;
-  const pendingTx = plati.filter((p) => p.status === "pending").length;
-  const refundedTx = plati.filter((p) => p.status === "refunded").length;
-
-  const successRate = totalTx > 0 ? Math.round((successTx / totalTx) * 1000) / 10 : 0;
-  const failRate = totalTx > 0 ? Math.round((failedTx / totalTx) * 1000) / 10 : 0;
-  const avgTxValue = successTx > 0 ? Math.round(totalRevenue / successTx) : 0;
-  const targetProgress = Math.min(100, Math.round((totalRevenue / MONTH_TARGET) * 100));
-
-  // ---- KPI card definitions ----
-  const kpiCards = [
+  const cards = [
     {
       icon: Wallet,
-      iconColor: "var(--color-success)",
-      label: "Total colectat",
-      value: totalRevenue,
-      suffix: " RON",
-      extraContent: (
-        <div className="mt-2">
-          <div className="mb-1 flex items-center justify-between">
-            <span className="text-[0.65rem] text-gray-400">{targetProgress}% din target lunar</span>
-          </div>
-          <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
-            <motion.div
-              className="h-full rounded-full bg-[var(--color-success)]"
-              initial={{ width: 0 }}
-              animate={{ width: `${targetProgress}%` }}
-              transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}
-            />
-          </div>
-        </div>
-      ),
+      label: "Colectat Luna",
+      value: CURRENT_MONTH_COLLECTED,
+      suffix: "RON",
+      color: "#10b981",
+      trend: "+12.3%",
+      up: true,
     },
     {
       icon: Target,
-      iconColor: "var(--color-info)",
-      label: "Target lunar",
+      label: "Target Lunar",
       value: MONTH_TARGET,
-      suffix: " RON",
-      extraContent: null,
+      suffix: "RON",
+      color: "#3b82f6",
+      trend: `${targetProgress}%`,
+      up: targetProgress >= 50,
     },
     {
       icon: Receipt,
-      iconColor: "var(--color-violet-500)",
-      label: "Nr. tranzacții",
+      label: "Nr. Tranzacții",
       value: totalTx,
       suffix: "",
-      extraContent: null,
+      color: "#8b5cf6",
+      trend: "+18",
+      up: true,
     },
     {
-      icon: CheckCircle2,
-      iconColor: "var(--color-success)",
-      label: "Rată succes",
-      value: Math.round(successRate * 10),
+      icon: Percent,
+      label: "Rată Succes",
+      value: successRate,
       suffix: "%",
-      // Display tenths as formatted
-      formatFn: (n: number) => `${(n / 10).toFixed(1)}`,
-      extraContent: null,
+      color: "#10b981",
+      trend: "+2.1%",
+      up: true,
     },
     {
-      icon: XCircle,
-      iconColor: "var(--color-error)",
-      label: "Rată eșec",
-      value: Math.round(failRate * 10),
+      icon: AlertTriangle,
+      label: "Rată Eșec",
+      value: failRate,
       suffix: "%",
-      formatFn: (n: number) => `${(n / 10).toFixed(1)}`,
-      extraContent: null,
+      color: "#ef4444",
+      trend: "-0.8%",
+      up: false,
     },
     {
-      icon: TrendingUp,
-      iconColor: "var(--color-warning)",
-      label: "Valoare medie",
+      icon: BanknoteIcon,
+      label: "Val. Medie Tx",
       value: avgTxValue,
-      suffix: " RON",
-      extraContent: null,
+      suffix: "RON",
+      color: "#f59e0b",
+      trend: "+5%",
+      up: true,
     },
-  ] as const;
-
-  // ---- Mini status cards ----
-  const miniCards = [
-    {
-      key: "success",
-      icon: CheckCircle,
-      label: "Succes",
-      count: successTx,
-      colorClass: "text-[var(--color-success)]",
-      bgClass: "bg-[var(--color-success-subtle)] border-[var(--color-success)]/20",
-    },
-    {
-      key: "pending",
-      icon: Clock,
-      label: "Pending",
-      count: pendingTx,
-      colorClass: "text-[var(--color-warning)]",
-      bgClass: "bg-[var(--color-warning-subtle)] border-[var(--color-warning)]/20",
-    },
-    {
-      key: "failed",
-      icon: XCircle,
-      label: "Eșuat",
-      count: failedTx,
-      colorClass: "text-[var(--color-error)]",
-      bgClass: "bg-[var(--color-error-subtle)] border-[var(--color-error)]/20",
-    },
-    {
-      key: "refunded",
-      icon: RefreshCcw,
-      label: "Rambursate",
-      count: refundedTx,
-      colorClass: "text-violet-400",
-      bgClass: "bg-violet-500/10 border-violet-500/20",
-    },
-  ] as const;
+  ];
 
   return (
-    <div className="space-y-4">
-      {/* 6 KPI cards */}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
-        {kpiCards.map((card, i) => {
-          const Icon = card.icon;
-          return (
-            <motion.div
-              key={card.label}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: i * 0.05 }}
-              className="rounded-2xl border border-white/[0.05] bg-white/[0.025] p-4"
-            >
-              <div className="mb-2 flex items-center gap-2">
-                <Icon className="h-4 w-4 shrink-0" style={{ color: card.iconColor }} />
-                <span className="truncate text-[0.7rem] text-gray-400">{card.label}</span>
-              </div>
-              <div className="flex items-baseline gap-0.5">
-                {"formatFn" in card ? (
-                  <AnimatedCounter
-                    target={card.value as number}
-                    formatFn={card.formatFn as (n: number) => string}
-                    className="text-xl font-bold text-white"
-                  />
+    <>
+      {/* KPI Cards Row */}
+      <div className="mb-5 grid grid-cols-6 gap-3">
+        {cards.map((card, i) => (
+          <motion.div
+            key={card.label}
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.05 + i * 0.04 }}
+            whileHover={{ y: -2 }}
+            className="group cursor-pointer rounded-xl p-3.5"
+            style={{ background: `${card.color}06`, border: `1px solid ${card.color}10` }}
+          >
+            <div className="mb-2 flex items-center justify-between">
+              <card.icon className="h-4 w-4" style={{ color: card.color }} />
+              <div
+                className="flex items-center gap-0.5 rounded px-1.5 py-0.5"
+                style={{ background: card.up ? "rgba(16,185,129,0.1)" : "rgba(239,68,68,0.1)" }}
+              >
+                {card.up ? (
+                  <TrendingUp className="h-2.5 w-2.5 text-emerald-400" />
                 ) : (
-                  <AnimatedCounter
-                    target={card.value as number}
-                    className="text-xl font-bold text-white"
-                  />
+                  <TrendingDown className="h-2.5 w-2.5 text-red-400" />
                 )}
-                {card.suffix && <span className="text-xs text-gray-400">{card.suffix}</span>}
+                <span style={{ fontSize: "0.6rem", color: card.up ? "#10b981" : "#ef4444" }}>
+                  {card.trend}
+                </span>
               </div>
-              {card.extraContent}
-            </motion.div>
-          );
-        })}
+            </div>
+            <div className="flex items-baseline gap-1">
+              <span
+                className="text-white"
+                style={{ fontSize: "1.35rem", fontWeight: 700, lineHeight: 1.1 }}
+              >
+                {card.value.toLocaleString("ro-RO")}
+              </span>
+              {card.suffix && (
+                <span className="text-gray-600" style={{ fontSize: "0.65rem" }}>
+                  {card.suffix}
+                </span>
+              )}
+            </div>
+            <span className="mt-0.5 block text-gray-600" style={{ fontSize: "0.68rem" }}>
+              {card.label}
+            </span>
+          </motion.div>
+        ))}
       </div>
 
-      {/* 4 mini status filter cards */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {miniCards.map((mc, i) => {
-          const Icon = mc.icon;
-          const isActive = txFilter === mc.key;
-          return (
-            <motion.button
-              key={mc.key}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.25, delay: 0.3 + i * 0.05 }}
-              onClick={() => onFilterChange(isActive ? "all" : mc.key)}
-              className={`flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 text-left transition-all ${mc.bgClass} ${isActive ? "ring-1 ring-white/20" : ""}`}
-            >
-              <Icon className={`h-4 w-4 shrink-0 ${mc.colorClass}`} />
-              <div>
-                <div className="text-[0.65rem] text-gray-400">{mc.label}</div>
-                <div className={`text-sm font-semibold ${mc.colorClass}`}>{mc.count}</div>
-              </div>
-            </motion.button>
-          );
-        })}
-      </div>
-    </div>
+      {/* Target Progress Bar */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="mb-5 flex items-center gap-4 rounded-xl px-5 py-3.5"
+        style={{
+          background: "rgba(255,255,255,0.025)",
+          border: "1px solid rgba(255,255,255,0.05)",
+        }}
+      >
+        <Target className="h-5 w-5 shrink-0 text-blue-400" />
+        <div className="flex-1">
+          <div className="mb-1.5 flex items-center justify-between">
+            <span className="text-gray-300" style={{ fontSize: "0.82rem" }}>
+              Progres Target Martie:{" "}
+              <span className="text-white" style={{ fontWeight: 600 }}>
+                {CURRENT_MONTH_COLLECTED.toLocaleString("ro-RO")} RON
+              </span>{" "}
+              din {MONTH_TARGET.toLocaleString("ro-RO")} RON
+            </span>
+            <span className="text-white" style={{ fontSize: "0.85rem", fontWeight: 700 }}>
+              {targetProgress}%
+            </span>
+          </div>
+          <div
+            className="h-2.5 w-full overflow-hidden rounded-full"
+            style={{ background: "rgba(255,255,255,0.06)" }}
+          >
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${targetProgress}%` }}
+              transition={{ duration: 1.2, ease: "easeOut" }}
+              className="h-full rounded-full"
+              style={{
+                background:
+                  targetProgress >= 80
+                    ? "linear-gradient(90deg, #10b981, #059669)"
+                    : targetProgress >= 50
+                      ? "linear-gradient(90deg, #3b82f6, #6366f1)"
+                      : "linear-gradient(90deg, #f59e0b, #ef4444)",
+              }}
+            />
+          </div>
+        </div>
+        <span className="shrink-0 text-gray-500" style={{ fontSize: "0.72rem" }}>
+          {Math.round((MONTH_TARGET - CURRENT_MONTH_COLLECTED) / 27).toLocaleString("ro-RO")} RON/zi
+          necesar
+        </span>
+      </motion.div>
+    </>
   );
 }

@@ -168,3 +168,17 @@ Plans:
 ---
 *Roadmap created: 2026-03-02*
 *Last updated: 2026-03-08 — Phase 20 gap closure plans 20-07 through 20-13 created (waves 7-9)*
+
+### Phase 21: Admin Navigation Performance Optimization
+**Status**: ✅ Complete
+**Goal**: Achieve instant navigation feel in the admin panel matching the Vite Figma prototype
+**Depends on**: Phase 20
+**Requirements**: PERF-01, PERF-02, PERF-03
+**Success Criteria** (what must be TRUE):
+  1. Every `/admin/*` route has a `loading.tsx` file exporting a skeleton loader, enabling immediate UI feedback on click
+  2. Sidebar navigation updates its active state optimistically (instantly) on click, without waiting for the server-side page transition
+  3. Blocking data fetches in server components are moved to child components or parallelized to prevent them from blocking the initial page render
+**Plans**: 1 plan
+
+Plans:
+- [x] 21-01-PLAN.md — Implement loading.tsx for all admin routes, optimistic SidebarNavItem state, and refactor blocking server-side Supabase queries

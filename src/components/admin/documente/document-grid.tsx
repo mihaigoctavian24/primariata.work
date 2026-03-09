@@ -30,6 +30,8 @@ interface DocumentGridProps {
   onFolderClick: (name: string) => void;
   onDelete: (file: StorageFile) => void;
   onPreview: (file: StorageFile) => void;
+  // Folder file counts
+  folderFileCounts?: Record<string, number>;
   // New props for wave 13
   selectedFileIds?: Set<string>;
   onToggleSelectFile?: (id: string) => void;
@@ -128,6 +130,7 @@ export function DocumentGrid({
   onFolderClick,
   onDelete,
   onPreview,
+  folderFileCounts = {},
   selectedFileIds = new Set(),
   onToggleSelectFile,
   renamingId,
@@ -192,7 +195,9 @@ export function DocumentGrid({
                         {folder.name}
                       </p>
                       <p className="text-gray-600" style={{ fontSize: "0.72rem" }}>
-                        Folder
+                        {folderFileCounts[folder.name] !== undefined
+                          ? `${folderFileCounts[folder.name]} fișiere`
+                          : "Folder"}
                       </p>
                     </div>
                     <ChevronRight className="h-4 w-4 text-gray-700 transition-colors group-hover:text-gray-400" />
@@ -213,7 +218,7 @@ export function DocumentGrid({
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6"
+              className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4"
             >
               <AnimatePresence mode="popLayout">
                 {files.map((file) => {
@@ -255,7 +260,7 @@ export function DocumentGrid({
                             onToggleSelectFile?.(file.id ?? file.name);
                           }}
                           onClick={(e) => e.stopPropagation()}
-                          className="absolute top-2 left-2 accent-[var(--color-info)] cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="absolute top-2 left-2 cursor-pointer accent-[var(--color-info)] opacity-0 transition-opacity group-hover:opacity-100"
                           style={{ zIndex: 10 }}
                         />
 
@@ -309,16 +314,16 @@ export function DocumentGrid({
                             if (e.key === "Escape") onRenameCancel?.();
                             if (e.key === "Enter") onRenameSubmit?.(file);
                           }}
-                          className="mb-1 w-full bg-transparent border-b border-[var(--color-info)] text-foreground text-[0.8rem] outline-none"
+                          className="text-foreground mb-1 w-full border-b border-[var(--color-info)] bg-transparent text-[0.8rem] outline-none"
                           onClick={(e) => e.stopPropagation()}
                         />
                       ) : (
-                        <p 
+                        <p
                           onDoubleClick={(e) => {
                             e.stopPropagation();
                             onRenameStart?.(file.id ?? file.name, file.name);
                           }}
-                          className="mb-1 truncate text-white cursor-text" 
+                          className="mb-1 cursor-text truncate text-white"
                           style={{ fontSize: "0.8rem" }}
                           title="Dublu-click pentru a edita"
                         >
@@ -375,12 +380,12 @@ export function DocumentGrid({
                             onToggleSelectFile?.(file.id ?? file.name);
                           }}
                           onClick={(e) => e.stopPropagation()}
-                          className="absolute -top-1 -left-1 accent-[var(--color-info)] cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="absolute -top-1 -left-1 cursor-pointer accent-[var(--color-info)] opacity-0 transition-opacity group-hover:opacity-100"
                         />
                       </div>
 
                       {/* Name / Rename input */}
-                      <div className="min-w-0 flex-1 relative">
+                      <div className="relative min-w-0 flex-1">
                         {renamingId === (file.id ?? file.name) ? (
                           <input
                             autoFocus
@@ -391,16 +396,16 @@ export function DocumentGrid({
                               if (e.key === "Escape") onRenameCancel?.();
                               if (e.key === "Enter") onRenameSubmit?.(file);
                             }}
-                            className="w-full bg-transparent border-b border-[var(--color-info)] text-foreground text-[0.85rem] outline-none"
+                            className="text-foreground w-full border-b border-[var(--color-info)] bg-transparent text-[0.85rem] outline-none"
                             onClick={(e) => e.stopPropagation()}
                           />
                         ) : (
-                          <p 
+                          <p
                             onDoubleClick={(e) => {
                               e.stopPropagation();
                               onRenameStart?.(file.id ?? file.name, file.name);
                             }}
-                            className="truncate text-white cursor-text" 
+                            className="cursor-text truncate text-white"
                             style={{ fontSize: "0.85rem" }}
                             title="Dublu-click pentru a edita"
                           >

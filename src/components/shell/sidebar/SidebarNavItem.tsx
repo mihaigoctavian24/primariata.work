@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect } from "react";
 import {
   LayoutDashboard,
   Activity,
@@ -19,6 +20,7 @@ import { motion } from "motion/react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import type { NavItem, IconName } from "./sidebar-config";
+import { useOptimisticNav } from "./use-optimistic-nav";
 
 /** Maps string icon names from sidebar config to actual Lucide components. */
 const ICON_MAP: Record<IconName, LucideIcon> = {
@@ -41,13 +43,35 @@ interface SidebarNavItemProps {
 
 export function SidebarNavItem({ item, collapsed }: SidebarNavItemProps) {
   const pathname = usePathname();
-  const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+  const { optimisticPath, setOptimisticPath } = useOptimisticNav();
+
+  // Clear optimistic state once the real pathname updates to match it
+  useEffect(() => {
+    if (
+      optimisticPath &&
+      (pathname === optimisticPath || pathname.startsWith(optimisticPath + "/"))
+    ) {
+      setOptimisticPath(null);
+    }
+  }, [pathname, optimisticPath, setOptimisticPath]);
+
+  // Use optimistic path if it exists, otherwise use real pathname
+  const currentPath = optimisticPath || pathname;
+
+  // Dashboard is the root "/admin". We must match it exactly, otherwise "/admin/documente"
+  // will also trigger startsWith("/admin/").
+  const isDashboardLink = item.href.endsWith("/admin");
+  const isActive = isDashboardLink
+    ? currentPath === item.href
+    : currentPath === item.href || currentPath.startsWith(item.href + "/");
 
   const Icon = ICON_MAP[item.icon];
 
   const content = (
     <Link
       href={item.href}
+      prefetch={true}
+      onClick={() => setOptimisticPath(item.href)}
       className={cn(
         "group relative inline-flex items-center gap-3 rounded-xl px-3 py-2 font-medium transition-all",
         isActive ? "text-white" : "text-gray-500 hover:text-gray-200",

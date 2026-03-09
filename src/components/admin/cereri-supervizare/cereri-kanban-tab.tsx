@@ -60,10 +60,13 @@ const KANBAN_COLUMNS: KanbanColumn[] = [
 ];
 
 const PRIORITATE_CLASSES: Record<string, string> = {
-  urgenta: "bg-[var(--color-error-subtle)] text-[var(--color-error)] border-[var(--color-error)]/20",
+  urgenta:
+    "bg-[var(--color-error-subtle)] text-[var(--color-error)] border-[var(--color-error)]/20",
   ridicata: "bg-orange-400/15 text-orange-400 border-orange-400/20",
-  medie: "bg-[var(--color-warning-subtle)] text-[var(--color-warning)] border-[var(--color-warning)]/20",
-  scazuta: "bg-[var(--color-neutral-subtle)] text-[var(--color-neutral)] border-[var(--color-neutral)]/20",
+  medie:
+    "bg-[var(--color-warning-subtle)] text-[var(--color-warning)] border-[var(--color-warning)]/20",
+  scazuta:
+    "bg-[var(--color-neutral-subtle)] text-[var(--color-neutral)] border-[var(--color-neutral)]/20",
 };
 
 const PRIORITATE_LABELS: Record<string, string> = {
@@ -151,13 +154,16 @@ function CereriKanbanTab({
   function handlePriorityChange(cerereId: string, p: string): void {
     if (isPending) return;
     startTransition(async () => {
-      const result = await changePriorityCerere(cerereId, p as any);
+      const result = await changePriorityCerere(
+        cerereId,
+        p as "urgenta" | "ridicata" | "medie" | "scazuta"
+      );
       if (result.error) {
         toast.error(result.error);
       } else {
         toast.success(`Prioritate actualizată: ${PRIORITATE_LABELS[p]}`);
         setOpenPriorityDropdown(null);
-        // Optimistic refresh triggers externally from onStatusChange if we wanted to trick it, 
+        // Optimistic refresh triggers externally from onStatusChange if we wanted to trick it,
         // but server action revalidatePath covers it.
         onStatusChange(cerereId, "refresh_prioritate"); // Trigger re-render
       }
@@ -217,7 +223,7 @@ function CereriKanbanTab({
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95 }}
                             className={cn(
-                              "mb-2 cursor-pointer rounded-xl border bg-card p-3 shadow-sm transition-all relative",
+                              "bg-card relative mb-2 cursor-pointer rounded-xl border p-3 shadow-sm transition-all",
                               "border-white/[0.06] hover:border-white/[0.14] hover:bg-white/[0.06]"
                             )}
                             onClick={(e) => {
@@ -229,26 +235,30 @@ function CereriKanbanTab({
                               openMoveDialog(cerere.id, cerere.status);
                             }}
                           >
-                            <div className="flex justify-between items-start">
+                            <div className="flex items-start justify-between">
                               <p className="text-foreground font-mono text-xs leading-tight font-semibold">
                                 {cerere.numar_inregistrare}
                               </p>
-                              
+
                               {/* Dropdown Priority Badge */}
                               <div className="relative" onClick={(e) => e.stopPropagation()}>
                                 <button
-                                  onClick={() => setOpenPriorityDropdown(isDropdownOpen ? null : cerere.id)}
+                                  onClick={() =>
+                                    setOpenPriorityDropdown(isDropdownOpen ? null : cerere.id)
+                                  }
                                   className={cn(
-                                    "flex items-center gap-1 inline-flex rounded-md border px-1.5 py-0.5 text-[0.6rem] font-semibold transition-colors",
-                                    cerere.prioritate 
+                                    "flex inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[0.6rem] font-semibold transition-colors",
+                                    cerere.prioritate
                                       ? PRIORITATE_CLASSES[cerere.prioritate]
-                                      : "bg-muted/30 text-muted-foreground border-transparent hover:bg-muted/50"
+                                      : "bg-muted/30 text-muted-foreground hover:bg-muted/50 border-transparent"
                                   )}
                                 >
-                                  {cerere.prioritate ? PRIORITATE_LABELS[cerere.prioritate] : "Prioritate"}
+                                  {cerere.prioritate
+                                    ? PRIORITATE_LABELS[cerere.prioritate]
+                                    : "Prioritate"}
                                   <ChevronDown className="h-2.5 w-2.5 opacity-70" />
                                 </button>
-                                
+
                                 <AnimatePresence>
                                   {isDropdownOpen && (
                                     <motion.div
@@ -256,7 +266,7 @@ function CereriKanbanTab({
                                       animate={{ opacity: 1, scale: 1, y: 0 }}
                                       exit={{ opacity: 0, scale: 0.95, y: -4 }}
                                       transition={{ duration: 0.1 }}
-                                      className="absolute right-0 top-full mt-1 w-32 rounded-lg border border-border bg-popover p-1 shadow-md z-10"
+                                      className="border-border bg-popover absolute top-full right-0 z-10 mt-1 w-32 rounded-lg border p-1 shadow-md"
                                     >
                                       {DB_PRIORITES.map((p) => (
                                         <button
@@ -264,8 +274,9 @@ function CereriKanbanTab({
                                           disabled={isPending}
                                           onClick={() => handlePriorityChange(cerere.id, p)}
                                           className={cn(
-                                            "w-full text-left rounded-md px-2 py-1.5 text-xs font-medium transition-colors hover:bg-accent",
-                                            cerere.prioritate === p && "bg-accent/50 text-foreground"
+                                            "hover:bg-accent w-full rounded-md px-2 py-1.5 text-left text-xs font-medium transition-colors",
+                                            cerere.prioritate === p &&
+                                              "bg-accent/50 text-foreground"
                                           )}
                                         >
                                           {PRIORITATE_LABELS[p]}
@@ -283,16 +294,24 @@ function CereriKanbanTab({
 
                             <div className="mt-2 flex items-center justify-between">
                               {sla !== null ? (
-                                <p className={cn("text-[0.65rem] font-medium bg-background px-1.5 py-0.5 rounded-md border border-white/[0.04]", slaClass(sla))}>
+                                <p
+                                  className={cn(
+                                    "bg-background rounded-md border border-white/[0.04] px-1.5 py-0.5 text-[0.65rem] font-medium",
+                                    slaClass(sla)
+                                  )}
+                                >
                                   {sla < 0 ? `+${Math.abs(sla)}z depășit` : `${sla}z SLA`}
                                 </p>
-                              ) : <span />}
-
-                              {Array.isArray(cerere.note_admin) && (cerere.note_admin as unknown[]).length > 0 && (
-                                <span className="bg-accent-500/20 text-accent-400 rounded-md px-1.5 py-0.5 text-[0.6rem] font-semibold">
-                                  {(cerere.note_admin as unknown[]).length} note
-                                </span>
+                              ) : (
+                                <span />
                               )}
+
+                              {Array.isArray(cerere.note_admin) &&
+                                (cerere.note_admin as unknown[]).length > 0 && (
+                                  <span className="bg-accent-500/20 text-accent-400 rounded-md px-1.5 py-0.5 text-[0.6rem] font-semibold">
+                                    {(cerere.note_admin as unknown[]).length} note
+                                  </span>
+                                )}
                             </div>
                           </motion.div>
                         );
@@ -313,7 +332,7 @@ function CereriKanbanTab({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[80] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
+            className="fixed inset-0 z-[80] flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm"
             onClick={() => setMoveDialog(null)}
           >
             <motion.div
@@ -321,11 +340,11 @@ function CereriKanbanTab({
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 8 }}
               transition={{ type: "spring", stiffness: 400, damping: 30 }}
-              className="w-full max-w-sm overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
+              className="border-border bg-card w-full max-w-sm overflow-hidden rounded-2xl border shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Dialog header */}
-              <div className="flex items-center justify-between border-b border-border px-4 py-3 bg-muted/30">
+              <div className="border-border bg-muted/30 flex items-center justify-between border-b px-4 py-3">
                 <p className="text-foreground text-sm font-semibold">Mută cererea în:</p>
                 <button
                   onClick={() => setMoveDialog(null)}
@@ -346,16 +365,18 @@ function CereriKanbanTab({
                         disabled={isCurrent}
                         onClick={() => handleMove(dest.ui)}
                         className={cn(
-                          "flex items-center justify-center rounded-xl border px-3 py-3 text-xs font-medium transition-all shadow-sm",
+                          "flex items-center justify-center rounded-xl border px-3 py-3 text-xs font-medium shadow-sm transition-all",
                           isCurrent
-                            ? "cursor-default opacity-40 bg-muted/50 border-transparent shadow-none"
-                            : "cursor-pointer hover:border-border hover:bg-accent bg-background border-white/[0.04]",
+                            ? "bg-muted/50 cursor-default border-transparent opacity-40 shadow-none"
+                            : "hover:border-border hover:bg-accent bg-background cursor-pointer border-white/[0.04]",
                           !isCurrent && dest.headerClass
                         )}
                       >
                         {dest.label}
                         {isCurrent && (
-                          <span className="ml-1.5 text-[0.6rem] font-normal opacity-70">curent</span>
+                          <span className="ml-1.5 text-[0.6rem] font-normal opacity-70">
+                            curent
+                          </span>
                         )}
                       </button>
                     );

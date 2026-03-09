@@ -1,170 +1,68 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { CalendarDays, Plus } from "lucide-react";
-import { toast } from "sonner";
-import { useCalendarStore } from "@/store/calendar-store";
-import type { CalEvent } from "@/store/calendar-store";
+
+import { events } from "./calendar-data";
 import { CalendarGrid } from "./calendar-grid";
 import { EventDetailPanel } from "./event-detail-panel";
 import { CreateEventModal } from "./create-event-modal";
-import { EditEventModal } from "./edit-event-modal";
+
+// ─── Component ────────────────────────────────────────
 
 export function CalendarContent() {
-  const { events, addEvent, removeEvent, updateEvent } = useCalendarStore();
-  
-  const today = new Date();
-  const [currentYear, setCurrentYear] = useState(today.getFullYear());
-  const [currentMonth, setCurrentMonth] = useState(today.getMonth());
-  const [selectedDay, setSelectedDay] = useState<number | null>(today.getDate());
-  
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [editingEvent, setEditingEvent] = useState<CalEvent | null>(null);
-
-  const handleMonthChange = (direction: "prev" | "next" | "today") => {
-    if (direction === "today") {
-      setCurrentYear(today.getFullYear());
-      setCurrentMonth(today.getMonth());
-      setSelectedDay(today.getDate());
-      return;
-    }
-
-    if (direction === "prev") {
-      if (currentMonth === 0) {
-        setCurrentMonth(11);
-        setCurrentYear(currentYear - 1);
-      } else {
-        setCurrentMonth(currentMonth - 1);
-      }
-    } else {
-      if (currentMonth === 11) {
-        setCurrentMonth(0);
-        setCurrentYear(currentYear + 1);
-      } else {
-        setCurrentMonth(currentMonth + 1);
-      }
-    }
-  };
-
-  const handleEventCreate = (e: Omit<CalEvent, "id">) => {
-    if (!e.recurrence || e.recurrence === "none") {
-      addEvent(e);
-      return;
-    }
-
-    const baseDate = new Date(e.date);
-    let count = 0;
-    
-    if (e.recurrence === "zilnic") count = 30;
-    else if (e.recurrence === "saptamanal") count = 12;
-    else if (e.recurrence === "lunar") count = 6;
-
-    for (let i = 0; i < count; i++) {
-      const d = new Date(baseDate);
-      if (e.recurrence === "zilnic") {
-        d.setDate(d.getDate() + i);
-      } else if (e.recurrence === "saptamanal") {
-        d.setDate(d.getDate() + i * 7);
-      } else if (e.recurrence === "lunar") {
-        d.setMonth(d.getMonth() + i);
-      }
-      
-      const isoDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-      
-      addEvent({
-        ...e,
-        date: isoDate,
-        // Mark as part of a recurring series if needed in UI, but the plan only specified creating N independent instances.
-      });
-    }
-  };
+  const [selectedDay, setSelectedDay] = useState<number | null>(4);
+  const [showNewEvent, setShowNewEvent] = useState(false);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className="flex flex-col gap-6 max-w-7xl mx-auto w-full"
-    >
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div>
+      {/* Header */}
+      <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
-            <CalendarDays className="w-8 h-8 text-sky-400" />
-            Calendar
-          </h1>
-          <p className="text-muted-foreground mt-1 text-sm sm:text-base">
-            Evenimente, deadlines și ședințe programate pentru Primărie.
-          </p>
+          <motion.h1
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="flex items-center gap-2 text-white"
+            style={{ fontSize: "1.6rem", fontWeight: 700 }}
+          >
+            <CalendarDays className="h-6 w-6 text-sky-400" /> Calendar
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.05 }}
+            className="mt-1 text-gray-600"
+            style={{ fontSize: "0.83rem" }}
+          >
+            Evenimente, deadlines și ședințe programate
+          </motion.p>
         </div>
-        
-        <button
-          onClick={() => setShowCreateModal(true)}
-          className="flex items-center gap-2 bg-[linear-gradient(110deg,#38bdf8,#818cf8)] hover:brightness-110 text-white font-medium py-2 px-4 rounded-xl transition-all shadow-lg active:scale-95"
+        <motion.button
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.97 }}
+          onClick={() => setShowNewEvent(true)}
+          className="flex cursor-pointer items-center gap-2 rounded-xl px-4 py-2.5 text-white"
+          style={{
+            background: "linear-gradient(135deg, #3b82f6, #6366f1)",
+            boxShadow: "0 4px 15px rgba(59,130,246,0.25)",
+          }}
         >
-          <Plus className="w-4 h-4" />
-          <span>Eveniment Nou</span>
-        </button>
+          <Plus className="h-4 w-4" />
+          <span style={{ fontSize: "0.85rem" }}>Eveniment Nou</span>
+        </motion.button>
       </div>
 
-      {/* Main Grid Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 mt-2">
-        <CalendarGrid
-          year={currentYear}
-          month={currentMonth}
-          events={events}
-          selectedDay={selectedDay}
-          onDaySelect={setSelectedDay}
-          onMonthChange={handleMonthChange}
-        />
-        
-        <EventDetailPanel
-          selectedDay={selectedDay}
-          year={currentYear}
-          month={currentMonth}
-          events={events}
-          onEventRemove={removeEvent}
-          onEventEdit={setEditingEvent}
-          onDaySelect={(day) => setSelectedDay(day)}
-        />
+      {/* Main Grid */}
+      <div className="grid grid-cols-12 gap-5">
+        <CalendarGrid events={events} selectedDay={selectedDay} onDaySelect={setSelectedDay} />
+        <EventDetailPanel selectedDay={selectedDay} events={events} onDaySelect={setSelectedDay} />
       </div>
 
-      <CreateEventModal
-        open={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
-        onEventCreate={(e) => {
-          handleEventCreate(e);
-          toast.success(
-            e.recurrence && e.recurrence !== "none"
-              ? "Evenimente recurente adăugate!"
-              : "Eveniment adăugat!"
-          );
-          setShowCreateModal(false);
-          
-          // Auto-select the day of the new event if it's in the current month view
-          const evtDate = new Date(e.date);
-          if (evtDate.getFullYear() === currentYear && evtDate.getMonth() === currentMonth) {
-            setSelectedDay(evtDate.getDate());
-          }
-        }}
-      />
-
-      <EditEventModal
-        open={!!editingEvent}
-        event={editingEvent}
-        onClose={() => setEditingEvent(null)}
-        onEventUpdate={(id, updates) => {
-          updateEvent(id, updates);
-          toast.success("Eveniment actualizat cu succes!");
-          setEditingEvent(null);
-        }}
-        onEventDelete={(id) => {
-          removeEvent(id);
-          toast.success("Eveniment șters cu succes!");
-          setEditingEvent(null);
-        }}
-      />
-    </motion.div>
+      {/* Modal */}
+      <CreateEventModal open={showNewEvent} onClose={() => setShowNewEvent(false)} />
+    </div>
   );
 }

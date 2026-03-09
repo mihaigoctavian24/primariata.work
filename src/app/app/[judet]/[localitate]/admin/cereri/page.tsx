@@ -1,9 +1,9 @@
 import { Suspense } from "react";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { createClient, createServiceRoleClient } from "@/lib/supabase/server";
+import { createServiceRoleClient } from "@/lib/supabase/server";
 import { CereriContent } from "@/components/admin/cereri-supervizare/cereri-content";
 import { CereriSkeleton } from "@/components/admin/cereri-supervizare/cereri-skeleton";
-import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Types (Wave 0 migration adds prioritate/note_admin/escaladata — not yet in DB types)
@@ -36,40 +36,20 @@ export interface FunctionarRow {
 // Page
 // ============================================================================
 
-export default async function CereriSupervizarePage({
-  params,
-}: {
-  params: Promise<{ judet: string; localitate: string }>;
-}) {
-  await params;
+export default async function CereriSupervizarePage() {
+  // Auth + role enforcement is handled by middleware (user_primarii.rol check).
+  // primarieId is read from x-primarie-id header injected by middleware.
+  const primarieId = (await headers()).get("x-primarie-id");
+  if (!primarieId) redirect("/auth/login");
 
-  // === AUTH CHECK ===
-  const authClient = await createClient();
-  const {
-    data: { user },
-  } = await authClient.auth.getUser();
+  return (
+    <Suspense fallback={<CereriSkeleton />}>
+      <CereriDataWrapper primarieId={primarieId} />
+    </Suspense>
+  );
+}
 
-  if (!user) {
-    redirect("/auth/login");
-  }
-
-  const { data: userData, error: userError } = await authClient
-    .from("utilizatori")
-    .select("rol, primarie_id")
-    .eq("id", user.id)
-    .single();
-
-  if (userError || !userData || !["admin", "super_admin"].includes(userData.rol)) {
-    logger.error("CereriSupervizarePage: access denied", { userError });
-    redirect("/auth/login");
-  }
-
-  const primarieId = userData.primarie_id;
-  if (!primarieId) {
-    redirect("/auth/login");
-  }
-
-  // === DATA FETCH ===
+async function CereriDataWrapper({ primarieId }: { primarieId: string }) {
   const supabase = createServiceRoleClient();
 
   const [cereriResult, functionariResult] = await Promise.all([
@@ -92,9 +72,5 @@ export default async function CereriSupervizarePage({
   const cereri = (cereriResult.data ?? []) as unknown as CerereRow[];
   const functionari = (functionariResult.data ?? []) as FunctionarRow[];
 
-  return (
-    <Suspense fallback={<CereriSkeleton />}>
-      <CereriContent cereri={cereri} functionari={functionari} />
-    </Suspense>
-  );
+  return <CereriContent cereri={cereri} functionari={functionari} />;
 }

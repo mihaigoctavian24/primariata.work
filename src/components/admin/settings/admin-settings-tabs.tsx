@@ -77,7 +77,7 @@ export function AdminSettingsTabs({ data }: AdminSettingsTabsProps): React.JSX.E
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
       {/* Sidebar tabs (vertical on desktop, horizontal scroll on mobile) */}
       <nav className="lg:col-span-3">
-        <div className="flex gap-1 overflow-x-auto lg:flex-col lg:overflow-x-visible">
+        <div className="flex gap-1 overflow-x-auto lg:flex-col lg:items-start lg:overflow-x-visible">
           {TABS.map((tab) => {
             const Icon: ComponentType<{ className?: string }> = tab.icon;
             const isActive = activeTab === tab.id;
@@ -87,23 +87,30 @@ export function AdminSettingsTabs({ data }: AdminSettingsTabsProps): React.JSX.E
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={cn(
-                  "relative flex items-center gap-2.5 rounded-xl px-4 py-3 font-medium whitespace-nowrap transition-colors",
-                  "lg:w-full",
+                  "relative inline-flex w-auto items-center gap-2.5 rounded-xl px-3 py-2 font-medium whitespace-nowrap transition-all",
                   isActive
-                    ? "text-foreground"
-                    : "text-muted-foreground hover:text-foreground hover:bg-white/[0.03]"
+                    ? "text-white"
+                    : "text-gray-500 hover:bg-white/[0.03] hover:text-gray-200"
                 )}
-                style={{ fontSize: "0.88rem" }}
+                style={{ fontSize: "0.82rem" }}
               >
                 {isActive && (
                   <motion.div
                     layoutId="settings-tab-indicator"
-                    className="bg-accent-500/[0.08] border-accent-500/[0.12] absolute inset-0 rounded-xl border"
+                    className="absolute inset-0 rounded-xl"
+                    style={{
+                      background:
+                        "linear-gradient(135deg, rgba(236,72,153,0.15), rgba(139,92,246,0.08))",
+                      border: "1px solid rgba(236,72,153,0.15)",
+                    }}
                     transition={{ type: "spring", stiffness: 350, damping: 30 }}
                   />
                 )}
                 <Icon
-                  className={cn("relative z-10 h-4 w-4 shrink-0", isActive && "text-accent-500")}
+                  className={cn(
+                    "relative z-10 h-[17px] w-[17px] shrink-0 transition-colors",
+                    isActive && "text-pink-400"
+                  )}
                 />
                 <span className="relative z-10">{tab.label}</span>
               </button>

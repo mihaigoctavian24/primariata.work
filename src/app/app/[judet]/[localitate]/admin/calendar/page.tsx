@@ -1,40 +1,25 @@
 import { Suspense } from "react";
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
 import { CalendarContent } from "@/components/admin/calendar/calendar-content";
 import { CalendarSkeleton } from "@/components/admin/calendar/calendar-skeleton";
 
 /**
  * Admin Calendar Page
  *
- * Server Component — no DB data fetch needed.
- * Zustand store handles event persistence via localStorage.
- * Auth check mirrors other admin pages.
+ * Auth + role enforcement is handled by middleware (user_primarii.rol check).
+ * No DB calls needed — CalendarContent uses Zustand/localStorage for persistence.
  */
-export default async function CalendarPage(): Promise<React.JSX.Element> {
-  // === AUTH CHECK ===
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/auth/login");
-  }
-
-  const { data: userData } = await supabase
-    .from("utilizatori")
-    .select("rol")
-    .eq("id", user.id)
-    .single();
-
-  if (!userData || !["admin", "super_admin"].includes(userData.rol)) {
-    redirect("/auth/login");
-  }
-
+export default function CalendarPage(): React.JSX.Element {
   return (
-    <Suspense fallback={<CalendarSkeleton />}>
-      <CalendarContent />
-    </Suspense>
+    <div className="block h-full w-full">
+      <Suspense
+        fallback={
+          <div className="block h-full w-full">
+            <CalendarSkeleton />
+          </div>
+        }
+      >
+        <CalendarContent />
+      </Suspense>
+    </div>
   );
 }

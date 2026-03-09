@@ -1,7 +1,8 @@
 import React, { Suspense } from "react";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
-import { createClient, createServiceRoleClient } from "@/lib/supabase/server";
+import { createServiceRoleClient } from "@/lib/supabase/server";
 import { aggregateByMonthFull, groupByDayOfWeek, groupByMetoda } from "@/lib/financiar-utils";
 import type { PlatiRow } from "@/lib/financiar-utils";
 import { FinanciarContent } from "@/components/admin/financiar/financiar-content";
@@ -32,37 +33,23 @@ interface DbPlatiRow {
 /**
  * FinanciarPage — Server Component
  *
- * Fetches plati and tipuri_cereri for the current primarie, computes financial
- * aggregations server-side, then hands off to FinanciarContent (Client Component).
- *
- * Protected: admin or super_admin role required.
+ * Auth + role enforcement is handled by middleware (user_primarii.rol check).
+ * primarieId is read from x-primarie-id header injected by middleware.
+ * Data fetching happens inside FinanciarDataWrapper (wrapped in Suspense).
  */
 export default async function FinanciarPage(): Promise<React.JSX.Element> {
-  // === AUTH CHECK ===
-  const authClient = await createClient();
-  const {
-    data: { user },
-  } = await authClient.auth.getUser();
+  const primarieId = (await headers()).get("x-primarie-id");
+  if (!primarieId) redirect("/auth/login");
 
-  if (!user) {
-    redirect("/auth/login");
-  }
+  // === RENDER ===
+  return (
+    <Suspense fallback={<FinanciarSkeleton />}>
+      <FinanciarDataWrapper primarieId={primarieId} />
+    </Suspense>
+  );
+}
 
-  const { data: userData } = await authClient
-    .from("utilizatori")
-    .select("rol, primarie_id")
-    .eq("id", user.id)
-    .single();
-
-  if (!userData || !["admin", "super_admin"].includes(userData.rol)) {
-    redirect("/auth/login");
-  }
-
-  const primarieId = userData.primarie_id;
-  if (!primarieId) {
-    redirect("/auth/login");
-  }
-
+async function FinanciarDataWrapper({ primarieId }: { primarieId: string }) {
   // === DATA FETCH ===
   const supabase = createServiceRoleClient();
   const sevenMonthsAgo = new Date(Date.now() - 7 * 30 * 24 * 60 * 60 * 1000).toISOString();
@@ -97,17 +84,14 @@ export default async function FinanciarPage(): Promise<React.JSX.Element> {
     .filter((p) => p.status === "success")
     .reduce((sum, p) => sum + p.suma, 0);
 
-  // === RENDER ===
   return (
-    <Suspense fallback={<FinanciarSkeleton />}>
-      <FinanciarContent
-        plati={rawPlati}
-        monthlyData={monthlyData}
-        dailyData={dailyData}
-        metodaData={metodaData}
-        tipuriCereri={tipuriCereri}
-        totalRevenue={totalRevenue}
-      />
-    </Suspense>
+    <FinanciarContent
+      plati={rawPlati}
+      monthlyData={monthlyData}
+      dailyData={dailyData}
+      metodaData={metodaData}
+      tipuriCereri={tipuriCereri}
+      totalRevenue={totalRevenue}
+    />
   );
 }

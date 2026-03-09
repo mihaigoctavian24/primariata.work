@@ -1,47 +1,31 @@
 import React, { Suspense } from "react";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
 import { DocumenteContent } from "@/components/admin/documente/documente-content";
 import { DocumenteSkeleton } from "@/components/admin/documente/documente-skeleton";
 
 /**
- * DocumentePage — Server Component (auth check only).
+ * DocumentePage — Server Component
  *
- * Protected route — requires authentication and admin/super_admin role.
- *
- * All Supabase Storage operations are performed client-side inside
- * DocumenteContent, so this page only needs to extract primarieId.
+ * Auth + role enforcement is handled by middleware (user_primarii.rol check).
+ * primarieId is read from x-primarie-id header injected by middleware.
+ * All Supabase Storage operations are performed client-side inside DocumenteContent.
  */
 export default async function DocumentePage(): Promise<React.JSX.Element> {
-  // === AUTH CHECK ===
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const primarieId = (await headers()).get("x-primarie-id");
+  if (!primarieId) redirect("/auth/login");
 
-  if (!user) {
-    redirect("/auth/login");
-  }
-
-  const { data: userData } = await supabase
-    .from("utilizatori")
-    .select("rol, primarie_id")
-    .eq("id", user.id)
-    .single();
-
-  if (!userData || !["admin", "super_admin"].includes(userData.rol)) {
-    redirect("/auth/login");
-  }
-
-  const primarieId = userData.primarie_id;
-  if (!primarieId) {
-    redirect("/auth/login");
-  }
-
-  // === RENDER ===
   return (
-    <Suspense fallback={<DocumenteSkeleton />}>
-      <DocumenteContent primarieId={primarieId} />
-    </Suspense>
+    <div className="block h-full w-full">
+      <Suspense
+        fallback={
+          <div className="block h-full w-full">
+            <DocumenteSkeleton />
+          </div>
+        }
+      >
+        <DocumenteContent primarieId={primarieId} />
+      </Suspense>
+    </div>
   );
 }

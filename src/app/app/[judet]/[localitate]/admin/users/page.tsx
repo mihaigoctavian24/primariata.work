@@ -1,4 +1,4 @@
-import { createClient, createServiceRoleClient } from "@/lib/supabase/server";
+import { createServiceRoleClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { Suspense } from "react";
@@ -13,44 +13,23 @@ import { UtilizatoriSkeleton } from "@/components/admin/utilizatori/utilizatori-
  *
  * Location: /app/[judet]/[localitate]/admin/users
  */
-export default async function UtilizatoriPage({
-  params,
-}: {
-  params: Promise<{ judet: string; localitate: string }>;
-}): Promise<React.ReactElement> {
-  // Await params (Next.js 15 requirement)
-  await params;
-
-  // Auth check with regular client (NOT getAuthContext — that is only for Server Actions)
-  const authClient = await createClient();
-  const {
-    data: { user },
-    error: authError,
-  } = await authClient.auth.getUser();
-
-  if (authError || !user) {
-    redirect("/auth/login");
-  }
-
-  // Role check: query utilizatori to confirm admin/super_admin
-  const { data: userData, error: userError } = await authClient
-    .from("utilizatori")
-    .select("rol, primarie_id")
-    .eq("id", user.id)
-    .single();
-
-  if (userError || !userData || !["admin", "super_admin"].includes(userData.rol)) {
-    redirect("/auth/login");
-  }
-
-  // Get primarie_id from header (set by middleware) or fall back to utilizatori record
-  const headersList = await headers();
-  const primarieId = headersList.get("x-primarie-id") ?? userData.primarie_id;
+export default async function UtilizatoriPage(): Promise<React.ReactElement> {
+  // Auth + role enforcement is handled by middleware (user_primarii.rol check).
+  // primarieId is read from x-primarie-id header injected by middleware.
+  const primarieId = (await headers()).get("x-primarie-id");
 
   if (!primarieId) {
     redirect("/location");
   }
 
+  return (
+    <Suspense fallback={<UtilizatoriSkeleton />}>
+      <UtilizatoriDataWrapper primarieId={primarieId} />
+    </Suspense>
+  );
+}
+
+async function UtilizatoriDataWrapper({ primarieId }: { primarieId: string }) {
   // Use service role client for admin operations (bypasses RLS)
   const admin = createServiceRoleClient();
 
@@ -78,9 +57,5 @@ export default async function UtilizatoriPage({
   const users = usersResult.data ?? [];
   const growthData = growthResult.data ?? [];
 
-  return (
-    <Suspense fallback={<UtilizatoriSkeleton />}>
-      <UtilizatoriContent users={users} growthData={growthData} primarieId={primarieId} />
-    </Suspense>
-  );
+  return <UtilizatoriContent users={users} growthData={growthData} primarieId={primarieId} />;
 }
