@@ -182,3 +182,22 @@ Plans:
 
 Plans:
 - [x] 21-01-PLAN.md — Implement loading.tsx for all admin routes, optimistic SidebarNavItem state, and refactor blocking server-side Supabase queries
+
+---
+
+### Phase 22: Super Admin Module (Global Admin)
+**Status**: ✅ Complete
+**Objective**: Build the super admin module to oversee all primării, view platform-wide stats, and create primărie admins, based on the Figma template.
+**Depends on**: Phase 21
+
+**Tasks**:
+- [x] Integrate Super Admin Shell and Navigation
+- [x] Build Dashboard Insights
+- [x] Build Primării Management
+- [x] Build Admins Management
+- [x] Build Analytics and Audit Logs
+- [x] Build Platform Settings
+
+**Verification**:
+- Verified Next.js dynamic routing and Super Admin layout isolation
+- Verified UI rendering without runtime errors across all 6 pages
