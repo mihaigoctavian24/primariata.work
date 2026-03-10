@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Design Revamp
 status: completed
-stopped_at: Completed 23-01-PLAN.md
-last_updated: "2026-03-10T12:44:43.608Z"
+stopped_at: Completed 23-02-PLAN.md
+last_updated: "2026-03-10T13:17:49.330Z"
 last_activity: 2026-03-09 -- Completed Phase 21 Wave 1
 progress:
   total_phases: 10
   completed_phases: 8
   total_plans: 51
-  completed_plans: 44
+  completed_plans: 45
   percent: 100
 ---
 
@@ -75,6 +75,7 @@ Progress: [██████████] 100%
 | Phase 22-super-admin-module P06 | 3 | 2 tasks | 4 files |
 | Phase 22-super-admin-module P08 | 6 | 2 tasks | 6 files |
 | Phase 23 P01 | 4 | 3 tasks | 12 files |
+| Phase 23 P02 | 8 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -189,6 +190,9 @@ Recent decisions affecting current work:
 - [Phase 23]: departamente/proiecte_municipale use staff-view + primar-manage RLS split; agende_primar uses primar_id = auth.uid() self-ownership
 - [Phase 23]: Middleware else-if pattern for primar routing: /primar guard inside approved-association block for TypeScript null narrowing safety
 - [Phase 23]: Placeholder pages (cetateni/anunturi) use Client Components with Framer Motion — permanent for phase 23, wired in later plans
+- [Phase 23]: PrimarSidebar uses buildNavSections() function (not module-level constant) because basePath is dynamic per-route slug
+- [Phase 23]: mandatStart/mandatSfarsit passed as null from layout — user_primarii lacks mandat columns in current types; will wire when types:generate runs after migration
+- [Phase 23]: try/catch fallback for escaladata cereri query and proiecte_municipale — columns/table not yet in generated types; returns 0 gracefully
 
 ### Pending Todos
 
@@ -215,6 +219,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-10T12:44:43.604Z
-Stopped at: Completed 23-01-PLAN.md
+Last session: 2026-03-10T13:17:49.326Z
+Stopped at: Completed 23-02-PLAN.md
 Resume file: None
