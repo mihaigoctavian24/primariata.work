@@ -116,13 +116,16 @@ export async function requestAccountDeletion(
     const serviceClient = createServiceRoleClient();
 
     // Update profile: mark deletion requested
-    const { error: updateError } = await serviceClient
+    // types:generate pending — deletion_requested_at not in generated types
+
+    const anyServiceClient = serviceClient as any;
+    const { error: updateError } = (await anyServiceClient
       .from("utilizatori")
       .update({
         deletion_requested_at: new Date().toISOString(),
         status: "pending_deletion",
       })
-      .eq("id", user.id);
+      .eq("id", user.id)) as { error: { message: string } | null };
 
     if (updateError) {
       logger.error("Failed to mark account for deletion:", updateError);
@@ -169,13 +172,16 @@ export async function cancelAccountDeletion(): Promise<SuccessResult | ErrorResu
     const serviceClient = createServiceRoleClient();
 
     // Clear deletion request
-    const { error: updateError } = await serviceClient
+    // types:generate pending — deletion_requested_at not in generated types
+
+    const anyServiceClient2 = serviceClient as any;
+    const { error: updateError } = (await anyServiceClient2
       .from("utilizatori")
       .update({
         deletion_requested_at: null,
         status: "active",
       })
-      .eq("id", user.id);
+      .eq("id", user.id)) as { error: { message: string } | null };
 
     if (updateError) {
       logger.error("Failed to cancel account deletion:", updateError);
