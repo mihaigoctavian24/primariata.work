@@ -1,3 +1,7 @@
+// TODO: Run pnpm types:generate after applying migration 20260310_primar_module_schema.sql
+// New tables added: departamente, proiecte_municipale, agende_primar
+// New columns: cereri.note_primar (JSONB), user_primarii.mandat_start (DATE), user_primarii.mandat_sfarsit (DATE)
+
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
 export type Database = {
