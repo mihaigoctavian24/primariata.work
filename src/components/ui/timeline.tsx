@@ -1,14 +1,14 @@
 "use client";
 
-import { useMotionValueEvent, useScroll, useTransform, motion } from "framer-motion";
+import { useMotionValueEvent, useScroll, useSpring, useTransform, motion } from "framer-motion";
 import React, { useEffect, useRef, useState } from "react";
-import Image from "next/image";
+import { HeartIcon } from "@/components/ui/HeartIcon";
 
 interface TimelineEntry {
   title: string;
-  header: React.ReactNode;
+  header: React.ReactNode | ((revealed: boolean) => React.ReactNode);
   images: React.ReactNode;
-  description: React.ReactNode | null;
+  description: React.ReactNode | ((revealed: boolean) => React.ReactNode) | null;
 }
 
 // Component for individual timeline item with scroll-based image animations
@@ -18,13 +18,14 @@ function TimelineItemContent({
   description,
   scrollContainer,
 }: {
-  header: React.ReactNode;
+  header: React.ReactNode | ((revealed: boolean) => React.ReactNode);
   images: React.ReactNode;
-  description: React.ReactNode | null;
+  description: React.ReactNode | ((revealed: boolean) => React.ReactNode) | null;
   scrollContainer?: React.RefObject<HTMLElement>;
 }) {
   const itemRef = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [revealed, setRevealed] = useState(false);
 
   // Detect mobile (< 768px) on mount and resize
   useEffect(() => {
@@ -37,39 +38,54 @@ function TimelineItemContent({
   const { scrollYProgress } = useScroll({
     target: itemRef,
     container: scrollContainer,
-    offset: isMobile ? ["start 70%", "end start"] : ["start end", "end start"],
+    offset: isMobile ? ["start 70%", "end start"] : ["start 80%", "end start"],
+  });
+
+  // Toggle revealed based on scroll threshold (reversible)
+  useMotionValueEvent(scrollYProgress, "change", (latest) => {
+    const threshold = isMobile ? 0.55 : 0.35;
+    if (!revealed && latest >= threshold) setRevealed(true);
+    if (revealed && latest < threshold - 0.05) setRevealed(false);
   });
 
   // Phase 1: rotateX 90deg → 0deg (flat to upright) - earlier on MOBILE ONLY
-  const rotateX = useTransform(scrollYProgress, isMobile ? [0.2, 0.5] : [0.4, 0.7], [90, 0]);
+  const rotateXBase = useTransform(scrollYProgress, isMobile ? [0.2, 0.5] : [0.0, 0.25], [90, 0]);
+  const rotateX = useSpring(rotateXBase, { stiffness: 120, damping: 14, mass: 1 });
 
   // Phase 2: scale up - happens after flip starts (limited to 1.16 max, shrinks to 0.936) - earlier on MOBILE ONLY
   const scale = useTransform(
     scrollYProgress,
-    isMobile ? [0.3, 0.55, 0.65] : [0.5, 0.75, 0.85],
+    isMobile ? [0.3, 0.55, 0.65] : [0.1, 0.3, 0.4],
     [0.8, 1.16, 1]
   );
 
   // Phase 3: translateY (move up) - earlier on MOBILE ONLY
-  const translateY = useTransform(scrollYProgress, isMobile ? [0.6, 0.8] : [0.8, 1], [0, -50]);
+  const translateY = useTransform(scrollYProgress, isMobile ? [0.6, 0.8] : [0.5, 0.7], [0, -50]);
 
   // Header animation - emerges as image reaches full expansion - earlier on MOBILE ONLY
-  const headerOpacity = useTransform(scrollYProgress, isMobile ? [0.3, 0.55] : [0.5, 0.75], [0, 1]);
+  const headerOpacity = useTransform(
+    scrollYProgress,
+    isMobile ? [0.3, 0.55] : [0.15, 0.35],
+    [0, 1]
+  );
   const headerTranslateY = useTransform(
     scrollYProgress,
-    isMobile ? [0.3, 0.55] : [0.5, 0.75],
+    isMobile ? [0.3, 0.55] : [0.15, 0.35],
     [20, 0]
   );
 
   // Description opacity (appears together with header) - earlier on MOBILE ONLY
   const descriptionOpacity = useTransform(
     scrollYProgress,
-    isMobile ? [0.3, 0.55] : [0.5, 0.75],
+    isMobile ? [0.3, 0.55] : [0.15, 0.35],
     [0, 1]
   );
 
   // Image fade-in effect (starts earlier, smooth appearance) - earlier on MOBILE ONLY
-  const imageOpacity = useTransform(scrollYProgress, isMobile ? [0.1, 0.4] : [0.3, 0.6], [0, 1]);
+  const imageOpacity = useTransform(scrollYProgress, isMobile ? [0.1, 0.4] : [0.0, 0.2], [0, 1]);
+
+  const headerContent = typeof header === "function" ? header(revealed) : header;
+  const descContent = typeof description === "function" ? description(revealed) : description;
 
   return (
     <div ref={itemRef} className="relative z-10 w-full pr-4 pl-20 md:pl-4">
@@ -100,17 +116,17 @@ function TimelineItemContent({
             translateY: headerTranslateY,
           }}
         >
-          {header}
+          {headerContent}
         </motion.div>
 
         {/* Description that fades in at the end */}
-        {description && (
+        {descContent && (
           <motion.div
             style={{
               opacity: descriptionOpacity,
             }}
           >
-            {description}
+            {descContent}
           </motion.div>
         )}
       </motion.div>
@@ -173,19 +189,15 @@ export const Timeline = ({
   return (
     <div className="w-full bg-transparent font-sans md:px-10" ref={containerRef}>
       <div className="mx-auto max-w-7xl px-4 py-20 md:px-8 lg:px-10">
-        <h2 className="font-montreal-medium mb-4 max-w-4xl text-3xl font-bold text-white md:text-6xl dark:text-gray-900">
-          De ce primăria<span className="text-[#BE3144]">Ta</span>
-          <Image
-            src="/vector_heart.svg"
-            alt="❤️"
-            width={28}
-            height={28}
-            className="inline-block"
+        <h2 className="font-montreal-medium text-foreground mb-4 max-w-4xl text-3xl font-bold md:text-6xl">
+          De ce primăria<span className="text-primary">Ta</span>
+          <HeartIcon
+            className="text-primary inline-block"
             style={{ width: "1em", height: "1em" }}
           />
           ?
         </h2>
-        <p className="max-w-sm text-sm text-gray-400 md:text-base dark:text-gray-700">
+        <p className="text-muted-foreground max-w-sm text-sm md:text-base">
           Platformă SaaS white-label care digitalizează complet procesele administrative locale
         </p>
       </div>
@@ -211,12 +223,23 @@ export const Timeline = ({
 
               <TimelineItemContent
                 header={
-                  <>
-                    <h3 className="font-montreal-medium mb-4 block text-left text-2xl text-neutral-400 md:hidden dark:text-neutral-700">
-                      {item.title}
-                    </h3>
-                    {item.header}
-                  </>
+                  typeof item.header === "function" ? (
+                    (revealed) => (
+                      <>
+                        <h3 className="font-montreal-medium mb-4 block text-left text-2xl text-neutral-400 md:hidden dark:text-neutral-700">
+                          {item.title}
+                        </h3>
+                        {(item.header as (revealed: boolean) => React.ReactNode)(revealed)}
+                      </>
+                    )
+                  ) : (
+                    <>
+                      <h3 className="font-montreal-medium mb-4 block text-left text-2xl text-neutral-400 md:hidden dark:text-neutral-700">
+                        {item.title}
+                      </h3>
+                      {item.header}
+                    </>
+                  )
                 }
                 images={item.images}
                 description={item.description}
@@ -236,7 +259,7 @@ export const Timeline = ({
               height: heightTransform,
               opacity: opacityTransform,
             }}
-            className="absolute inset-x-0 top-0 w-[2px] rounded-full bg-gradient-to-t from-[#BE3144] from-[0%] via-[#EF4444] via-[10%] to-transparent"
+            className="from-primary via-primary/60 absolute inset-x-0 top-0 w-[2px] rounded-full bg-gradient-to-t to-transparent"
           />
         </div>
       </div>

@@ -121,10 +121,12 @@ export function ClickableAvatar({
 
   return (
     <div className={cn("relative inline-block", className)}>
-      <button
+      <motion.button
         type="button"
         onClick={() => fileInputRef.current?.click()}
         disabled={uploading}
+        whileTap={{ scale: 0.9 }}
+        transition={{ type: "spring", stiffness: 400, damping: 20 }}
         className={cn(
           `group focus-visible:ring-accent-500 relative overflow-hidden ${rounded} focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2`,
           sizeConfig.container
@@ -150,14 +152,11 @@ export function ClickableAvatar({
 
         {/* Hover overlay with Camera icon */}
         {!uploading && (
-          <motion.div
-            className={`absolute inset-0 flex items-center justify-center ${rounded} bg-black/50 opacity-0 group-hover:opacity-100`}
-            initial={false}
-            whileHover={{ opacity: 1 }}
-            transition={{ duration: 0.15 }}
+          <div
+            className={`absolute inset-0 flex items-center justify-center ${rounded} bg-black/50 opacity-0 transition-opacity duration-150 group-hover:opacity-100`}
           >
             <Camera className={cn("text-white", sizeConfig.iconSize)} />
-          </motion.div>
+          </div>
         )}
 
         {/* Loading spinner overlay */}
@@ -168,7 +167,7 @@ export function ClickableAvatar({
             <Loader2 className={cn("animate-spin text-white", sizeConfig.spinnerSize)} />
           </div>
         )}
-      </button>
+      </motion.button>
 
       {/* Hidden file input */}
       <input

@@ -53,8 +53,10 @@ export function Sidebar({ config, collapsed, onToggle, onCommandPalette }: Sideb
   return (
     <motion.aside
       className="text-sidebar-foreground bg-sidebar-background fixed inset-y-0 left-0 z-30 flex flex-col border-r border-white/[0.04] dark:[background:linear-gradient(180deg,#0c0c18,#08080f)]"
+      initial={false}
       animate={{ width: collapsed ? 72 : 260 }}
       transition={{ duration: 0.3, ease: "easeInOut" }}
+      suppressHydrationWarning
     >
       <SidebarLogo collapsed={collapsed} />
       <SidebarQuickSearch collapsed={collapsed} onCommandPalette={onCommandPalette} />

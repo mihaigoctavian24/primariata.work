@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 import Link from "next/link";
+import { HeartIcon } from "@/components/ui/HeartIcon";
 import { FaFacebook, FaInstagram, FaLinkedin, FaTwitter } from "react-icons/fa";
 import { reopenCookieConsent } from "@/components/cookie-consent/CookieConsentBanner";
 
@@ -94,34 +94,21 @@ export const Footer = ({
           <div className="flex w-full max-w-sm flex-col gap-6">
             {/* Logo */}
             <Link href={logo.url} className="flex items-center gap-2">
-              <Image
-                src={logo.src}
-                alt={logo.alt}
-                title={logo.title}
-                width={32}
-                height={32}
-                className="h-8 w-8"
-              />
-              <h2 className="font-montreal-medium text-xl font-bold text-white dark:text-gray-900">
+              <HeartIcon className="text-primary h-8 w-8" />
+              <h2 className="font-montreal-medium text-foreground text-xl font-bold">
                 primăria<span className="text-primary">Ta</span>
-                <Image
-                  src="/vector_heart.svg"
-                  alt="❤️"
-                  width={20}
-                  height={20}
-                  className="ml-0.5 inline-block"
+                <HeartIcon
+                  className="text-primary ml-0.5 inline-block"
                   style={{ width: "0.9em", height: "0.9em" }}
                 />
               </h2>
             </Link>
 
             {/* Description */}
-            <p className="text-sm leading-relaxed text-gray-400 dark:text-gray-700">
-              {description}
-            </p>
+            <p className="text-muted-foreground text-sm leading-relaxed">{description}</p>
 
             {/* Social Links */}
-            <ul className="flex items-center space-x-6 text-gray-400 dark:text-gray-700">
+            <ul className="text-muted-foreground flex items-center space-x-6">
               {socialLinks.map((social, idx) => (
                 <li key={idx} className="hover:text-primary transition-colors">
                   <a href={social.href} aria-label={social.label}>
@@ -136,10 +123,10 @@ export const Footer = ({
           <div className="grid w-full gap-8 sm:grid-cols-2 lg:grid-cols-3 lg:gap-12">
             {sections.map((section, sectionIdx) => (
               <div key={sectionIdx}>
-                <h3 className="font-montreal-medium mb-4 font-bold text-white dark:text-gray-900">
+                <h3 className="font-montreal-medium text-foreground mb-4 font-bold">
                   {section.title}
                 </h3>
-                <ul className="space-y-3 text-sm text-gray-400 dark:text-gray-700">
+                <ul className="text-muted-foreground space-y-3 text-sm">
                   {section.links.map((link, linkIdx) => (
                     <li key={linkIdx} className="hover:text-primary transition-colors">
                       <Link href={link.href}>{link.name}</Link>

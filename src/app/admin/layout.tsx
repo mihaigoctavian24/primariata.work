@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -56,6 +57,14 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { href: "/admin/survey", label: "Survey Platform", icon: BarChart3 },
     { href: "/admin/settings", label: "Setari Admin", icon: Settings },
   ];
+
+  const pathname = usePathname();
+  const isSuperAdminOrLoginRoute =
+    pathname?.startsWith("/admin/primariata") || pathname?.startsWith("/admin/login");
+
+  if (isSuperAdminOrLoginRoute) {
+    return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+  }
 
   return (
     <QueryClientProvider client={queryClient}>

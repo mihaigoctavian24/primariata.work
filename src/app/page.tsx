@@ -3,7 +3,6 @@
 import { useEffect, Suspense, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { HeroSection } from "@/components/landing/HeroSection";
-import { LandingMapSection } from "@/components/landing/LandingMapSection";
 import { FeaturesSection } from "@/components/landing/FeaturesSection";
 import { Footer } from "@/components/ui/footer";
 import { TheInfiniteGrid } from "@/components/ui/the-infinite-grid";
@@ -130,11 +129,6 @@ function LandingPageContent({
         <Suspense fallback={<div className="min-h-screen bg-black dark:bg-white" />}>
           <HeroSection scrollContainer={mainRef} isInFeaturesSection={isInFeaturesSection} />
         </Suspense>
-      </div>
-
-      {/* Map Section - Interactive Leaflet map for selected localitate */}
-      <div className="snap-start snap-always">
-        <LandingMapSection />
       </div>
 
       {/* Transition Zone - Magnetic scroll area */}

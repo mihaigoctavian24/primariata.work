@@ -1,69 +1,63 @@
 "use client";
 
 import Image from "next/image";
-import {
-  Smartphone,
-  Search,
-  CreditCard,
-  FileText,
-  MessageCircle,
-  BookOpen,
-  BarChart3,
-  Brain,
-  CheckCircle,
-  Lock,
-  Mail,
-  Paperclip,
-  Clock,
-  ShieldCheck,
-  Folder,
-  Download,
-  Lightbulb,
-  Gift,
-  Video,
-  HelpCircle,
-  Bot,
-  TrendingUp,
-  Target,
-  FileCheck,
-  Calendar,
-  Upload,
-} from "lucide-react";
+import { motion } from "framer-motion";
 import { Timeline } from "@/components/ui/timeline";
+import { TextScramble } from "@/components/ui/text-scramble";
+import { Highlight } from "@/components/ui/highlight";
 
-/**
- * Features Section Component with Timeline
- *
- * Displays 8 key features of the platform in a modern Timeline layout.
- *
- * Features organized chronologically by user journey:
- * 1. Cereri Online - Entry point
- * 2. Tracking Real-Time - Follow-up
- * 3. Plăți Digitale - Payment flow
- * 4. Chat Direct - Support
- * 5. Documente Digitale - Delivery
- * 6. Survey Platform - Feedback
- * 7. Documentație Oficială - Learning
- * 8. AI Research Dashboard - Analytics
- */
+function FeatureInfoCard({
+  title,
+  subtitle,
+  bullets,
+  revealed,
+}: {
+  title: string;
+  subtitle: string;
+  bullets: string[];
+  revealed: boolean;
+}) {
+  return (
+    <div className="mb-6">
+      <h4 className="font-montreal text-foreground text-lg font-bold">
+        <Highlight active={revealed}>
+          <TextScramble trigger={revealed} speed={0.04} as="span">
+            {title}
+          </TextScramble>
+        </Highlight>
+      </h4>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={revealed ? { opacity: 1 } : { opacity: 0 }}
+        transition={{ duration: 0.5, ease: "easeOut", delay: 0.15 }}
+      >
+        <p className="text-muted-foreground mt-1 text-sm">{subtitle}</p>
+        <ul className="mt-2 space-y-1">
+          {bullets.map((b, i) => (
+            <li key={i} className="text-muted-foreground/80 text-xs md:text-sm">
+              — {b}
+            </li>
+          ))}
+        </ul>
+      </motion.div>
+    </div>
+  );
+}
 
 const timelineData = [
   {
     title: "Cereri Online",
-    header: (
-      <div className="mb-4 flex items-center gap-3">
-        <div className="bg-primary/10 rounded-lg p-3">
-          <Smartphone className="text-primary h-6 w-6" />
-        </div>
-        <div>
-          <h4 className="font-montreal text-lg font-bold font-medium text-white dark:text-gray-900">
-            Depune cereri fără deplasări
-          </h4>
-          <p className="text-sm text-gray-400 dark:text-gray-700">
-            Platforma completă pentru interacțiunea cu primăria ta
-          </p>
-        </div>
-      </div>
+    header: (revealed: boolean) => (
+      <FeatureInfoCard
+        title="Depune cereri fără deplasări"
+        subtitle="Platforma completă pentru interacțiunea cu primăria ta"
+        bullets={[
+          "Accesează și completează formulare online 24/7",
+          "Încarcă documente direct din platforma web",
+          "Programează întâlniri fără telefoane și cozi",
+        ]}
+        revealed={revealed}
+      />
     ),
     images: (
       <div>
@@ -73,44 +67,27 @@ const timelineData = [
             alt="Cereri Online"
             fill
             sizes="(max-width: 768px) 100vw, 50vw"
-            className="object-cover shadow-[0_0_20px_rgba(190,49,68,0.15)]"
+            className="object-cover"
+            style={{ boxShadow: "0 0 20px var(--accent-shadow)" }}
           />
         </div>
       </div>
     ),
-    description: (
-      <div className="mb-6">
-        <div className="font-montreal mb-2 flex items-center gap-2 text-xs font-medium text-gray-300 md:text-sm dark:text-gray-600">
-          <FileCheck className="text-primary h-4 w-4 flex-shrink-0" />
-          Accesează și completează formulare online 24/7
-        </div>
-        <div className="font-montreal mb-2 flex items-center gap-2 text-xs font-medium text-gray-300 md:text-sm dark:text-gray-600">
-          <Upload className="text-primary h-4 w-4 flex-shrink-0" />
-          Încarcă documente direct din platforma web
-        </div>
-        <div className="font-montreal flex items-center gap-2 text-xs font-medium text-gray-300 md:text-sm dark:text-gray-600">
-          <Calendar className="text-primary h-4 w-4 flex-shrink-0" />
-          Programează întâlniri fără telefoane și cozi
-        </div>
-      </div>
-    ),
+    description: null,
   },
   {
     title: "Tracking Real-Time",
-    header: (
-      <div className="mb-4 flex items-center gap-3">
-        <div className="bg-primary/10 rounded-lg p-3">
-          <Search className="text-primary h-6 w-6" />
-        </div>
-        <div>
-          <h4 className="font-montreal text-lg font-bold font-medium text-white dark:text-gray-900">
-            Urmărește statusul în timp real
-          </h4>
-          <p className="text-sm text-gray-400 dark:text-gray-700">
-            Transparență totală asupra progresului cererii tale
-          </p>
-        </div>
-      </div>
+    header: (revealed: boolean) => (
+      <FeatureInfoCard
+        title="Urmărește statusul în timp real"
+        subtitle="Transparență totală asupra progresului cererii tale"
+        bullets={[
+          "Notificări instant pentru fiecare schimbare de status",
+          "Istoric complet al cererii cu timestampuri",
+          "Estimări realiste pentru finalizare",
+        ]}
+        revealed={revealed}
+      />
     ),
     images: (
       <div>
@@ -120,44 +97,27 @@ const timelineData = [
             alt="Tracking Real-Time"
             fill
             sizes="(max-width: 768px) 100vw, 50vw"
-            className="object-cover shadow-[0_0_20px_rgba(190,49,68,0.15)]"
+            className="object-cover"
+            style={{ boxShadow: "0 0 20px var(--accent-shadow)" }}
           />
         </div>
       </div>
     ),
-    description: (
-      <div className="mb-6">
-        <div className="font-montreal mb-2 flex items-center gap-2 text-xs font-medium text-gray-300 md:text-sm dark:text-gray-600">
-          <CheckCircle className="text-primary h-4 w-4 flex-shrink-0" />
-          Notificări instant pentru fiecare schimbare de status
-        </div>
-        <div className="font-montreal mb-2 flex items-center gap-2 text-xs font-medium text-gray-300 md:text-sm dark:text-gray-600">
-          <CheckCircle className="text-primary h-4 w-4 flex-shrink-0" />
-          Istoric complet al cererii cu timestampuri
-        </div>
-        <div className="font-montreal flex items-center gap-2 text-xs font-medium text-gray-300 md:text-sm dark:text-gray-600">
-          <CheckCircle className="text-primary h-4 w-4 flex-shrink-0" />
-          Estimări realiste pentru finalizare
-        </div>
-      </div>
-    ),
+    description: null,
   },
   {
     title: "Plăți Digitale",
-    header: (
-      <div className="mb-4 flex items-center gap-3">
-        <div className="bg-primary/10 rounded-lg p-3">
-          <CreditCard className="text-primary h-6 w-6" />
-        </div>
-        <div>
-          <h4 className="font-montreal text-lg font-bold font-medium text-white dark:text-gray-900">
-            Plătește taxe rapid și securizat
-          </h4>
-          <p className="text-sm text-gray-400 dark:text-gray-700">
-            Integrare completă cu platformele de plată românești
-          </p>
-        </div>
-      </div>
+    header: (revealed: boolean) => (
+      <FeatureInfoCard
+        title="Plătește taxe rapid și securizat"
+        subtitle="Integrare completă cu platformele de plată românești"
+        bullets={[
+          "Card bancar, transfer bancar, PayPal",
+          "Encriptare SSL și conformitate PCI DSS",
+          "Chitanță electronică automată pe email",
+        ]}
+        revealed={revealed}
+      />
     ),
     images: (
       <div>
@@ -167,44 +127,27 @@ const timelineData = [
             alt="Plăți Digitale"
             fill
             sizes="(max-width: 768px) 100vw, 50vw"
-            className="object-cover shadow-[0_0_20px_rgba(190,49,68,0.15)]"
+            className="object-cover"
+            style={{ boxShadow: "0 0 20px var(--accent-shadow)" }}
           />
         </div>
       </div>
     ),
-    description: (
-      <div className="mb-6">
-        <div className="font-montreal mb-2 flex items-center gap-2 text-xs font-medium text-gray-300 md:text-sm dark:text-gray-600">
-          <CreditCard className="text-primary h-4 w-4 flex-shrink-0" />
-          Card bancar, transfer bancar, PayPal
-        </div>
-        <div className="font-montreal mb-2 flex items-center gap-2 text-xs font-medium text-gray-300 md:text-sm dark:text-gray-600">
-          <Lock className="text-primary h-4 w-4 flex-shrink-0" />
-          Encriptare SSL și conformitate PCI DSS
-        </div>
-        <div className="font-montreal flex items-center gap-2 text-xs font-medium text-gray-300 md:text-sm dark:text-gray-600">
-          <Mail className="text-primary h-4 w-4 flex-shrink-0" />
-          Chitanță electronică automată pe email
-        </div>
-      </div>
-    ),
+    description: null,
   },
   {
     title: "Chat Direct",
-    header: (
-      <div className="mb-4 flex items-center gap-3">
-        <div className="bg-primary/10 rounded-lg p-3">
-          <MessageCircle className="text-primary h-6 w-6" />
-        </div>
-        <div>
-          <h4 className="font-montreal text-lg font-bold font-medium text-white dark:text-gray-900">
-            Comunică cu funcționarii
-          </h4>
-          <p className="text-sm text-gray-400 dark:text-gray-700">
-            Chat live pentru întrebări și clarificări
-          </p>
-        </div>
-      </div>
+    header: (revealed: boolean) => (
+      <FeatureInfoCard
+        title="Comunică cu funcționarii"
+        subtitle="Chat live pentru întrebări și clarificări"
+        bullets={[
+          "Răspunsuri rapide în timpul programului",
+          "Trimite documente direct în chat",
+          "Istoric complet al conversațiilor",
+        ]}
+        revealed={revealed}
+      />
     ),
     images: (
       <div>
@@ -214,44 +157,27 @@ const timelineData = [
             alt="Chat Direct"
             fill
             sizes="(max-width: 768px) 100vw, 50vw"
-            className="object-cover shadow-[0_0_20px_rgba(190,49,68,0.15)]"
+            className="object-cover"
+            style={{ boxShadow: "0 0 20px var(--accent-shadow)" }}
           />
         </div>
       </div>
     ),
-    description: (
-      <div className="mb-6">
-        <div className="font-montreal mb-2 flex items-center gap-2 text-xs font-medium text-gray-300 md:text-sm dark:text-gray-600">
-          <MessageCircle className="text-primary h-4 w-4 flex-shrink-0" />
-          Răspunsuri rapide în timpul programului
-        </div>
-        <div className="font-montreal mb-2 flex items-center gap-2 text-xs font-medium text-gray-300 md:text-sm dark:text-gray-600">
-          <Paperclip className="text-primary h-4 w-4 flex-shrink-0" />
-          Trimite documente direct în chat
-        </div>
-        <div className="font-montreal flex items-center gap-2 text-xs font-medium text-gray-300 md:text-sm dark:text-gray-600">
-          <Clock className="text-primary h-4 w-4 flex-shrink-0" />
-          Istoric complet al conversațiilor
-        </div>
-      </div>
-    ),
+    description: null,
   },
   {
     title: "Documente Digitale",
-    header: (
-      <div className="mb-4 flex items-center gap-3">
-        <div className="bg-primary/10 rounded-lg p-3">
-          <FileText className="text-primary h-6 w-6" />
-        </div>
-        <div>
-          <h4 className="font-montreal text-lg font-bold font-medium text-white dark:text-gray-900">
-            Descarcă documente semnate digital
-          </h4>
-          <p className="text-sm text-gray-400 dark:text-gray-700">
-            Toate documentele tale într-un singur loc, semnate legal
-          </p>
-        </div>
-      </div>
+    header: (revealed: boolean) => (
+      <FeatureInfoCard
+        title="Descarcă documente semnate digital"
+        subtitle="Toate documentele tale într-un singur loc, semnate legal"
+        bullets={[
+          "Semnătură digitală certificată certSIGN",
+          "Arhivă personală cu toate documentele",
+          "Download instant format PDF",
+        ]}
+        revealed={revealed}
+      />
     ),
     images: (
       <div>
@@ -261,44 +187,27 @@ const timelineData = [
             alt="Documente Digitale"
             fill
             sizes="(max-width: 768px) 100vw, 50vw"
-            className="object-cover shadow-[0_0_20px_rgba(190,49,68,0.15)]"
+            className="object-cover"
+            style={{ boxShadow: "0 0 20px var(--accent-shadow)" }}
           />
         </div>
       </div>
     ),
-    description: (
-      <div className="mb-6">
-        <div className="font-montreal mb-2 flex items-center gap-2 text-xs font-medium text-gray-300 md:text-sm dark:text-gray-600">
-          <ShieldCheck className="text-primary h-4 w-4 flex-shrink-0" />
-          Semnătură digitală certificată certSIGN
-        </div>
-        <div className="font-montreal mb-2 flex items-center gap-2 text-xs font-medium text-gray-300 md:text-sm dark:text-gray-600">
-          <Folder className="text-primary h-4 w-4 flex-shrink-0" />
-          Arhivă personală cu toate documentele
-        </div>
-        <div className="font-montreal flex items-center gap-2 text-xs font-medium text-gray-300 md:text-sm dark:text-gray-600">
-          <Download className="text-primary h-4 w-4 flex-shrink-0" />
-          Download instant format PDF
-        </div>
-      </div>
-    ),
+    description: null,
   },
   {
     title: "Survey Platform",
-    header: (
-      <div className="mb-4 flex items-center gap-3">
-        <div className="bg-primary/10 rounded-lg p-3">
-          <BarChart3 className="text-primary h-6 w-6" />
-        </div>
-        <div>
-          <h4 className="font-montreal text-lg font-bold font-medium text-white dark:text-gray-900">
-            Ajută-ne să construim primăriaTa❤️
-          </h4>
-          <p className="text-sm text-gray-400 dark:text-gray-700">
-            Vocea ta contează în dezvoltarea platformei
-          </p>
-        </div>
-      </div>
+    header: (revealed: boolean) => (
+      <FeatureInfoCard
+        title="Ajută-ne să construim primăriaTa❤️"
+        subtitle="Vocea ta contează în dezvoltarea platformei"
+        bullets={[
+          "Sondaje interactive despre nevoile tale",
+          "Sugestii implementate în următoarea versiune",
+          "Recompense pentru participare activă",
+        ]}
+        revealed={revealed}
+      />
     ),
     images: (
       <div>
@@ -308,44 +217,27 @@ const timelineData = [
             alt="Survey Platform"
             fill
             sizes="(max-width: 768px) 100vw, 50vw"
-            className="object-cover shadow-[0_0_20px_rgba(190,49,68,0.15)]"
+            className="object-cover"
+            style={{ boxShadow: "0 0 20px var(--accent-shadow)" }}
           />
         </div>
       </div>
     ),
-    description: (
-      <div className="mb-6">
-        <div className="font-montreal mb-2 flex items-center gap-2 text-xs font-medium text-gray-300 md:text-sm dark:text-gray-600">
-          <BarChart3 className="text-primary h-4 w-4 flex-shrink-0" />
-          Sondaje interactive despre nevoile tale
-        </div>
-        <div className="font-montreal mb-2 flex items-center gap-2 text-xs font-medium text-gray-300 md:text-sm dark:text-gray-600">
-          <Lightbulb className="text-primary h-4 w-4 flex-shrink-0" />
-          Sugestii implementate în următoarea versiune
-        </div>
-        <div className="font-montreal flex items-center gap-2 text-xs font-medium text-gray-300 md:text-sm dark:text-gray-600">
-          <Gift className="text-primary h-4 w-4 flex-shrink-0" />
-          Recompense pentru participare activă
-        </div>
-      </div>
-    ),
+    description: null,
   },
   {
     title: "Documentație Oficială",
-    header: (
-      <div className="mb-4 flex items-center gap-3">
-        <div className="bg-primary/10 rounded-lg p-3">
-          <BookOpen className="text-primary h-6 w-6" />
-        </div>
-        <div>
-          <h4 className="font-montreal text-lg font-bold font-medium text-white dark:text-gray-900">
-            Ghid complet pentru platforma primăriaTa❤️
-          </h4>
-          <p className="text-sm text-gray-400 dark:text-gray-700">
-            Tot ce trebuie să știi despre utilizarea platformei
-          </p>
-        </div>
-      </div>
+    header: (revealed: boolean) => (
+      <FeatureInfoCard
+        title="Ghid complet pentru platforma primăriaTa❤️"
+        subtitle="Tot ce trebuie să știi despre utilizarea platformei"
+        bullets={[
+          "Tutoriale pas cu pas pentru fiecare funcționalitate",
+          "Video demonstrative pentru primari și cetățeni",
+          "FAQ actualizat cu întrebările frecvente",
+        ]}
+        revealed={revealed}
+      />
     ),
     images: (
       <div>
@@ -355,44 +247,28 @@ const timelineData = [
             alt="Documentație Oficială"
             fill
             sizes="(max-width: 768px) 100vw, 50vw"
-            className="object-cover shadow-[0_0_20px_rgba(190,49,68,0.15)]"
+            className="object-cover"
+            style={{ boxShadow: "0 0 20px var(--accent-shadow)" }}
           />
         </div>
       </div>
     ),
-    description: (
-      <div className="mb-6">
-        <div className="font-montreal mb-2 flex items-center gap-2 text-xs font-medium text-gray-300 md:text-sm dark:text-gray-600">
-          <BookOpen className="text-primary h-4 w-4 flex-shrink-0" />
-          Tutoriale pas cu pas pentru fiecare funcționalitate
-        </div>
-        <div className="font-montreal mb-2 flex items-center gap-2 text-xs font-medium text-gray-300 md:text-sm dark:text-gray-600">
-          <Video className="text-primary h-4 w-4 flex-shrink-0" />
-          Video demonstrative pentru primari și cetățeni
-        </div>
-        <div className="font-montreal flex items-center gap-2 text-xs font-medium text-gray-300 md:text-sm dark:text-gray-600">
-          <HelpCircle className="text-primary h-4 w-4 flex-shrink-0" />
-          FAQ actualizat cu întrebările frecvente
-        </div>
-      </div>
-    ),
+    description: null,
   },
   {
     title: "AI Research Dashboard",
-    header: (
-      <div className="mb-4 flex items-center gap-3">
-        <div className="bg-primary/10 rounded-lg p-3">
-          <Brain className="text-primary h-6 w-6" />
-        </div>
-        <div>
-          <h4 className="font-montreal text-lg font-bold font-medium text-white dark:text-gray-900">
-            AI-Powered Research Analysis Platform
-          </h4>
-          <p className="text-sm text-gray-400 dark:text-gray-700">
-            Analiză inteligentă a datelor de sondaj pentru decizii strategice
-          </p>
-        </div>
-      </div>
+    header: (revealed: boolean) => (
+      <FeatureInfoCard
+        title="AI-Powered Research Analysis Platform"
+        subtitle="Analiză inteligentă a datelor de sondaj pentru decizii strategice"
+        bullets={[
+          "Procesare automată AI a răspunsurilor survey",
+          "Dashboard interactiv cu metrici și insight-uri",
+          "Recomandări strategice bazate pe feedback-ul cetățenilor",
+          "Rapoarte detaliate pentru primari și stakeholderi",
+        ]}
+        revealed={revealed}
+      />
     ),
     images: (
       <div>
@@ -402,31 +278,13 @@ const timelineData = [
             alt="AI Research Dashboard"
             fill
             sizes="(max-width: 768px) 100vw, 50vw"
-            className="object-cover shadow-[0_0_20px_rgba(190,49,68,0.15)]"
+            className="object-cover"
+            style={{ boxShadow: "0 0 20px var(--accent-shadow)" }}
           />
         </div>
       </div>
     ),
-    description: (
-      <div className="mb-6">
-        <div className="font-montreal mb-2 flex items-center gap-2 text-xs font-medium text-gray-300 md:text-sm dark:text-gray-600">
-          <Bot className="text-primary h-4 w-4 flex-shrink-0" />
-          Procesare automată AI a răspunsurilor survey
-        </div>
-        <div className="font-montreal mb-2 flex items-center gap-2 text-xs font-medium text-gray-300 md:text-sm dark:text-gray-600">
-          <TrendingUp className="text-primary h-4 w-4 flex-shrink-0" />
-          Dashboard interactiv cu metrici și insight-uri
-        </div>
-        <div className="font-montreal mb-2 flex items-center gap-2 text-xs font-medium text-gray-300 md:text-sm dark:text-gray-600">
-          <Target className="text-primary h-4 w-4 flex-shrink-0" />
-          Recomandări strategice bazate pe feedback-ul cetățenilor
-        </div>
-        <div className="font-montreal flex items-center gap-2 text-xs font-medium text-gray-300 md:text-sm dark:text-gray-600">
-          <BarChart3 className="text-primary h-4 w-4 flex-shrink-0" />
-          Rapoarte detaliate pentru primari și stakeholderi
-        </div>
-      </div>
-    ),
+    description: null,
   },
 ];
 

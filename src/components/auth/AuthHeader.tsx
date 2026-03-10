@@ -2,11 +2,12 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import Image from "next/image";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import TextType from "@/components/TextType";
+import { HeartIcon } from "@/components/ui/HeartIcon";
 
 /**
  * AuthHeader Component
@@ -70,78 +71,76 @@ export function AuthHeader({
         <div className="container mx-auto flex h-20 items-center justify-between px-4">
           {/* Left: Logo */}
           <div className="flex items-center gap-4">
-            <h1
-              className="text-2xl font-bold md:text-3xl"
-              style={{ filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4))" }}
-            >
-              <span className="inline-block whitespace-nowrap">
-                <TextType
-                  text="primariaTa"
-                  as="span"
-                  className="inline"
-                  charStyler={(_char, idx) => {
-                    // "Ta" is at indices 8 and 9
-                    if (idx === 8 || idx === 9) {
-                      return { color: "#be3144" };
-                    }
-                    return {};
-                  }}
-                  typingSpeed={75}
-                  showCursor={false}
-                  loop={false}
-                />
-                <motion.span
-                  className="inline-block"
-                  initial={{ opacity: 0, scale: 0.5 }}
-                  animate={{
-                    opacity: 1,
-                    scale: [
-                      1, 1.12, 1, 1.08, 1, 1, 1.12, 1, 1.08, 1, 1, 1.12, 1, 1.08, 1, 1, 1.12, 1,
-                      1.08, 1,
-                    ],
-                  }}
-                  transition={{
-                    opacity: {
-                      duration: 0.3,
-                      delay: 0.9,
-                    },
-                    scale: {
-                      duration: 8,
-                      delay: 1.2,
-                      times: [
-                        0, 0.01, 0.02, 0.03, 0.04, 0.25, 0.26, 0.27, 0.28, 0.29, 0.5, 0.51, 0.52,
-                        0.53, 0.54, 0.75, 0.76, 0.77, 0.78, 0.79,
-                      ],
-                      ease: [0.4, 0, 0.6, 1],
-                      repeat: Infinity,
-                    },
-                  }}
-                >
-                  <Image
-                    src="/vector_heart.svg"
-                    alt="❤️"
-                    width={24}
-                    height={24}
-                    className="inline-block"
-                    style={{ width: "1em", height: "1em" }}
+            <Link href="/" aria-label="Acasă">
+              <h1
+                className="text-2xl font-bold md:text-3xl"
+                style={{ filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4))" }}
+              >
+                <span className="inline-block whitespace-nowrap">
+                  <TextType
+                    text="primariaTa"
+                    as="span"
+                    className="inline"
+                    charStyler={(_char, idx) => {
+                      // "Ta" is at indices 8 and 9
+                      if (idx === 8 || idx === 9) {
+                        return { color: "var(--primary)" };
+                      }
+                      return {};
+                    }}
+                    typingSpeed={75}
+                    showCursor={false}
+                    loop={false}
                   />
-                </motion.span>
-                <motion.span
-                  className="inline"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: [0, 1, 1, 0] }}
-                  transition={{
-                    delay: 0.9,
-                    duration: 1.2,
-                    repeat: Infinity,
-                    repeatType: "loop",
-                    times: [0, 0.1, 0.9, 1],
-                  }}
-                >
-                  _
-                </motion.span>
-              </span>
-            </h1>
+                  <motion.span
+                    className="inline-block"
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{
+                      opacity: 1,
+                      scale: [
+                        1, 1.12, 1, 1.08, 1, 1, 1.12, 1, 1.08, 1, 1, 1.12, 1, 1.08, 1, 1, 1.12, 1,
+                        1.08, 1,
+                      ],
+                    }}
+                    transition={{
+                      opacity: {
+                        duration: 0.3,
+                        delay: 0.9,
+                      },
+                      scale: {
+                        duration: 8,
+                        delay: 1.2,
+                        times: [
+                          0, 0.01, 0.02, 0.03, 0.04, 0.25, 0.26, 0.27, 0.28, 0.29, 0.5, 0.51, 0.52,
+                          0.53, 0.54, 0.75, 0.76, 0.77, 0.78, 0.79,
+                        ],
+                        ease: [0.4, 0, 0.6, 1],
+                        repeat: Infinity,
+                      },
+                    }}
+                  >
+                    <HeartIcon
+                      className="text-primary inline-block"
+                      style={{ width: "1em", height: "1em" }}
+                    />
+                  </motion.span>
+                  <motion.span
+                    className="inline"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: [0, 1, 1, 0] }}
+                    transition={{
+                      delay: 0.9,
+                      duration: 1.2,
+                      repeat: Infinity,
+                      repeatType: "loop",
+                      times: [0, 0.1, 0.9, 1],
+                    }}
+                  >
+                    _
+                  </motion.span>
+                </span>
+              </h1>
+            </Link>
           </div>
 
           {/* Right: Actions */}

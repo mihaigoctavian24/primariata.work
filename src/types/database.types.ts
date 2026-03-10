@@ -8,6 +8,53 @@ export type Database = {
   };
   public: {
     Tables: {
+      agende_primar: {
+        Row: {
+          created_at: string | null;
+          data_eveniment: string;
+          descriere: string | null;
+          id: string;
+          ora_sfarsit: string | null;
+          ora_start: string | null;
+          primar_id: string;
+          primarie_id: string;
+          tip: string | null;
+          titlu: string;
+        };
+        Insert: {
+          created_at?: string | null;
+          data_eveniment: string;
+          descriere?: string | null;
+          id?: string;
+          ora_sfarsit?: string | null;
+          ora_start?: string | null;
+          primar_id: string;
+          primarie_id: string;
+          tip?: string | null;
+          titlu: string;
+        };
+        Update: {
+          created_at?: string | null;
+          data_eveniment?: string;
+          descriere?: string | null;
+          id?: string;
+          ora_sfarsit?: string | null;
+          ora_start?: string | null;
+          primar_id?: string;
+          primarie_id?: string;
+          tip?: string | null;
+          titlu?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "agende_primar_primarie_id_fkey";
+            columns: ["primarie_id"];
+            isOneToOne: false;
+            referencedRelation: "primarii";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       audit_log: {
         Row: {
           actiune: string;
@@ -191,6 +238,7 @@ export type Database = {
           id: string;
           motiv_respingere: string | null;
           necesita_plata: boolean | null;
+          note_primar: Json;
           numar_inregistrare: string;
           observatii_solicitant: string | null;
           plata_efectuata: boolean | null;
@@ -216,6 +264,7 @@ export type Database = {
           id?: string;
           motiv_respingere?: string | null;
           necesita_plata?: boolean | null;
+          note_primar?: Json;
           numar_inregistrare: string;
           observatii_solicitant?: string | null;
           plata_efectuata?: boolean | null;
@@ -241,6 +290,7 @@ export type Database = {
           id?: string;
           motiv_respingere?: string | null;
           necesita_plata?: boolean | null;
+          note_primar?: Json;
           numar_inregistrare?: string;
           observatii_solicitant?: string | null;
           plata_efectuata?: boolean | null;
@@ -319,6 +369,44 @@ export type Database = {
             columns: ["plata_id"];
             isOneToOne: true;
             referencedRelation: "plati";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      departamente: {
+        Row: {
+          buget_alocat: number | null;
+          created_at: string | null;
+          id: string;
+          nr_functionari: number | null;
+          nume: string;
+          primarie_id: string;
+          sef: string | null;
+        };
+        Insert: {
+          buget_alocat?: number | null;
+          created_at?: string | null;
+          id?: string;
+          nr_functionari?: number | null;
+          nume: string;
+          primarie_id: string;
+          sef?: string | null;
+        };
+        Update: {
+          buget_alocat?: number | null;
+          created_at?: string | null;
+          id?: string;
+          nr_functionari?: number | null;
+          nume?: string;
+          primarie_id?: string;
+          sef?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "departamente_primarie_id_fkey";
+            columns: ["primarie_id"];
+            isOneToOne: false;
+            referencedRelation: "primarii";
             referencedColumns: ["id"];
           },
         ];
@@ -908,6 +996,59 @@ export type Database = {
             columns: ["localitate_id"];
             isOneToOne: true;
             referencedRelation: "localitati";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      proiecte_municipale: {
+        Row: {
+          buget: number | null;
+          buget_consumat: number | null;
+          categorie: string | null;
+          created_at: string | null;
+          deadline: string | null;
+          id: string;
+          nume: string;
+          primarie_id: string;
+          progres_pct: number | null;
+          responsabil: string | null;
+          status: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          buget?: number | null;
+          buget_consumat?: number | null;
+          categorie?: string | null;
+          created_at?: string | null;
+          deadline?: string | null;
+          id?: string;
+          nume: string;
+          primarie_id: string;
+          progres_pct?: number | null;
+          responsabil?: string | null;
+          status?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          buget?: number | null;
+          buget_consumat?: number | null;
+          categorie?: string | null;
+          created_at?: string | null;
+          deadline?: string | null;
+          id?: string;
+          nume?: string;
+          primarie_id?: string;
+          progres_pct?: number | null;
+          responsabil?: string | null;
+          status?: string | null;
+          updated_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "proiecte_municipale_primarie_id_fkey";
+            columns: ["primarie_id"];
+            isOneToOne: false;
+            referencedRelation: "primarii";
             referencedColumns: ["id"];
           },
         ];
@@ -1683,6 +1824,8 @@ export type Database = {
           created_at: string | null;
           departament: string | null;
           id: string;
+          mandat_sfarsit: string | null;
+          mandat_start: string | null;
           permissions: Json | null;
           primarie_id: string;
           rejection_reason: string | null;
@@ -1697,6 +1840,8 @@ export type Database = {
           created_at?: string | null;
           departament?: string | null;
           id?: string;
+          mandat_sfarsit?: string | null;
+          mandat_start?: string | null;
           permissions?: Json | null;
           primarie_id: string;
           rejection_reason?: string | null;
@@ -1711,6 +1856,8 @@ export type Database = {
           created_at?: string | null;
           departament?: string | null;
           id?: string;
+          mandat_sfarsit?: string | null;
+          mandat_start?: string | null;
           permissions?: Json | null;
           primarie_id?: string;
           rejection_reason?: string | null;

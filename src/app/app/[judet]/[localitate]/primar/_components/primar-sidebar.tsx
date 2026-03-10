@@ -137,10 +137,12 @@ export function PrimarSidebar({
 
   return (
     <motion.aside
+      initial={false}
       animate={{ width: collapsed ? 72 : 260 }}
       transition={{ duration: 0.3, ease: "easeInOut" }}
       className="fixed top-0 left-0 z-50 flex h-screen flex-col border-r border-white/[0.04]"
       style={{ background: "linear-gradient(180deg, #0c0c18 0%, #08080f 100%)" }}
+      suppressHydrationWarning
     >
       {/* Logo */}
       <div className="flex h-16 shrink-0 items-center gap-2 px-5">

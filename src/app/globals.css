@@ -354,6 +354,19 @@
 
   .light {
     color-scheme: light;
+    /* Core variable overrides — mirrors :root light values */
+    --background: oklch(0.975 0.005 90);
+    --foreground: oklch(0.278 0.012 260);
+    --card: oklch(0.968 0.004 110);
+    --card-foreground: oklch(0.278 0.012 260);
+    --muted: oklch(0.97 0.003 250);
+    --muted-foreground: oklch(0.42 0.012 200);
+    --accent: oklch(0.91 0.005 110);
+    --accent-foreground: oklch(0.42 0.012 200);
+    --border: oklch(0.975 0.005 90);
+    --popover: oklch(1.0 0 0);
+    --popover-foreground: oklch(0.278 0.012 260);
+    --primary-foreground: oklch(0.95 0.005 90);
   }
 
   /* Light wrapper (dark mode global) -- text overrides via tokens */

@@ -4,14 +4,15 @@ import { logger } from "@/lib/logger";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect, useRef } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import CountUp from "@/components/ui/CountUp";
+import { HeartIcon } from "@/components/ui/HeartIcon";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LocationWheelPickerForm } from "@/components/location/LocationWheelPickerForm";
 import { saveLocation } from "@/lib/location-storage";
 import { GridOverlay } from "@/components/ui/GridOverlay";
 import { HyperText } from "@/components/ui/HyperText";
+import { AnimatedBuilding } from "@/components/landing/AnimatedBuilding";
 
 /**
  * Hero Section Component for Landing Page - Multi-Step Flow
@@ -83,14 +84,16 @@ export function HeroSection({
   const hyperTextRef = useRef<HTMLDivElement>(null);
 
   // Calculate dynamic button position to move to stats zone + 40px extra
+  // On mobile, push 10vh further up to avoid overlap with location picker title
   useEffect(() => {
     if (statsRef.current && buttonRef.current && step === 2) {
       const statsRect = statsRef.current.getBoundingClientRect();
       const buttonRect = buttonRef.current.getBoundingClientRect();
-      const targetY = statsRect.top - buttonRect.top + 40; // +40px extra offset
+      const mobileExtraOffset = isMobile ? window.innerHeight * 0.05 : 0;
+      const targetY = statsRect.top - buttonRect.top + 40 - mobileExtraOffset;
       setButtonTargetY(targetY);
     }
-  }, [step]);
+  }, [step, isMobile]);
 
   // Trigger heartbeat for STEP 2 title
   useEffect(() => {
@@ -288,132 +291,142 @@ export function HeroSection({
 
       {/* Multi-Step Flow - All elements present, controlled by animations */}
       <div className="grid-container relative h-full">
-        {/* Logo "primaria" blur wrapper (Layer 1: Background z-10) - responds to step - LEFT ON MOBILE, CENTERED ON DESKTOP */}
-        <motion.div
-          className="absolute z-10 -translate-y-1/2"
-          style={{
-            top: isMobile ? "38%" : "32%",
-            marginLeft: isMobile ? "0" : "41.67%",
-          }}
-          initial={{ opacity: 1, filter: "blur(0px)" }}
-          animate={
-            step === 2
-              ? { opacity: 0.3, filter: "blur(20px)" }
-              : { opacity: 1, filter: "blur(0px)" }
-          }
-          transition={{ duration: 0.5, ease: "easeInOut" }}
-        >
-          <HyperText
-            className="text-foreground text-[4.5rem] font-medium sm:text-[7.5rem] md:text-[9rem] lg:text-[10.5rem]"
-            style={{ filter: "drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4))" }}
-            duration={1000}
-            delay={300}
-            startOnView={false}
-            animateOnHover={false}
+        {/* Two-column layout: SVG left (desktop) + text right */}
+        <div className="absolute inset-0 flex">
+          {/* Left column: Animated Building (hidden on mobile) */}
+          <motion.div
+            className="z-10 hidden w-[40%] items-end justify-center overflow-visible md:flex"
+            style={{ paddingBottom: "5%" }}
+            initial={{ opacity: 0 }}
+            animate={
+              step === 2
+                ? { opacity: 0, filter: "blur(20px)" }
+                : { opacity: 0.2, filter: "blur(0px)" }
+            }
+            transition={{ duration: 0.5, ease: "easeInOut", delay: step === 1 ? 0.2 : 0 }}
           >
-            primaria
-          </HyperText>
-        </motion.div>
+            <AnimatedBuilding className="text-muted-foreground h-full w-full scale-[2.3]" />
+          </motion.div>
 
-        {/* Logo "Ta❤️" blur wrapper (Layer 1: Background z-10) - responds to step - LEFT ON MOBILE, CENTERED ON DESKTOP */}
-        <motion.div
-          className="absolute z-10"
-          style={{
-            top: isMobile ? "38%" : "32%",
-            marginLeft: isMobile ? "0" : "41.67%",
-            marginTop: isMobile ? "3rem" : "5rem",
-          }}
-          initial={{ opacity: 1, filter: "blur(0px)" }}
-          animate={
-            step === 2
-              ? { opacity: 0.3, filter: "blur(20px)" }
-              : { opacity: 1, filter: "blur(0px)" }
-          }
-          transition={{ duration: 0.5, ease: "easeInOut" }}
-        >
-          <div
-            className="leading-none font-medium tracking-tight"
-            style={{
-              filter: "drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4))",
-              position: "relative",
-              display: "inline-block",
-            }}
-          >
-            <span
-              ref={taTextRef}
+          {/* Right column: text content */}
+          <div className="relative h-full w-full md:w-[60%]">
+            {/* Logo "primaria" blur wrapper (Layer 1: Background z-10) */}
+            <motion.div
+              className="absolute z-10 -translate-y-1/2"
               style={{
-                display: "inline-flex",
-                alignItems: "center",
-                position: "relative",
+                top: isMobile ? "38%" : "32%",
+              }}
+              initial={{ opacity: 1, filter: "blur(0px)" }}
+              animate={
+                step === 2
+                  ? { opacity: 0.3, filter: "blur(20px)" }
+                  : { opacity: 1, filter: "blur(0px)" }
+              }
+              transition={{ duration: 0.5, ease: "easeInOut" }}
+            >
+              <HyperText
+                className="text-foreground text-[4.5rem] font-medium sm:text-[7.5rem] md:text-[9rem] lg:text-[10.5rem]"
+                style={{ filter: "drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4))" }}
+                duration={1000}
+                delay={300}
+                startOnView={false}
+                animateOnHover={false}
+              >
+                primaria
+              </HyperText>
+            </motion.div>
+
+            {/* Logo "Ta❤️" blur wrapper (Layer 1: Background z-10) */}
+            <motion.div
+              className="absolute z-10"
+              style={{
+                top: isMobile ? "38%" : "32%",
+                marginTop: isMobile ? "3rem" : "5rem",
+              }}
+              initial={{ opacity: 1, filter: "blur(0px)" }}
+              animate={
+                step === 2
+                  ? { opacity: 0.3, filter: "blur(20px)" }
+                  : { opacity: 1, filter: "blur(0px)" }
+              }
+              transition={{ duration: 0.5, ease: "easeInOut" }}
+            >
+              <div
+                className="leading-none font-medium tracking-tight"
+                style={{
+                  filter: "drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4))",
+                  position: "relative",
+                  display: "inline-block",
+                }}
+              >
+                <span
+                  ref={taTextRef}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    position: "relative",
+                  }}
+                >
+                  <span ref={hyperTextRef} style={{ display: "inline-block" }}>
+                    <HyperText
+                      key={triggerAnimation}
+                      className="text-primary text-[4.5rem] sm:text-[7.5rem] md:text-[9rem] lg:text-[10.5rem]"
+                      duration={800}
+                      delay={0}
+                      startOnView={false}
+                      animateOnHover={false}
+                    >
+                      {taText}
+                    </HyperText>
+                  </span>
+                  {heartTargetX !== null && (
+                    <motion.span
+                      className="text-[4.5rem] sm:text-[7.5rem] md:text-[9rem] lg:text-[10.5rem]"
+                      style={{
+                        display: "inline-block",
+                      }}
+                      initial={{ opacity: 0 }}
+                      animate={{
+                        opacity: 1,
+                      }}
+                      transition={{
+                        opacity: { duration: 0.3 },
+                      }}
+                    >
+                      <HeartIcon
+                        className="text-primary inline-block"
+                        style={{ width: "1em", height: "1em" }}
+                      />
+                    </motion.span>
+                  )}
+                </span>
+              </div>
+            </motion.div>
+
+            {/* Subtitle (Layer 2: Middle z-20) */}
+            <motion.div
+              initial={{ opacity: 1, y: 0 }}
+              animate={step === 2 ? { opacity: 0, y: 0 } : { opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, ease: "easeInOut" }}
+              className="absolute z-20"
+              style={{
+                top: isMobile ? "58%" : "60%",
+                filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))",
               }}
             >
-              <span ref={hyperTextRef} style={{ display: "inline-block" }}>
-                <HyperText
-                  key={triggerAnimation}
-                  className="text-primary text-[4.5rem] sm:text-[7.5rem] md:text-[9rem] lg:text-[10.5rem]"
-                  duration={800}
-                  delay={0}
-                  startOnView={false}
-                  animateOnHover={false}
-                >
-                  {taText}
-                </HyperText>
-              </span>
-              {heartTargetX !== null && (
-                <motion.span
-                  className="text-[4.5rem] sm:text-[7.5rem] md:text-[9rem] lg:text-[10.5rem]"
-                  style={{
-                    display: "inline-block",
-                  }}
-                  initial={{ opacity: 0 }}
-                  animate={{
-                    opacity: 1,
-                  }}
-                  transition={{
-                    opacity: { duration: 0.3 },
-                  }}
-                >
-                  <Image
-                    src="/vector_heart.svg"
-                    alt="❤️"
-                    width={72}
-                    height={72}
-                    className="inline-block"
-                    style={{ width: "1em", height: "1em" }}
-                  />
-                </motion.span>
-              )}
-            </span>
+              <p className="text-muted-foreground font-montreal text-[0.9rem] font-medium sm:text-[1rem] md:text-[1.2rem] lg:text-[1.44rem]">
+                Bine ai venit la Primăria ta digitală.
+              </p>
+              <p className="text-muted-foreground font-montreal mt-2 text-[0.8rem] font-medium opacity-90 sm:text-[0.9rem] md:text-[1rem]">
+                Servicii publice online,
+                <br />
+                fără cozi,
+                <br />
+                24/7.
+              </p>
+            </motion.div>
           </div>
-        </motion.div>
-
-        {/* Subtitle (Layer 2: Middle z-20) - LEFT ON MOBILE, CENTERED ON DESKTOP */}
-        <motion.div
-          initial={{ opacity: 1, y: 0 }}
-          animate={
-            step === 2
-              ? { opacity: 0, y: 0 } // Fade out on STEP 2
-              : { opacity: 1, y: 0 } // Visible on STEP 1
-          }
-          transition={{ duration: 0.5, ease: "easeInOut" }}
-          className="absolute z-20"
-          style={{
-            top: isMobile ? "58%" : "60%",
-            marginLeft: isMobile ? "0" : "41.67%",
-            filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))",
-          }}
-        >
-          <p className="text-muted-foreground font-montreal text-[0.9rem] font-medium sm:text-[1rem] md:text-[1.2rem] lg:text-[1.44rem]">
-            Bine ai venit la Primăria ta digitală.
-          </p>
-          <p className="text-muted-foreground font-montreal mt-2 text-[0.8rem] font-medium opacity-90 sm:text-[0.9rem] md:text-[1rem]">
-            Servicii publice online,
-            <br />
-            fără cozi,
-            <br />
-            24/7.
-          </p>
-        </motion.div>
+        </div>
 
         {/* Content container - appears below logo and subtitle */}
         <div className="relative col-span-12 pt-[70vh] text-center">
@@ -435,7 +448,7 @@ export function HeroSection({
             className="relative z-40 mb-16"
           >
             <motion.button
-              className="bg-primary text-primary-foreground ring-offset-background font-montreal inline-flex h-12 min-w-[200px] items-center justify-center rounded-full px-8 text-base font-normal shadow-lg transition-colors focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 sm:h-14 sm:px-10 sm:text-lg"
+              className="bg-primary text-primary-foreground ring-offset-background font-montreal focus-visible:ring-primary inline-flex h-12 min-w-[200px] items-center justify-center rounded-full px-8 text-base font-normal shadow-lg transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 sm:h-14 sm:px-10 sm:text-lg"
               style={{
                 textShadow:
                   "3px 3px 6px rgba(0, 0, 0, 0.6), -3px -3px 6px rgba(255, 255, 255, 0.3)",
@@ -495,8 +508,12 @@ export function HeroSection({
             {/* Staff Login Link - visible only in STEP 1 */}
             <motion.div
               initial={{ opacity: 0 }}
-              animate={step === 1 ? { opacity: 0.7 } : { opacity: 0 }}
-              transition={{ delay: 1.5, duration: 0.5 }}
+              animate={
+                step === 1
+                  ? { opacity: 0.7, pointerEvents: "auto" as const }
+                  : { opacity: 0, pointerEvents: "none" as const }
+              }
+              transition={{ delay: step === 1 ? 1.5 : 0, duration: 0.5 }}
               className="mt-6 text-center"
             >
               <Link
@@ -641,7 +658,7 @@ export function HeroSection({
           {/* Accessibility: Skip to content link */}
           <a
             href="#main-content"
-            className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-gray-900 focus:shadow-lg focus:ring-2 focus:ring-red-500 focus:outline-none dark:focus:bg-gray-800 dark:focus:text-white"
+            className="focus:bg-background focus:text-foreground focus:ring-primary sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:shadow-lg focus:ring-2 focus:outline-none"
           >
             Sari la conținut
           </a>
@@ -762,12 +779,8 @@ export function HeroSection({
                           }
                     }
                   >
-                    <Image
-                      src="/vector_heart.svg"
-                      alt="❤️"
-                      width={36}
-                      height={36}
-                      className="inline-block"
+                    <HeartIcon
+                      className="text-primary inline-block"
                       style={{ width: "1em", height: "1em" }}
                     />
                   </motion.span>
