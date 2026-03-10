@@ -1,7 +1,13 @@
-export default async function PrimarCereriPage() {
+import { Suspense } from "react";
+import { getPrimarCereriData } from "@/actions/primar-actions";
+import { PrimarCereriContent } from "../_components/primar-cereri-content";
+import { PrimarCereriSkeleton } from "../_components/primar-cereri-skeleton";
+
+export default async function PrimarCereriPage(): Promise<React.ReactElement> {
+  const result = await getPrimarCereriData();
   return (
-    <div className="flex items-center justify-center py-24 text-gray-500">
-      Cereri — în construcție
-    </div>
+    <Suspense fallback={<PrimarCereriSkeleton />}>
+      <PrimarCereriContent initialData={result} />
+    </Suspense>
   );
 }
