@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Design Revamp
 status: completed
-stopped_at: Completed 23-07-PLAN.md
-last_updated: "2026-03-10T13:35:29.115Z"
+stopped_at: Completed 23-08-PLAN.md
+last_updated: "2026-03-10T13:46:19.142Z"
 last_activity: 2026-03-09 -- Completed Phase 21 Wave 1
 progress:
   total_phases: 10
-  completed_phases: 8
+  completed_phases: 9
   total_plans: 51
-  completed_plans: 49
+  completed_plans: 51
   percent: 100
 ---
 
@@ -80,6 +80,8 @@ Progress: [██████████] 100%
 | Phase 23 P05 | 3 | 2 tasks | 3 files |
 | Phase 23 P04 | 5 | 2 tasks | 3 files |
 | Phase 23 P07 | 2 | 2 tasks | 3 files |
+| Phase 23 P06 | 223 | 2 tasks | 6 files |
+| Phase 23 P08 | 6 | 2 tasks | 14 files |
 
 ## Accumulated Context
 
@@ -205,6 +207,11 @@ Recent decisions affecting current work:
 - [Phase 23]: GlassTooltip typed with explicit interface (not any) — CLAUDE.md compliance
 - [Phase 23]: useTransition wraps server action calls for month navigation — avoids useEffect loading duplication
 - [Phase 23]: Event creation re-fetches full month from DB to get DB-assigned UUID; deletion is optimistic
+- [Phase 23]: DonutChart from @/components/admin/shared/donut-chart — shared SVG component, no Recharts needed for buget page
+- [Phase 23]: Inline create/edit forms and inline delete confirm for proiecte CRUD — no modals needed
+- [Phase 23]: PrimarRapoarteContent useTransition for period-change refetch — avoids useEffect loading duplication
+- [Phase 23]: generatePDF module-private in primar-rapoarte-content.tsx — collocated with its only consumer
+- [Phase 23]: gdpr.ts deletion_requested_at cast via anyServiceClient — types:generate pending, same pattern as primar-actions.ts
 
 ### Pending Todos
 
@@ -231,6 +238,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-10T13:35:29.110Z
-Stopped at: Completed 23-07-PLAN.md
+Last session: 2026-03-10T13:46:19.139Z
+Stopped at: Completed 23-08-PLAN.md
 Resume file: None
