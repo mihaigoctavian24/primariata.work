@@ -188,7 +188,7 @@ Plans:
 **Goal:** Port the Primar role panel from the Figma reference into the live Next.js app at /app/[judet]/[localitate]/primar/ with amber-themed shell, 7 fully wired pages (real Supabase data), 2 placeholder pages, DB migration for 3 new tables, and full middleware role routing.
 **Requirements**: TBD
 **Depends on:** Phase 22
-**Plans:** 8 plans
+**Plans:** 1/8 plans executed
 
 Plans:
 - [ ] 23-01-PLAN.md — DB migration (departamente, proiecte_municipale, agende_primar, note_primar, mandat columns) + 9 route stubs + middleware primar routing + AdminLoginForm redirect

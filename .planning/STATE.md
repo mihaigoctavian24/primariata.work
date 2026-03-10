@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Design Revamp
 status: completed
-stopped_at: Completed 22-08-PLAN.md
-last_updated: "2026-03-10T09:11:09.900Z"
+stopped_at: Completed 23-01-PLAN.md
+last_updated: "2026-03-10T12:44:43.608Z"
 last_activity: 2026-03-09 -- Completed Phase 21 Wave 1
 progress:
-  total_phases: 9
+  total_phases: 10
   completed_phases: 8
-  total_plans: 43
-  completed_plans: 43
+  total_plans: 51
+  completed_plans: 44
   percent: 100
 ---
 
@@ -74,6 +74,7 @@ Progress: [██████████] 100%
 | Phase 22-super-admin-module P05 | 8 | 2 tasks | 8 files |
 | Phase 22-super-admin-module P06 | 3 | 2 tasks | 4 files |
 | Phase 22-super-admin-module P08 | 6 | 2 tasks | 6 files |
+| Phase 23 P01 | 4 | 3 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -185,6 +186,9 @@ Recent decisions affecting current work:
 - [Phase 22-super-admin-module]: var(--popover) used for modal/drawer backgrounds; var(--muted) for inner form field surfaces — matches semantic intent of Phase 12 tokens
 - [Phase 22-super-admin-module]: TopPrimarieEntry computed in getDashboardStats (not separate action) — single server roundtrip for dashboard
 - [Phase 22-super-admin-module]: Empty state shown only when success===true AND data.length===0 — error banner shown on failure, not empty state
+- [Phase 23]: departamente/proiecte_municipale use staff-view + primar-manage RLS split; agende_primar uses primar_id = auth.uid() self-ownership
+- [Phase 23]: Middleware else-if pattern for primar routing: /primar guard inside approved-association block for TypeScript null narrowing safety
+- [Phase 23]: Placeholder pages (cetateni/anunturi) use Client Components with Framer Motion — permanent for phase 23, wired in later plans
 
 ### Pending Todos
 
@@ -201,6 +205,7 @@ Recent decisions affecting current work:
 - Phase 16 inserted: Accent Color Propagation & Polish (old 16→17, old 17→18)
 - Phase 19 added: Admin pages from Figma: monitorizare, utilizatori, cereri, documente, financiar, calendar
 - Phase 21 added: Admin Navigation Performance Optimization
+- Phase 23 added: Implement primar module from Figma design into app primar route
 
 ### Blockers/Concerns
 
@@ -210,6 +215,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-10T01:02:58.111Z
-Stopped at: Completed 22-08-PLAN.md
+Last session: 2026-03-10T12:44:43.604Z
+Stopped at: Completed 23-01-PLAN.md
 Resume file: None
