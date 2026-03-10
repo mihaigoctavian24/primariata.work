@@ -1,7 +1,18 @@
-export default async function PrimarAgendePage() {
+import { Suspense } from "react";
+import { getPrimarAgendeData } from "@/actions/primar-actions";
+import { PrimarAgendeContent } from "../_components/primar-agende-content";
+import { PrimarAgendeSkeleton } from "../_components/primar-agende-skeleton";
+
+export default async function PrimarAgendePage(): Promise<React.ReactElement> {
+  const now = new Date();
+  const result = await getPrimarAgendeData(now.getFullYear(), now.getMonth() + 1);
   return (
-    <div className="flex items-center justify-center py-24 text-gray-500">
-      Agendă — în construcție
-    </div>
+    <Suspense fallback={<PrimarAgendeSkeleton />}>
+      <PrimarAgendeContent
+        initialData={result}
+        initialYear={now.getFullYear()}
+        initialMonth={now.getMonth() + 1}
+      />
+    </Suspense>
   );
 }
