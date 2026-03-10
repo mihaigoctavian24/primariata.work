@@ -1,7 +1,13 @@
-export default async function PrimarDashboardPage() {
+import { Suspense } from "react";
+import { getPrimarDashboardData } from "@/actions/primar-actions";
+import { PrimarDashboardContent } from "./_components/primar-dashboard-content";
+import { PrimarDashboardSkeleton } from "./_components/primar-dashboard-skeleton";
+
+export default async function PrimarPage(): Promise<React.ReactElement> {
+  const result = await getPrimarDashboardData();
   return (
-    <div className="flex items-center justify-center py-24 text-gray-500">
-      Dashboard — în construcție
-    </div>
+    <Suspense fallback={<PrimarDashboardSkeleton />}>
+      <PrimarDashboardContent initialData={result} />
+    </Suspense>
   );
 }
