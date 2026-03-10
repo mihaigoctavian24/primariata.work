@@ -170,7 +170,7 @@ Plans:
 *Last updated: 2026-03-08 — Phase 20 gap closure plans 20-07 through 20-13 created (waves 7-9)*
 
 ### Phase 21: Admin Navigation Performance Optimization
-**Status**: ✅ Complete
+**Status**: Complete
 **Goal**: Achieve instant navigation feel in the admin panel matching the Vite Figma prototype
 **Depends on**: Phase 20
 **Requirements**: PERF-01, PERF-02, PERF-03
@@ -186,13 +186,17 @@ Plans:
 ---
 
 ### Phase 22: Super Admin Module (Global Admin)
-**Status**: In Progress (gap closure — backend connectivity)
-**Objective**: Build the super admin module to oversee all primării, view platform-wide stats, and create primărie admins, based on the Figma template.
+**Status**: In Progress
+**Objective**: Build the super admin module to oversee all primării, view platform-wide stats, create primărie admins, impersonate primărie context, and convert to the shared CSS token system.
 **Depends on**: Phase 21
-**Plans**: 4 plans (22-01, 22-02 complete; 22-03, 22-04 pending)
+**Plans**: 8 plans (22-01, 22-02, 22-03, 22-04 complete; 22-05 through 22-08 pending)
 
 Plans:
 - [x] 22-01-PLAN.md — Fix dashboard data flow and sidebar routing
 - [x] 22-02-PLAN.md — Admin drawer gap (Suspendare/Activare button) + legacy route redirects
-- [ ] 22-03-PLAN.md — Server actions: getDashboardStats, getPrimariiList, getAdminsList, getAuditLog
-- [ ] 22-04-PLAN.md — Wire pages to real data: page.tsx async + initialData prop pattern for 4 content components
+- [x] 22-03-PLAN.md — Server actions: getDashboardStats, getPrimariiList, getAdminsList, getAuditLog
+- [x] 22-04-PLAN.md — Wire pages to real data: page.tsx async + initialData prop pattern for 4 content components
+- [ ] 22-05-PLAN.md — Write actions: suspendPrimarie, activatePrimarie, suspendAdmin, activateAdmin, createPrimarie, inviteAdmin + server-side filtering
+- [ ] 22-06-PLAN.md — Header fix: notification drawer + command palette state in SuperAdminShell + impersonation system
+- [ ] 22-07-PLAN.md — Theme token conversion: replace all hardcoded hex/rgba in super admin module with CSS design tokens
+- [ ] 22-08-PLAN.md — Top primarii real data + error banners + empty states + primarie detail drawer fetch
