@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Design Revamp
 status: completed
-stopped_at: Completed 22-07-PLAN.md
-last_updated: "2026-03-10T00:53:32.876Z"
+stopped_at: Completed 22-08-PLAN.md
+last_updated: "2026-03-10T01:02:58.115Z"
 last_activity: 2026-03-09 -- Completed Phase 21 Wave 1
 progress:
   total_phases: 9
-  completed_phases: 7
+  completed_phases: 8
   total_plans: 43
-  completed_plans: 42
+  completed_plans: 43
   percent: 100
 ---
 
@@ -73,6 +73,7 @@ Progress: [██████████] 100%
 | Phase 22-super-admin-module P04 | 6 | 2 tasks | 9 files |
 | Phase 22-super-admin-module P05 | 8 | 2 tasks | 8 files |
 | Phase 22-super-admin-module P06 | 3 | 2 tasks | 4 files |
+| Phase 22-super-admin-module P08 | 6 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -182,6 +183,8 @@ Recent decisions affecting current work:
 - [Phase 22-super-admin-module]: sa_impersonation cookie (httpOnly, 2h TTL) set by startImpersonation server action; middleware reads JSON and sets isImpersonating flag to bypass user_primarii association checks
 - [Phase 22-super-admin-module]: Brand emerald/cyan colors (#10b981, #06b6d4) kept as semantic hex in super admin module — they are brand identity not generic surface colors; mapping to CSS accent would wrongly yield theme override
 - [Phase 22-super-admin-module]: var(--popover) used for modal/drawer backgrounds; var(--muted) for inner form field surfaces — matches semantic intent of Phase 12 tokens
+- [Phase 22-super-admin-module]: TopPrimarieEntry computed in getDashboardStats (not separate action) — single server roundtrip for dashboard
+- [Phase 22-super-admin-module]: Empty state shown only when success===true AND data.length===0 — error banner shown on failure, not empty state
 
 ### Pending Todos
 
@@ -207,6 +210,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-10T00:53:25.672Z
-Stopped at: Completed 22-07-PLAN.md
+Last session: 2026-03-10T01:02:58.111Z
+Stopped at: Completed 22-08-PLAN.md
 Resume file: None
