@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Design Revamp
 status: completed
-stopped_at: Completed 22-06-PLAN.md (super-admin shell header + impersonation)
-last_updated: "2026-03-10T00:31:32.207Z"
+stopped_at: Completed 22-07-PLAN.md
+last_updated: "2026-03-10T00:53:32.876Z"
 last_activity: 2026-03-09 -- Completed Phase 21 Wave 1
 progress:
   total_phases: 9
   completed_phases: 7
   total_plans: 43
-  completed_plans: 41
+  completed_plans: 42
   percent: 100
 ---
 
@@ -180,6 +180,8 @@ Recent decisions affecting current work:
 - [Phase 22-super-admin-module]: CommandPalette in SuperAdminShell uses role='admin' basePath='/admin/primariata' — super_admin not in getCommandsForRole, admin commands appropriate
 - [Phase 22-super-admin-module]: Middleware else-if restructured for TypeScript null narrowing: else if (\!isImpersonating && association && ...) replaces plain else to avoid TS18047 when isImpersonating is true with null association
 - [Phase 22-super-admin-module]: sa_impersonation cookie (httpOnly, 2h TTL) set by startImpersonation server action; middleware reads JSON and sets isImpersonating flag to bypass user_primarii association checks
+- [Phase 22-super-admin-module]: Brand emerald/cyan colors (#10b981, #06b6d4) kept as semantic hex in super admin module — they are brand identity not generic surface colors; mapping to CSS accent would wrongly yield theme override
+- [Phase 22-super-admin-module]: var(--popover) used for modal/drawer backgrounds; var(--muted) for inner form field surfaces — matches semantic intent of Phase 12 tokens
 
 ### Pending Todos
 
@@ -205,6 +207,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-10T00:31:32.203Z
-Stopped at: Completed 22-06-PLAN.md (super-admin shell header + impersonation)
+Last session: 2026-03-10T00:53:25.672Z
+Stopped at: Completed 22-07-PLAN.md
 Resume file: None
