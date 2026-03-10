@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Design Revamp
 status: completed
-stopped_at: Completed 22-05-PLAN.md (super-admin write actions)
-last_updated: "2026-03-10T00:22:32.378Z"
+stopped_at: Completed 22-06-PLAN.md (super-admin shell header + impersonation)
+last_updated: "2026-03-10T00:31:32.207Z"
 last_activity: 2026-03-09 -- Completed Phase 21 Wave 1
 progress:
   total_phases: 9
   completed_phases: 7
   total_plans: 43
-  completed_plans: 40
+  completed_plans: 41
   percent: 100
 ---
 
@@ -72,6 +72,7 @@ Progress: [██████████] 100%
 | Phase 22-super-admin-module P03 | 2 | 2 tasks | 1 files |
 | Phase 22-super-admin-module P04 | 6 | 2 tasks | 9 files |
 | Phase 22-super-admin-module P05 | 8 | 2 tasks | 8 files |
+| Phase 22-super-admin-module P06 | 3 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -176,6 +177,9 @@ Recent decisions affecting current work:
 - [Phase 22-super-admin-module]: z.string().refine() for integer parsing in Zod 4 — z.coerce.number invalid_type_error does not exist in Zod 4 API
 - [Phase 22-super-admin-module]: primarii.slug required in Insert — auto-generated from numeOficial with Romanian diacritic normalization
 - [Phase 22-super-admin-module]: writeAuditLog uses as unknown as Json cast for detalii — Record<string,unknown> incompatible with Supabase Json type
+- [Phase 22-super-admin-module]: CommandPalette in SuperAdminShell uses role='admin' basePath='/admin/primariata' — super_admin not in getCommandsForRole, admin commands appropriate
+- [Phase 22-super-admin-module]: Middleware else-if restructured for TypeScript null narrowing: else if (\!isImpersonating && association && ...) replaces plain else to avoid TS18047 when isImpersonating is true with null association
+- [Phase 22-super-admin-module]: sa_impersonation cookie (httpOnly, 2h TTL) set by startImpersonation server action; middleware reads JSON and sets isImpersonating flag to bypass user_primarii association checks
 
 ### Pending Todos
 
@@ -201,6 +205,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-10T00:22:32.374Z
-Stopped at: Completed 22-05-PLAN.md (super-admin write actions)
+Last session: 2026-03-10T00:31:32.203Z
+Stopped at: Completed 22-06-PLAN.md (super-admin shell header + impersonation)
 Resume file: None
