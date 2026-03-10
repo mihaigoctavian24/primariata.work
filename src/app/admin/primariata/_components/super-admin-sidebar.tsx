@@ -37,8 +37,8 @@ const navSections: NavSection[] = [
   {
     title: "Management",
     items: [
-      { icon: Building2, label: "Primarii", path: "/admin/primariata/primarii", badge: 12 },
-      { icon: UserCog, label: "Admini", path: "/admin/primariata/admini", badge: 3 },
+      { icon: Building2, label: "Primarii", path: "/admin/primariata/primarii" },
+      { icon: UserCog, label: "Admini", path: "/admin/primariata/admini" },
     ],
   },
   {
