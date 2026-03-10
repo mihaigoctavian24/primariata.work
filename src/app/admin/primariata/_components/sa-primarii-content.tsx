@@ -499,7 +499,7 @@ export function SaPrimariiContent({ initialData }: SaPrimariiContentProps) {
             className="flex items-center gap-3"
           >
             <h1
-              className="flex items-center gap-2.5 text-white"
+              className="text-foreground flex items-center gap-2.5"
               style={{ fontSize: "1.6rem", fontWeight: 700 }}
             >
               <Building2 className="h-6 w-6 text-emerald-400" /> Management Primării
@@ -521,7 +521,7 @@ export function SaPrimariiContent({ initialData }: SaPrimariiContentProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.05 }}
-            className="mt-1 text-gray-600"
+            className="text-muted-foreground mt-1"
             style={{ fontSize: "0.83rem" }}
           >
             Monitorizare & control — {activeCount} active · MRR: {totalRevenue.toLocaleString()} RON
@@ -532,8 +532,8 @@ export function SaPrimariiContent({ initialData }: SaPrimariiContentProps) {
           <div
             className="flex gap-1 rounded-xl p-1"
             style={{
-              background: "rgba(255,255,255,0.025)",
-              border: "1px solid rgba(255,255,255,0.04)",
+              background: "var(--muted)",
+              border: "1px solid var(--border-subtle)",
             }}
           >
             {(
@@ -545,7 +545,7 @@ export function SaPrimariiContent({ initialData }: SaPrimariiContentProps) {
               <button
                 key={v.key}
                 onClick={() => setViewMode(v.key)}
-                className={`relative flex cursor-pointer items-center gap-1.5 rounded-lg px-3.5 py-1.5 transition-all ${viewMode === v.key ? "text-white" : "text-gray-500 hover:text-gray-300"}`}
+                className={`relative flex cursor-pointer items-center gap-1.5 rounded-lg px-3.5 py-1.5 transition-all ${viewMode === v.key ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}
               >
                 {viewMode === v.key && (
                   <motion.div
@@ -649,8 +649,8 @@ export function SaPrimariiContent({ initialData }: SaPrimariiContentProps) {
               transition={{ delay: i * 0.04 }}
               className="group cursor-default rounded-2xl p-4 transition-transform hover:scale-[1.02]"
               style={{
-                background: "rgba(255,255,255,0.025)",
-                border: "1px solid rgba(255,255,255,0.05)",
+                background: "var(--muted)",
+                border: "1px solid var(--border-subtle)",
               }}
             >
               <div className="mb-2.5 flex items-center justify-between">
@@ -675,15 +675,15 @@ export function SaPrimariiContent({ initialData }: SaPrimariiContentProps) {
                 )}
               </div>
               <div
-                className="text-white"
+                className="text-foreground"
                 style={{ fontSize: "1.25rem", fontWeight: 700, lineHeight: 1 }}
               >
                 {kpi.value}
               </div>
-              <div className="mt-1 text-gray-500" style={{ fontSize: "0.68rem" }}>
+              <div className="text-muted-foreground mt-1" style={{ fontSize: "0.68rem" }}>
                 {kpi.label}
               </div>
-              <div className="mt-0.5 text-gray-600" style={{ fontSize: "0.62rem" }}>
+              <div className="text-muted-foreground mt-0.5" style={{ fontSize: "0.62rem" }}>
                 {kpi.sub}
               </div>
             </motion.div>
@@ -707,14 +707,17 @@ export function SaPrimariiContent({ initialData }: SaPrimariiContentProps) {
                 transition={{ delay: 0.08 }}
                 className="col-span-3 rounded-2xl p-5"
                 style={{
-                  background: "rgba(255,255,255,0.025)",
-                  border: "1px solid rgba(255,255,255,0.05)",
+                  background: "var(--muted)",
+                  border: "1px solid var(--border-subtle)",
                 }}
               >
-                <h3 className="mb-1 text-white" style={{ fontSize: "0.9rem", fontWeight: 600 }}>
+                <h3
+                  className="text-foreground mb-1"
+                  style={{ fontSize: "0.9rem", fontWeight: 600 }}
+                >
                   Distribuție Tier
                 </h3>
-                <p className="mb-3 text-gray-600" style={{ fontSize: "0.68rem" }}>
+                <p className="text-muted-foreground mb-3" style={{ fontSize: "0.68rem" }}>
                   Per nivel de abonament
                 </p>
                 <div className="flex justify-center">
@@ -735,7 +738,7 @@ export function SaPrimariiContent({ initialData }: SaPrimariiContentProps) {
                   ].map((t) => (
                     <div key={t.label} className="flex items-center gap-1.5">
                       <div className="h-2 w-2 rounded-sm" style={{ background: t.color }} />
-                      <span className="text-gray-400" style={{ fontSize: "0.65rem" }}>
+                      <span className="text-muted-foreground" style={{ fontSize: "0.65rem" }}>
                         {t.label} ({t.count})
                       </span>
                     </div>
@@ -748,19 +751,22 @@ export function SaPrimariiContent({ initialData }: SaPrimariiContentProps) {
                 transition={{ delay: 0.12 }}
                 className="col-span-5 rounded-2xl p-5"
                 style={{
-                  background: "rgba(255,255,255,0.025)",
-                  border: "1px solid rgba(255,255,255,0.05)",
+                  background: "var(--muted)",
+                  border: "1px solid var(--border-subtle)",
                 }}
               >
-                <h3 className="mb-1 text-white" style={{ fontSize: "0.9rem", fontWeight: 600 }}>
+                <h3
+                  className="text-foreground mb-1"
+                  style={{ fontSize: "0.9rem", fontWeight: 600 }}
+                >
                   Cereri / Lună — per Primărie
                 </h3>
-                <p className="mb-3 text-gray-600" style={{ fontSize: "0.68rem" }}>
+                <p className="text-muted-foreground mb-3" style={{ fontSize: "0.68rem" }}>
                   Doar primării active, sortare descrescătoare
                 </p>
                 <ResponsiveContainer width="100%" height={190}>
                   <BarChart data={cereriBarData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(100,100,100,0.15)" />
                     <XAxis
                       dataKey="name"
                       tick={{ fill: "#6b7280", fontSize: 9 }}
@@ -797,19 +803,22 @@ export function SaPrimariiContent({ initialData }: SaPrimariiContentProps) {
                 transition={{ delay: 0.16 }}
                 className="col-span-4 rounded-2xl p-5"
                 style={{
-                  background: "rgba(255,255,255,0.025)",
-                  border: "1px solid rgba(255,255,255,0.05)",
+                  background: "var(--muted)",
+                  border: "1px solid var(--border-subtle)",
                 }}
               >
-                <h3 className="mb-1 text-white" style={{ fontSize: "0.9rem", fontWeight: 600 }}>
+                <h3
+                  className="text-foreground mb-1"
+                  style={{ fontSize: "0.9rem", fontWeight: 600 }}
+                >
                   MRR Trend — 6 luni
                 </h3>
-                <p className="mb-3 text-gray-600" style={{ fontSize: "0.68rem" }}>
+                <p className="text-muted-foreground mb-3" style={{ fontSize: "0.68rem" }}>
                   Evoluție venituri recurente lunare
                 </p>
                 <ResponsiveContainer width="100%" height={190}>
                   <LineChart data={revenueTrend}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(100,100,100,0.15)" />
                     <XAxis
                       dataKey="month"
                       tick={{ fill: "#6b7280", fontSize: 9 }}
@@ -838,24 +847,24 @@ export function SaPrimariiContent({ initialData }: SaPrimariiContentProps) {
 
             <div className="mb-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <h2 className="text-white" style={{ fontSize: "1rem", fontWeight: 600 }}>
+                <h2 className="text-foreground" style={{ fontSize: "1rem", fontWeight: 600 }}>
                   Monitorizare Primării
                 </h2>
-                <span className="text-gray-600" style={{ fontSize: "0.75rem" }}>
+                <span className="text-muted-foreground" style={{ fontSize: "0.75rem" }}>
                   {filtered.length} rezultate
                 </span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="relative">
-                  <Search className="absolute top-1/2 left-2.5 h-3.5 w-3.5 -translate-y-1/2 text-gray-600" />
+                  <Search className="text-muted-foreground absolute top-1/2 left-2.5 h-3.5 w-3.5 -translate-y-1/2" />
                   <input
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     placeholder="Caută..."
-                    className="w-44 rounded-lg py-2 pr-3 pl-8 text-white placeholder-gray-600 outline-none"
+                    className="text-foreground placeholder-muted-foreground w-44 rounded-lg py-2 pr-3 pl-8 outline-none"
                     style={{
-                      background: "rgba(255,255,255,0.04)",
-                      border: "1px solid rgba(255,255,255,0.06)",
+                      background: "var(--muted)",
+                      border: "1px solid var(--border-subtle)",
                       fontSize: "0.78rem",
                     }}
                   />
@@ -863,15 +872,15 @@ export function SaPrimariiContent({ initialData }: SaPrimariiContentProps) {
                 <select
                   value={filterTier}
                   onChange={(e) => setFilterTier(e.target.value as PrimarieTier | "Toate")}
-                  className="cursor-pointer appearance-none rounded-lg px-2.5 py-2 text-gray-300 outline-none"
+                  className="text-foreground cursor-pointer appearance-none rounded-lg px-2.5 py-2 outline-none"
                   style={{
-                    background: "rgba(255,255,255,0.04)",
-                    border: "1px solid rgba(255,255,255,0.06)",
+                    background: "var(--muted)",
+                    border: "1px solid var(--border-subtle)",
                     fontSize: "0.78rem",
                   }}
                 >
                   {tiers.map((t) => (
-                    <option key={t} value={t} className="bg-[#1a1a2e]">
+                    <option key={t} value={t} className="bg-popover">
                       {t === "Toate" ? "Toate tier" : t}
                     </option>
                   ))}
@@ -879,15 +888,15 @@ export function SaPrimariiContent({ initialData }: SaPrimariiContentProps) {
                 <select
                   value={filterStatus}
                   onChange={(e) => setFilterStatus(e.target.value as PrimarieStatus | "Toate")}
-                  className="cursor-pointer appearance-none rounded-lg px-2.5 py-2 text-gray-300 outline-none"
+                  className="text-foreground cursor-pointer appearance-none rounded-lg px-2.5 py-2 outline-none"
                   style={{
-                    background: "rgba(255,255,255,0.04)",
-                    border: "1px solid rgba(255,255,255,0.06)",
+                    background: "var(--muted)",
+                    border: "1px solid var(--border-subtle)",
                     fontSize: "0.78rem",
                   }}
                 >
                   {statuses.map((s) => (
-                    <option key={s} value={s} className="bg-[#1a1a2e]">
+                    <option key={s} value={s} className="bg-popover">
                       {s === "Toate" ? "Toate status" : statusConfig[s].label}
                     </option>
                   ))}
@@ -917,15 +926,15 @@ export function SaPrimariiContent({ initialData }: SaPrimariiContentProps) {
           >
             <div className="mb-5 flex items-center gap-3">
               <div className="relative flex-1">
-                <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-600" />
+                <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
                 <input
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Caută primărie, județ, localitate..."
-                  className="w-full rounded-xl py-2.5 pr-4 pl-10 text-white placeholder-gray-600 transition-all outline-none"
+                  className="text-foreground placeholder-muted-foreground w-full rounded-xl py-2.5 pr-4 pl-10 transition-all outline-none"
                   style={{
-                    background: "rgba(255,255,255,0.04)",
-                    border: "1px solid rgba(255,255,255,0.06)",
+                    background: "var(--muted)",
+                    border: "1px solid var(--border-subtle)",
                     fontSize: "0.82rem",
                   }}
                 />
@@ -933,16 +942,16 @@ export function SaPrimariiContent({ initialData }: SaPrimariiContentProps) {
               <select
                 value={filterJudet}
                 onChange={(e) => setFilterJudet(e.target.value)}
-                className="cursor-pointer appearance-none rounded-xl px-3 py-2.5 text-gray-300 outline-none"
+                className="text-foreground cursor-pointer appearance-none rounded-xl px-3 py-2.5 outline-none"
                 style={{
-                  background: "rgba(255,255,255,0.04)",
-                  border: "1px solid rgba(255,255,255,0.06)",
+                  background: "var(--muted)",
+                  border: "1px solid var(--border-subtle)",
                   fontSize: "0.82rem",
                   minWidth: 160,
                 }}
               >
                 {judete.map((j) => (
-                  <option key={j} value={j} className="bg-[#1a1a2e]">
+                  <option key={j} value={j} className="bg-popover">
                     {j}
                   </option>
                 ))}
@@ -950,16 +959,16 @@ export function SaPrimariiContent({ initialData }: SaPrimariiContentProps) {
               <select
                 value={filterTier}
                 onChange={(e) => setFilterTier(e.target.value as PrimarieTier | "Toate")}
-                className="cursor-pointer appearance-none rounded-xl px-3 py-2.5 text-gray-300 outline-none"
+                className="text-foreground cursor-pointer appearance-none rounded-xl px-3 py-2.5 outline-none"
                 style={{
-                  background: "rgba(255,255,255,0.04)",
-                  border: "1px solid rgba(255,255,255,0.06)",
+                  background: "var(--muted)",
+                  border: "1px solid var(--border-subtle)",
                   fontSize: "0.82rem",
                   minWidth: 130,
                 }}
               >
                 {tiers.map((t) => (
-                  <option key={t} value={t} className="bg-[#1a1a2e]">
+                  <option key={t} value={t} className="bg-popover">
                     {t === "Toate" ? "Toate tier-urile" : t}
                   </option>
                 ))}
@@ -967,16 +976,16 @@ export function SaPrimariiContent({ initialData }: SaPrimariiContentProps) {
               <select
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value as PrimarieStatus | "Toate")}
-                className="cursor-pointer appearance-none rounded-xl px-3 py-2.5 text-gray-300 outline-none"
+                className="text-foreground cursor-pointer appearance-none rounded-xl px-3 py-2.5 outline-none"
                 style={{
-                  background: "rgba(255,255,255,0.04)",
-                  border: "1px solid rgba(255,255,255,0.06)",
+                  background: "var(--muted)",
+                  border: "1px solid var(--border-subtle)",
                   fontSize: "0.82rem",
                   minWidth: 130,
                 }}
               >
                 {statuses.map((s) => (
-                  <option key={s} value={s} className="bg-[#1a1a2e]">
+                  <option key={s} value={s} className="bg-popover">
                     {s === "Toate" ? "Toate statusurile" : statusConfig[s].label}
                   </option>
                 ))}
@@ -994,10 +1003,10 @@ export function SaPrimariiContent({ initialData }: SaPrimariiContentProps) {
                   const nextSort = order[(order.indexOf(sortBy) + 1) % order.length];
                   if (nextSort) setSortBy(nextSort);
                 }}
-                className="flex cursor-pointer items-center gap-1.5 rounded-xl px-3 py-2.5 text-gray-400 transition-all hover:text-white"
+                className="text-muted-foreground hover:text-foreground hover:bg-accent flex cursor-pointer items-center gap-1.5 rounded-xl px-3 py-2.5 transition-all"
                 style={{
-                  background: "rgba(255,255,255,0.04)",
-                  border: "1px solid rgba(255,255,255,0.06)",
+                  background: "var(--muted)",
+                  border: "1px solid var(--border-subtle)",
                   fontSize: "0.82rem",
                 }}
               >
@@ -1058,19 +1067,19 @@ export function SaPrimariiContent({ initialData }: SaPrimariiContentProps) {
               <div
                 className="w-full max-w-md rounded-2xl p-6"
                 style={{
-                  background: "rgba(15,15,26,0.98)",
-                  border: "1px solid rgba(255,255,255,0.08)",
+                  background: "var(--popover)",
+                  border: "1px solid var(--border-subtle)",
                   backdropFilter: "blur(24px)",
                   pointerEvents: "auto",
                 }}
               >
                 <div className="mb-5 flex items-center justify-between">
-                  <h2 className="text-white" style={{ fontSize: "1.1rem", fontWeight: 700 }}>
+                  <h2 className="text-foreground" style={{ fontSize: "1.1rem", fontWeight: 700 }}>
                     Adaugă Primărie Nouă
                   </h2>
                   <button
                     onClick={() => setIsCreateOpen(false)}
-                    className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg bg-white/[0.04] text-gray-400 transition-all hover:bg-white/[0.08] hover:text-white"
+                    className="text-muted-foreground hover:text-foreground bg-muted hover:bg-accent flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg transition-all"
                   >
                     <X className="h-4 w-4" />
                   </button>
@@ -1081,16 +1090,19 @@ export function SaPrimariiContent({ initialData }: SaPrimariiContentProps) {
                   className="space-y-4"
                 >
                   <div>
-                    <label className="mb-1.5 block text-gray-400" style={{ fontSize: "0.75rem" }}>
+                    <label
+                      className="text-muted-foreground mb-1.5 block"
+                      style={{ fontSize: "0.75rem" }}
+                    >
                       Denumire Oficială *
                     </label>
                     <input
                       {...createForm.register("numeOficial")}
                       placeholder="ex: Primăria Municipiului Cluj-Napoca"
-                      className="w-full rounded-xl px-3 py-2.5 text-white placeholder-gray-600 outline-none"
+                      className="text-foreground placeholder-muted-foreground w-full rounded-xl px-3 py-2.5 outline-none"
                       style={{
-                        background: "rgba(255,255,255,0.04)",
-                        border: "1px solid rgba(255,255,255,0.08)",
+                        background: "var(--muted)",
+                        border: "1px solid var(--border-subtle)",
                         fontSize: "0.85rem",
                       }}
                     />
@@ -1102,17 +1114,20 @@ export function SaPrimariiContent({ initialData }: SaPrimariiContentProps) {
                   </div>
 
                   <div>
-                    <label className="mb-1.5 block text-gray-400" style={{ fontSize: "0.75rem" }}>
+                    <label
+                      className="text-muted-foreground mb-1.5 block"
+                      style={{ fontSize: "0.75rem" }}
+                    >
                       ID Localitate *
                     </label>
                     <input
                       {...createForm.register("localitateId")}
                       type="number"
                       placeholder="ex: 1234"
-                      className="w-full rounded-xl px-3 py-2.5 text-white placeholder-gray-600 outline-none"
+                      className="text-foreground placeholder-muted-foreground w-full rounded-xl px-3 py-2.5 outline-none"
                       style={{
-                        background: "rgba(255,255,255,0.04)",
-                        border: "1px solid rgba(255,255,255,0.08)",
+                        background: "var(--muted)",
+                        border: "1px solid var(--border-subtle)",
                         fontSize: "0.85rem",
                       }}
                     />
@@ -1124,17 +1139,20 @@ export function SaPrimariiContent({ initialData }: SaPrimariiContentProps) {
                   </div>
 
                   <div>
-                    <label className="mb-1.5 block text-gray-400" style={{ fontSize: "0.75rem" }}>
+                    <label
+                      className="text-muted-foreground mb-1.5 block"
+                      style={{ fontSize: "0.75rem" }}
+                    >
                       Email Contact *
                     </label>
                     <input
                       {...createForm.register("email")}
                       type="email"
                       placeholder="ex: contact@primarie.ro"
-                      className="w-full rounded-xl px-3 py-2.5 text-white placeholder-gray-600 outline-none"
+                      className="text-foreground placeholder-muted-foreground w-full rounded-xl px-3 py-2.5 outline-none"
                       style={{
-                        background: "rgba(255,255,255,0.04)",
-                        border: "1px solid rgba(255,255,255,0.08)",
+                        background: "var(--muted)",
+                        border: "1px solid var(--border-subtle)",
                         fontSize: "0.85rem",
                       }}
                     />
@@ -1146,42 +1164,48 @@ export function SaPrimariiContent({ initialData }: SaPrimariiContentProps) {
                   </div>
 
                   <div>
-                    <label className="mb-1.5 block text-gray-400" style={{ fontSize: "0.75rem" }}>
+                    <label
+                      className="text-muted-foreground mb-1.5 block"
+                      style={{ fontSize: "0.75rem" }}
+                    >
                       Tier *
                     </label>
                     <select
                       {...createForm.register("tier")}
-                      className="w-full cursor-pointer appearance-none rounded-xl px-3 py-2.5 text-white outline-none"
+                      className="text-foreground w-full cursor-pointer appearance-none rounded-xl px-3 py-2.5 outline-none"
                       style={{
-                        background: "rgba(255,255,255,0.04)",
-                        border: "1px solid rgba(255,255,255,0.08)",
+                        background: "var(--muted)",
+                        border: "1px solid var(--border-subtle)",
                         fontSize: "0.85rem",
                       }}
                     >
-                      <option value="Basic" className="bg-[#1a1a2e]">
+                      <option value="Basic" className="bg-popover">
                         Basic
                       </option>
-                      <option value="Pro" className="bg-[#1a1a2e]">
+                      <option value="Pro" className="bg-popover">
                         Pro
                       </option>
-                      <option value="Enterprise" className="bg-[#1a1a2e]">
+                      <option value="Enterprise" className="bg-popover">
                         Enterprise
                       </option>
                     </select>
                   </div>
 
                   <div>
-                    <label className="mb-1.5 block text-gray-400" style={{ fontSize: "0.75rem" }}>
+                    <label
+                      className="text-muted-foreground mb-1.5 block"
+                      style={{ fontSize: "0.75rem" }}
+                    >
                       Email Admin (opțional)
                     </label>
                     <input
                       {...createForm.register("adminEmail")}
                       type="email"
                       placeholder="ex: admin@primarie.ro"
-                      className="w-full rounded-xl px-3 py-2.5 text-white placeholder-gray-600 outline-none"
+                      className="text-foreground placeholder-muted-foreground w-full rounded-xl px-3 py-2.5 outline-none"
                       style={{
-                        background: "rgba(255,255,255,0.04)",
-                        border: "1px solid rgba(255,255,255,0.08)",
+                        background: "var(--muted)",
+                        border: "1px solid var(--border-subtle)",
                         fontSize: "0.85rem",
                       }}
                     />
@@ -1196,10 +1220,10 @@ export function SaPrimariiContent({ initialData }: SaPrimariiContentProps) {
                     <button
                       type="button"
                       onClick={() => setIsCreateOpen(false)}
-                      className="flex-1 cursor-pointer rounded-xl px-4 py-2.5 text-gray-300 transition-all hover:bg-white/[0.06]"
+                      className="text-muted-foreground hover:text-foreground hover:bg-accent flex-1 cursor-pointer rounded-xl px-4 py-2.5 transition-all"
                       style={{
-                        background: "rgba(255,255,255,0.04)",
-                        border: "1px solid rgba(255,255,255,0.06)",
+                        background: "var(--muted)",
+                        border: "1px solid var(--border-subtle)",
                         fontSize: "0.82rem",
                       }}
                     >

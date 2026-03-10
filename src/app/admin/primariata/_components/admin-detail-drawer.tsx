@@ -88,15 +88,15 @@ export function AdminDetailDrawer({ selectedAdmin, onClose }: AdminDetailDrawerP
             className="fixed top-0 right-0 z-50 h-full overflow-y-auto"
             style={{
               width: 440,
-              background: "rgba(14,14,28,0.95)",
+              background: "var(--popover)",
               backdropFilter: "blur(24px)",
-              borderLeft: "1px solid rgba(255,255,255,0.06)",
+              borderLeft: "1px solid var(--border-subtle)",
             }}
           >
             <div className="p-6">
               <button
                 onClick={onClose}
-                className="absolute top-4 right-4 flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg bg-white/[0.04] text-gray-400 transition-all hover:bg-white/[0.08] hover:text-white"
+                className="bg-muted hover:bg-accent text-muted-foreground hover:text-foreground absolute top-4 right-4 flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg transition-all"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -120,12 +120,12 @@ export function AdminDetailDrawer({ selectedAdmin, onClose }: AdminDetailDrawerP
                 </div>
                 <div className="min-w-0">
                   <h2
-                    className="truncate text-white"
+                    className="text-foreground truncate"
                     style={{ fontSize: "1.15rem", fontWeight: 700 }}
                   >
                     {selectedAdmin.name}
                   </h2>
-                  <div className="truncate text-gray-500" style={{ fontSize: "0.75rem" }}>
+                  <div className="text-muted-foreground truncate" style={{ fontSize: "0.75rem" }}>
                     {selectedAdmin.email}
                   </div>
                   <div className="mt-1 flex items-center gap-2">
@@ -167,12 +167,12 @@ export function AdminDetailDrawer({ selectedAdmin, onClose }: AdminDetailDrawerP
               <div
                 className="mb-4 rounded-xl p-4"
                 style={{
-                  background: "rgba(255,255,255,0.025)",
-                  border: "1px solid rgba(255,255,255,0.04)",
+                  background: "var(--muted)",
+                  border: "1px solid var(--border-subtle)",
                 }}
               >
                 <div
-                  className="mb-3 text-gray-400"
+                  className="text-muted-foreground mb-3"
                   style={{ fontSize: "0.75rem", fontWeight: 600 }}
                 >
                   Informații
@@ -189,15 +189,15 @@ export function AdminDetailDrawer({ selectedAdmin, onClose }: AdminDetailDrawerP
                     const Icon = item.icon;
                     return (
                       <div key={item.label} className="flex flex-wrap items-center gap-2">
-                        <Icon className="h-3.5 w-3.5 shrink-0 text-gray-600" />
+                        <Icon className="text-muted-foreground h-3.5 w-3.5 shrink-0" />
                         <span
-                          className="shrink-0 text-gray-500"
+                          className="text-muted-foreground shrink-0"
                           style={{ fontSize: "0.72rem", minWidth: 80 }}
                         >
                           {item.label}
                         </span>
                         <span
-                          className="min-w-0 truncate text-gray-300"
+                          className="text-foreground min-w-0 truncate"
                           style={{ fontSize: "0.78rem" }}
                         >
                           {item.value}
@@ -212,12 +212,12 @@ export function AdminDetailDrawer({ selectedAdmin, onClose }: AdminDetailDrawerP
               <div
                 className="mb-4 rounded-xl p-4"
                 style={{
-                  background: "rgba(255,255,255,0.025)",
-                  border: "1px solid rgba(255,255,255,0.04)",
+                  background: "var(--muted)",
+                  border: "1px solid var(--border-subtle)",
                 }}
               >
                 <div
-                  className="mb-3 text-gray-400"
+                  className="text-muted-foreground mb-3"
                   style={{ fontSize: "0.75rem", fontWeight: 600 }}
                 >
                   Performanță & Activitate
@@ -258,15 +258,12 @@ export function AdminDetailDrawer({ selectedAdmin, onClose }: AdminDetailDrawerP
                     <div
                       key={m.label}
                       className="rounded-lg p-2 text-center"
-                      style={{ background: "rgba(255,255,255,0.02)" }}
+                      style={{ background: "var(--background)" }}
                     >
-                      <div
-                        className="text-white"
-                        style={{ fontSize: "1rem", fontWeight: 700, color: m.color }}
-                      >
+                      <div style={{ fontSize: "1rem", fontWeight: 700, color: m.color }}>
                         {m.value}
                       </div>
-                      <div className="mt-0.5 text-gray-600" style={{ fontSize: "0.58rem" }}>
+                      <div className="text-muted-foreground mt-0.5" style={{ fontSize: "0.58rem" }}>
                         {m.label}
                       </div>
                     </div>
@@ -278,12 +275,12 @@ export function AdminDetailDrawer({ selectedAdmin, onClose }: AdminDetailDrawerP
               <div
                 className="mb-4 rounded-xl p-4"
                 style={{
-                  background: "rgba(255,255,255,0.025)",
-                  border: "1px solid rgba(255,255,255,0.04)",
+                  background: "var(--muted)",
+                  border: "1px solid var(--border-subtle)",
                 }}
               >
                 <div
-                  className="mb-3 text-gray-400"
+                  className="text-muted-foreground mb-3"
                   style={{ fontSize: "0.75rem", fontWeight: 600 }}
                 >
                   Trend Activitate (6 luni)
@@ -327,21 +324,24 @@ export function AdminDetailDrawer({ selectedAdmin, onClose }: AdminDetailDrawerP
               <div
                 className="mb-4 rounded-xl p-4"
                 style={{
-                  background: "rgba(255,255,255,0.025)",
-                  border: "1px solid rgba(255,255,255,0.04)",
+                  background: "var(--muted)",
+                  border: "1px solid var(--border-subtle)",
                 }}
               >
                 <div className="mb-2 flex items-center justify-between">
-                  <span className="text-gray-400" style={{ fontSize: "0.75rem", fontWeight: 600 }}>
+                  <span
+                    className="text-muted-foreground"
+                    style={{ fontSize: "0.75rem", fontWeight: 600 }}
+                  >
                     Scor Satisfacție
                   </span>
-                  <span className="text-white" style={{ fontSize: "1.1rem", fontWeight: 700 }}>
+                  <span className="text-foreground" style={{ fontSize: "1.1rem", fontWeight: 700 }}>
                     {selectedAdmin.satisfactionScore.toFixed(1)}/5.0
                   </span>
                 </div>
                 <div
                   className="h-2 w-full overflow-hidden rounded-full"
-                  style={{ background: "rgba(255,255,255,0.04)" }}
+                  style={{ background: "var(--border-subtle)" }}
                 >
                   <div
                     className="h-full rounded-full transition-all"
@@ -376,10 +376,10 @@ export function AdminDetailDrawer({ selectedAdmin, onClose }: AdminDetailDrawerP
                 </button>
                 <button
                   onClick={() => toast(`Editare: ${selectedAdmin.name}`)}
-                  className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-gray-300 transition-all hover:bg-white/[0.06]"
+                  className="text-foreground flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl px-4 py-2.5 transition-all"
                   style={{
-                    background: "rgba(255,255,255,0.03)",
-                    border: "1px solid rgba(255,255,255,0.06)",
+                    background: "var(--muted)",
+                    border: "1px solid var(--border-subtle)",
                     fontSize: "0.78rem",
                     fontWeight: 600,
                   }}

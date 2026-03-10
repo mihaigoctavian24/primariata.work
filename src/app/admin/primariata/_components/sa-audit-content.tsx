@@ -414,7 +414,7 @@ export function SaAuditContent({ initialData }: SaAuditContentProps) {
           <motion.h1
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="flex items-center gap-2 text-white"
+            className="text-foreground flex items-center gap-2"
             style={{ fontSize: "1.6rem", fontWeight: 700 }}
           >
             <Shield className="h-6 w-6 text-amber-400" /> Audit Log — Platform
@@ -423,7 +423,7 @@ export function SaAuditContent({ initialData }: SaAuditContentProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.05 }}
-            className="mt-1 text-gray-600"
+            className="text-muted-foreground mt-1"
             style={{ fontSize: "0.83rem" }}
           >
             {allEntries.length} acțiuni înregistrate · toate primăriile · super_admin & admin
@@ -433,10 +433,10 @@ export function SaAuditContent({ initialData }: SaAuditContentProps) {
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.97 }}
           onClick={() => toast.success("Export CSV generat")}
-          className="flex cursor-pointer items-center gap-2 rounded-xl px-4 py-2.5 text-gray-300 transition-all hover:bg-white/[0.06]"
+          className="text-muted-foreground hover:text-foreground hover:bg-accent flex cursor-pointer items-center gap-2 rounded-xl px-4 py-2.5 transition-all"
           style={{
-            background: "rgba(255,255,255,0.04)",
-            border: "1px solid rgba(255,255,255,0.06)",
+            background: "var(--muted)",
+            border: "1px solid var(--border-subtle)",
             fontSize: "0.82rem",
           }}
         >
@@ -447,7 +447,7 @@ export function SaAuditContent({ initialData }: SaAuditContentProps) {
       {/* Filters */}
       <div className="mb-5 flex items-center gap-3">
         <div className="relative flex-1">
-          <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-600" />
+          <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
           <input
             value={search}
             onChange={(e) => {
@@ -455,10 +455,10 @@ export function SaAuditContent({ initialData }: SaAuditContentProps) {
               setPage(1);
             }}
             placeholder="Caută actor, target, detalii..."
-            className="w-full rounded-xl py-2.5 pr-4 pl-10 text-white placeholder-gray-600 outline-none"
+            className="text-foreground placeholder-muted-foreground w-full rounded-xl py-2.5 pr-4 pl-10 outline-none"
             style={{
-              background: "rgba(255,255,255,0.04)",
-              border: "1px solid rgba(255,255,255,0.06)",
+              background: "var(--muted)",
+              border: "1px solid var(--border-subtle)",
               fontSize: "0.82rem",
             }}
           />
@@ -469,19 +469,19 @@ export function SaAuditContent({ initialData }: SaAuditContentProps) {
             setFilterAction(e.target.value as AuditAction | "all");
             setPage(1);
           }}
-          className="cursor-pointer appearance-none rounded-xl px-3 py-2.5 text-gray-300 outline-none"
+          className="text-foreground cursor-pointer appearance-none rounded-xl px-3 py-2.5 outline-none"
           style={{
-            background: "rgba(255,255,255,0.04)",
-            border: "1px solid rgba(255,255,255,0.06)",
+            background: "var(--muted)",
+            border: "1px solid var(--border-subtle)",
             fontSize: "0.82rem",
             minWidth: 160,
           }}
         >
-          <option value="all" className="bg-[#1a1a2e]">
+          <option value="all" className="bg-popover">
             Toate acțiunile
           </option>
           {Object.entries(actionLabels).map(([key, label]) => (
-            <option key={key} value={key} className="bg-[#1a1a2e]">
+            <option key={key} value={key} className="bg-popover">
               {label}
             </option>
           ))}
@@ -489,8 +489,8 @@ export function SaAuditContent({ initialData }: SaAuditContentProps) {
         <div
           className="flex gap-1 rounded-xl p-1"
           style={{
-            background: "rgba(255,255,255,0.025)",
-            border: "1px solid rgba(255,255,255,0.04)",
+            background: "var(--muted)",
+            border: "1px solid var(--border-subtle)",
           }}
         >
           {(["all", "super_admin", "admin"] as const).map((r) => {
@@ -502,7 +502,7 @@ export function SaAuditContent({ initialData }: SaAuditContentProps) {
                   setFilterRole(r);
                   setPage(1);
                 }}
-                className={`relative cursor-pointer rounded-lg px-3 py-1.5 transition-all ${isActive ? "text-white" : "text-gray-500 hover:text-gray-300"}`}
+                className={`relative cursor-pointer rounded-lg px-3 py-1.5 transition-all ${isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}
               >
                 {isActive && (
                   <motion.div
@@ -531,8 +531,8 @@ export function SaAuditContent({ initialData }: SaAuditContentProps) {
         animate={{ opacity: 1 }}
         className="overflow-hidden rounded-2xl"
         style={{
-          background: "rgba(255,255,255,0.025)",
-          border: "1px solid rgba(255,255,255,0.05)",
+          background: "var(--muted)",
+          border: "1px solid var(--border-subtle)",
         }}
       >
         {paginated.map((entry, i) => {
@@ -543,8 +543,8 @@ export function SaAuditContent({ initialData }: SaAuditContentProps) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: i * 0.03 }}
-              className="flex items-center gap-4 px-5 py-4 transition-all hover:bg-white/[0.02]"
-              style={{ borderBottom: "1px solid rgba(255,255,255,0.03)" }}
+              className="hover:bg-accent/50 flex items-center gap-4 px-5 py-4 transition-all"
+              style={{ borderBottom: "1px solid var(--border-subtle)" }}
             >
               {/* Icon */}
               <div
@@ -556,17 +556,17 @@ export function SaAuditContent({ initialData }: SaAuditContentProps) {
 
               {/* Time */}
               <div className="w-20 shrink-0">
-                <div className="text-gray-300" style={{ fontSize: "0.82rem", fontWeight: 600 }}>
+                <div className="text-foreground" style={{ fontSize: "0.82rem", fontWeight: 600 }}>
                   {entry.timestamp}
                 </div>
-                <div className="text-gray-700" style={{ fontSize: "0.63rem" }}>
+                <div className="text-muted-foreground" style={{ fontSize: "0.63rem" }}>
                   {entry.date}
                 </div>
               </div>
 
               {/* Actor */}
               <div className="w-36 shrink-0">
-                <div className="text-gray-200" style={{ fontSize: "0.8rem" }}>
+                <div className="text-foreground" style={{ fontSize: "0.8rem" }}>
                   {entry.actor}
                 </div>
                 <span
@@ -603,15 +603,15 @@ export function SaAuditContent({ initialData }: SaAuditContentProps) {
 
               {/* Details */}
               <div className="min-w-0 flex-1">
-                <div className="truncate text-gray-200" style={{ fontSize: "0.8rem" }}>
-                  <span className="text-white" style={{ fontWeight: 600 }}>
+                <div className="text-muted-foreground truncate" style={{ fontSize: "0.8rem" }}>
+                  <span className="text-foreground" style={{ fontWeight: 600 }}>
                     {entry.target}
                   </span>{" "}
                   — {entry.details}
                 </div>
                 {entry.primarie && (
                   <div
-                    className="mt-0.5 flex items-center gap-1 text-gray-600"
+                    className="text-muted-foreground mt-0.5 flex items-center gap-1"
                     style={{ fontSize: "0.65rem" }}
                   >
                     <Building2 className="h-2.5 w-2.5" /> {entry.primarie}
@@ -621,7 +621,7 @@ export function SaAuditContent({ initialData }: SaAuditContentProps) {
 
               {/* IP */}
               <div className="w-28 shrink-0 text-right">
-                <span className="font-mono text-gray-600" style={{ fontSize: "0.68rem" }}>
+                <span className="text-muted-foreground font-mono" style={{ fontSize: "0.68rem" }}>
                   {entry.ip}
                 </span>
               </div>
@@ -630,7 +630,7 @@ export function SaAuditContent({ initialData }: SaAuditContentProps) {
         })}
 
         {paginated.length === 0 && (
-          <div className="py-12 text-center text-gray-600" style={{ fontSize: "0.85rem" }}>
+          <div className="text-muted-foreground py-12 text-center" style={{ fontSize: "0.85rem" }}>
             Nicio intrare găsită.
           </div>
         )}
@@ -639,21 +639,23 @@ export function SaAuditContent({ initialData }: SaAuditContentProps) {
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="mt-4 flex items-center justify-between">
-          <span className="text-gray-600" style={{ fontSize: "0.75rem" }}>
+          <span className="text-muted-foreground" style={{ fontSize: "0.75rem" }}>
             {filtered.length} rezultate · Pagina {page}/{totalPages}
           </span>
           <div className="flex items-center gap-2">
             <button
               onClick={() => setPage(Math.max(1, page - 1))}
               disabled={page === 1}
-              className="cursor-pointer rounded-lg bg-white/[0.04] p-2 text-gray-400 transition-all hover:bg-white/[0.08] hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
+              className="text-muted-foreground hover:text-foreground hover:bg-accent cursor-pointer rounded-lg p-2 transition-all disabled:cursor-not-allowed disabled:opacity-30"
+              style={{ background: "var(--muted)", border: "1px solid var(--border-subtle)" }}
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
             <button
               onClick={() => setPage(Math.min(totalPages, page + 1))}
               disabled={page === totalPages}
-              className="cursor-pointer rounded-lg bg-white/[0.04] p-2 text-gray-400 transition-all hover:bg-white/[0.08] hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
+              className="text-muted-foreground hover:text-foreground hover:bg-accent cursor-pointer rounded-lg p-2 transition-all disabled:cursor-not-allowed disabled:opacity-30"
+              style={{ background: "var(--muted)", border: "1px solid var(--border-subtle)" }}
             >
               <ChevronRight className="h-4 w-4" />
             </button>

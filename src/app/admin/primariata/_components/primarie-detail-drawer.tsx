@@ -104,18 +104,18 @@ export function PrimarieDetailDrawer({ selectedPrimarie, onClose }: PrimarieDeta
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
             className="fixed top-0 right-0 z-50 h-full w-[460px] overflow-y-auto"
             style={{
-              background: "linear-gradient(180deg, #0f0f1a 0%, #09090f 100%)",
-              borderLeft: "1px solid rgba(255,255,255,0.06)",
+              background: "var(--popover)",
+              borderLeft: "1px solid var(--border-subtle)",
             }}
           >
             <div className="p-6">
               <div className="mb-6 flex items-center justify-between">
-                <h3 className="text-white" style={{ fontSize: "1.1rem", fontWeight: 700 }}>
+                <h3 className="text-foreground" style={{ fontSize: "1.1rem", fontWeight: 700 }}>
                   Detalii Primărie
                 </h3>
                 <button
                   onClick={onClose}
-                  className="cursor-pointer rounded-lg bg-white/[0.04] p-1.5 text-gray-400 transition-all hover:bg-white/[0.08] hover:text-white"
+                  className="bg-muted hover:bg-accent text-muted-foreground hover:text-foreground cursor-pointer rounded-lg p-1.5 transition-all"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -125,8 +125,8 @@ export function PrimarieDetailDrawer({ selectedPrimarie, onClose }: PrimarieDeta
               <div
                 className="mb-4 rounded-xl p-4"
                 style={{
-                  background: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.05)",
+                  background: "var(--muted)",
+                  border: "1px solid var(--border-subtle)",
                 }}
               >
                 <div className="mb-3 flex items-center gap-3">
@@ -142,13 +142,13 @@ export function PrimarieDetailDrawer({ selectedPrimarie, onClose }: PrimarieDeta
                   </div>
                   <div className="min-w-0 flex-1">
                     <div
-                      className="truncate text-white"
+                      className="text-foreground truncate"
                       style={{ fontSize: "0.95rem", fontWeight: 600 }}
                     >
                       {selectedPrimarie.name}
                     </div>
                     <div
-                      className="flex items-center gap-1 truncate text-gray-500"
+                      className="text-muted-foreground flex items-center gap-1 truncate"
                       style={{ fontSize: "0.72rem" }}
                     >
                       <MapPin className="h-3 w-3 shrink-0" /> {selectedPrimarie.localitate}, Jud.{" "}
@@ -171,7 +171,7 @@ export function PrimarieDetailDrawer({ selectedPrimarie, onClose }: PrimarieDeta
                 <div className="grid grid-cols-3 gap-2">
                   <div
                     className="rounded-lg px-2 py-2 text-center"
-                    style={{ background: "rgba(255,255,255,0.02)" }}
+                    style={{ background: "var(--background)" }}
                   >
                     <div
                       style={{
@@ -182,32 +182,35 @@ export function PrimarieDetailDrawer({ selectedPrimarie, onClose }: PrimarieDeta
                     >
                       {statusConfig[selectedPrimarie.status].label}
                     </div>
-                    <div className="mt-0.5 text-gray-600" style={{ fontSize: "0.58rem" }}>
+                    <div className="text-muted-foreground mt-0.5" style={{ fontSize: "0.58rem" }}>
                       Status
                     </div>
                   </div>
                   <div
                     className="rounded-lg px-2 py-2 text-center"
-                    style={{ background: "rgba(255,255,255,0.02)" }}
+                    style={{ background: "var(--background)" }}
                   >
-                    <div className="text-white" style={{ fontSize: "0.78rem", fontWeight: 600 }}>
+                    <div
+                      className="text-foreground"
+                      style={{ fontSize: "0.78rem", fontWeight: 600 }}
+                    >
                       {selectedPrimarie.createdAt}
                     </div>
-                    <div className="mt-0.5 text-gray-600" style={{ fontSize: "0.58rem" }}>
+                    <div className="text-muted-foreground mt-0.5" style={{ fontSize: "0.58rem" }}>
                       Creat la
                     </div>
                   </div>
                   <div
                     className="rounded-lg px-2 py-2 text-center"
-                    style={{ background: "rgba(255,255,255,0.02)" }}
+                    style={{ background: "var(--background)" }}
                   >
                     <div
-                      className="truncate text-white"
+                      className="text-foreground truncate"
                       style={{ fontSize: "0.78rem", fontWeight: 600 }}
                     >
                       {selectedPrimarie.lastActivity}
                     </div>
-                    <div className="mt-0.5 text-gray-600" style={{ fontSize: "0.58rem" }}>
+                    <div className="text-muted-foreground mt-0.5" style={{ fontSize: "0.58rem" }}>
                       Ultima activ.
                     </div>
                   </div>
@@ -218,12 +221,12 @@ export function PrimarieDetailDrawer({ selectedPrimarie, onClose }: PrimarieDeta
               <div
                 className="mb-4 rounded-xl p-4"
                 style={{
-                  background: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.05)",
+                  background: "var(--muted)",
+                  border: "1px solid var(--border-subtle)",
                 }}
               >
                 <div
-                  className="mb-3 text-gray-500"
+                  className="text-muted-foreground mb-3"
                   style={{ fontSize: "0.7rem", fontWeight: 600, textTransform: "uppercase" }}
                 >
                   Health & Performance
@@ -276,15 +279,18 @@ export function PrimarieDetailDrawer({ selectedPrimarie, onClose }: PrimarieDeta
                       <div
                         key={stat.label}
                         className="flex items-center gap-2.5 rounded-lg px-3 py-2.5"
-                        style={{ background: "rgba(255,255,255,0.02)" }}
+                        style={{ background: "var(--background)" }}
                       >
                         <Icon className="h-4 w-4 shrink-0" style={{ color: stat.color }} />
                         <div>
-                          <div className="truncate text-gray-600" style={{ fontSize: "0.62rem" }}>
+                          <div
+                            className="text-muted-foreground truncate"
+                            style={{ fontSize: "0.62rem" }}
+                          >
                             {stat.label}
                           </div>
                           <div
-                            className="text-white"
+                            className="text-foreground"
                             style={{ fontSize: "0.85rem", fontWeight: 600 }}
                           >
                             {stat.value}
@@ -300,12 +306,12 @@ export function PrimarieDetailDrawer({ selectedPrimarie, onClose }: PrimarieDeta
               <div
                 className="mb-4 rounded-xl p-4"
                 style={{
-                  background: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.05)",
+                  background: "var(--muted)",
+                  border: "1px solid var(--border-subtle)",
                 }}
               >
                 <div
-                  className="mb-3 text-gray-500"
+                  className="text-muted-foreground mb-3"
                   style={{ fontSize: "0.7rem", fontWeight: 600, textTransform: "uppercase" }}
                 >
                   Cereri — Trend 6 luni
@@ -316,7 +322,7 @@ export function PrimarieDetailDrawer({ selectedPrimarie, onClose }: PrimarieDeta
                     const h = Math.max(4, (val / maxVal) * 80);
                     return (
                       <div key={months[idx]} className="flex flex-1 flex-col items-center gap-1">
-                        <span className="text-gray-400" style={{ fontSize: "0.6rem" }}>
+                        <span className="text-muted-foreground" style={{ fontSize: "0.6rem" }}>
                           {val}
                         </span>
                         <motion.div
@@ -332,7 +338,7 @@ export function PrimarieDetailDrawer({ selectedPrimarie, onClose }: PrimarieDeta
                             minHeight: 4,
                           }}
                         />
-                        <span className="text-gray-600" style={{ fontSize: "0.58rem" }}>
+                        <span className="text-muted-foreground" style={{ fontSize: "0.58rem" }}>
                           {months[idx]}
                         </span>
                       </div>
@@ -345,12 +351,12 @@ export function PrimarieDetailDrawer({ selectedPrimarie, onClose }: PrimarieDeta
               <div
                 className="mb-4 rounded-xl p-4"
                 style={{
-                  background: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.05)",
+                  background: "var(--muted)",
+                  border: "1px solid var(--border-subtle)",
                 }}
               >
                 <div
-                  className="mb-3 text-gray-500"
+                  className="text-muted-foreground mb-3"
                   style={{ fontSize: "0.7rem", fontWeight: 600, textTransform: "uppercase" }}
                 >
                   Statistici
@@ -387,15 +393,15 @@ export function PrimarieDetailDrawer({ selectedPrimarie, onClose }: PrimarieDeta
                       <div
                         key={stat.label}
                         className="flex items-center gap-2 rounded-lg px-3 py-2"
-                        style={{ background: "rgba(255,255,255,0.02)" }}
+                        style={{ background: "var(--background)" }}
                       >
                         <Icon className="h-3.5 w-3.5 shrink-0" style={{ color: stat.color }} />
                         <div>
-                          <div className="text-gray-600" style={{ fontSize: "0.62rem" }}>
+                          <div className="text-muted-foreground" style={{ fontSize: "0.62rem" }}>
                             {stat.label}
                           </div>
                           <div
-                            className="text-white"
+                            className="text-foreground"
                             style={{ fontSize: "0.82rem", fontWeight: 600 }}
                           >
                             {typeof stat.value === "number"
@@ -413,12 +419,12 @@ export function PrimarieDetailDrawer({ selectedPrimarie, onClose }: PrimarieDeta
               <div
                 className="mb-4 rounded-xl p-4"
                 style={{
-                  background: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.05)",
+                  background: "var(--muted)",
+                  border: "1px solid var(--border-subtle)",
                 }}
               >
                 <div
-                  className="mb-2 text-gray-500"
+                  className="text-muted-foreground mb-2"
                   style={{ fontSize: "0.7rem", fontWeight: 600, textTransform: "uppercase" }}
                 >
                   Admin Primărie
@@ -438,10 +444,10 @@ export function PrimarieDetailDrawer({ selectedPrimarie, onClose }: PrimarieDeta
                       .join("")}
                   </div>
                   <div className="min-w-0">
-                    <div className="truncate text-gray-200" style={{ fontSize: "0.82rem" }}>
+                    <div className="text-foreground truncate" style={{ fontSize: "0.82rem" }}>
                       {selectedPrimarie.adminName}
                     </div>
-                    <div className="truncate text-gray-600" style={{ fontSize: "0.7rem" }}>
+                    <div className="text-muted-foreground truncate" style={{ fontSize: "0.7rem" }}>
                       {selectedPrimarie.adminEmail}
                     </div>
                   </div>
@@ -452,12 +458,12 @@ export function PrimarieDetailDrawer({ selectedPrimarie, onClose }: PrimarieDeta
               <div
                 className="mb-4 rounded-xl p-4"
                 style={{
-                  background: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.05)",
+                  background: "var(--muted)",
+                  border: "1px solid var(--border-subtle)",
                 }}
               >
                 <div
-                  className="mb-3 text-gray-500"
+                  className="text-muted-foreground mb-3"
                   style={{ fontSize: "0.7rem", fontWeight: 600, textTransform: "uppercase" }}
                 >
                   Feature Flags Active
@@ -479,7 +485,7 @@ export function PrimarieDetailDrawer({ selectedPrimarie, onClose }: PrimarieDeta
                     ))}
                   </div>
                 ) : (
-                  <div className="text-gray-600" style={{ fontSize: "0.78rem" }}>
+                  <div className="text-muted-foreground" style={{ fontSize: "0.78rem" }}>
                     Niciun feature activat
                   </div>
                 )}
@@ -502,10 +508,10 @@ export function PrimarieDetailDrawer({ selectedPrimarie, onClose }: PrimarieDeta
                 </button>
                 <button
                   onClick={() => toast(`Editare ${selectedPrimarie.name}`)}
-                  className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-gray-300 transition-all hover:bg-white/[0.06]"
+                  className="text-foreground flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl px-4 py-2.5 transition-all"
                   style={{
-                    background: "rgba(255,255,255,0.04)",
-                    border: "1px solid rgba(255,255,255,0.06)",
+                    background: "var(--muted)",
+                    border: "1px solid var(--border-subtle)",
                     fontSize: "0.82rem",
                   }}
                 >

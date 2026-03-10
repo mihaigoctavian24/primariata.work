@@ -227,7 +227,7 @@ export function SaDashboardContent({ initialData }: SaDashboardContentProps): Re
             animate={{ opacity: 1, x: 0 }}
             className="flex items-center gap-3"
           >
-            <h1 className="text-[1.6rem] font-bold text-white">Platform Overview</h1>
+            <h1 className="text-foreground text-[1.6rem] font-bold">Platform Overview</h1>
             <div className="flex items-center gap-1.5 rounded-lg border border-emerald-500/10 bg-gradient-to-br from-emerald-500/10 to-cyan-500/5 px-2.5 py-1">
               <Zap className="h-3 w-3 text-emerald-400" />
               <span className="text-[0.68rem] font-semibold text-emerald-400">Super Admin</span>
@@ -237,7 +237,7 @@ export function SaDashboardContent({ initialData }: SaDashboardContentProps): Re
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.1 }}
-            className="mt-1 text-[0.83rem] text-gray-400"
+            className="text-muted-foreground mt-1 text-[0.83rem]"
           >
             Platforma primariaTa — vizualizare globală ·{" "}
             {new Date().toLocaleDateString("ro-RO", {

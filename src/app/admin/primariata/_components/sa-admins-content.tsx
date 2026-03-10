@@ -542,12 +542,12 @@ export function SaAdminsContent({ initialData }: SaAdminsContentProps) {
             </div>
             <div>
               <h1
-                className="flex items-center gap-2 text-white"
+                className="text-foreground flex items-center gap-2"
                 style={{ fontSize: "1.5rem", fontWeight: 700 }}
               >
                 Management Admini
               </h1>
-              <p className="mt-0.5 text-gray-600" style={{ fontSize: "0.78rem" }}>
+              <p className="text-muted-foreground mt-0.5" style={{ fontSize: "0.78rem" }}>
                 Monitorizare · Performanță · Securitate — {mappedAdmins.length} admini de primărie
               </p>
             </div>
@@ -630,8 +630,8 @@ export function SaAdminsContent({ initialData }: SaAdminsContentProps) {
               transition={{ delay: i * 0.04 }}
               className="rounded-2xl p-3.5"
               style={{
-                background: "rgba(255,255,255,0.025)",
-                border: "1px solid rgba(255,255,255,0.05)",
+                background: "var(--muted)",
+                border: "1px solid var(--border-subtle)",
               }}
             >
               <div className="mb-2 flex items-center justify-between">
@@ -658,10 +658,10 @@ export function SaAdminsContent({ initialData }: SaAdminsContentProps) {
                   {kpi.trend}
                 </span>
               </div>
-              <div className="text-white" style={{ fontSize: "1.25rem", fontWeight: 700 }}>
+              <div className="text-foreground" style={{ fontSize: "1.25rem", fontWeight: 700 }}>
                 {kpi.value}
               </div>
-              <div className="mt-0.5 text-gray-600" style={{ fontSize: "0.65rem" }}>
+              <div className="text-muted-foreground mt-0.5" style={{ fontSize: "0.65rem" }}>
                 {kpi.label}
               </div>
             </motion.div>
@@ -677,11 +677,14 @@ export function SaAdminsContent({ initialData }: SaAdminsContentProps) {
           transition={{ delay: 0.1 }}
           className="rounded-2xl p-4"
           style={{
-            background: "rgba(255,255,255,0.025)",
-            border: "1px solid rgba(255,255,255,0.05)",
+            background: "var(--muted)",
+            border: "1px solid var(--border-subtle)",
           }}
         >
-          <div className="mb-3 text-gray-400" style={{ fontSize: "0.78rem", fontWeight: 600 }}>
+          <div
+            className="text-muted-foreground mb-3"
+            style={{ fontSize: "0.78rem", fontWeight: 600 }}
+          >
             Distribuție Status
           </div>
           <DonutChart data={donutData} size={130} thickness={18} />
@@ -693,16 +696,19 @@ export function SaAdminsContent({ initialData }: SaAdminsContentProps) {
           transition={{ delay: 0.15 }}
           className="rounded-2xl p-4"
           style={{
-            background: "rgba(255,255,255,0.025)",
-            border: "1px solid rgba(255,255,255,0.05)",
+            background: "var(--muted)",
+            border: "1px solid var(--border-subtle)",
           }}
         >
-          <div className="mb-3 text-gray-400" style={{ fontSize: "0.78rem", fontWeight: 600 }}>
+          <div
+            className="text-muted-foreground mb-3"
+            style={{ fontSize: "0.78rem", fontWeight: 600 }}
+          >
             Cereri Supervizate / Admin
           </div>
           <ResponsiveContainer width="100%" height={140}>
             <BarChart data={cereriBarData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(100,100,100,0.15)" />
               <XAxis
                 dataKey="name"
                 tick={{ fill: "#6b7280", fontSize: 9 }}
@@ -727,16 +733,19 @@ export function SaAdminsContent({ initialData }: SaAdminsContentProps) {
           transition={{ delay: 0.2 }}
           className="rounded-2xl p-4"
           style={{
-            background: "rgba(255,255,255,0.025)",
-            border: "1px solid rgba(255,255,255,0.05)",
+            background: "var(--muted)",
+            border: "1px solid var(--border-subtle)",
           }}
         >
-          <div className="mb-3 text-gray-400" style={{ fontSize: "0.78rem", fontWeight: 600 }}>
+          <div
+            className="text-muted-foreground mb-3"
+            style={{ fontSize: "0.78rem", fontWeight: 600 }}
+          >
             Trend Activitate (6 luni)
           </div>
           <ResponsiveContainer width="100%" height={140}>
             <LineChart data={activityTrendData} margin={{ top: 0, right: 5, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(100,100,100,0.15)" />
               <XAxis
                 dataKey="month"
                 tick={{ fill: "#6b7280", fontSize: 9 }}
@@ -773,8 +782,8 @@ export function SaAdminsContent({ initialData }: SaAdminsContentProps) {
         <div
           className="flex gap-1 rounded-xl p-1"
           style={{
-            background: "rgba(255,255,255,0.025)",
-            border: "1px solid rgba(255,255,255,0.04)",
+            background: "var(--muted)",
+            border: "1px solid var(--border-subtle)",
           }}
         >
           {(
@@ -786,7 +795,7 @@ export function SaAdminsContent({ initialData }: SaAdminsContentProps) {
             <button
               key={v.key}
               onClick={() => setViewMode(v.key)}
-              className={`relative flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 transition-all ${viewMode === v.key ? "text-white" : "text-gray-500 hover:text-gray-300"}`}
+              className={`relative flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 transition-all ${viewMode === v.key ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}
             >
               {viewMode === v.key && (
                 <motion.div
@@ -809,7 +818,7 @@ export function SaAdminsContent({ initialData }: SaAdminsContentProps) {
         </div>
 
         <div className="flex items-center gap-2">
-          <ArrowUpDown className="h-3.5 w-3.5 text-gray-600" />
+          <ArrowUpDown className="text-muted-foreground h-3.5 w-3.5" />
           <select
             value={sortBy}
             onChange={(e) =>
@@ -823,29 +832,29 @@ export function SaAdminsContent({ initialData }: SaAdminsContentProps) {
                   | "logins"
               )
             }
-            className="cursor-pointer appearance-none rounded-lg px-2.5 py-1.5 text-gray-300 outline-none"
+            className="text-foreground cursor-pointer appearance-none rounded-lg px-2.5 py-1.5 outline-none"
             style={{
-              background: "rgba(255,255,255,0.04)",
-              border: "1px solid rgba(255,255,255,0.06)",
+              background: "var(--muted)",
+              border: "1px solid var(--border-subtle)",
               fontSize: "0.78rem",
             }}
           >
-            <option value="cereri" className="bg-[#1a1a2e]">
+            <option value="cereri" className="bg-popover">
               Cereri
             </option>
-            <option value="users" className="bg-[#1a1a2e]">
+            <option value="users" className="bg-popover">
               Users
             </option>
-            <option value="actions" className="bg-[#1a1a2e]">
+            <option value="actions" className="bg-popover">
               Acțiuni
             </option>
-            <option value="logins" className="bg-[#1a1a2e]">
+            <option value="logins" className="bg-popover">
               Login-uri
             </option>
-            <option value="satisfaction" className="bg-[#1a1a2e]">
+            <option value="satisfaction" className="bg-popover">
               Satisfacție
             </option>
-            <option value="name" className="bg-[#1a1a2e]">
+            <option value="name" className="bg-popover">
               Nume
             </option>
           </select>
@@ -864,15 +873,15 @@ export function SaAdminsContent({ initialData }: SaAdminsContentProps) {
           >
             <div className="mb-5 flex items-center gap-3">
               <div className="relative flex-1">
-                <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-600" />
+                <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
                 <input
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Caută admin, email, primărie..."
-                  className="w-full rounded-xl py-2.5 pr-4 pl-10 text-white placeholder-gray-600 outline-none"
+                  className="text-foreground w-full rounded-xl py-2.5 pr-4 pl-10 outline-none"
                   style={{
-                    background: "rgba(255,255,255,0.04)",
-                    border: "1px solid rgba(255,255,255,0.06)",
+                    background: "var(--muted)",
+                    border: "1px solid var(--border-subtle)",
                     fontSize: "0.82rem",
                   }}
                 />
@@ -880,15 +889,15 @@ export function SaAdminsContent({ initialData }: SaAdminsContentProps) {
               <div
                 className="flex gap-1 rounded-xl p-1"
                 style={{
-                  background: "rgba(255,255,255,0.025)",
-                  border: "1px solid rgba(255,255,255,0.04)",
+                  background: "var(--muted)",
+                  border: "1px solid var(--border-subtle)",
                 }}
               >
                 {(["all", "active", "pending", "suspended"] as const).map((s) => (
                   <button
                     key={s}
                     onClick={() => setFilterStatus(s)}
-                    className={`relative cursor-pointer rounded-lg px-3 py-1.5 transition-all ${filterStatus === s ? "text-white" : "text-gray-500 hover:text-gray-300"}`}
+                    className={`relative cursor-pointer rounded-lg px-3 py-1.5 transition-all ${filterStatus === s ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}
                   >
                     {filterStatus === s && (
                       <motion.div
@@ -911,15 +920,15 @@ export function SaAdminsContent({ initialData }: SaAdminsContentProps) {
               <select
                 value={filterJudet}
                 onChange={(e) => setFilterJudet(e.target.value)}
-                className="cursor-pointer appearance-none rounded-xl px-2.5 py-2.5 text-gray-300 outline-none"
+                className="text-foreground cursor-pointer appearance-none rounded-xl px-2.5 py-2.5 outline-none"
                 style={{
-                  background: "rgba(255,255,255,0.04)",
-                  border: "1px solid rgba(255,255,255,0.06)",
+                  background: "var(--muted)",
+                  border: "1px solid var(--border-subtle)",
                   fontSize: "0.82rem",
                 }}
               >
                 {judete.map((j) => (
-                  <option key={j} value={j} className="bg-[#1a1a2e]">
+                  <option key={j} value={j} className="bg-popover">
                     {j}
                   </option>
                 ))}
@@ -948,15 +957,15 @@ export function SaAdminsContent({ initialData }: SaAdminsContentProps) {
           >
             <div className="mb-5 flex items-center gap-3">
               <div className="relative flex-1">
-                <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-600" />
+                <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
                 <input
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Caută admin, email, primărie..."
-                  className="w-full rounded-xl py-2.5 pr-4 pl-10 text-white placeholder-gray-600 outline-none"
+                  className="text-foreground w-full rounded-xl py-2.5 pr-4 pl-10 outline-none"
                   style={{
-                    background: "rgba(255,255,255,0.04)",
-                    border: "1px solid rgba(255,255,255,0.06)",
+                    background: "var(--muted)",
+                    border: "1px solid var(--border-subtle)",
                     fontSize: "0.82rem",
                   }}
                 />
@@ -964,15 +973,15 @@ export function SaAdminsContent({ initialData }: SaAdminsContentProps) {
               <div
                 className="flex gap-1 rounded-xl p-1"
                 style={{
-                  background: "rgba(255,255,255,0.025)",
-                  border: "1px solid rgba(255,255,255,0.04)",
+                  background: "var(--muted)",
+                  border: "1px solid var(--border-subtle)",
                 }}
               >
                 {(["all", "active", "pending", "suspended"] as const).map((s) => (
                   <button
                     key={s}
                     onClick={() => setFilterStatus(s)}
-                    className={`relative cursor-pointer rounded-lg px-3 py-1.5 transition-all ${filterStatus === s ? "text-white" : "text-gray-500 hover:text-gray-300"}`}
+                    className={`relative cursor-pointer rounded-lg px-3 py-1.5 transition-all ${filterStatus === s ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}
                   >
                     {filterStatus === s && (
                       <motion.div
@@ -995,15 +1004,15 @@ export function SaAdminsContent({ initialData }: SaAdminsContentProps) {
               <select
                 value={filterJudet}
                 onChange={(e) => setFilterJudet(e.target.value)}
-                className="cursor-pointer appearance-none rounded-xl px-2.5 py-2.5 text-gray-300 outline-none"
+                className="text-foreground cursor-pointer appearance-none rounded-xl px-2.5 py-2.5 outline-none"
                 style={{
-                  background: "rgba(255,255,255,0.04)",
-                  border: "1px solid rgba(255,255,255,0.06)",
+                  background: "var(--muted)",
+                  border: "1px solid var(--border-subtle)",
                   fontSize: "0.82rem",
                 }}
               >
                 {judete.map((j) => (
-                  <option key={j} value={j} className="bg-[#1a1a2e]">
+                  <option key={j} value={j} className="bg-popover">
                     {j}
                   </option>
                 ))}
@@ -1049,19 +1058,19 @@ export function SaAdminsContent({ initialData }: SaAdminsContentProps) {
               <div
                 className="w-full max-w-md rounded-2xl p-6"
                 style={{
-                  background: "rgba(15,15,26,0.98)",
-                  border: "1px solid rgba(255,255,255,0.08)",
+                  background: "var(--popover)",
+                  border: "1px solid var(--border-subtle)",
                   backdropFilter: "blur(24px)",
                   pointerEvents: "auto",
                 }}
               >
                 <div className="mb-5 flex items-center justify-between">
-                  <h2 className="text-white" style={{ fontSize: "1.1rem", fontWeight: 700 }}>
+                  <h2 className="text-foreground" style={{ fontSize: "1.1rem", fontWeight: 700 }}>
                     Invită Admin Nou
                   </h2>
                   <button
                     onClick={() => setIsInviteOpen(false)}
-                    className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg bg-white/[0.04] text-gray-400 transition-all hover:bg-white/[0.08] hover:text-white"
+                    className="text-muted-foreground hover:text-foreground bg-muted hover:bg-accent flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg transition-all"
                   >
                     <X className="h-4 w-4" />
                   </button>
@@ -1069,16 +1078,19 @@ export function SaAdminsContent({ initialData }: SaAdminsContentProps) {
 
                 <form onSubmit={inviteForm.handleSubmit(handleInviteAdmin)} className="space-y-4">
                   <div>
-                    <label className="mb-1.5 block text-gray-400" style={{ fontSize: "0.75rem" }}>
+                    <label
+                      className="text-muted-foreground mb-1.5 block"
+                      style={{ fontSize: "0.75rem" }}
+                    >
                       ID Primărie *
                     </label>
                     <input
                       {...inviteForm.register("primarieId")}
                       placeholder="ex: uuid-ul primăriei"
-                      className="w-full rounded-xl px-3 py-2.5 text-white placeholder-gray-600 outline-none"
+                      className="text-foreground placeholder-muted-foreground w-full rounded-xl px-3 py-2.5 outline-none"
                       style={{
-                        background: "rgba(255,255,255,0.04)",
-                        border: "1px solid rgba(255,255,255,0.08)",
+                        background: "var(--muted)",
+                        border: "1px solid var(--border-subtle)",
                         fontSize: "0.85rem",
                       }}
                     />
@@ -1090,17 +1102,20 @@ export function SaAdminsContent({ initialData }: SaAdminsContentProps) {
                   </div>
 
                   <div>
-                    <label className="mb-1.5 block text-gray-400" style={{ fontSize: "0.75rem" }}>
+                    <label
+                      className="text-muted-foreground mb-1.5 block"
+                      style={{ fontSize: "0.75rem" }}
+                    >
                       Email Admin *
                     </label>
                     <input
                       {...inviteForm.register("email")}
                       type="email"
                       placeholder="ex: admin@primarie.ro"
-                      className="w-full rounded-xl px-3 py-2.5 text-white placeholder-gray-600 outline-none"
+                      className="text-foreground placeholder-muted-foreground w-full rounded-xl px-3 py-2.5 outline-none"
                       style={{
-                        background: "rgba(255,255,255,0.04)",
-                        border: "1px solid rgba(255,255,255,0.08)",
+                        background: "var(--muted)",
+                        border: "1px solid var(--border-subtle)",
                         fontSize: "0.85rem",
                       }}
                     />
@@ -1112,22 +1127,25 @@ export function SaAdminsContent({ initialData }: SaAdminsContentProps) {
                   </div>
 
                   <div>
-                    <label className="mb-1.5 block text-gray-400" style={{ fontSize: "0.75rem" }}>
+                    <label
+                      className="text-muted-foreground mb-1.5 block"
+                      style={{ fontSize: "0.75rem" }}
+                    >
                       Rol *
                     </label>
                     <select
                       {...inviteForm.register("role")}
-                      className="w-full cursor-pointer appearance-none rounded-xl px-3 py-2.5 text-white outline-none"
+                      className="text-foreground w-full cursor-pointer appearance-none rounded-xl px-3 py-2.5 outline-none"
                       style={{
-                        background: "rgba(255,255,255,0.04)",
-                        border: "1px solid rgba(255,255,255,0.08)",
+                        background: "var(--muted)",
+                        border: "1px solid var(--border-subtle)",
                         fontSize: "0.85rem",
                       }}
                     >
-                      <option value="admin" className="bg-[#1a1a2e]">
+                      <option value="admin" className="bg-popover">
                         Admin
                       </option>
-                      <option value="primar" className="bg-[#1a1a2e]">
+                      <option value="primar" className="bg-popover">
                         Primar
                       </option>
                     </select>
@@ -1137,10 +1155,10 @@ export function SaAdminsContent({ initialData }: SaAdminsContentProps) {
                     <button
                       type="button"
                       onClick={() => setIsInviteOpen(false)}
-                      className="flex-1 cursor-pointer rounded-xl px-4 py-2.5 text-gray-300 transition-all hover:bg-white/[0.06]"
+                      className="text-muted-foreground hover:text-foreground hover:bg-accent flex-1 cursor-pointer rounded-xl px-4 py-2.5 transition-all"
                       style={{
-                        background: "rgba(255,255,255,0.04)",
-                        border: "1px solid rgba(255,255,255,0.06)",
+                        background: "var(--muted)",
+                        border: "1px solid var(--border-subtle)",
                         fontSize: "0.82rem",
                       }}
                     >
