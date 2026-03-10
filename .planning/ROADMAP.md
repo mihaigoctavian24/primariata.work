@@ -183,6 +183,23 @@ Plans:
 Plans:
 - [x] 21-01-PLAN.md — Implement loading.tsx for all admin routes, optimistic SidebarNavItem state, and refactor blocking server-side Supabase queries
 
+### Phase 23: Implement primar module from Figma design into app primar route
+
+**Goal:** Port the Primar role panel from the Figma reference into the live Next.js app at /app/[judet]/[localitate]/primar/ with amber-themed shell, 7 fully wired pages (real Supabase data), 2 placeholder pages, DB migration for 3 new tables, and full middleware role routing.
+**Requirements**: TBD
+**Depends on:** Phase 22
+**Plans:** 8 plans
+
+Plans:
+- [ ] 23-01-PLAN.md — DB migration (departamente, proiecte_municipale, agende_primar, note_primar, mandat columns) + 9 route stubs + middleware primar routing + AdminLoginForm redirect
+- [ ] 23-02-PLAN.md — Amber primar shell: PrimarShell, PrimarSidebar (4 sections, layoutId="primarNav"), PrimarTopBar (3 badges), layout.tsx auth + role guard
+- [ ] 23-03-PLAN.md — All server actions: 7 read actions + 10 write actions (cereri approval + confetti, proiecte CRUD, agende CRUD, setari update)
+- [ ] 23-04-PLAN.md — Dashboard page: KPI stats, 6-month AreaChart, departamente table/grid toggle, top 5 proiecte
+- [ ] 23-05-PLAN.md — Cereri & Petiții page: 4-tab UI (overview, escaladare queue, lista, analiza), approve+confetti, reject, add note
+- [ ] 23-06-PLAN.md — Buget page (DonutChart allocation) + Proiecte page (full CRUD with status badges and progress bars)
+- [ ] 23-07-PLAN.md — Agende page: monthly calendar grid (Monday-start), event dots, day detail panel, create/delete events from agende_primar
+- [ ] 23-08-PLAN.md — Rapoarte page (jsPDF download + stats tables) + Setări page (RHF form, mandat dates) + loading.tsx for all 9 routes + pnpm build green
+
 ---
 
 ### Phase 22: Super Admin Module (Global Admin)
