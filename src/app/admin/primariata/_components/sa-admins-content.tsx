@@ -3,6 +3,10 @@
 import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import {
   UserCog,
   Search,
@@ -18,7 +22,9 @@ import {
   FileText,
   ShieldCheck,
   Gauge,
+  X,
 } from "lucide-react";
+import { inviteAdminToPrimarie } from "@/actions/super-admin-write";
 import {
   BarChart,
   Bar,
@@ -340,6 +346,16 @@ const activityTrendData = [
   { month: "Mar", actions: 730, logins: 435 },
 ];
 
+// ─── Invite Admin Schema ──────────────────────────────
+
+const inviteAdminSchema = z.object({
+  primarieId: z.string().min(1, "Selectează o primărie"),
+  email: z.string().email("Email invalid"),
+  role: z.enum(["admin", "primar"]),
+});
+
+type InviteAdminFormValues = z.infer<typeof inviteAdminSchema>;
+
 // ─── AdminRow → PrimarieAdmin mapping ────────────────
 
 function adminRowToPrimarieAdmin(row: AdminRow): PrimarieAdmin {
@@ -380,6 +396,7 @@ interface SaAdminsContentProps {
 }
 
 export function SaAdminsContent({ initialData }: SaAdminsContentProps) {
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<AdminStatus | "all">("all");
   const [filterJudet, setFilterJudet] = useState("Toate județele");
@@ -390,6 +407,34 @@ export function SaAdminsContent({ initialData }: SaAdminsContentProps) {
   const [viewMode, setViewMode] = useState<"overview" | "table">("overview");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = viewMode === "overview" ? 6 : 8;
+  const [isInviteOpen, setIsInviteOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const inviteForm = useForm<InviteAdminFormValues>({
+    resolver: zodResolver(inviteAdminSchema),
+    defaultValues: { primarieId: "", email: "", role: "admin" },
+  });
+
+  async function handleInviteAdmin(values: InviteAdminFormValues) {
+    setIsSubmitting(true);
+    try {
+      const result = await inviteAdminToPrimarie({
+        primarieId: values.primarieId,
+        email: values.email,
+        role: values.role,
+      });
+      if (result.success) {
+        toast.success("Invitație trimisă cu succes");
+        setIsInviteOpen(false);
+        inviteForm.reset();
+        router.refresh();
+      } else {
+        toast.error(result.error ?? "A apărut o eroare");
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
 
   const mappedAdmins = useMemo<PrimarieAdmin[]>(() => {
     if (initialData.data && initialData.data.length > 0) {
@@ -511,7 +556,7 @@ export function SaAdminsContent({ initialData }: SaAdminsContentProps) {
         <motion.button
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.97 }}
-          onClick={() => toast("Invitație admin — funcționalitate demo")}
+          onClick={() => setIsInviteOpen(true)}
           className="flex cursor-pointer items-center gap-2 rounded-xl px-4 py-2.5 text-white transition-all"
           style={{
             background: "linear-gradient(135deg, #10b981, #06b6d4)",
@@ -981,6 +1026,145 @@ export function SaAdminsContent({ initialData }: SaAdminsContentProps) {
       </AnimatePresence>
 
       <AdminDetailDrawer selectedAdmin={selectedAdmin} onClose={() => setSelectedAdmin(null)} />
+
+      {/* Invite Admin Modal */}
+      <AnimatePresence>
+        {isInviteOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsInviteOpen(false)}
+              className="fixed inset-0 z-50 bg-black/60"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4"
+              style={{ pointerEvents: "none" }}
+            >
+              <div
+                className="w-full max-w-md rounded-2xl p-6"
+                style={{
+                  background: "rgba(15,15,26,0.98)",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  backdropFilter: "blur(24px)",
+                  pointerEvents: "auto",
+                }}
+              >
+                <div className="mb-5 flex items-center justify-between">
+                  <h2 className="text-white" style={{ fontSize: "1.1rem", fontWeight: 700 }}>
+                    Invită Admin Nou
+                  </h2>
+                  <button
+                    onClick={() => setIsInviteOpen(false)}
+                    className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg bg-white/[0.04] text-gray-400 transition-all hover:bg-white/[0.08] hover:text-white"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+
+                <form onSubmit={inviteForm.handleSubmit(handleInviteAdmin)} className="space-y-4">
+                  <div>
+                    <label className="mb-1.5 block text-gray-400" style={{ fontSize: "0.75rem" }}>
+                      ID Primărie *
+                    </label>
+                    <input
+                      {...inviteForm.register("primarieId")}
+                      placeholder="ex: uuid-ul primăriei"
+                      className="w-full rounded-xl px-3 py-2.5 text-white placeholder-gray-600 outline-none"
+                      style={{
+                        background: "rgba(255,255,255,0.04)",
+                        border: "1px solid rgba(255,255,255,0.08)",
+                        fontSize: "0.85rem",
+                      }}
+                    />
+                    {inviteForm.formState.errors.primarieId && (
+                      <p className="mt-1 text-red-400" style={{ fontSize: "0.72rem" }}>
+                        {inviteForm.formState.errors.primarieId.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="mb-1.5 block text-gray-400" style={{ fontSize: "0.75rem" }}>
+                      Email Admin *
+                    </label>
+                    <input
+                      {...inviteForm.register("email")}
+                      type="email"
+                      placeholder="ex: admin@primarie.ro"
+                      className="w-full rounded-xl px-3 py-2.5 text-white placeholder-gray-600 outline-none"
+                      style={{
+                        background: "rgba(255,255,255,0.04)",
+                        border: "1px solid rgba(255,255,255,0.08)",
+                        fontSize: "0.85rem",
+                      }}
+                    />
+                    {inviteForm.formState.errors.email && (
+                      <p className="mt-1 text-red-400" style={{ fontSize: "0.72rem" }}>
+                        {inviteForm.formState.errors.email.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="mb-1.5 block text-gray-400" style={{ fontSize: "0.75rem" }}>
+                      Rol *
+                    </label>
+                    <select
+                      {...inviteForm.register("role")}
+                      className="w-full cursor-pointer appearance-none rounded-xl px-3 py-2.5 text-white outline-none"
+                      style={{
+                        background: "rgba(255,255,255,0.04)",
+                        border: "1px solid rgba(255,255,255,0.08)",
+                        fontSize: "0.85rem",
+                      }}
+                    >
+                      <option value="admin" className="bg-[#1a1a2e]">
+                        Admin
+                      </option>
+                      <option value="primar" className="bg-[#1a1a2e]">
+                        Primar
+                      </option>
+                    </select>
+                  </div>
+
+                  <div className="flex gap-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setIsInviteOpen(false)}
+                      className="flex-1 cursor-pointer rounded-xl px-4 py-2.5 text-gray-300 transition-all hover:bg-white/[0.06]"
+                      style={{
+                        background: "rgba(255,255,255,0.04)",
+                        border: "1px solid rgba(255,255,255,0.06)",
+                        fontSize: "0.82rem",
+                      }}
+                    >
+                      Anulare
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="flex-1 cursor-pointer rounded-xl px-4 py-2.5 text-white transition-all disabled:cursor-not-allowed disabled:opacity-50"
+                      style={{
+                        background: "linear-gradient(135deg, #10b981, #06b6d4)",
+                        fontSize: "0.82rem",
+                        fontWeight: 600,
+                      }}
+                    >
+                      {isSubmitting ? "Se trimite..." : "Trimite Invitație"}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

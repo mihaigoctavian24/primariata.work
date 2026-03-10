@@ -3,6 +3,10 @@
 import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import {
   Building2,
   Search,
@@ -18,7 +22,9 @@ import {
   LayoutGrid,
   Table2,
   ArrowUpDown,
+  X,
 } from "lucide-react";
+import { createPrimarie } from "@/actions/super-admin-write";
 import {
   BarChart,
   Bar,
@@ -335,6 +341,20 @@ function primarieRowToPrimarie(row: PrimarieRow): Primarie {
   };
 }
 
+// ─── Create Primarie Schema ───────────────────────────
+
+const createPrimarieSchema = z.object({
+  numeOficial: z.string().min(3, "Minim 3 caractere").max(100, "Maxim 100 caractere"),
+  localitateId: z
+    .string()
+    .refine((v) => /^\d+$/.test(v) && parseInt(v, 10) > 0, { message: "ID invalid" }),
+  email: z.string().email("Email invalid"),
+  tier: z.enum(["Basic", "Pro", "Enterprise"]),
+  adminEmail: z.string().email("Email invalid").optional().or(z.literal("")),
+});
+
+type CreatePrimarieFormValues = z.infer<typeof createPrimarieSchema>;
+
 // ─── Main Content Wrapper ───────────────────────────
 
 interface SaPrimariiContentProps {
@@ -342,6 +362,7 @@ interface SaPrimariiContentProps {
 }
 
 export function SaPrimariiContent({ initialData }: SaPrimariiContentProps) {
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [filterJudet, setFilterJudet] = useState("Toate județele");
   const [filterTier, setFilterTier] = useState<PrimarieTier | "Toate">("Toate");
@@ -353,6 +374,36 @@ export function SaPrimariiContent({ initialData }: SaPrimariiContentProps) {
   const [viewMode, setViewMode] = useState<"overview" | "table">("overview");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = viewMode === "overview" ? 6 : 8;
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const createForm = useForm<CreatePrimarieFormValues>({
+    resolver: zodResolver(createPrimarieSchema),
+    defaultValues: { numeOficial: "", localitateId: "", email: "", tier: "Basic", adminEmail: "" },
+  });
+
+  async function handleCreatePrimarie(values: CreatePrimarieFormValues) {
+    setIsSubmitting(true);
+    try {
+      const result = await createPrimarie({
+        numeOficial: values.numeOficial,
+        localitateId: parseInt(values.localitateId, 10),
+        email: values.email,
+        tier: values.tier,
+        adminEmail: values.adminEmail || undefined,
+      });
+      if (result.success) {
+        toast.success("Primărie creată cu succes");
+        setIsCreateOpen(false);
+        createForm.reset();
+        router.refresh();
+      } else {
+        toast.error(result.error ?? "A apărut o eroare");
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
 
   const allPrimarii = useMemo<Primarie[]>(() => {
     if (initialData.data && initialData.data.length > 0) {
@@ -518,7 +569,7 @@ export function SaPrimariiContent({ initialData }: SaPrimariiContentProps) {
           <motion.button
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
-            onClick={() => toast("Funcționalitate de creare primărie")}
+            onClick={() => setIsCreateOpen(true)}
             className="flex cursor-pointer items-center gap-2 rounded-xl px-4 py-2.5 text-white transition-all"
             style={{
               background: "linear-gradient(135deg, #10b981, #06b6d4)",
@@ -984,6 +1035,195 @@ export function SaPrimariiContent({ initialData }: SaPrimariiContentProps) {
         selectedPrimarie={selectedPrimarie}
         onClose={() => setSelectedPrimarie(null)}
       />
+
+      {/* Create Primarie Modal */}
+      <AnimatePresence>
+        {isCreateOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsCreateOpen(false)}
+              className="fixed inset-0 z-50 bg-black/60"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4"
+              style={{ pointerEvents: "none" }}
+            >
+              <div
+                className="w-full max-w-md rounded-2xl p-6"
+                style={{
+                  background: "rgba(15,15,26,0.98)",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  backdropFilter: "blur(24px)",
+                  pointerEvents: "auto",
+                }}
+              >
+                <div className="mb-5 flex items-center justify-between">
+                  <h2 className="text-white" style={{ fontSize: "1.1rem", fontWeight: 700 }}>
+                    Adaugă Primărie Nouă
+                  </h2>
+                  <button
+                    onClick={() => setIsCreateOpen(false)}
+                    className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg bg-white/[0.04] text-gray-400 transition-all hover:bg-white/[0.08] hover:text-white"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+
+                <form
+                  onSubmit={createForm.handleSubmit(handleCreatePrimarie)}
+                  className="space-y-4"
+                >
+                  <div>
+                    <label className="mb-1.5 block text-gray-400" style={{ fontSize: "0.75rem" }}>
+                      Denumire Oficială *
+                    </label>
+                    <input
+                      {...createForm.register("numeOficial")}
+                      placeholder="ex: Primăria Municipiului Cluj-Napoca"
+                      className="w-full rounded-xl px-3 py-2.5 text-white placeholder-gray-600 outline-none"
+                      style={{
+                        background: "rgba(255,255,255,0.04)",
+                        border: "1px solid rgba(255,255,255,0.08)",
+                        fontSize: "0.85rem",
+                      }}
+                    />
+                    {createForm.formState.errors.numeOficial && (
+                      <p className="mt-1 text-red-400" style={{ fontSize: "0.72rem" }}>
+                        {createForm.formState.errors.numeOficial.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="mb-1.5 block text-gray-400" style={{ fontSize: "0.75rem" }}>
+                      ID Localitate *
+                    </label>
+                    <input
+                      {...createForm.register("localitateId")}
+                      type="number"
+                      placeholder="ex: 1234"
+                      className="w-full rounded-xl px-3 py-2.5 text-white placeholder-gray-600 outline-none"
+                      style={{
+                        background: "rgba(255,255,255,0.04)",
+                        border: "1px solid rgba(255,255,255,0.08)",
+                        fontSize: "0.85rem",
+                      }}
+                    />
+                    {createForm.formState.errors.localitateId && (
+                      <p className="mt-1 text-red-400" style={{ fontSize: "0.72rem" }}>
+                        {createForm.formState.errors.localitateId.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="mb-1.5 block text-gray-400" style={{ fontSize: "0.75rem" }}>
+                      Email Contact *
+                    </label>
+                    <input
+                      {...createForm.register("email")}
+                      type="email"
+                      placeholder="ex: contact@primarie.ro"
+                      className="w-full rounded-xl px-3 py-2.5 text-white placeholder-gray-600 outline-none"
+                      style={{
+                        background: "rgba(255,255,255,0.04)",
+                        border: "1px solid rgba(255,255,255,0.08)",
+                        fontSize: "0.85rem",
+                      }}
+                    />
+                    {createForm.formState.errors.email && (
+                      <p className="mt-1 text-red-400" style={{ fontSize: "0.72rem" }}>
+                        {createForm.formState.errors.email.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="mb-1.5 block text-gray-400" style={{ fontSize: "0.75rem" }}>
+                      Tier *
+                    </label>
+                    <select
+                      {...createForm.register("tier")}
+                      className="w-full cursor-pointer appearance-none rounded-xl px-3 py-2.5 text-white outline-none"
+                      style={{
+                        background: "rgba(255,255,255,0.04)",
+                        border: "1px solid rgba(255,255,255,0.08)",
+                        fontSize: "0.85rem",
+                      }}
+                    >
+                      <option value="Basic" className="bg-[#1a1a2e]">
+                        Basic
+                      </option>
+                      <option value="Pro" className="bg-[#1a1a2e]">
+                        Pro
+                      </option>
+                      <option value="Enterprise" className="bg-[#1a1a2e]">
+                        Enterprise
+                      </option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="mb-1.5 block text-gray-400" style={{ fontSize: "0.75rem" }}>
+                      Email Admin (opțional)
+                    </label>
+                    <input
+                      {...createForm.register("adminEmail")}
+                      type="email"
+                      placeholder="ex: admin@primarie.ro"
+                      className="w-full rounded-xl px-3 py-2.5 text-white placeholder-gray-600 outline-none"
+                      style={{
+                        background: "rgba(255,255,255,0.04)",
+                        border: "1px solid rgba(255,255,255,0.08)",
+                        fontSize: "0.85rem",
+                      }}
+                    />
+                    {createForm.formState.errors.adminEmail && (
+                      <p className="mt-1 text-red-400" style={{ fontSize: "0.72rem" }}>
+                        {createForm.formState.errors.adminEmail.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="flex gap-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setIsCreateOpen(false)}
+                      className="flex-1 cursor-pointer rounded-xl px-4 py-2.5 text-gray-300 transition-all hover:bg-white/[0.06]"
+                      style={{
+                        background: "rgba(255,255,255,0.04)",
+                        border: "1px solid rgba(255,255,255,0.06)",
+                        fontSize: "0.82rem",
+                      }}
+                    >
+                      Anulare
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="flex-1 cursor-pointer rounded-xl px-4 py-2.5 text-white transition-all disabled:cursor-not-allowed disabled:opacity-50"
+                      style={{
+                        background: "linear-gradient(135deg, #10b981, #06b6d4)",
+                        fontSize: "0.82rem",
+                        fontWeight: 600,
+                      }}
+                    >
+                      {isSubmitting ? "Se creează..." : "Creează Primărie"}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

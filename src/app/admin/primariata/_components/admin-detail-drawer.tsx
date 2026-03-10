@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Building2,
@@ -16,9 +17,11 @@ import {
   PowerOff,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip } from "recharts";
 import { PrimarieAdmin, adminStatusConfig, PerformanceBadge } from "./admins-shared";
 import { GlassTooltip } from "./glass-tooltip";
+import { suspendAdmin, activateAdmin } from "@/actions/super-admin-write";
 
 interface AdminDetailDrawerProps {
   selectedAdmin: PrimarieAdmin | null;
@@ -28,6 +31,43 @@ interface AdminDetailDrawerProps {
 const months = ["Oct", "Nov", "Dec", "Ian", "Feb", "Mar"];
 
 export function AdminDetailDrawer({ selectedAdmin, onClose }: AdminDetailDrawerProps) {
+  const router = useRouter();
+  const [isPending, setIsPending] = useState(false);
+
+  async function handleSuspend() {
+    if (!selectedAdmin) return;
+    setIsPending(true);
+    try {
+      const result = await suspendAdmin(selectedAdmin.id);
+      if (result.success) {
+        toast.success("Admin suspendat cu succes");
+        onClose();
+        router.refresh();
+      } else {
+        toast.error(result.error ?? "A apărut o eroare");
+      }
+    } finally {
+      setIsPending(false);
+    }
+  }
+
+  async function handleActivate() {
+    if (!selectedAdmin) return;
+    setIsPending(true);
+    try {
+      const result = await activateAdmin(selectedAdmin.id);
+      if (result.success) {
+        toast.success("Admin activat cu succes");
+        onClose();
+        router.refresh();
+      } else {
+        toast.error(result.error ?? "A apărut o eroare");
+      }
+    } finally {
+      setIsPending(false);
+    }
+  }
+
   return (
     <AnimatePresence>
       {selectedAdmin && (
@@ -350,9 +390,10 @@ export function AdminDetailDrawer({ selectedAdmin, onClose }: AdminDetailDrawerP
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      toast(`Suspendare: ${selectedAdmin.name}`);
+                      void handleSuspend();
                     }}
-                    className="flex cursor-pointer items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-red-400 transition-all hover:bg-red-500/10"
+                    disabled={isPending}
+                    className="flex cursor-pointer items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-red-400 transition-all hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-50"
                     style={{
                       background: "rgba(239,68,68,0.06)",
                       border: "1px solid rgba(239,68,68,0.1)",
@@ -366,9 +407,10 @@ export function AdminDetailDrawer({ selectedAdmin, onClose }: AdminDetailDrawerP
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      toast(`Activare: ${selectedAdmin.name}`);
+                      void handleActivate();
                     }}
-                    className="flex cursor-pointer items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-emerald-400 transition-all hover:bg-emerald-500/10"
+                    disabled={isPending}
+                    className="flex cursor-pointer items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-emerald-400 transition-all hover:bg-emerald-500/10 disabled:cursor-not-allowed disabled:opacity-50"
                     style={{
                       background: "rgba(16,185,129,0.06)",
                       border: "1px solid rgba(16,185,129,0.1)",

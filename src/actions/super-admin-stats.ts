@@ -63,6 +63,18 @@ export interface AdminRow {
   role: string; // utilizatori.rol
 }
 
+export interface PrimariiFilters {
+  judet?: string;
+  status?: string;
+  search?: string;
+}
+
+export interface AdminsFilters {
+  judet?: string;
+  status?: string;
+  search?: string;
+}
+
 export interface AuditEntry {
   id: string;
   actiune: string;
@@ -156,7 +168,7 @@ export async function getDashboardStats(): Promise<{
  * Assembles data in JS by joining localitati, judete, user_primarii, utilizatori, cereri, plati.
  * Bypasses RLS using service role client.
  */
-export async function getPrimariiList(): Promise<{
+export async function getPrimariiList(filters?: PrimariiFilters): Promise<{
   success: boolean;
   data?: PrimarieRow[];
   error?: string;
@@ -176,6 +188,20 @@ export async function getPrimariiList(): Promise<{
       return { success: false, error: "Acces interzis" };
 
     const serviceSupabase = createServiceRoleClient();
+
+    // Build primarii query with optional server-side filters
+    let primariiQuery = serviceSupabase
+      .from("primarii")
+      .select(
+        "id, nume_oficial, status, tier, uptime, satisfaction_score, avg_response_time, created_at, localitate_id, config"
+      );
+    if (filters?.status) {
+      primariiQuery = primariiQuery.eq("status", filters.status);
+    }
+    if (filters?.search) {
+      primariiQuery = primariiQuery.ilike("nume_oficial", `%${filters.search}%`);
+    }
+
     const [
       primariiResult,
       localitatiResult,
@@ -185,11 +211,7 @@ export async function getPrimariiList(): Promise<{
       cereriResult,
       platiResult,
     ] = await Promise.all([
-      serviceSupabase
-        .from("primarii")
-        .select(
-          "id, nume_oficial, status, tier, uptime, satisfaction_score, avg_response_time, created_at, localitate_id, config"
-        ),
+      primariiQuery,
       serviceSupabase.from("localitati").select("id, nume, judet_id"),
       serviceSupabase.from("judete").select("id, nume, cod"),
       serviceSupabase.from("user_primarii").select("primarie_id, user_id, rol, status"),
@@ -271,7 +293,10 @@ export async function getPrimariiList(): Promise<{
       };
     });
 
-    return { success: true, data: rows };
+    // Post-assembly judet filter (cannot be done at DB level without a join)
+    const filteredRows = filters?.judet ? rows.filter((r) => r.judet === filters.judet) : rows;
+
+    return { success: true, data: filteredRows };
   } catch (error) {
     logger.error("Unexpected error in getPrimariiList:", error);
     return { success: false, error: "A apărut o eroare" };
@@ -287,7 +312,7 @@ export async function getPrimariiList(): Promise<{
  * Bypasses RLS using service role client.
  * Verifies super_admin role before executing queries.
  */
-export async function getAdminsList(): Promise<{
+export async function getAdminsList(filters?: AdminsFilters): Promise<{
   success: boolean;
   data?: AdminRow[];
   error?: string;
@@ -381,7 +406,20 @@ export async function getAdminsList(): Promise<{
       };
     });
 
-    return { success: true, data: rows };
+    // Post-assembly filters (status, search, judet — all done in JS after assembly)
+    let filteredRows = rows;
+    if (filters?.status) {
+      filteredRows = filteredRows.filter((r) => r.status === filters.status);
+    }
+    if (filters?.search) {
+      const q = filters.search.toLowerCase();
+      filteredRows = filteredRows.filter((r) => r.name.toLowerCase().includes(q));
+    }
+    if (filters?.judet) {
+      filteredRows = filteredRows.filter((r) => r.judet === filters.judet);
+    }
+
+    return { success: true, data: filteredRows };
   } catch (error) {
     logger.error("Unexpected error in getAdminsList:", error);
     return { success: false, error: "A apărut o eroare" };
