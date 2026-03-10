@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Design Revamp
 status: completed
-stopped_at: Completed 23-04-PLAN.md
-last_updated: "2026-03-10T13:30:35.884Z"
+stopped_at: Completed 23-07-PLAN.md
+last_updated: "2026-03-10T13:35:29.115Z"
 last_activity: 2026-03-09 -- Completed Phase 21 Wave 1
 progress:
   total_phases: 10
   completed_phases: 8
   total_plans: 51
-  completed_plans: 48
+  completed_plans: 49
   percent: 100
 ---
 
@@ -79,6 +79,7 @@ Progress: [██████████] 100%
 | Phase 23 P03 | 6 | 2 tasks | 1 files |
 | Phase 23 P05 | 3 | 2 tasks | 3 files |
 | Phase 23 P04 | 5 | 2 tasks | 3 files |
+| Phase 23 P07 | 2 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -202,6 +203,8 @@ Recent decisions affecting current work:
 - [Phase 23]: Client-side search in Lista tab filters allCereri (max 100 rows); unique SVG gradient IDs (cereriGrad23/cereriAnaliza23) prevent Recharts defs conflicts
 - [Phase 23]: cereriGrad23 unique SVG gradient ID to prevent Recharts defs conflicts
 - [Phase 23]: GlassTooltip typed with explicit interface (not any) — CLAUDE.md compliance
+- [Phase 23]: useTransition wraps server action calls for month navigation — avoids useEffect loading duplication
+- [Phase 23]: Event creation re-fetches full month from DB to get DB-assigned UUID; deletion is optimistic
 
 ### Pending Todos
 
@@ -228,6 +231,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-10T13:30:35.880Z
-Stopped at: Completed 23-04-PLAN.md
+Last session: 2026-03-10T13:35:29.110Z
+Stopped at: Completed 23-07-PLAN.md
 Resume file: None
