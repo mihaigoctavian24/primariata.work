@@ -1,7 +1,13 @@
-export default async function PrimarBugetPage() {
+import { Suspense } from "react";
+import { getPrimarBugetData } from "@/actions/primar-actions";
+import { PrimarBugetContent } from "../_components/primar-buget-content";
+import { PrimarBugetSkeleton } from "../_components/primar-buget-skeleton";
+
+export default async function PrimarBugetPage(): Promise<React.ReactElement> {
+  const result = await getPrimarBugetData();
   return (
-    <div className="flex items-center justify-center py-24 text-gray-500">
-      Buget — în construcție
-    </div>
+    <Suspense fallback={<PrimarBugetSkeleton />}>
+      <PrimarBugetContent initialData={result} />
+    </Suspense>
   );
 }

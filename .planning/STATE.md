@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Design Revamp
 status: completed
-stopped_at: Completed 23-02-PLAN.md
-last_updated: "2026-03-10T13:17:49.330Z"
+stopped_at: Completed 23-04-PLAN.md
+last_updated: "2026-03-10T13:30:35.884Z"
 last_activity: 2026-03-09 -- Completed Phase 21 Wave 1
 progress:
   total_phases: 10
   completed_phases: 8
   total_plans: 51
-  completed_plans: 45
+  completed_plans: 48
   percent: 100
 ---
 
@@ -76,6 +76,9 @@ Progress: [██████████] 100%
 | Phase 22-super-admin-module P08 | 6 | 2 tasks | 6 files |
 | Phase 23 P01 | 4 | 3 tasks | 12 files |
 | Phase 23 P02 | 8 | 2 tasks | 4 files |
+| Phase 23 P03 | 6 | 2 tasks | 1 files |
+| Phase 23 P05 | 3 | 2 tasks | 3 files |
+| Phase 23 P04 | 5 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -193,6 +196,12 @@ Recent decisions affecting current work:
 - [Phase 23]: PrimarSidebar uses buildNavSections() function (not module-level constant) because basePath is dynamic per-route slug
 - [Phase 23]: mandatStart/mandatSfarsit passed as null from layout — user_primarii lacks mandat columns in current types; will wire when types:generate runs after migration
 - [Phase 23]: try/catch fallback for escaladata cereri query and proiecte_municipale — columns/table not yet in generated types; returns 0 gracefully
+- [Phase 23]: anySupabase (as any) cast used for departamente/proiecte_municipale/agende_primar/escaladata/note_primar — exist in DB but not yet in generated types; each cast documented with types:generate pending comment
+- [Phase 23]: getPrimarAuthContext() helper guards all primar actions with rol=primar check via user_primarii — prevents funcționari/admins from calling primar actions
+- [Phase 23]: confetti fires only on approveCerere success (not reject, not error); router.refresh() for all write mutations (no optimistic updates)
+- [Phase 23]: Client-side search in Lista tab filters allCereri (max 100 rows); unique SVG gradient IDs (cereriGrad23/cereriAnaliza23) prevent Recharts defs conflicts
+- [Phase 23]: cereriGrad23 unique SVG gradient ID to prevent Recharts defs conflicts
+- [Phase 23]: GlassTooltip typed with explicit interface (not any) — CLAUDE.md compliance
 
 ### Pending Todos
 
@@ -219,6 +228,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-10T13:17:49.326Z
-Stopped at: Completed 23-02-PLAN.md
+Last session: 2026-03-10T13:30:35.880Z
+Stopped at: Completed 23-04-PLAN.md
 Resume file: None
