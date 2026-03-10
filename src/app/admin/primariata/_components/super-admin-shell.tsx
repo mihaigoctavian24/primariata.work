@@ -25,15 +25,14 @@ export function SuperAdminShell({ children, userInitials, userName }: SuperAdmin
   const toggleNotif = useCallback(() => setNotifOpen((prev) => !prev), []);
 
   return (
-    <div className="min-h-screen overflow-hidden text-white" style={{ background: "#09090f" }}>
+    <div className="bg-background text-foreground min-h-screen overflow-hidden">
       <Toaster
         position="bottom-right"
-        theme="dark"
         toastOptions={{
           style: {
-            background: "#1a1a2e",
-            border: "1px solid rgba(255,255,255,0.08)",
-            color: "#fff",
+            background: "var(--popover)",
+            border: "1px solid var(--border-subtle)",
+            color: "var(--foreground)",
           },
         }}
       />

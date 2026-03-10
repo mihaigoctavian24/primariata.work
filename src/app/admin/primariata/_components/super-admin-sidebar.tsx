@@ -75,8 +75,11 @@ export function SuperAdminSidebar({
     <motion.aside
       animate={{ width: collapsed ? 72 : 260 }}
       transition={{ duration: 0.3, ease: "easeInOut" }}
-      className="fixed top-0 left-0 z-50 flex h-screen flex-col border-r border-white/[0.04]"
-      style={{ background: "linear-gradient(180deg, #0c0c18 0%, #08080f 100%)" }}
+      className="fixed top-0 left-0 z-50 flex h-screen flex-col"
+      style={{
+        background: "var(--sidebar-background)",
+        borderRight: "1px solid var(--border-subtle)",
+      }}
     >
       {/* Logo */}
       <div className="flex h-16 shrink-0 items-center gap-2 px-5">
@@ -95,13 +98,13 @@ export function SuperAdminSidebar({
               </div>
               <div className="flex flex-col">
                 <span
-                  className="tracking-tight text-white"
+                  className="text-foreground tracking-tight"
                   style={{ fontSize: "1.05rem", fontWeight: 700, lineHeight: 1.1 }}
                 >
                   primaria<span className="text-emerald-400">Ta</span>
                 </span>
                 <span
-                  className="text-gray-600"
+                  className="text-muted-foreground"
                   style={{
                     fontSize: "0.55rem",
                     letterSpacing: "0.08em",
@@ -130,19 +133,19 @@ export function SuperAdminSidebar({
         <div className="mb-2 px-3">
           <button
             onClick={onCommandPalette}
-            className="flex w-full cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2 transition-all hover:bg-white/[0.06]"
+            className="flex w-full cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2 transition-all"
             style={{
-              background: "rgba(255,255,255,0.03)",
-              border: "1px solid rgba(255,255,255,0.06)",
+              background: "var(--muted)",
+              border: "1px solid var(--border-subtle)",
             }}
           >
-            <Command className="h-3.5 w-3.5 text-gray-600" />
-            <span className="flex-1 text-left text-gray-500" style={{ fontSize: "0.8rem" }}>
+            <Command className="text-muted-foreground h-3.5 w-3.5" />
+            <span className="text-muted-foreground flex-1 text-left" style={{ fontSize: "0.8rem" }}>
               Caută rapid...
             </span>
             <kbd
-              className="rounded px-1.5 py-0.5 text-gray-600"
-              style={{ fontSize: "0.6rem", background: "rgba(255,255,255,0.06)" }}
+              className="text-muted-foreground rounded px-1.5 py-0.5"
+              style={{ fontSize: "0.6rem", background: "var(--muted)" }}
             >
               ⌘K
             </kbd>
@@ -156,7 +159,7 @@ export function SuperAdminSidebar({
           <div key={section.title} className="mb-1">
             {!collapsed && (
               <div
-                className="px-3 pt-3 pb-1 text-gray-700"
+                className="text-muted-foreground px-3 pt-3 pb-1"
                 style={{
                   fontSize: "0.62rem",
                   fontWeight: 600,
@@ -170,7 +173,7 @@ export function SuperAdminSidebar({
             {collapsed && (
               <div
                 className="mx-auto my-2 h-[1px] w-6"
-                style={{ background: "rgba(255,255,255,0.06)" }}
+                style={{ background: "var(--border-subtle)" }}
               />
             )}
             {section.items.map((item) => {
@@ -183,7 +186,7 @@ export function SuperAdminSidebar({
                 <Link
                   key={item.path}
                   href={item.path}
-                  className={`relative flex w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-2 transition-all ${isActive ? "text-white" : "text-gray-500 hover:text-gray-200"}`}
+                  className={`relative flex w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-2 transition-all ${isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}
                   style={{ display: "flex", justifyContent: collapsed ? "center" : "flex-start" }}
                 >
                   {isActive && (
@@ -240,8 +243,8 @@ export function SuperAdminSidebar({
           <div
             className="flex items-center gap-2.5 rounded-xl px-3 py-2.5"
             style={{
-              background: "rgba(255,255,255,0.03)",
-              border: "1px solid rgba(255,255,255,0.04)",
+              background: "var(--muted)",
+              border: "1px solid var(--border-subtle)",
             }}
           >
             <div
@@ -255,7 +258,7 @@ export function SuperAdminSidebar({
               {userInitials}
             </div>
             <div className="min-w-0 flex-1">
-              <div className="truncate text-gray-200" style={{ fontSize: "0.8rem" }}>
+              <div className="text-foreground truncate" style={{ fontSize: "0.8rem" }}>
                 {userName}
               </div>
               <div className="flex items-center gap-1">
@@ -277,8 +280,8 @@ export function SuperAdminSidebar({
       <div className="px-3 pb-4">
         <button
           onClick={onToggle}
-          className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-white/[0.03] px-3 py-2 text-gray-500 transition-all hover:bg-white/[0.06] hover:text-gray-300"
-          style={{ border: "1px solid rgba(255,255,255,0.04)" }}
+          className="bg-muted text-muted-foreground hover:bg-accent hover:text-foreground flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl px-3 py-2 transition-all"
+          style={{ border: "1px solid var(--border-subtle)" }}
         >
           {collapsed ? (
             <ChevronRight className="h-4 w-4" />
