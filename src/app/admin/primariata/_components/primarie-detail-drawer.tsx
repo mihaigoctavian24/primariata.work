@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Building2,
@@ -23,6 +23,8 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Primarie, statusConfig, tierConfig } from "./primarii-shared";
 import { suspendPrimarie, activatePrimarie, startImpersonation } from "@/actions/super-admin-write";
+import { getPrimarieDetail } from "@/actions/super-admin-stats";
+import type { PrimarieDetail } from "@/actions/super-admin-stats";
 
 interface PrimarieDetailDrawerProps {
   selectedPrimarie: Primarie | null;
@@ -35,6 +37,21 @@ export function PrimarieDetailDrawer({ selectedPrimarie, onClose }: PrimarieDeta
   const router = useRouter();
   const [isPending, setIsPending] = useState(false);
   const [isImpersonating, setIsImpersonating] = useState(false);
+  const [detail, setDetail] = useState<PrimarieDetail | null>(null);
+  const [isLoadingDetail, setIsLoadingDetail] = useState(false);
+
+  useEffect(() => {
+    if (!selectedPrimarie) {
+      setDetail(null);
+      return;
+    }
+    setIsLoadingDetail(true);
+    getPrimarieDetail(selectedPrimarie.id)
+      .then((result) => {
+        if (result.success && result.data) setDetail(result.data);
+      })
+      .finally(() => setIsLoadingDetail(false));
+  }, [selectedPrimarie?.id]);
 
   async function handleImpersonate(): Promise<void> {
     if (!selectedPrimarie) return;
@@ -365,7 +382,11 @@ export function PrimarieDetailDrawer({ selectedPrimarie, onClose }: PrimarieDeta
                   {[
                     {
                       label: "Utilizatori",
-                      value: selectedPrimarie.usersCount,
+                      value: isLoadingDetail ? (
+                        <div className="bg-muted h-4 w-16 animate-pulse rounded" />
+                      ) : (
+                        (detail?.usersCount ?? selectedPrimarie.usersCount)
+                      ),
                       icon: Users,
                       color: "#06b6d4",
                     },
@@ -438,21 +459,66 @@ export function PrimarieDetailDrawer({ selectedPrimarie, onClose }: PrimarieDeta
                       fontWeight: 600,
                     }}
                   >
-                    {selectedPrimarie.adminName
+                    {(detail?.adminName ?? selectedPrimarie.adminName)
                       .split(" ")
                       .map((n) => n[0])
                       .join("")}
                   </div>
                   <div className="min-w-0">
-                    <div className="text-foreground truncate" style={{ fontSize: "0.82rem" }}>
-                      {selectedPrimarie.adminName}
-                    </div>
-                    <div className="text-muted-foreground truncate" style={{ fontSize: "0.7rem" }}>
-                      {selectedPrimarie.adminEmail}
-                    </div>
+                    {isLoadingDetail ? (
+                      <div className="space-y-1.5">
+                        <div className="bg-muted h-3.5 w-28 animate-pulse rounded" />
+                        <div className="bg-muted h-3 w-36 animate-pulse rounded" />
+                      </div>
+                    ) : (
+                      <>
+                        <div className="text-foreground truncate" style={{ fontSize: "0.82rem" }}>
+                          {detail?.adminName ?? selectedPrimarie.adminName}
+                        </div>
+                        <div
+                          className="text-muted-foreground truncate"
+                          style={{ fontSize: "0.7rem" }}
+                        >
+                          {detail?.adminEmail ?? selectedPrimarie.adminEmail}
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
+
+              {/* Cereri pe Status */}
+              {detail?.cereriByStatus && detail.cereriByStatus.length > 0 && (
+                <div
+                  className="mb-4 rounded-xl p-4"
+                  style={{
+                    background: "var(--muted)",
+                    border: "1px solid var(--border-subtle)",
+                  }}
+                >
+                  <div
+                    className="text-muted-foreground mb-3"
+                    style={{ fontSize: "0.7rem", fontWeight: 600, textTransform: "uppercase" }}
+                  >
+                    Cereri pe Status
+                  </div>
+                  <div className="space-y-2">
+                    {detail.cereriByStatus.map(({ status, count }) => (
+                      <div key={status} className="flex items-center justify-between">
+                        <span className="text-muted-foreground" style={{ fontSize: "0.75rem" }}>
+                          {status}
+                        </span>
+                        <span
+                          className="text-foreground font-medium"
+                          style={{ fontSize: "0.82rem" }}
+                        >
+                          {count}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Features */}
               <div

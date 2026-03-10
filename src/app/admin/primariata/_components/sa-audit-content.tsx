@@ -20,6 +20,8 @@ import {
   Power,
   Mail,
   Trash2,
+  AlertTriangle,
+  X,
 } from "lucide-react";
 import type { AuditEntry as ServerAuditEntry } from "@/actions/super-admin-stats";
 
@@ -374,6 +376,7 @@ interface SaAuditContentProps {
 }
 
 export function SaAuditContent({ initialData }: SaAuditContentProps) {
+  const [errorDismissed, setErrorDismissed] = useState(false);
   const [search, setSearch] = useState("");
   const [filterAction, setFilterAction] = useState<AuditAction | "all">("all");
   const [filterRole, setFilterRole] = useState<"all" | "super_admin" | "admin">("all");
@@ -408,6 +411,34 @@ export function SaAuditContent({ initialData }: SaAuditContentProps) {
 
   return (
     <div>
+      {/* Error Banner */}
+      {!errorDismissed && !initialData.success && (
+        <div
+          className="mb-4 flex items-center gap-3 rounded-xl px-4 py-3"
+          style={{
+            background: "rgba(239,68,68,0.08)",
+            border: "1px solid rgba(239,68,68,0.2)",
+          }}
+        >
+          <AlertTriangle className="h-4 w-4 shrink-0 text-red-400" />
+          <span className="flex-1 text-red-400" style={{ fontSize: "0.82rem" }}>
+            Eroare la încărcarea datelor.{" "}
+            <button
+              onClick={() => window.location.reload()}
+              className="cursor-pointer underline hover:no-underline"
+            >
+              Încearcă să recarci pagina.
+            </button>
+          </span>
+          <button
+            onClick={() => setErrorDismissed(true)}
+            className="ml-2 cursor-pointer text-red-400/60 hover:text-red-400"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      )}
+
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <div>
@@ -525,119 +556,145 @@ export function SaAuditContent({ initialData }: SaAuditContentProps) {
         </div>
       </div>
 
-      {/* Audit Table */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="overflow-hidden rounded-2xl"
-        style={{
-          background: "var(--muted)",
-          border: "1px solid var(--border-subtle)",
-        }}
-      >
-        {paginated.map((entry, i) => {
-          const Icon = entry.icon;
-          return (
-            <motion.div
-              key={entry.id}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: i * 0.03 }}
-              className="hover:bg-accent/50 flex items-center gap-4 px-5 py-4 transition-all"
-              style={{ borderBottom: "1px solid var(--border-subtle)" }}
-            >
-              {/* Icon */}
-              <div
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
-                style={{ background: `${entry.color}12`, border: `1px solid ${entry.color}18` }}
-              >
-                <Icon className="h-4 w-4" style={{ color: entry.color }} />
-              </div>
-
-              {/* Time */}
-              <div className="w-20 shrink-0">
-                <div className="text-foreground" style={{ fontSize: "0.82rem", fontWeight: 600 }}>
-                  {entry.timestamp}
-                </div>
-                <div className="text-muted-foreground" style={{ fontSize: "0.63rem" }}>
-                  {entry.date}
-                </div>
-              </div>
-
-              {/* Actor */}
-              <div className="w-36 shrink-0">
-                <div className="text-foreground" style={{ fontSize: "0.8rem" }}>
-                  {entry.actor}
-                </div>
-                <span
-                  className="rounded px-1.5 py-0.5"
-                  style={{
-                    fontSize: "0.58rem",
-                    fontWeight: 600,
-                    background:
-                      entry.actorRole === "super_admin"
-                        ? "rgba(16,185,129,0.08)"
-                        : "rgba(236,72,153,0.08)",
-                    color: entry.actorRole === "super_admin" ? "#10b981" : "#ec4899",
-                  }}
-                >
-                  {entry.actorRole === "super_admin" ? "Super Admin" : "Admin"}
-                </span>
-              </div>
-
-              {/* Action Badge */}
-              <div className="w-24 shrink-0">
-                <span
-                  className="rounded-full px-2 py-0.5"
-                  style={{
-                    fontSize: "0.68rem",
-                    fontWeight: 600,
-                    background: `${actionColors[entry.action]}12`,
-                    color: actionColors[entry.action],
-                    border: `1px solid ${actionColors[entry.action]}18`,
-                  }}
-                >
-                  {actionLabels[entry.action]}
-                </span>
-              </div>
-
-              {/* Details */}
-              <div className="min-w-0 flex-1">
-                <div className="text-muted-foreground truncate" style={{ fontSize: "0.8rem" }}>
-                  <span className="text-foreground" style={{ fontWeight: 600 }}>
-                    {entry.target}
-                  </span>{" "}
-                  — {entry.details}
-                </div>
-                {entry.primarie && (
-                  <div
-                    className="text-muted-foreground mt-0.5 flex items-center gap-1"
-                    style={{ fontSize: "0.65rem" }}
-                  >
-                    <Building2 className="h-2.5 w-2.5" /> {entry.primarie}
-                  </div>
-                )}
-              </div>
-
-              {/* IP */}
-              <div className="w-28 shrink-0 text-right">
-                <span className="text-muted-foreground font-mono" style={{ fontSize: "0.68rem" }}>
-                  {entry.ip}
-                </span>
-              </div>
-            </motion.div>
-          );
-        })}
-
-        {paginated.length === 0 && (
-          <div className="text-muted-foreground py-12 text-center" style={{ fontSize: "0.85rem" }}>
-            Nicio intrare găsită.
+      {/* Empty State */}
+      {allEntries.length === 0 && initialData.success && (
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <div
+            className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl"
+            style={{
+              background: "var(--muted)",
+              border: "1px solid var(--border-subtle)",
+            }}
+          >
+            <Shield className="text-muted-foreground h-5 w-5" />
           </div>
-        )}
-      </motion.div>
+          <p className="text-foreground mb-1 font-medium" style={{ fontSize: "0.9rem" }}>
+            Nu există înregistrări în audit log.
+          </p>
+          <p className="text-muted-foreground" style={{ fontSize: "0.8rem" }}>
+            Acțiunile platformei vor fi înregistrate automat.
+          </p>
+        </div>
+      )}
+
+      {/* Audit Table */}
+      {allEntries.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="overflow-hidden rounded-2xl"
+          style={{
+            background: "var(--muted)",
+            border: "1px solid var(--border-subtle)",
+          }}
+        >
+          {paginated.map((entry, i) => {
+            const Icon = entry.icon;
+            return (
+              <motion.div
+                key={entry.id}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: i * 0.03 }}
+                className="hover:bg-accent/50 flex items-center gap-4 px-5 py-4 transition-all"
+                style={{ borderBottom: "1px solid var(--border-subtle)" }}
+              >
+                {/* Icon */}
+                <div
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
+                  style={{ background: `${entry.color}12`, border: `1px solid ${entry.color}18` }}
+                >
+                  <Icon className="h-4 w-4" style={{ color: entry.color }} />
+                </div>
+
+                {/* Time */}
+                <div className="w-20 shrink-0">
+                  <div className="text-foreground" style={{ fontSize: "0.82rem", fontWeight: 600 }}>
+                    {entry.timestamp}
+                  </div>
+                  <div className="text-muted-foreground" style={{ fontSize: "0.63rem" }}>
+                    {entry.date}
+                  </div>
+                </div>
+
+                {/* Actor */}
+                <div className="w-36 shrink-0">
+                  <div className="text-foreground" style={{ fontSize: "0.8rem" }}>
+                    {entry.actor}
+                  </div>
+                  <span
+                    className="rounded px-1.5 py-0.5"
+                    style={{
+                      fontSize: "0.58rem",
+                      fontWeight: 600,
+                      background:
+                        entry.actorRole === "super_admin"
+                          ? "rgba(16,185,129,0.08)"
+                          : "rgba(236,72,153,0.08)",
+                      color: entry.actorRole === "super_admin" ? "#10b981" : "#ec4899",
+                    }}
+                  >
+                    {entry.actorRole === "super_admin" ? "Super Admin" : "Admin"}
+                  </span>
+                </div>
+
+                {/* Action Badge */}
+                <div className="w-24 shrink-0">
+                  <span
+                    className="rounded-full px-2 py-0.5"
+                    style={{
+                      fontSize: "0.68rem",
+                      fontWeight: 600,
+                      background: `${actionColors[entry.action]}12`,
+                      color: actionColors[entry.action],
+                      border: `1px solid ${actionColors[entry.action]}18`,
+                    }}
+                  >
+                    {actionLabels[entry.action]}
+                  </span>
+                </div>
+
+                {/* Details */}
+                <div className="min-w-0 flex-1">
+                  <div className="text-muted-foreground truncate" style={{ fontSize: "0.8rem" }}>
+                    <span className="text-foreground" style={{ fontWeight: 600 }}>
+                      {entry.target}
+                    </span>{" "}
+                    — {entry.details}
+                  </div>
+                  {entry.primarie && (
+                    <div
+                      className="text-muted-foreground mt-0.5 flex items-center gap-1"
+                      style={{ fontSize: "0.65rem" }}
+                    >
+                      <Building2 className="h-2.5 w-2.5" /> {entry.primarie}
+                    </div>
+                  )}
+                </div>
+
+                {/* IP */}
+                <div className="w-28 shrink-0 text-right">
+                  <span className="text-muted-foreground font-mono" style={{ fontSize: "0.68rem" }}>
+                    {entry.ip}
+                  </span>
+                </div>
+              </motion.div>
+            );
+          })}
+
+          {paginated.length === 0 && (
+            <div
+              className="text-muted-foreground py-12 text-center"
+              style={{ fontSize: "0.85rem" }}
+            >
+              Nicio intrare găsită.
+            </div>
+          )}
+        </motion.div>
+      )}
 
       {/* Pagination */}
-      {totalPages > 1 && (
+      {allEntries.length > 0 && totalPages > 1 && (
         <div className="mt-4 flex items-center justify-between">
           <span className="text-muted-foreground" style={{ fontSize: "0.75rem" }}>
             {filtered.length} rezultate · Pagina {page}/{totalPages}

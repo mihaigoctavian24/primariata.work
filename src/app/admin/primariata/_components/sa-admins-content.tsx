@@ -23,6 +23,7 @@ import {
   ShieldCheck,
   Gauge,
   X,
+  AlertTriangle,
 } from "lucide-react";
 import { inviteAdminToPrimarie } from "@/actions/super-admin-write";
 import {
@@ -397,6 +398,7 @@ interface SaAdminsContentProps {
 
 export function SaAdminsContent({ initialData }: SaAdminsContentProps) {
   const router = useRouter();
+  const [errorDismissed, setErrorDismissed] = useState(false);
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<AdminStatus | "all">("all");
   const [filterJudet, setFilterJudet] = useState("Toate județele");
@@ -523,6 +525,34 @@ export function SaAdminsContent({ initialData }: SaAdminsContentProps) {
 
   return (
     <div>
+      {/* Error Banner */}
+      {!errorDismissed && !initialData.success && (
+        <div
+          className="mb-4 flex items-center gap-3 rounded-xl px-4 py-3"
+          style={{
+            background: "rgba(239,68,68,0.08)",
+            border: "1px solid rgba(239,68,68,0.2)",
+          }}
+        >
+          <AlertTriangle className="h-4 w-4 shrink-0 text-red-400" />
+          <span className="flex-1 text-red-400" style={{ fontSize: "0.82rem" }}>
+            Eroare la încărcarea datelor.{" "}
+            <button
+              onClick={() => window.location.reload()}
+              className="cursor-pointer underline hover:no-underline"
+            >
+              Încearcă să recarci pagina.
+            </button>
+          </span>
+          <button
+            onClick={() => setErrorDismissed(true)}
+            className="ml-2 cursor-pointer text-red-400/60 hover:text-red-400"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      )}
+
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <div>
@@ -935,16 +965,44 @@ export function SaAdminsContent({ initialData }: SaAdminsContentProps) {
               </select>
             </div>
 
-            <AdminsGrid items={paginatedItems} onSelect={setSelectedAdmin} />
-
-            {filtered.length > 0 && totalPages > 1 && (
-              <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                totalItems={filtered.length}
-                itemsPerPage={itemsPerPage}
-                onPageChange={setCurrentPage}
-              />
+            {mappedAdmins.length === 0 && initialData.success ? (
+              <div className="flex flex-col items-center justify-center py-16 text-center">
+                <div
+                  className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl"
+                  style={{
+                    background: "var(--muted)",
+                    border: "1px solid var(--border-subtle)",
+                  }}
+                >
+                  <UserCog className="text-muted-foreground h-5 w-5" />
+                </div>
+                <p className="text-foreground mb-1 font-medium" style={{ fontSize: "0.9rem" }}>
+                  Nu există admini înregistrați.
+                </p>
+                <p className="text-muted-foreground mb-4" style={{ fontSize: "0.8rem" }}>
+                  Invită primul admin pentru a gestiona o primărie.
+                </p>
+                <button
+                  onClick={() => setIsInviteOpen(true)}
+                  className="flex cursor-pointer items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium text-white transition-all"
+                  style={{ background: "linear-gradient(135deg, #10b981, #06b6d4)" }}
+                >
+                  <Plus className="h-4 w-4" /> Invită Admin
+                </button>
+              </div>
+            ) : (
+              <>
+                <AdminsGrid items={paginatedItems} onSelect={setSelectedAdmin} />
+                {filtered.length > 0 && totalPages > 1 && (
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    totalItems={filtered.length}
+                    itemsPerPage={itemsPerPage}
+                    onPageChange={setCurrentPage}
+                  />
+                )}
+              </>
             )}
           </motion.div>
         ) : (
@@ -1019,16 +1077,44 @@ export function SaAdminsContent({ initialData }: SaAdminsContentProps) {
               </select>
             </div>
 
-            <AdminsTable items={paginatedItems} onSelect={setSelectedAdmin} />
-
-            {filtered.length > 0 && totalPages > 1 && (
-              <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                totalItems={filtered.length}
-                itemsPerPage={itemsPerPage}
-                onPageChange={setCurrentPage}
-              />
+            {mappedAdmins.length === 0 && initialData.success ? (
+              <div className="flex flex-col items-center justify-center py-16 text-center">
+                <div
+                  className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl"
+                  style={{
+                    background: "var(--muted)",
+                    border: "1px solid var(--border-subtle)",
+                  }}
+                >
+                  <UserCog className="text-muted-foreground h-5 w-5" />
+                </div>
+                <p className="text-foreground mb-1 font-medium" style={{ fontSize: "0.9rem" }}>
+                  Nu există admini înregistrați.
+                </p>
+                <p className="text-muted-foreground mb-4" style={{ fontSize: "0.8rem" }}>
+                  Invită primul admin pentru a gestiona o primărie.
+                </p>
+                <button
+                  onClick={() => setIsInviteOpen(true)}
+                  className="flex cursor-pointer items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium text-white transition-all"
+                  style={{ background: "linear-gradient(135deg, #10b981, #06b6d4)" }}
+                >
+                  <Plus className="h-4 w-4" /> Invită Admin
+                </button>
+              </div>
+            ) : (
+              <>
+                <AdminsTable items={paginatedItems} onSelect={setSelectedAdmin} />
+                {filtered.length > 0 && totalPages > 1 && (
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    totalItems={filtered.length}
+                    itemsPerPage={itemsPerPage}
+                    onPageChange={setCurrentPage}
+                  />
+                )}
+              </>
             )}
           </motion.div>
         )}

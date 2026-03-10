@@ -12,12 +12,13 @@ import {
   AlertTriangle,
   XCircle,
   Shield,
+  X,
 } from "lucide-react";
 import { DashboardKPIs } from "./dashboard-kpis";
 import { PlatformStatsCharts, UserGrowthChart } from "./platform-stats-charts";
 import { PrimariiStatusList, PrimarieStatus } from "./primarii-status-list";
 import { RecentActivityList, ActivityItem } from "./recent-activity-list";
-import type { DashboardStats } from "@/actions/super-admin-stats";
+import type { DashboardStats, TopPrimarieEntry } from "@/actions/super-admin-stats";
 
 // ─── Inline Mock Data ────────────────────────────────
 
@@ -137,6 +138,7 @@ interface SaDashboardContentProps {
 
 export function SaDashboardContent({ initialData }: SaDashboardContentProps): React.ReactElement {
   const [liveRequests, setLiveRequests] = useState(847);
+  const [errorDismissed, setErrorDismissed] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -148,6 +150,8 @@ export function SaDashboardContent({ initialData }: SaDashboardContentProps): Re
   }, []);
 
   const stats = initialData.data;
+  const realTopPrimarii: TopPrimarieEntry[] =
+    stats?.topPrimarii && stats.topPrimarii.length > 0 ? stats.topPrimarii : topPrimarii;
   const activePrimarii = stats?.activePrimarii ?? platformStats.activePrimarii;
   const totalPrimarii = stats?.totalPrimarii ?? platformStats.totalPrimarii;
   const totalUsers = stats?.totalUsers ?? platformStats.totalUsers;
@@ -219,6 +223,34 @@ export function SaDashboardContent({ initialData }: SaDashboardContentProps): Re
 
   return (
     <div className="flex flex-col">
+      {/* Error Banner */}
+      {!errorDismissed && !initialData.success && (
+        <div
+          className="mb-4 flex items-center gap-3 rounded-xl px-4 py-3"
+          style={{
+            background: "rgba(239,68,68,0.08)",
+            border: "1px solid rgba(239,68,68,0.2)",
+          }}
+        >
+          <AlertTriangle className="h-4 w-4 shrink-0 text-red-400" />
+          <span className="flex-1 text-sm text-red-400" style={{ fontSize: "0.82rem" }}>
+            Eroare la încărcarea datelor.{" "}
+            <button
+              onClick={() => window.location.reload()}
+              className="cursor-pointer underline hover:no-underline"
+            >
+              Încearcă să recarci pagina.
+            </button>
+          </span>
+          <button
+            onClick={() => setErrorDismissed(true)}
+            className="ml-2 cursor-pointer text-red-400/60 hover:text-red-400"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      )}
+
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <div>
@@ -255,7 +287,7 @@ export function SaDashboardContent({ initialData }: SaDashboardContentProps): Re
       {/* Top 3 Charts Row */}
       <PlatformStatsCharts
         cereriTrend={cereriTrend}
-        topPrimarii={topPrimarii}
+        topPrimarii={realTopPrimarii as unknown as Record<string, string | number>[]}
         revenueData={revenueData}
       />
 
