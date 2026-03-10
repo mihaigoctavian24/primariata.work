@@ -45,6 +45,7 @@ function CereriNotificationsSubscriber(): null {
 export function CitizenProviders({ children, basePath, initialCollapsed }: CitizenProvidersProps) {
   const pathname = usePathname();
   const isAdmin = pathname.includes("/admin");
+  const isPrimar = pathname.includes("/primar");
 
   const sidebarConfig = useMemo(() => {
     if (isAdmin) {
@@ -52,6 +53,11 @@ export function CitizenProviders({ children, basePath, initialCollapsed }: Citiz
     }
     return getCitizenSidebarConfig(basePath);
   }, [basePath, isAdmin]);
+
+  // Primar routes use PrimarShell for their own layout — skip ShellLayout here
+  if (isPrimar) {
+    return <QueryProvider>{children}</QueryProvider>;
+  }
 
   return (
     <QueryProvider>
