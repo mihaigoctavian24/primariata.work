@@ -1,7 +1,3 @@
-// TODO: Run pnpm types:generate after applying migration 20260310_primar_module_schema.sql
-// New tables added: departamente, proiecte_municipale, agende_primar
-// New columns: cereri.note_primar (JSONB), user_primarii.mandat_start (DATE), user_primarii.mandat_sfarsit (DATE)
-
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
 export type Database = {
@@ -20,7 +16,7 @@ export type Database = {
           entitate_id: string | null;
           entitate_tip: string;
           id: string;
-          ip_address: unknown;
+          ip_address: string | null;
           primarie_id: string | null;
           user_agent: string | null;
           utilizator_id: string | null;
@@ -34,7 +30,7 @@ export type Database = {
           entitate_id?: string | null;
           entitate_tip: string;
           id?: string;
-          ip_address?: unknown;
+          ip_address?: string | null;
           primarie_id?: string | null;
           user_agent?: string | null;
           utilizator_id?: string | null;
@@ -48,7 +44,7 @@ export type Database = {
           entitate_id?: string | null;
           entitate_tip?: string;
           id?: string;
-          ip_address?: unknown;
+          ip_address?: string | null;
           primarie_id?: string | null;
           user_agent?: string | null;
           utilizator_id?: string | null;
@@ -128,6 +124,63 @@ export type Database = {
           },
         ];
       };
+      cerere_istoric: {
+        Row: {
+          actor_id: string;
+          cerere_id: string;
+          created_at: string;
+          documente_solicitate: Json | null;
+          id: string;
+          motiv: string | null;
+          new_status: string | null;
+          old_status: string | null;
+          primarie_id: string;
+          tip: string;
+          vizibil_cetatean: boolean;
+        };
+        Insert: {
+          actor_id: string;
+          cerere_id: string;
+          created_at?: string;
+          documente_solicitate?: Json | null;
+          id?: string;
+          motiv?: string | null;
+          new_status?: string | null;
+          old_status?: string | null;
+          primarie_id: string;
+          tip: string;
+          vizibil_cetatean?: boolean;
+        };
+        Update: {
+          actor_id?: string;
+          cerere_id?: string;
+          created_at?: string;
+          documente_solicitate?: Json | null;
+          id?: string;
+          motiv?: string | null;
+          new_status?: string | null;
+          old_status?: string | null;
+          primarie_id?: string;
+          tip?: string;
+          vizibil_cetatean?: boolean;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "cerere_istoric_cerere_id_fkey";
+            columns: ["cerere_id"];
+            isOneToOne: false;
+            referencedRelation: "cereri";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "cerere_istoric_primarie_id_fkey";
+            columns: ["primarie_id"];
+            isOneToOne: false;
+            referencedRelation: "primarii";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       cereri: {
         Row: {
           created_at: string | null;
@@ -146,6 +199,8 @@ export type Database = {
           primarie_id: string | null;
           progress_data: Json | null;
           raspuns: string | null;
+          sla_paused_at: string | null;
+          sla_total_paused_days: number | null;
           solicitant_id: string | null;
           status: string;
           tip_cerere_id: string | null;
@@ -169,6 +224,8 @@ export type Database = {
           primarie_id?: string | null;
           progress_data?: Json | null;
           raspuns?: string | null;
+          sla_paused_at?: string | null;
+          sla_total_paused_days?: number | null;
           solicitant_id?: string | null;
           status?: string;
           tip_cerere_id?: string | null;
@@ -192,6 +249,8 @@ export type Database = {
           primarie_id?: string | null;
           progress_data?: Json | null;
           raspuns?: string | null;
+          sla_paused_at?: string | null;
+          sla_total_paused_days?: number | null;
           solicitant_id?: string | null;
           status?: string;
           tip_cerere_id?: string | null;
@@ -231,40 +290,28 @@ export type Database = {
       };
       chitante: {
         Row: {
-          cerere_id: string | null;
           created_at: string;
           data_emitere: string;
           id: string;
           numar_chitanta: string;
           pdf_url: string;
           plata_id: string;
-          primarie_id: string | null;
-          suma: number | null;
-          utilizator_id: string | null;
         };
         Insert: {
-          cerere_id?: string | null;
           created_at?: string;
           data_emitere?: string;
           id?: string;
           numar_chitanta: string;
           pdf_url: string;
           plata_id: string;
-          primarie_id?: string | null;
-          suma?: number | null;
-          utilizator_id?: string | null;
         };
         Update: {
-          cerere_id?: string | null;
           created_at?: string;
           data_emitere?: string;
           id?: string;
           numar_chitanta?: string;
           pdf_url?: string;
           plata_id?: string;
-          primarie_id?: string | null;
-          suma?: number | null;
-          utilizator_id?: string | null;
         };
         Relationships: [
           {
@@ -272,27 +319,6 @@ export type Database = {
             columns: ["plata_id"];
             isOneToOne: true;
             referencedRelation: "plati";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "chitante_primarie_id_fkey";
-            columns: ["primarie_id"];
-            isOneToOne: false;
-            referencedRelation: "primarii";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "chitante_utilizator_id_fkey";
-            columns: ["utilizator_id"];
-            isOneToOne: false;
-            referencedRelation: "utilizatori";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "chitante_cerere_id_fkey";
-            columns: ["cerere_id"];
-            isOneToOne: false;
-            referencedRelation: "cereri";
             referencedColumns: ["id"];
           },
         ];
@@ -667,6 +693,72 @@ export type Database = {
           },
         ];
       };
+      notifications: {
+        Row: {
+          action_label: string | null;
+          action_url: string | null;
+          created_at: string;
+          dismissed_at: string | null;
+          expires_at: string | null;
+          id: string;
+          message: string;
+          metadata: Json | null;
+          primarie_id: string;
+          priority: string;
+          read_at: string | null;
+          title: string;
+          type: string;
+          utilizator_id: string;
+        };
+        Insert: {
+          action_label?: string | null;
+          action_url?: string | null;
+          created_at?: string;
+          dismissed_at?: string | null;
+          expires_at?: string | null;
+          id?: string;
+          message: string;
+          metadata?: Json | null;
+          primarie_id: string;
+          priority?: string;
+          read_at?: string | null;
+          title: string;
+          type: string;
+          utilizator_id: string;
+        };
+        Update: {
+          action_label?: string | null;
+          action_url?: string | null;
+          created_at?: string;
+          dismissed_at?: string | null;
+          expires_at?: string | null;
+          id?: string;
+          message?: string;
+          metadata?: Json | null;
+          primarie_id?: string;
+          priority?: string;
+          read_at?: string | null;
+          title?: string;
+          type?: string;
+          utilizator_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "notifications_primarie_id_fkey";
+            columns: ["primarie_id"];
+            isOneToOne: false;
+            referencedRelation: "primarii";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "notifications_utilizator_id_fkey";
+            columns: ["utilizator_id"];
+            isOneToOne: false;
+            referencedRelation: "utilizatori";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       plati: {
         Row: {
           cerere_id: string | null;
@@ -736,6 +828,7 @@ export type Database = {
           activa: boolean | null;
           active_modules: string[] | null;
           adresa: string | null;
+          avg_response_time: string | null;
           config: Json | null;
           created_at: string | null;
           culoare_primara: string | null;
@@ -747,16 +840,21 @@ export type Database = {
           logo_url: string | null;
           nume_oficial: string;
           program_lucru: string | null;
+          satisfaction_score: number | null;
           setup_complet: boolean | null;
           slug: string;
+          status: string | null;
           telefon: string | null;
+          tier: string | null;
           trial_end_at: string | null;
           updated_at: string | null;
+          uptime: number | null;
         };
         Insert: {
           activa?: boolean | null;
           active_modules?: string[] | null;
           adresa?: string | null;
+          avg_response_time?: string | null;
           config?: Json | null;
           created_at?: string | null;
           culoare_primara?: string | null;
@@ -768,16 +866,21 @@ export type Database = {
           logo_url?: string | null;
           nume_oficial: string;
           program_lucru?: string | null;
+          satisfaction_score?: number | null;
           setup_complet?: boolean | null;
           slug: string;
+          status?: string | null;
           telefon?: string | null;
+          tier?: string | null;
           trial_end_at?: string | null;
           updated_at?: string | null;
+          uptime?: number | null;
         };
         Update: {
           activa?: boolean | null;
           active_modules?: string[] | null;
           adresa?: string | null;
+          avg_response_time?: string | null;
           config?: Json | null;
           created_at?: string | null;
           culoare_primara?: string | null;
@@ -789,11 +892,15 @@ export type Database = {
           logo_url?: string | null;
           nume_oficial?: string;
           program_lucru?: string | null;
+          satisfaction_score?: number | null;
           setup_complet?: boolean | null;
           slug?: string;
+          status?: string | null;
           telefon?: string | null;
+          tier?: string | null;
           trial_end_at?: string | null;
           updated_at?: string | null;
+          uptime?: number | null;
         };
         Relationships: [
           {
@@ -1379,7 +1486,7 @@ export type Database = {
           created_at: string | null;
           departament_responsabil: string | null;
           descriere: string | null;
-          documente_necesare: string[] | null;
+          documente_necesare: Json | null;
           id: string;
           necesita_aprobare: boolean | null;
           necesita_taxa: boolean | null;
@@ -1398,7 +1505,7 @@ export type Database = {
           created_at?: string | null;
           departament_responsabil?: string | null;
           descriere?: string | null;
-          documente_necesare?: string[] | null;
+          documente_necesare?: Json | null;
           id?: string;
           necesita_aprobare?: boolean | null;
           necesita_taxa?: boolean | null;
@@ -1417,7 +1524,7 @@ export type Database = {
           created_at?: string | null;
           departament_responsabil?: string | null;
           descriere?: string | null;
-          documente_necesare?: string[] | null;
+          documente_necesare?: Json | null;
           id?: string;
           necesita_aprobare?: boolean | null;
           necesita_taxa?: boolean | null;
@@ -1439,6 +1546,189 @@ export type Database = {
           },
         ];
       };
+      trigger_debug_log: {
+        Row: {
+          created_at: string | null;
+          event: string | null;
+          id: number;
+          metadata: Json | null;
+          user_id: string | null;
+        };
+        Insert: {
+          created_at?: string | null;
+          event?: string | null;
+          id?: number;
+          metadata?: Json | null;
+          user_id?: string | null;
+        };
+        Update: {
+          created_at?: string | null;
+          event?: string | null;
+          id?: number;
+          metadata?: Json | null;
+          user_id?: string | null;
+        };
+        Relationships: [];
+      };
+      user_achievements: {
+        Row: {
+          achievement_key: string;
+          id: string;
+          metadata: Json | null;
+          points: number;
+          progress: number | null;
+          unlocked_at: string | null;
+          utilizator_id: string;
+        };
+        Insert: {
+          achievement_key: string;
+          id?: string;
+          metadata?: Json | null;
+          points?: number;
+          progress?: number | null;
+          unlocked_at?: string | null;
+          utilizator_id: string;
+        };
+        Update: {
+          achievement_key?: string;
+          id?: string;
+          metadata?: Json | null;
+          points?: number;
+          progress?: number | null;
+          unlocked_at?: string | null;
+          utilizator_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "user_achievements_utilizator_id_fkey";
+            columns: ["utilizator_id"];
+            isOneToOne: false;
+            referencedRelation: "utilizatori";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      user_invitations: {
+        Row: {
+          accepted_at: string | null;
+          accepted_by: string | null;
+          created_at: string;
+          departament: string | null;
+          email: string;
+          expires_at: string;
+          id: string;
+          invited_at: string;
+          invited_by: string;
+          nume: string;
+          permisiuni: Json | null;
+          prenume: string;
+          primarie_id: string;
+          rol: string;
+          status: string;
+          token: string;
+          updated_at: string;
+        };
+        Insert: {
+          accepted_at?: string | null;
+          accepted_by?: string | null;
+          created_at?: string;
+          departament?: string | null;
+          email: string;
+          expires_at?: string;
+          id?: string;
+          invited_at?: string;
+          invited_by: string;
+          nume: string;
+          permisiuni?: Json | null;
+          prenume: string;
+          primarie_id: string;
+          rol: string;
+          status?: string;
+          token?: string;
+          updated_at?: string;
+        };
+        Update: {
+          accepted_at?: string | null;
+          accepted_by?: string | null;
+          created_at?: string;
+          departament?: string | null;
+          email?: string;
+          expires_at?: string;
+          id?: string;
+          invited_at?: string;
+          invited_by?: string;
+          nume?: string;
+          permisiuni?: Json | null;
+          prenume?: string;
+          primarie_id?: string;
+          rol?: string;
+          status?: string;
+          token?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "user_invitations_primarie_id_fkey";
+            columns: ["primarie_id"];
+            isOneToOne: false;
+            referencedRelation: "primarii";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      user_primarii: {
+        Row: {
+          approved_at: string | null;
+          approved_by: string | null;
+          created_at: string | null;
+          departament: string | null;
+          id: string;
+          permissions: Json | null;
+          primarie_id: string;
+          rejection_reason: string | null;
+          rol: string;
+          status: string;
+          updated_at: string | null;
+          user_id: string;
+        };
+        Insert: {
+          approved_at?: string | null;
+          approved_by?: string | null;
+          created_at?: string | null;
+          departament?: string | null;
+          id?: string;
+          permissions?: Json | null;
+          primarie_id: string;
+          rejection_reason?: string | null;
+          rol?: string;
+          status?: string;
+          updated_at?: string | null;
+          user_id: string;
+        };
+        Update: {
+          approved_at?: string | null;
+          approved_by?: string | null;
+          created_at?: string | null;
+          departament?: string | null;
+          id?: string;
+          permissions?: Json | null;
+          primarie_id?: string;
+          rejection_reason?: string | null;
+          rol?: string;
+          status?: string;
+          updated_at?: string | null;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "user_primarii_primarie_id_fkey";
+            columns: ["primarie_id"];
+            isOneToOne: false;
+            referencedRelation: "primarii";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       utilizatori: {
         Row: {
           activ: boolean | null;
@@ -1447,7 +1737,6 @@ export type Database = {
           cnp: string | null;
           created_at: string | null;
           deleted_at: string | null;
-          deletion_requested_at: string | null;
           departament: string | null;
           email: string;
           email_verificat: boolean | null;
@@ -1463,10 +1752,10 @@ export type Database = {
           primarie_id: string | null;
           rol: string;
           sms_notifications_enabled: boolean | null;
-          status: string | null;
           telefon: string | null;
           telefon_verificat: boolean | null;
           timezone: string | null;
+          two_fa_enabled: boolean;
           updated_at: string | null;
         };
         Insert: {
@@ -1476,7 +1765,6 @@ export type Database = {
           cnp?: string | null;
           created_at?: string | null;
           deleted_at?: string | null;
-          deletion_requested_at?: string | null;
           departament?: string | null;
           email: string;
           email_verificat?: boolean | null;
@@ -1492,10 +1780,10 @@ export type Database = {
           primarie_id?: string | null;
           rol: string;
           sms_notifications_enabled?: boolean | null;
-          status?: string | null;
           telefon?: string | null;
           telefon_verificat?: boolean | null;
           timezone?: string | null;
+          two_fa_enabled?: boolean;
           updated_at?: string | null;
         };
         Update: {
@@ -1505,7 +1793,6 @@ export type Database = {
           cnp?: string | null;
           created_at?: string | null;
           deleted_at?: string | null;
-          deletion_requested_at?: string | null;
           departament?: string | null;
           email?: string;
           email_verificat?: boolean | null;
@@ -1521,10 +1808,10 @@ export type Database = {
           primarie_id?: string | null;
           rol?: string;
           sms_notifications_enabled?: boolean | null;
-          status?: string | null;
           telefon?: string | null;
           telefon_verificat?: boolean | null;
           timezone?: string | null;
+          two_fa_enabled?: boolean;
           updated_at?: string | null;
         };
         Relationships: [
@@ -1544,331 +1831,33 @@ export type Database = {
           },
         ];
       };
-      user_invitations: {
-        Row: {
-          id: string;
-          email: string;
-          nume: string;
-          prenume: string;
-          rol: "functionar" | "admin";
-          primarie_id: string;
-          departament: string | null;
-          permisiuni: Json | null;
-          token: string;
-          status: "pending" | "accepted" | "expired" | "cancelled";
-          expires_at: string;
-          invited_by: string;
-          invited_at: string;
-          accepted_at: string | null;
-          accepted_by: string | null;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          email: string;
-          nume: string;
-          prenume: string;
-          rol: "functionar" | "admin";
-          primarie_id: string;
-          departament?: string | null;
-          permisiuni?: Json | null;
-          token?: string;
-          status?: "pending" | "accepted" | "expired" | "cancelled";
-          expires_at?: string;
-          invited_by: string;
-          invited_at?: string;
-          accepted_at?: string | null;
-          accepted_by?: string | null;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          email?: string;
-          nume?: string;
-          prenume?: string;
-          rol?: "functionar" | "admin";
-          primarie_id?: string;
-          departament?: string | null;
-          permisiuni?: Json | null;
-          token?: string;
-          status?: "pending" | "accepted" | "expired" | "cancelled";
-          expires_at?: string;
-          invited_by?: string;
-          invited_at?: string;
-          accepted_at?: string | null;
-          accepted_by?: string | null;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "user_invitations_primarie_id_fkey";
-            columns: ["primarie_id"];
-            isOneToOne: false;
-            referencedRelation: "primarii";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "user_invitations_invited_by_fkey";
-            columns: ["invited_by"];
-            isOneToOne: false;
-            referencedRelation: "utilizatori";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "user_invitations_accepted_by_fkey";
-            columns: ["accepted_by"];
-            isOneToOne: false;
-            referencedRelation: "utilizatori";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
-      notifications: {
-        Row: {
-          id: string;
-          utilizator_id: string;
-          primarie_id: string;
-          type:
-            | "payment_due"
-            | "cerere_approved"
-            | "cerere_rejected"
-            | "document_missing"
-            | "document_uploaded"
-            | "status_updated"
-            | "deadline_approaching"
-            | "action_required"
-            | "info"
-            | "registration_approved"
-            | "registration_rejected"
-            | "registration_pending";
-          priority: "urgent" | "high" | "medium" | "low";
-          title: string;
-          message: string;
-          action_url: string | null;
-          action_label: string | null;
-          dismissed_at: string | null;
-          read_at: string | null;
-          metadata: Json;
-          created_at: string;
-          expires_at: string | null;
-        };
-        Insert: {
-          id?: string;
-          utilizator_id: string;
-          primarie_id: string;
-          type:
-            | "payment_due"
-            | "cerere_approved"
-            | "cerere_rejected"
-            | "document_missing"
-            | "document_uploaded"
-            | "status_updated"
-            | "deadline_approaching"
-            | "action_required"
-            | "info"
-            | "registration_approved"
-            | "registration_rejected"
-            | "registration_pending";
-          priority?: "urgent" | "high" | "medium" | "low";
-          title: string;
-          message: string;
-          action_url?: string | null;
-          action_label?: string | null;
-          dismissed_at?: string | null;
-          read_at?: string | null;
-          metadata?: Json;
-          created_at?: string;
-          expires_at?: string | null;
-        };
-        Update: {
-          id?: string;
-          utilizator_id?: string;
-          primarie_id?: string;
-          type?:
-            | "payment_due"
-            | "cerere_approved"
-            | "cerere_rejected"
-            | "document_missing"
-            | "document_uploaded"
-            | "status_updated"
-            | "deadline_approaching"
-            | "action_required"
-            | "info"
-            | "registration_approved"
-            | "registration_rejected"
-            | "registration_pending";
-          priority?: "urgent" | "high" | "medium" | "low";
-          title?: string;
-          message?: string;
-          action_url?: string | null;
-          action_label?: string | null;
-          dismissed_at?: string | null;
-          read_at?: string | null;
-          metadata?: Json;
-          created_at?: string;
-          expires_at?: string | null;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "notifications_utilizator_id_fkey";
-            columns: ["utilizator_id"];
-            isOneToOne: false;
-            referencedRelation: "utilizatori";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "notifications_primarie_id_fkey";
-            columns: ["primarie_id"];
-            isOneToOne: false;
-            referencedRelation: "primarii";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
-      user_primarii: {
-        Row: {
-          id: string;
-          user_id: string;
-          primarie_id: string;
-          rol: "cetatean" | "functionar" | "admin" | "primar" | "super_admin";
-          status: "pending" | "approved" | "rejected" | "suspended";
-          permissions: Json;
-          departament: string | null;
-          approved_by: string | null;
-          approved_at: string | null;
-          rejection_reason: string | null;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          user_id: string;
-          primarie_id: string;
-          rol?: "cetatean" | "functionar" | "admin" | "primar" | "super_admin";
-          status?: "pending" | "approved" | "rejected" | "suspended";
-          permissions?: Json;
-          departament?: string | null;
-          approved_by?: string | null;
-          approved_at?: string | null;
-          rejection_reason?: string | null;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          user_id?: string;
-          primarie_id?: string;
-          rol?: "cetatean" | "functionar" | "admin" | "primar" | "super_admin";
-          status?: "pending" | "approved" | "rejected" | "suspended";
-          permissions?: Json;
-          departament?: string | null;
-          approved_by?: string | null;
-          approved_at?: string | null;
-          rejection_reason?: string | null;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "user_primarii_user_id_fkey";
-            columns: ["user_id"];
-            isOneToOne: false;
-            referencedRelation: "users";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "user_primarii_primarie_id_fkey";
-            columns: ["primarie_id"];
-            isOneToOne: false;
-            referencedRelation: "primarii";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "user_primarii_approved_by_fkey";
-            columns: ["approved_by"];
-            isOneToOne: false;
-            referencedRelation: "users";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
-      user_achievements: {
-        Row: {
-          id: string;
-          utilizator_id: string;
-          achievement_key:
-            | "first_cerere"
-            | "payment_on_time"
-            | "expert_autorizatii"
-            | "organized_documents"
-            | "fast_responder"
-            | "all_payments_current"
-            | "power_user"
-            | "early_adopter";
-          points: number;
-          progress: number;
-          unlocked_at: string | null;
-          metadata: Json;
-        };
-        Insert: {
-          id?: string;
-          utilizator_id: string;
-          achievement_key:
-            | "first_cerere"
-            | "payment_on_time"
-            | "expert_autorizatii"
-            | "organized_documents"
-            | "fast_responder"
-            | "all_payments_current"
-            | "power_user"
-            | "early_adopter";
-          points?: number;
-          progress?: number;
-          unlocked_at?: string | null;
-          metadata?: Json;
-        };
-        Update: {
-          id?: string;
-          utilizator_id?: string;
-          achievement_key?:
-            | "first_cerere"
-            | "payment_on_time"
-            | "expert_autorizatii"
-            | "organized_documents"
-            | "fast_responder"
-            | "all_payments_current"
-            | "power_user"
-            | "early_adopter";
-          points?: number;
-          progress?: number;
-          unlocked_at?: string | null;
-          metadata?: Json;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "user_achievements_utilizator_id_fkey";
-            columns: ["utilizator_id"];
-            isOneToOne: false;
-            referencedRelation: "utilizatori";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
     };
     Views: {
       [_ in never]: never;
     };
     Functions: {
+      calculate_cerere_progress: {
+        Args: { cerere_status: string };
+        Returns: number;
+      };
       cleanup_expired_analysis_cache: { Args: never; Returns: undefined };
       current_user_primarie: { Args: never; Returns: string };
       current_user_role: { Args: never; Returns: string };
+      expire_old_invitations: { Args: never; Returns: number };
+      expire_old_notifications: { Args: never; Returns: undefined };
       get_current_user_id: { Args: never; Returns: string };
+      get_request_primarie_id: { Args: never; Returns: string };
+      get_user_role_in_primarie: { Args: never; Returns: string };
+      is_admin_of_primarie: {
+        Args: { p_primarie_id: string };
+        Returns: boolean;
+      };
       is_cache_valid: { Args: { p_cache_key: string }; Returns: boolean };
+      is_super_admin: { Args: never; Returns: boolean };
       refresh_public_stats: { Args: never; Returns: undefined };
+      set_request_context: { Args: never; Returns: undefined };
       update_cache_access: { Args: { p_cache_key: string }; Returns: undefined };
+      user_has_primarie_access: { Args: never; Returns: boolean };
     };
     Enums: {
       [_ in never]: never;
