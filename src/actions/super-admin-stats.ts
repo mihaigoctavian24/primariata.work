@@ -21,6 +21,12 @@ function firstDayOfPastYear(): string {
 // Types
 // ============================================================================
 
+export interface TopPrimarieEntry {
+  name: string;
+  cereri: number;
+  color: string;
+}
+
 export interface DashboardStats {
   totalPrimarii: number;
   activePrimarii: number;
@@ -28,6 +34,23 @@ export interface DashboardStats {
   totalCereri: number;
   cereriThisMonth: number;
   mrr: number;
+  topPrimarii: TopPrimarieEntry[];
+}
+
+export interface PrimarieDetail {
+  id: string;
+  numeOficial: string;
+  email: string | null;
+  status: string;
+  tier: string;
+  config: Record<string, unknown> | null;
+  usersCount: number;
+  cereriByStatus: { status: string; count: number }[];
+  adminName: string | null;
+  adminEmail: string | null;
+  localitate: string;
+  judet: string;
+  createdAt: string;
 }
 
 export interface PrimarieRow {
@@ -115,21 +138,42 @@ export async function getDashboardStats(): Promise<{
       return { success: false, error: "Acces interzis" };
 
     const serviceSupabase = createServiceRoleClient();
-    const [primariiResult, usersResult, cereriResult, cereriMonthResult, platiResult] =
-      await Promise.all([
-        serviceSupabase.from("primarii").select("id, status"),
-        serviceSupabase.from("utilizatori").select("id", { count: "exact", head: true }),
-        serviceSupabase.from("cereri").select("id", { count: "exact", head: true }),
-        serviceSupabase
-          .from("cereri")
-          .select("id", { count: "exact", head: true })
-          .gte("created_at", firstDayOfCurrentMonth()),
-        serviceSupabase
-          .from("plati")
-          .select("suma")
-          .eq("status", "completed")
-          .gte("created_at", firstDayOfCurrentMonth()),
-      ]);
+
+    const CHART_COLORS_PALETTE = [
+      "#10b981",
+      "#06b6d4",
+      "#8b5cf6",
+      "#3b82f6",
+      "#f59e0b",
+      "#ec4899",
+      "#14b8a6",
+      "#f97316",
+    ];
+
+    const [
+      primariiResult,
+      usersResult,
+      cereriResult,
+      cereriMonthResult,
+      platiResult,
+      cereriForTopResult,
+      primarieNamesResult,
+    ] = await Promise.all([
+      serviceSupabase.from("primarii").select("id, status"),
+      serviceSupabase.from("utilizatori").select("id", { count: "exact", head: true }),
+      serviceSupabase.from("cereri").select("id", { count: "exact", head: true }),
+      serviceSupabase
+        .from("cereri")
+        .select("id", { count: "exact", head: true })
+        .gte("created_at", firstDayOfCurrentMonth()),
+      serviceSupabase
+        .from("plati")
+        .select("suma")
+        .eq("status", "completed")
+        .gte("created_at", firstDayOfCurrentMonth()),
+      serviceSupabase.from("cereri").select("primarie_id"),
+      serviceSupabase.from("primarii").select("id, nume_oficial"),
+    ]);
 
     const primariiData = primariiResult.data ?? [];
     const totalPrimarii = primariiData.length;
@@ -142,6 +186,26 @@ export async function getDashboardStats(): Promise<{
       0
     );
 
+    // Compute top 8 primarii by cereri count
+    const cereriByPrimarieMap: Record<string, number> = {};
+    (cereriForTopResult.data ?? []).forEach((c) => {
+      if (c.primarie_id) {
+        cereriByPrimarieMap[c.primarie_id] = (cereriByPrimarieMap[c.primarie_id] ?? 0) + 1;
+      }
+    });
+    const primarieNamesMap: Record<string, string> = {};
+    (primarieNamesResult.data ?? []).forEach((p) => {
+      primarieNamesMap[p.id] = p.nume_oficial;
+    });
+    const topPrimarii: TopPrimarieEntry[] = Object.entries(cereriByPrimarieMap)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 8)
+      .map(([id, count], idx) => ({
+        name: primarieNamesMap[id] ?? id,
+        cereri: count,
+        color: CHART_COLORS_PALETTE[idx] ?? "#6b7280",
+      }));
+
     return {
       success: true,
       data: {
@@ -151,6 +215,7 @@ export async function getDashboardStats(): Promise<{
         totalCereri,
         cereriThisMonth,
         mrr,
+        topPrimarii,
       },
     };
   } catch (error) {
@@ -482,6 +547,127 @@ export async function getAuditLog(): Promise<{
     return { success: true, data: entries };
   } catch (error) {
     logger.error("Unexpected error in getAuditLog:", error);
+    return { success: false, error: "A apărut o eroare" };
+  }
+}
+
+// ============================================================================
+// Function 5: getPrimarieDetail
+// ============================================================================
+
+/**
+ * Fetch rich detail data for a single primarie: full config, users count,
+ * cereri by status, and admin user info.
+ * Bypasses RLS using service role client.
+ * Verifies super_admin role before executing queries.
+ */
+export async function getPrimarieDetail(primarieId: string): Promise<{
+  success: boolean;
+  data?: PrimarieDetail;
+  error?: string;
+}> {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return { success: false, error: "Neautentificat" };
+    const { data: userData } = await supabase
+      .from("utilizatori")
+      .select("rol")
+      .eq("id", user.id)
+      .single();
+    if (!userData || userData.rol !== "super_admin")
+      return { success: false, error: "Acces interzis" };
+
+    const admin = createServiceRoleClient();
+
+    const [primarieResult, usersResult, cereriResult, userPrimariiResult, localitatiResult] =
+      await Promise.all([
+        admin
+          .from("primarii")
+          .select("id, nume_oficial, email, status, tier, config, created_at, localitate_id")
+          .eq("id", primarieId)
+          .single(),
+        admin.from("user_primarii").select("id").eq("primarie_id", primarieId),
+        admin.from("cereri").select("status").eq("primarie_id", primarieId),
+        admin
+          .from("user_primarii")
+          .select("user_id, rol, status")
+          .eq("primarie_id", primarieId)
+          .in("rol", ["admin", "primar"])
+          .eq("status", "approved")
+          .limit(1),
+        admin.from("localitati").select("id, nume, judet_id"),
+      ]);
+
+    const primarie = primarieResult.data;
+    if (!primarie) return { success: false, error: "Primărie negăsită" };
+
+    // Assemble localitate + judet
+    const localitatiData = localitatiResult.data ?? [];
+    const localitate = localitatiData.find((l) => l.id === primarie.localitate_id);
+
+    // Fetch judet abbreviation
+    let judetCod = "";
+    if (localitate?.judet_id != null) {
+      const { data: judetData } = await admin
+        .from("judete")
+        .select("cod")
+        .eq("id", localitate.judet_id)
+        .single();
+      judetCod = judetData?.cod ?? "";
+    }
+
+    // Admin lookup
+    let adminName: string | null = null;
+    let adminEmail: string | null = null;
+    const firstAssociation = userPrimariiResult.data?.[0];
+    if (firstAssociation) {
+      const adminUserId = firstAssociation.user_id;
+      const { data: adminUser } = await admin
+        .from("utilizatori")
+        .select("prenume, nume, email")
+        .eq("id", adminUserId)
+        .single();
+      if (adminUser) {
+        adminName = `${adminUser.prenume ?? ""} ${adminUser.nume ?? ""}`.trim();
+        adminEmail = adminUser.email ?? null;
+      }
+    }
+
+    // Cereri by status
+    const statusCounts: Record<string, number> = {};
+    (cereriResult.data ?? []).forEach((c) => {
+      statusCounts[c.status] = (statusCounts[c.status] ?? 0) + 1;
+    });
+    const cereriByStatus = Object.entries(statusCounts).map(([status, count]) => ({
+      status,
+      count,
+    }));
+
+    const rawConfig = primarie.config as Record<string, unknown> | null;
+
+    return {
+      success: true,
+      data: {
+        id: primarie.id,
+        numeOficial: primarie.nume_oficial,
+        email: primarie.email ?? null,
+        status: primarie.status ?? "active",
+        tier: primarie.tier ?? (rawConfig?.tier as string | undefined) ?? "Basic",
+        config: rawConfig,
+        usersCount: usersResult.data?.length ?? 0,
+        cereriByStatus,
+        adminName,
+        adminEmail,
+        localitate: localitate?.nume ?? "",
+        judet: judetCod,
+        createdAt: primarie.created_at ?? "",
+      },
+    };
+  } catch (error) {
+    logger.error("Unexpected error in getPrimarieDetail:", error);
     return { success: false, error: "A apărut o eroare" };
   }
 }
