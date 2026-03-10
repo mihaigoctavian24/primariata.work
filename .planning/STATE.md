@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Design Revamp
 status: completed
-stopped_at: Completed 22-03-PLAN.md (super-admin server actions)
-last_updated: "2026-03-09T23:22:56.478Z"
+stopped_at: Completed 22-05-PLAN.md (super-admin write actions)
+last_updated: "2026-03-10T00:22:32.378Z"
 last_activity: 2026-03-09 -- Completed Phase 21 Wave 1
 progress:
   total_phases: 9
   completed_phases: 7
-  total_plans: 39
-  completed_plans: 38
+  total_plans: 43
+  completed_plans: 40
   percent: 100
 ---
 
@@ -70,6 +70,8 @@ Progress: [██████████] 100%
 | Phase 22 P01 | 2 | 5 tasks | 2 files |
 | Phase 22 P02 | 1 | 5 tasks | 3 files |
 | Phase 22-super-admin-module P03 | 2 | 2 tasks | 1 files |
+| Phase 22-super-admin-module P04 | 6 | 2 tasks | 9 files |
+| Phase 22-super-admin-module P05 | 8 | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -169,6 +171,11 @@ Recent decisions affecting current work:
 - [Phase 22]: Legacy pages use Next.js redirect() with explicit :never return type for type safety
 - [Phase 22-super-admin-module]: judete.cod used for county abbreviation in super-admin queries (not abreviere — column does not exist in DB schema)
 - [Phase 22-super-admin-module]: audit_log.utilizator_nome used directly for actorName in getAuditLog (avoids extra join to utilizatori)
+- [Phase 22-super-admin-module]: Server actions interfaces exported from super-admin-stats.ts for type-safe client imports
+- [Phase 22-super-admin-module]: Mapping functions in content components bridge server types to local types, keeping grid/table sub-components untouched
+- [Phase 22-super-admin-module]: z.string().refine() for integer parsing in Zod 4 — z.coerce.number invalid_type_error does not exist in Zod 4 API
+- [Phase 22-super-admin-module]: primarii.slug required in Insert — auto-generated from numeOficial with Romanian diacritic normalization
+- [Phase 22-super-admin-module]: writeAuditLog uses as unknown as Json cast for detalii — Record<string,unknown> incompatible with Supabase Json type
 
 ### Pending Todos
 
@@ -194,6 +201,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-09T23:22:56.474Z
-Stopped at: Completed 22-03-PLAN.md (super-admin server actions)
+Last session: 2026-03-10T00:22:32.374Z
+Stopped at: Completed 22-05-PLAN.md (super-admin write actions)
 Resume file: None
