@@ -148,6 +148,26 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
     if (primarie) {
       requestHeaders.set("x-primarie-id", primarie.id);
 
+      // Check for active super admin impersonation session
+      const impersonationCookie = request.cookies.get("sa_impersonation")?.value;
+      let isImpersonating = false;
+      if (impersonationCookie) {
+        try {
+          const impersonationData = JSON.parse(impersonationCookie) as {
+            impersonating: boolean;
+            targetPrimarieId: string;
+          };
+          if (
+            impersonationData.impersonating &&
+            impersonationData.targetPrimarieId === primarie.id
+          ) {
+            isImpersonating = true;
+          }
+        } catch {
+          // Invalid cookie — ignore
+        }
+      }
+
       // Defense in depth: validate user has approved association
       const { data: association } = await serviceClient
         .from("user_primarii")
@@ -156,7 +176,7 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
         .eq("primarie_id", primarie.id)
         .single();
 
-      if (!association || association.status !== "approved") {
+      if (!isImpersonating && (!association || association.status !== "approved")) {
         // User not registered or not approved at this primarie
         // Allow public primarie page, block protected modules
         const protectedModules = [
@@ -189,7 +209,8 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
             return redirectWithCookies(url, supabaseResponse);
           }
         }
-      } else {
+      } else if (!isImpersonating && association && association.status === "approved") {
+        // Regular approved user (not impersonating): apply staff role enforcement
         const adminRoles = ["admin", "functionar", "primar", "super_admin"];
         const isStaffUser = adminRoles.includes(association.rol);
         const pathAfterLocalitateForAdmin = request.nextUrl.pathname.replace(
@@ -238,6 +259,7 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
           },
         });
       }
+      // isImpersonating === true: super admin bypasses all association checks above
 
       // Cross-primarie guard: redirect users to their own primarie if they navigate to a different one
       // Uses the saved location cookie as the source of truth for the user's primarie

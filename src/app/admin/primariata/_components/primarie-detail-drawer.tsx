@@ -14,15 +14,15 @@ import {
   FileText,
   TrendingUp,
   DollarSign,
-  UserCog,
   Edit3,
   PowerOff,
   Power,
+  LogIn,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Primarie, statusConfig, tierConfig } from "./primarii-shared";
-import { suspendPrimarie, activatePrimarie } from "@/actions/super-admin-write";
+import { suspendPrimarie, activatePrimarie, startImpersonation } from "@/actions/super-admin-write";
 
 interface PrimarieDetailDrawerProps {
   selectedPrimarie: Primarie | null;
@@ -34,6 +34,23 @@ const months = ["Oct", "Nov", "Dec", "Ian", "Feb", "Mar"];
 export function PrimarieDetailDrawer({ selectedPrimarie, onClose }: PrimarieDetailDrawerProps) {
   const router = useRouter();
   const [isPending, setIsPending] = useState(false);
+  const [isImpersonating, setIsImpersonating] = useState(false);
+
+  async function handleImpersonate(): Promise<void> {
+    if (!selectedPrimarie) return;
+    setIsImpersonating(true);
+    try {
+      const result = await startImpersonation(selectedPrimarie.id);
+      if (result.success && result.redirectUrl) {
+        onClose();
+        router.push(result.redirectUrl);
+      } else {
+        toast.error(result.error ?? "A apărut o eroare");
+      }
+    } finally {
+      setIsImpersonating(false);
+    }
+  }
 
   async function handleSuspend() {
     if (!selectedPrimarie) return;
@@ -471,15 +488,17 @@ export function PrimarieDetailDrawer({ selectedPrimarie, onClose }: PrimarieDeta
               {/* Actions */}
               <div className="flex flex-col gap-2">
                 <button
-                  onClick={() => toast(`Impersonare admin: ${selectedPrimarie.adminName}`)}
-                  className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-white transition-all hover:opacity-90"
+                  onClick={handleImpersonate}
+                  disabled={isImpersonating}
+                  className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-white transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                   style={{
                     background: "linear-gradient(135deg, #10b981, #06b6d4)",
                     fontSize: "0.82rem",
                     fontWeight: 600,
                   }}
                 >
-                  <UserCog className="h-4 w-4" /> Impersonare Admin
+                  <LogIn className="h-4 w-4" />
+                  {isImpersonating ? "Se procesează..." : "Impersonează Primărie"}
                 </button>
                 <button
                   onClick={() => toast(`Editare ${selectedPrimarie.name}`)}

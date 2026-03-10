@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient, createServiceRoleClient } from "@/lib/supabase/server";
+import { cookies } from "next/headers";
 import { logger } from "@/lib/logger";
 import type { Json } from "@/types/database.types";
 
@@ -344,6 +345,77 @@ export async function inviteAdminToPrimarie(
     return { success: true };
   } catch (error) {
     logger.error("Unexpected error in inviteAdminToPrimarie:", error);
+    return { success: false, error: "A apărut o eroare" };
+  }
+}
+
+// ============================================================================
+// startImpersonation
+// ============================================================================
+
+/**
+ * Start a super admin impersonation session for a specific primarie.
+ * Verifies super_admin role, resolves primarie slugs, sets the sa_impersonation
+ * cookie, writes an audit_log entry, and returns the redirect URL.
+ */
+export async function startImpersonation(
+  primarieId: string
+): Promise<{ success: boolean; redirectUrl?: string; error?: string }> {
+  try {
+    const authResult = await getSuperAdminUser();
+    if (!authResult.success) return { success: false, error: authResult.error };
+
+    const admin = createServiceRoleClient();
+
+    // Resolve primarie slugs via join: primarii -> localitati -> judete
+    const { data: primarieData, error: primarieError } = await admin
+      .from("primarii")
+      .select("id, localitati!inner(slug, judete!inner(slug))")
+      .eq("id", primarieId)
+      .single();
+
+    if (primarieError || !primarieData) {
+      logger.error("startImpersonation: primarie not found", primarieError);
+      return { success: false, error: "Primărie negăsită" };
+    }
+
+    // Resolve nested join shape: localitati is a single object from .single()
+    const localitate = primarieData.localitati as unknown as {
+      slug: string;
+      judete: { slug: string };
+    };
+    const localitateSlug = localitate.slug;
+    const judetSlug = localitate.judete.slug;
+
+    // Set impersonation cookie (httpOnly, 2h expiry)
+    const cookieStore = await cookies();
+    cookieStore.set(
+      "sa_impersonation",
+      JSON.stringify({ impersonating: true, targetPrimarieId: primarieId }),
+      {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+        maxAge: 60 * 60 * 2, // 2 hours
+      }
+    );
+
+    // Write audit log entry
+    await writeAuditLog({
+      utilizatorId: authResult.user.id,
+      utilizatorNume: `${authResult.user.prenume} ${authResult.user.nume}`.trim(),
+      actiune: "impersonate",
+      primarieId,
+      detalii: { targetPrimarieId: primarieId },
+    });
+
+    return {
+      success: true,
+      redirectUrl: `/app/${judetSlug}/${localitateSlug}/admin`,
+    };
+  } catch (error) {
+    logger.error("Unexpected error in startImpersonation:", error);
     return { success: false, error: "A apărut o eroare" };
   }
 }
