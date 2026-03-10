@@ -239,8 +239,20 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
         }
 
         // Admin route isolation: block staff users from citizen dashboard routes
-        // Staff users on citizen routes (not /admin/*) get redirected to admin dashboard
-        if (isStaffUser && !pathAfterLocalitateForAdmin.startsWith("/admin")) {
+        // Staff users on citizen routes (not /admin/* or /primar/*) get redirected to role-specific dashboard
+        if (
+          isStaffUser &&
+          !pathAfterLocalitateForAdmin.startsWith("/admin") &&
+          !pathAfterLocalitateForAdmin.startsWith("/primar")
+        ) {
+          const rolePath = association.rol === "primar" ? "primar" : "admin";
+          const url = request.nextUrl.clone();
+          url.pathname = `/app/${judetSlug}/${localitateSlug}/${rolePath}`;
+          return redirectWithCookies(url, supabaseResponse);
+        }
+
+        // Block non-primar staff from accessing /primar/* routes
+        if (pathAfterLocalitateForAdmin.startsWith("/primar") && association.rol !== "primar") {
           const url = request.nextUrl.clone();
           url.pathname = `/app/${judetSlug}/${localitateSlug}/admin`;
           return redirectWithCookies(url, supabaseResponse);
