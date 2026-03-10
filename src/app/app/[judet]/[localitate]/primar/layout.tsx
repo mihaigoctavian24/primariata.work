@@ -23,20 +23,13 @@ export default async function PrimarLayout({
   if (!user) redirect("/admin/login");
 
   // Role check via user_primarii — must be primar at an approved primarie
-  // mandat_start/mandat_sfarsit are not yet in generated types — cast via unknown
-  // TODO: types:generate after migration applied for mandat columns
-  const { data: association } = await (supabase
+  // mandat_start/mandat_sfarsit are now in generated types
+  const { data: association } = await supabase
     .from("user_primarii")
-    .select("rol, status, primarii(numeOficial)")
+    .select("rol, status, mandat_start, mandat_sfarsit, primarii(nume_oficial)")
     .eq("user_id", user.id)
-    .eq("status", "approved") as unknown as {
-    data: {
-      rol: string;
-      status: string;
-      primarii: { numeOficial: string } | null;
-    } | null;
-    error: unknown;
-  });
+    .eq("status", "approved")
+    .maybeSingle();
 
   if (!association || association.rol !== "primar") {
     // Redirect non-primar to admin or home
@@ -55,12 +48,18 @@ export default async function PrimarLayout({
   const userName = `${firstName} ${lastName}`.trim() || user.email?.split("@")[0] || "Primar";
   const userInitials = [firstName[0], lastName[0]].filter(Boolean).join("").toUpperCase() || "P";
 
-  // Primarie name from association join
-  const primarieName = association.primarii?.numeOficial ?? "Primărie";
+  // Primarie name from association join (column is nume_oficial in DB)
+  const primariesData = association.primarii;
+  const primarieName = Array.isArray(primariesData)
+    ? (primariesData[0]?.nume_oficial ?? "Primărie")
+    : (primariesData?.nume_oficial ?? "Primărie");
+
+  // Mandat dates are now in generated types — read directly from association
+  const mandatStart = association.mandat_start ?? null;
+  const mandatSfarsit = association.mandat_sfarsit ?? null;
 
   // Badge counts for sidebar
-  // cereri.escaladata — may not be in generated types yet; use try/catch fallback
-  // TODO: types:generate after cereri migration with escaladata column applied
+  // cereri.escaladata not yet in generated types — use try/catch fallback
   let pendingCereriCount = 0;
   try {
     const { count } = await (supabase
@@ -69,21 +68,19 @@ export default async function PrimarLayout({
       .eq("escaladata", true) as unknown as Promise<{ count: number | null; error: unknown }>);
     pendingCereriCount = count ?? 0;
   } catch {
-    // escaladata column not yet in DB — return 0 gracefully
+    // escaladata column not yet reflected in generated types — return 0 gracefully
     pendingCereriCount = 0;
   }
 
-  // proiecte_municipale — may not be in generated types yet; use try/catch fallback
-  // TODO: types:generate after proiecte_municipale migration applied
+  // proiecte_municipale is now in generated types
   let activeProiecteCount = 0;
   try {
-    const { count } = await (supabase
-      .from("proiecte_municipale" as "cereri")
+    const { count, error } = await supabase
+      .from("proiecte_municipale")
       .select("id", { count: "exact", head: true })
-      .eq("status", "in_derulare") as unknown as Promise<{ count: number | null; error: unknown }>);
-    activeProiecteCount = count ?? 0;
+      .eq("status", "in_derulare");
+    if (!error) activeProiecteCount = count ?? 0;
   } catch {
-    // proiecte_municipale table not yet in DB — return 0 gracefully
     activeProiecteCount = 0;
   }
 
@@ -99,8 +96,8 @@ export default async function PrimarLayout({
       primarieName={primarieName}
       userName={userName}
       userInitials={userInitials}
-      mandatStart={null}
-      mandatSfarsit={null}
+      mandatStart={mandatStart}
+      mandatSfarsit={mandatSfarsit}
       initialCollapsed={initialCollapsed}
       pendingCereriCount={pendingCereriCount}
       activeProiecteCount={activeProiecteCount}

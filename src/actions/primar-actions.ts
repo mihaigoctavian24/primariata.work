@@ -160,11 +160,6 @@ export async function getPrimarDashboardData(): Promise<{
     if ("error" in ctx) return { success: false, error: ctx.error };
     const { supabase } = ctx;
 
-    // Supabase client typed as any for tables not yet in generated types
-    // types:generate pending — departamente, proiecte_municipale
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const anySupabase = supabase as any;
-
     const [functionariResult, cereriResult, departamenteResult, proiecteResult] = await Promise.all(
       [
         supabase
@@ -176,22 +171,19 @@ export async function getPrimarDashboardData(): Promise<{
           .from("cereri")
           .select("id, status, created_at, data_finalizare")
           .is("deleted_at", null),
-        anySupabase.from("departamente").select("*") as Promise<{
-          data: DepartamentRow[] | null;
-          error: unknown;
-        }>,
-        anySupabase
+        supabase.from("departamente").select("*"),
+        supabase
           .from("proiecte_municipale")
           .select("*")
           .order("created_at", { ascending: false })
-          .limit(5) as Promise<{ data: ProiectRow[] | null; error: unknown }>,
+          .limit(5),
       ]
     );
 
     const functionariCount = functionariResult.count ?? 0;
     const allCereri = cereriResult.data ?? [];
-    const departamente = departamenteResult.data ?? [];
-    const proiecte = proiecteResult.data ?? [];
+    const departamente = (departamenteResult.data ?? []) as DepartamentRow[];
+    const proiecte = (proiecteResult.data ?? []) as ProiectRow[];
 
     // Compute KPIs from cereri array
     const now = new Date();
@@ -251,7 +243,7 @@ export async function getPrimarDashboardData(): Promise<{
 // ============================================================================
 
 // Raw cerere row shape from DB — includes columns from Phase 19 migration
-// (escaladata, note_admin, note_primar, prioritate not yet in generated types)
+// (escaladata, note_admin, prioritate not yet in generated types)
 interface RawCerereRow {
   id: string;
   numar_inregistrare: string;
@@ -297,7 +289,7 @@ export async function getPrimarCereriData(): Promise<{
     if ("error" in ctx) return { success: false, error: ctx.error };
     const { supabase } = ctx;
 
-    // types:generate pending — escaladata/note_primar/note_admin/prioritate not in generated types
+    // types:generate pending — escaladata/note_admin/prioritate not yet in DB schema
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const anySupabase = supabase as any;
 
@@ -353,26 +345,13 @@ export async function getPrimarBugetData(): Promise<{
     if ("error" in ctx) return { success: false, error: ctx.error };
     const { supabase } = ctx;
 
-    // types:generate pending — departamente / proiecte_municipale not in generated types
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const anySupabase = supabase as any;
-
     const [departamenteResult, proiecteResult] = await Promise.all([
-      anySupabase
-        .from("departamente")
-        .select("*")
-        .order("buget_alocat", { ascending: false }) as Promise<{
-        data: DepartamentRow[] | null;
-        error: unknown;
-      }>,
-      anySupabase.from("proiecte_municipale").select("buget, buget_consumat") as Promise<{
-        data: Pick<ProiectRow, "buget" | "buget_consumat">[] | null;
-        error: unknown;
-      }>,
+      supabase.from("departamente").select("*").order("buget_alocat", { ascending: false }),
+      supabase.from("proiecte_municipale").select("buget, buget_consumat"),
     ]);
 
-    const departamente = departamenteResult.data ?? [];
-    const proiecte = proiecteResult.data ?? [];
+    const departamente = (departamenteResult.data ?? []) as DepartamentRow[];
+    const proiecte = (proiecteResult.data ?? []) as Pick<ProiectRow, "buget" | "buget_consumat">[];
 
     const totalDepartamenteBuget = departamente.reduce((sum, d) => sum + (d.buget_alocat ?? 0), 0);
     const totalProiecteBuget = proiecte.reduce((sum, p) => sum + (p.buget ?? 0), 0);
@@ -406,18 +385,14 @@ export async function getPrimarProiecteData(): Promise<{
     if ("error" in ctx) return { success: false, error: ctx.error };
     const { supabase } = ctx;
 
-    // types:generate pending — proiecte_municipale not in generated types
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const anySupabase = supabase as any;
-
-    const result = (await anySupabase
+    const { data } = await supabase
       .from("proiecte_municipale")
       .select("*")
-      .order("created_at", { ascending: false })) as { data: ProiectRow[] | null; error: unknown };
+      .order("created_at", { ascending: false });
 
     return {
       success: true,
-      data: { proiecte: result.data ?? [] },
+      data: { proiecte: (data ?? []) as ProiectRow[] },
     };
   } catch (error) {
     console.error("getPrimarProiecteData error:", error);
@@ -449,24 +424,17 @@ export async function getPrimarAgendeData(
     const firstDay = new Date(year, month - 1, 1).toISOString().split("T")[0]!;
     const lastDay = new Date(year, month, 0).toISOString().split("T")[0]!;
 
-    // types:generate pending — agende_primar not in generated types
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const anySupabase = supabase as any;
-
-    const result = (await anySupabase
+    const { data } = await supabase
       .from("agende_primar")
       .select("*")
       .eq("primar_id", userId)
       .gte("data_eveniment", firstDay)
       .lte("data_eveniment", lastDay)
-      .order("data_eveniment", { ascending: true })) as {
-      data: AgendaEventRow[] | null;
-      error: unknown;
-    };
+      .order("data_eveniment", { ascending: true });
 
     return {
       success: true,
-      data: { events: result.data ?? [] },
+      data: { events: (data ?? []) as AgendaEventRow[] },
     };
   } catch (error) {
     console.error("getPrimarAgendeData error:", error);
@@ -506,24 +474,17 @@ export async function getPrimarRapoarteData(period: "luna" | "trimestru" | "seme
     const rangeStart = new Date(now.getFullYear(), now.getMonth() - (monthsBack - 1), 1);
     const rangeStartStr = rangeStart.toISOString();
 
-    // types:generate pending — departamente not in generated types
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const anySupabase = supabase as any;
-
     const [cereriResult, departamenteResult] = await Promise.all([
       supabase
         .from("cereri")
         .select("id, status, created_at")
         .gte("created_at", rangeStartStr)
         .is("deleted_at", null),
-      anySupabase.from("departamente").select("*") as Promise<{
-        data: DepartamentRow[] | null;
-        error: unknown;
-      }>,
+      supabase.from("departamente").select("*"),
     ]);
 
     const allCereri = (cereriResult.data ?? []) as RapoarteCerereRaw[];
-    const departamente = departamenteResult.data ?? [];
+    const departamente = (departamenteResult.data ?? []) as DepartamentRow[];
 
     // Build monthly breakdown with rezolvate count
     const monthKeys: string[] = [];
@@ -583,10 +544,6 @@ export async function getPrimarSetariData(): Promise<{
     if ("error" in ctx) return { success: false, error: ctx.error };
     const { supabase, userId, primarieId } = ctx;
 
-    // types:generate pending — mandat_start/mandat_sfarsit not in generated types
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const anySupabase = supabase as any;
-
     const [utilizatorResult, authUserResult, mandatResult] = await Promise.all([
       supabase
         .from("utilizatori")
@@ -594,16 +551,13 @@ export async function getPrimarSetariData(): Promise<{
         .eq("id", userId)
         .single(),
       supabase.auth.getUser(),
-      anySupabase
+      supabase
         .from("user_primarii")
         .select("mandat_start, mandat_sfarsit")
         .eq("user_id", userId)
         .eq("primarie_id", primarieId)
         .eq("status", "approved")
-        .single() as Promise<{
-        data: { mandat_start: string | null; mandat_sfarsit: string | null } | null;
-        error: unknown;
-      }>,
+        .maybeSingle(),
     ]);
 
     const utilizator = utilizatorResult.data;
@@ -644,7 +598,7 @@ export async function approveCerere(cerereId: string): Promise<{ error?: string 
     if ("error" in ctx) return { error: ctx.error };
     const { supabase } = ctx;
 
-    // types:generate pending — escaladata not in generated types
+    // types:generate pending — escaladata not yet in DB schema
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const anySupabase = supabase as any;
 
@@ -677,18 +631,18 @@ export async function rejectCerere(cerereId: string, motiv?: string): Promise<{ 
     if ("error" in ctx) return { error: ctx.error };
     const { supabase, userId } = ctx;
 
-    // types:generate pending — escaladata/note_primar not in generated types
+    // types:generate pending — escaladata not yet in DB schema (note_primar now typed)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const anySupabase = supabase as any;
 
     let updatedNotes: unknown[] | undefined;
     if (motiv) {
-      // Fetch current note_primar to append rejection motiv
-      const { data: current } = (await anySupabase
+      // Fetch current note_primar to append rejection motiv (note_primar is now in generated types)
+      const { data: current } = await supabase
         .from("cereri")
         .select("note_primar")
         .eq("id", cerereId)
-        .single()) as { data: { note_primar: unknown[] | null } | null; error: unknown };
+        .single();
 
       const existing = Array.isArray(current?.note_primar) ? current.note_primar : [];
       updatedNotes = [
@@ -730,15 +684,11 @@ export async function addNotaPrimar(cerereId: string, text: string): Promise<{ e
     if ("error" in ctx) return { error: ctx.error };
     const { supabase, userId } = ctx;
 
-    // types:generate pending — note_primar not in generated types
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const anySupabase = supabase as any;
-
-    const { data: current } = (await anySupabase
+    const { data: current } = await supabase
       .from("cereri")
       .select("note_primar")
       .eq("id", cerereId)
-      .single()) as { data: { note_primar: unknown[] | null } | null; error: unknown };
+      .single();
 
     const existing = Array.isArray(current?.note_primar) ? current.note_primar : [];
     const updatedNotes = [
@@ -746,10 +696,10 @@ export async function addNotaPrimar(cerereId: string, text: string): Promise<{ e
       { text, timestamp: new Date().toISOString(), actor: userId },
     ];
 
-    const { error } = (await anySupabase
+    const { error } = await supabase
       .from("cereri")
       .update({ note_primar: updatedNotes })
-      .eq("id", cerereId)) as { error: { message: string } | null };
+      .eq("id", cerereId);
 
     if (error) return { error: error.message };
 
@@ -780,15 +730,9 @@ export async function createProiect(data: {
     if ("error" in ctx) return { error: ctx.error };
     const { supabase, primarieId } = ctx;
 
-    // types:generate pending — proiecte_municipale not in generated types
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const anySupabase = supabase as any;
-
-    const { error } = (await anySupabase
+    const { error } = await supabase
       .from("proiecte_municipale")
-      .insert({ ...data, primarie_id: primarieId })) as {
-      error: { message: string } | null;
-    };
+      .insert({ ...data, primarie_id: primarieId });
 
     if (error) return { error: error.message };
 
@@ -813,14 +757,10 @@ export async function updateProiect(
     if ("error" in ctx) return { error: ctx.error };
     const { supabase } = ctx;
 
-    // types:generate pending — proiecte_municipale not in generated types
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const anySupabase = supabase as any;
-
-    const { error } = (await anySupabase
+    const { error } = await supabase
       .from("proiecte_municipale")
       .update({ ...data, updated_at: new Date().toISOString() })
-      .eq("id", id)) as { error: { message: string } | null };
+      .eq("id", id);
 
     if (error) return { error: error.message };
 
@@ -842,13 +782,7 @@ export async function deleteProiect(id: string): Promise<{ error?: string }> {
     if ("error" in ctx) return { error: ctx.error };
     const { supabase } = ctx;
 
-    // types:generate pending — proiecte_municipale not in generated types
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const anySupabase = supabase as any;
-
-    const { error } = (await anySupabase.from("proiecte_municipale").delete().eq("id", id)) as {
-      error: { message: string } | null;
-    };
+    const { error } = await supabase.from("proiecte_municipale").delete().eq("id", id);
 
     if (error) return { error: error.message };
 
@@ -877,15 +811,9 @@ export async function createAgendaEvent(data: {
     if ("error" in ctx) return { error: ctx.error };
     const { supabase, userId, primarieId } = ctx;
 
-    // types:generate pending — agende_primar not in generated types
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const anySupabase = supabase as any;
-
-    const { error } = (await anySupabase
+    const { error } = await supabase
       .from("agende_primar")
-      .insert({ ...data, primarie_id: primarieId, primar_id: userId })) as {
-      error: { message: string } | null;
-    };
+      .insert({ ...data, primarie_id: primarieId, primar_id: userId });
 
     if (error) return { error: error.message };
 
@@ -910,15 +838,11 @@ export async function updateAgendaEvent(
     if ("error" in ctx) return { error: ctx.error };
     const { supabase, userId } = ctx;
 
-    // types:generate pending — agende_primar not in generated types
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const anySupabase = supabase as any;
-
-    const { error } = (await anySupabase
+    const { error } = await supabase
       .from("agende_primar")
       .update(data)
       .eq("id", id)
-      .eq("primar_id", userId)) as { error: { message: string } | null };
+      .eq("primar_id", userId);
 
     if (error) return { error: error.message };
 
@@ -940,15 +864,11 @@ export async function deleteAgendaEvent(id: string): Promise<{ error?: string }>
     if ("error" in ctx) return { error: ctx.error };
     const { supabase, userId } = ctx;
 
-    // types:generate pending — agende_primar not in generated types
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const anySupabase = supabase as any;
-
-    const { error } = (await anySupabase
+    const { error } = await supabase
       .from("agende_primar")
       .delete()
       .eq("id", id)
-      .eq("primar_id", userId)) as { error: { message: string } | null };
+      .eq("primar_id", userId);
 
     if (error) return { error: error.message };
 
@@ -975,10 +895,6 @@ export async function updatePrimarSetari(data: {
     if ("error" in ctx) return { error: ctx.error };
     const { supabase, userId, primarieId } = ctx;
 
-    // types:generate pending — mandat_start/mandat_sfarsit not in generated types
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const anySupabase = supabase as any;
-
     const errors: ({ message: string } | null)[] = [];
 
     // Update displayName → split to prenume + nume on utilizatori
@@ -1002,18 +918,18 @@ export async function updatePrimarSetari(data: {
       if (error) errors.push(error);
     }
 
-    // Update mandat dates on user_primarii
+    // Update mandat dates on user_primarii (mandat_start/mandat_sfarsit now in generated types)
     if (data.mandatStart !== undefined || data.mandatSfarsit !== undefined) {
-      const mandatUpdate: Record<string, string> = {};
+      const mandatUpdate: { mandat_start?: string; mandat_sfarsit?: string } = {};
       if (data.mandatStart !== undefined) mandatUpdate.mandat_start = data.mandatStart;
       if (data.mandatSfarsit !== undefined) mandatUpdate.mandat_sfarsit = data.mandatSfarsit;
 
-      const { error } = (await anySupabase
+      const { error } = await supabase
         .from("user_primarii")
         .update(mandatUpdate)
         .eq("user_id", userId)
         .eq("primarie_id", primarieId)
-        .eq("status", "approved")) as { error: { message: string } | null };
+        .eq("status", "approved");
       if (error) errors.push(error);
     }
 
